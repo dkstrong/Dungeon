@@ -38,6 +38,15 @@ public class FloorTile implements Tile {
                 return stairsTo;
         }
 
+        /**
+         * if the stairs go to an upper floor or a lower floor
+         * @param currentFloorIndex
+         * @return
+         */
+        public boolean isStairsUp(int currentFloorIndex){
+                return stairsTo < currentFloorIndex;
+        }
+
         @Override
         public int getMovementCost() {
                 return movementCost;

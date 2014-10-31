@@ -1,14 +1,22 @@
 package asf.dungeon.view;
 
-import com.badlogic.gdx.Gdx;
+import asf.dungeon.board.Direction;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalMaterial;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
@@ -20,6 +28,8 @@ import asf.dungeon.board.pathfinder.Pair;
 import asf.dungeon.board.pathfinder.Tile;
 import asf.dungeon.view.shape.CustomBox;
 import asf.dungeon.utility.MoreMath;
+
+import java.util.Iterator;
 
 /**
  * Created by danny on 10/29/14.
@@ -34,30 +44,34 @@ public class FloorSpatial implements Spatial {
         private Texture floorTex, wallTex, wallTexDark, stairDownTex, stairUpTex;
         private float[] fogAlpha;
         private boolean initialized;
+        private Array<DecalNodeProp> decalNodeProps, decalNodePropsTemp;
 
 
         @Override
         public void preload(DungeonWorld world) {
                 this.world = world;
                 makeCommonAssets();
+
         }
 
         @Override
         public void init(AssetManager assetManager) {
                 this.initialized = true;
+                setFloorMap(floorMap);
         }
 
         public void setFloorMap(FloorMap floorMap){
-                Gdx.app.log("FloorDecals","setFloorMap: "+floorMap.index);
+                //Gdx.app.log("FloorDecals","setFloorMap: "+floorMap.index);
                 this.floorMap = floorMap;
+                if(!isInitialized())
+                        return;
                 if(world.localPlayerToken!= null){
-                        if(world.localPlayerToken.getFogMap(floorMap) == null){
+                        fogMap = world.localPlayerToken.getFogMap(floorMap);
+                        if(fogMap == null){
                                 throw new AssertionError("should not be null");
                         }
-                        fogMap = world.localPlayerToken.getFogMap(floorMap);
                 }
 
-                fogAlpha = new float[3];
                 fogAlpha[FogState.Dark.ordinal()] = 0;
                 fogAlpha[FogState.Visited.ordinal()] = .55f;
                 fogAlpha[FogState.Visible.ordinal()] = 1;
@@ -65,6 +79,8 @@ public class FloorSpatial implements Spatial {
 
                 makeDecals();
         }
+
+
 
         public FloorMap getFloorMap(){
                 return floorMap;
@@ -115,12 +131,20 @@ public class FloorSpatial implements Spatial {
 
                         float fog = fogAlpha[fogState.ordinal()];
 
-
-
                         fog = MathUtils.lerp(color.r, fog, delta);
                         color.set(fog,fog,fog,1);
                         decal.setColor(color);
                         world.decalBatch.add(decalNode.decal);
+
+                        DecalNodeProp prop = decalNode.prop;
+                        if(prop != null){
+                                if(prop.animController != null)
+                                        prop.animController.update(delta);
+
+                                prop.colorAttribute.color.a = fog;
+
+                                world.modelBatch.render(prop.modelInstance, world.environment);
+                        }
                 }
         }
 
@@ -152,23 +176,15 @@ public class FloorSpatial implements Spatial {
                         stairUpTex.dispose();
         }
 
-        private static class DecalNode{
-                public Decal decal;
-                public int x;
-                public int y;
-                public Tile tile; // floor tiles start in the sky, then once visited they move to y=0, this is to prevent their sillouete from giving away what they are
-                public float visibleY;
 
-                public DecalNode(Decal decal, int x, int y, Tile tile, float visibleY) {
-                        this.decal = decal;
-                        this.x = x;
-                        this.y = y;
-                        this.tile = tile;
-                        this.visibleY = visibleY;
-                }
-        }
 
         private void makeCommonAssets(){
+
+                fogAlpha = new float[3];
+                decalNodes = new Array<DecalNode>(128);
+                decalNodeProps = new Array<DecalNodeProp>(8);
+                decalNodePropsTemp = new Array<DecalNodeProp>(8);
+
                 Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
                 pixmap.setColor(new Color(0.45f, 0.45f, 0, 1));
                 pixmap.fill();
@@ -182,7 +198,7 @@ public class FloorSpatial implements Spatial {
                 pixmap.fill();
                 wallTexDark = new Texture(pixmap);
 
-                pixmap.setColor(new Color(0,0.85f,.85f,1));
+                pixmap.setColor(new Color(0,0.085f,.085f,1));
                 pixmap.fill();
                 stairDownTex = new Texture(pixmap);
 
@@ -191,10 +207,18 @@ public class FloorSpatial implements Spatial {
                 stairUpTex = new Texture(pixmap);
 
                 pixmap.dispose();
+
+                world.assetManager.load("Models/Dungeon/Stairs/StairsUp.g3db", Model.class);
+                world.assetManager.load("Models/Dungeon/Stairs/StairsDown.g3db", Model.class);
         }
 
+
+
+
         private void makeDecals(){
-                decalNodes = new Array<DecalNode>();
+                decalNodes.clear();
+                decalNodePropsTemp.addAll(decalNodeProps);
+                decalNodeProps.clear();
 
                 for (int x = 0; x < floorMap.getWidth(); x++) {
                         for (int y = 0; y < floorMap.getHeight(); y++) {
@@ -208,31 +232,40 @@ public class FloorSpatial implements Spatial {
                         }
                 }
 
-
+                decalNodePropsTemp.clear();
         }
 
-        private Vector3 temp = new Vector3();
+
+        private Vector3 worldCoordsTemp = new Vector3();
 
         private void makeDecalFloor(FloorTile tile, int x, int y) {
-
+                getWorldCoords(x, y, worldCoordsTemp);
+                DecalNodeProp prop;
                 Texture tex;
-
+                float visibleY = 0;
                 if(!tile.isStairs()){
                         tex = floorTex;
+                        prop = null;
+
                 }else{
-                        if(tile.getStairsTo() < floorMap.index){
+                        String asset;
+                        if(tile.isStairsUp(floorMap.index)){
                                 tex = stairUpTex;
-                        }else if(tile.getStairsTo() > floorMap.index){
-                                tex = stairDownTex;
+                                asset = "Models/Dungeon/Stairs/StairsUp.g3db";
                         }else{
-                                throw new AssertionError(tile.getStairsTo());
+                                tex = stairDownTex;
+                                asset = "Models/Dungeon/Stairs/StairsDown.g3db";
+                                visibleY = -3.753f;
                         }
+                        prop = makeDecalNodeProp(asset);
+                        Quaternion rot = Direction.random().quaternion;
+                        prop.modelInstance.transform.set(
+                                worldCoordsTemp.x,worldCoordsTemp.y,worldCoordsTemp.z,
+                                rot.x,rot.y,rot.z,rot.w,
+                                1,1,1
+                        );
+                        decalNodeProps.add(prop);
                 }
-
-
-                getWorldCoords(x, y, temp);
-
-
 
                 Decal decal = Decal.newDecal(
                         tileDimensions.x,
@@ -241,18 +274,18 @@ public class FloorSpatial implements Spatial {
                         DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                 // GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA
                 decal.rotateX(-90);
-                decal.translate(temp.x, 0, temp.z);
+                decal.translate(worldCoordsTemp.x, 0, worldCoordsTemp.z);
                 decal.setColor(0,0,0,1);
 
-                decalNodes.add(new DecalNode(decal, x, y,tile,0));
+                DecalNode decalNode = new DecalNode(decal, x, y, tile, visibleY);
+                decalNode.prop =prop;
+                decalNodes.add(decalNode);
 
         }
 
         private void makeDecalWall(Tile tile, int x, int y){
 
-                getWorldCoords(x, y, temp);
-
-
+                getWorldCoords(x, y, worldCoordsTemp);
 
                 // top
                 Decal decal = Decal.newDecal(
@@ -262,7 +295,7 @@ public class FloorSpatial implements Spatial {
                         DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                 // GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA
                 decal.rotateX(-90);
-                decal.translate(temp.x, 0, temp.z);
+                decal.translate(worldCoordsTemp.x, 0, worldCoordsTemp.z);
                 decal.setColor(0,0,0,1);
                 decalNodes.add(new DecalNode(decal, x, y, tile,tileDimensions.y));
 
@@ -275,7 +308,7 @@ public class FloorSpatial implements Spatial {
                                 new TextureRegion(wallTex),
                                 DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                         //decal.rotateX(-90);
-                        decal.translate(temp.x, -tileDimensions.y/2f, temp.z-tileDimensions.z/2f);
+                        decal.translate(worldCoordsTemp.x, -tileDimensions.y/2f, worldCoordsTemp.z-tileDimensions.z/2f);
                         decal.setColor(0,0,0,1);
                         decalNodes.add(new DecalNode(decal, x, y, tile,tileDimensions.y/2f));
                 }
@@ -289,7 +322,7 @@ public class FloorSpatial implements Spatial {
                                 new TextureRegion(wallTexDark),
                                 DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                         //decal.rotateX(-90);
-                        decal.translate(temp.x, -tileDimensions.y/2f, temp.z+tileDimensions.z/2f);
+                        decal.translate(worldCoordsTemp.x, -tileDimensions.y/2f, worldCoordsTemp.z+tileDimensions.z/2f);
                         decal.setColor(0,0,0,1);
                         decalNodes.add(new DecalNode(decal, x, y, tile,tileDimensions.y/2f));
                 }
@@ -303,7 +336,7 @@ public class FloorSpatial implements Spatial {
                                 new TextureRegion(wallTex),
                                 DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                         decal.rotateY(-90);
-                        decal.translate(temp.x+tileDimensions.x/2f, -tileDimensions.y/2f, temp.z);
+                        decal.translate(worldCoordsTemp.x+tileDimensions.x/2f, -tileDimensions.y/2f, worldCoordsTemp.z);
                         decal.setColor(0,0,0,1);
                         decalNodes.add(new DecalNode(decal, x, y, tile,tileDimensions.y/2f));
                 }
@@ -317,10 +350,67 @@ public class FloorSpatial implements Spatial {
                                 new TextureRegion(wallTexDark),
                                 DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                         decal.rotateY(-90);
-                        decal.translate(temp.x-tileDimensions.x/2f, -tileDimensions.y/2f, temp.z);
+                        decal.translate(worldCoordsTemp.x-tileDimensions.x/2f, -tileDimensions.y/2f, worldCoordsTemp.z);
                         decal.setColor(0,0,0,1);
                         decalNodes.add(new DecalNode(decal, x, y, tile,tileDimensions.y/2f));
                 }
+
+        }
+
+        private static class DecalNode{
+                public Decal decal;
+                public int x;
+                public int y;
+                public Tile tile;
+                public float visibleY; // floor tiles start in the sky, then once visited they move to y=0, this is to prevent their sillouete from giving away what they are
+                public DecalNodeProp prop;
+
+                public DecalNode(Decal decal, int x, int y, Tile tile, float visibleY) {
+                        this.decal = decal;
+                        this.x = x;
+                        this.y = y;
+                        this.tile = tile;
+                        this.visibleY = visibleY;
+                }
+        }
+
+        private static class DecalNodeProp {
+                public final String assetLocation;
+                public ModelInstance modelInstance;
+                public AnimationController animController;
+                public ColorAttribute colorAttribute;
+
+                private DecalNodeProp(String assetLocation) {
+                        this.assetLocation = assetLocation;
+                }
+        }
+
+        private DecalNodeProp makeDecalNodeProp(String assetLocation){
+                Iterator<DecalNodeProp> i = decalNodePropsTemp.iterator();
+                while(i.hasNext()){
+                        DecalNodeProp next = i.next();
+                        if(assetLocation.equals(next.assetLocation)){
+                                i.remove();
+                                return next;
+                        }
+                }
+
+                DecalNodeProp prop = new DecalNodeProp(assetLocation);
+
+                prop.modelInstance = new ModelInstance(world.assetManager.get(assetLocation, Model.class));
+                if(prop.modelInstance.model.animations.size >0){
+                        prop.animController = new AnimationController(prop.modelInstance);
+                }
+
+
+                Material material = prop.modelInstance.materials.get(0);
+                material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
+                prop.colorAttribute = (ColorAttribute)material.get(ColorAttribute.Diffuse);
+
+
+
+
+                return prop;
 
         }
 }

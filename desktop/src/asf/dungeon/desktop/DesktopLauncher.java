@@ -8,8 +8,8 @@ public class DesktopLauncher implements DungeonApp.Resolver{
 	public static void main (String[] arg) {
                 LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
                 config.title = "Dungeon";
-                config.width = 800;
-                config.height = 480;
+                config.width = 1280;
+                config.height = 720;
                 config.foregroundFPS = 30;
                 config.backgroundFPS = 15;
                 config.vSyncEnabled = false;

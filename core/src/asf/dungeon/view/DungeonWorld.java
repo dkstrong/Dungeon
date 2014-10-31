@@ -157,6 +157,8 @@ public class DungeonWorld implements Disposable{
                 Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
         }
 
+        private boolean closeChaseCam = true;
+
         private void update(final float delta){
                 dungeon.update(delta);
 
@@ -167,29 +169,29 @@ public class DungeonWorld implements Disposable{
                         // there doesnt seem to be any noticable effects right now so leave it as it is
                         cam.position.set(cameraChaseTarget.translation.x + 0f, 35f, cameraChaseTarget.translation.z + 10f);
 
-                        //cam.position.set(cameraChaseTarget.translation.x + 0f, 10f, cameraChaseTarget.translation.z + 10f);
-                        //cam.lookAt(cameraChaseTarget.translation.x, 0, cameraChaseTarget.translation.z+2.5f);
+                        if(closeChaseCam){
+                                cam.position.set(cameraChaseTarget.translation.x + 0f, 20f, cameraChaseTarget.translation.z + 5f);
+                                cam.lookAt(cameraChaseTarget.translation.x, 2, cameraChaseTarget.translation.z);
+                        }
                         cam.update();
                 }
         }
 
         public void render(final float delta){
-                if(loading){
-                        if(assetManager.update() && !paused){
-                                loading = false;
-                                if(!simulationStarted){
-                                        Gdx.gl.glClearColor(0, 0, 0, 1);
-                                        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-                                        onSimulationStarted();
-                                        simulationStarted = true;
+                if(loading && assetManager.update() && !paused){
+                        loading = false;
+                        if(!simulationStarted){
+                                Gdx.gl.glClearColor(0, 0, 0, 1);
+                                Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                                onSimulationStarted();
+                                simulationStarted = true;
 
-                                        dungeonApp.onSimulationStarted();
-                                }
+                                dungeonApp.onSimulationStarted();
+                        }
 
-                                for (final Spatial spatial : spatials) {
-                                        if(!spatial.isInitialized())
-                                                spatial.init(assetManager);
-                                }
+                        for (final Spatial spatial : spatials) {
+                                if(!spatial.isInitialized())
+                                        spatial.init(assetManager);
                         }
                 }
 
@@ -204,9 +206,10 @@ public class DungeonWorld implements Disposable{
 
                         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
                         modelBatch.begin(cam);
+                        final float effectiveDelta = paused ? 0 : delta;
                         for (final Spatial spatial : spatials) {
                                 if(spatial.isInitialized())
-                                        spatial.render(paused ? 0 : delta);
+                                        spatial.render(effectiveDelta);
 
                         }
                         modelBatch.end();
