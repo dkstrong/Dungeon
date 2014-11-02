@@ -85,7 +85,7 @@ public class DungeonApp implements ApplicationListener {
 
                 Gdx.graphics.setContinuousRendering(true);
                 worldManager = new DungeonWorld(this);
-                worldManager.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                //worldManager.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
                 setScreen(createLoadingScreen());
 

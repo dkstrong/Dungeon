@@ -123,7 +123,7 @@ public class ActorSpatial implements Spatial {
         private boolean isVisible(Camera cam) {
                 if (cullType == CullType.Always)
                         return false;
-                if (cullType == CullType.Never)
+                if (cullType == CullType.Never || shape == null)
                         return true;
                 return shape.isVisible(modelInstance.transform, cam);
         }
@@ -141,7 +141,6 @@ public class ActorSpatial implements Spatial {
          * or when there is an intersection: the squared distance between the center of this
          * object and the point on the ray closest to this object when there is intersection.
          */
-        @Override
         public float intersects(Ray ray) {
                 return shape == null ? -1f : shape.intersects(modelInstance.transform, ray);
         }

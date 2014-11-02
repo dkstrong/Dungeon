@@ -113,8 +113,10 @@ public class TokenSpatial implements Spatial {
 
         public void update(final float delta) {
 
-                if(tokenControl.getToken().getFloorMap() == world.localPlayerToken.getFloorMap() && world.localPlayerToken.isFogMappingEnabled()){
-                        FogMap fogMap = world.localPlayerToken.getFogMap(world.localPlayerToken.getFloorMap());
+                // this token is only visible if on the same floor
+                // as the local player, and if fog mapping is enabled
+                if(tokenControl.getToken().getFloorMap() == world.getLocalPlayerToken().getFloorMap() && world.getLocalPlayerToken().isFogMappingEnabled()){
+                        FogMap fogMap = world.getLocalPlayerToken().getFogMap(world.getLocalPlayerToken().getFloorMap());
                         if(fogMap != null){
                                 FogState fogState = fogMap.getFogState(token.getLocation().x, token.getLocation().y);
                                 if(fogState == FogState.Visible){
@@ -125,6 +127,7 @@ public class TokenSpatial implements Spatial {
                                 visU = MathUtils.clamp(visU,0,1);
                         }
                 }else{
+                        // TODO: maybe i should do visU = 1 if fogmapping is turned off to force all tokens to be rendered?
                         visU = 0;
                 }
 
@@ -159,7 +162,7 @@ public class TokenSpatial implements Spatial {
         }
 
         private boolean isVisible(Camera cam) {
-                if(world.localPlayerToken.isFogMappingEnabled()){
+                if(world.getLocalPlayerToken().isFogMappingEnabled()){
                         return visU >0;
                 }else{
                         return shape.isVisible(modelInstance.transform, cam);

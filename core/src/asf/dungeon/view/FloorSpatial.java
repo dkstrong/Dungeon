@@ -1,6 +1,7 @@
 package asf.dungeon.view;
 
 import asf.dungeon.board.Direction;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -65,11 +66,10 @@ public class FloorSpatial implements Spatial {
                 this.floorMap = floorMap;
                 if(!isInitialized())
                         return;
-                if(world.localPlayerToken!= null){
-                        fogMap = world.localPlayerToken.getFogMap(floorMap);
-                        if(fogMap == null){
-                                throw new AssertionError("should not be null");
-                        }
+
+                fogMap = world.getLocalPlayerToken().getFogMap(floorMap);
+                if(fogMap == null){
+                        throw new AssertionError("should not be null");
                 }
 
                 fogAlpha[FogState.Dark.ordinal()] = 0;
@@ -117,7 +117,7 @@ public class FloorSpatial implements Spatial {
         public void render(float delta) {
                 for (int i = 0; i < decalNodes.size; i++) {
                         DecalNode decalNode = decalNodes.get(i);
-                        if(world.localPlayerToken.getLocation().distance(decalNode.x, decalNode.y) > 20){
+                        if(world.getLocalPlayerToken().getLocation().distance(decalNode.x, decalNode.y) > 20){
                                 continue;
                         }
                         Decal decal = decalNode.decal;
@@ -149,11 +149,6 @@ public class FloorSpatial implements Spatial {
         }
 
         @Override
-        public float intersects(Ray ray) {
-                return -1;
-        }
-
-        @Override
         public boolean isInitialized() {
                 return initialized;
         }
@@ -179,6 +174,9 @@ public class FloorSpatial implements Spatial {
 
 
         private void makeCommonAssets(){
+
+                //Texture texture = new Texture(Gdx.files.internal("Models/tiles.png"));
+                //TextureRegion[][] tiles = TextureRegion.split(texture, 32, 32);
 
                 fogAlpha = new float[3];
                 decalNodes = new Array<DecalNode>(128);

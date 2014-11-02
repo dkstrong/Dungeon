@@ -18,8 +18,6 @@ public interface Spatial extends Disposable{
 
         public void render(float delta);
 
-        public float intersects(Ray ray);
-
         public boolean isInitialized();
 
 

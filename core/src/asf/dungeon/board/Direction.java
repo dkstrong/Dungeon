@@ -1,6 +1,7 @@
 package asf.dungeon.board;
 
 import asf.dungeon.board.pathfinder.Pair;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 
@@ -8,15 +9,17 @@ import com.badlogic.gdx.math.Quaternion;
  * Created by danny on 10/22/14.
  */
 public enum Direction {
-        North(new Quaternion().setFromAxisRad(0, 1, 0, 3.1459f)), // 180
-        South(new Quaternion().setFromAxisRad(0, 1, 0, 0)),  // 0
-        East(new Quaternion().setFromAxisRad(0, 1, 0, 1.5708f)),  // 90
-        West(new Quaternion().setFromAxisRad(0, 1, 0, 4.71239f)); // 270
+        North(new Quaternion().setFromAxisRad(0, 1, 0, 3.1459f), Input.Keys.UP), // 180
+        South(new Quaternion().setFromAxisRad(0, 1, 0, 0), Input.Keys.DOWN),  // 0
+        East(new Quaternion().setFromAxisRad(0, 1, 0, 1.5708f), Input.Keys.RIGHT),  // 90
+        West(new Quaternion().setFromAxisRad(0, 1, 0, 4.71239f), Input.Keys.LEFT); // 270
 
         public final Quaternion quaternion;
+        public final int keyCode;
 
-        Direction(Quaternion quaternion) {
+        Direction(Quaternion quaternion, int keyCode) {
                 this.quaternion = quaternion;
+                this.keyCode = keyCode;
         }
 
         public boolean isOpposite(Direction dir) {
@@ -43,6 +46,19 @@ public enum Direction {
                         return Direction.North;
                 else if (to.y < from.y)
                         return Direction.South;
+                return null;
+        }
+
+        public static Direction getDirection(int keycode){
+                if(keycode == Input.Keys.UP){
+                        return Direction.North;
+                }else if(keycode == Input.Keys.DOWN){
+                        return Direction.South;
+                }else if(keycode == Input.Keys.LEFT){
+                        return Direction.West;
+                }else if(keycode == Input.Keys.RIGHT){
+                        return Direction.East;
+                }
                 return null;
         }
 
