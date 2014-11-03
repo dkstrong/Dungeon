@@ -234,6 +234,7 @@ public class DungeonWorld implements Disposable {
 
         public void resize(int width, int height) {
                 stage.getViewport().update(width, height, true);
+                        hudSpatial.resize(width,height);
                 cam.viewportWidth = width;
                 cam.viewportHeight = height;
                 cam.update();
