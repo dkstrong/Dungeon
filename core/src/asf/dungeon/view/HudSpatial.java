@@ -11,14 +11,10 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
-import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
@@ -30,13 +26,18 @@ public class HudSpatial implements Spatial,EventListener, InputProcessor {
         private DungeonWorld world;
         protected CharacterToken localPlayerToken;
 
-        private boolean arrowKeysMove = false; // TODO: this setting should be stored on an app level object so it can be easily changed in the settings
+        private boolean arrowKeysMove = true; // TODO: this setting should be stored on an app level object so it can be easily changed in the settings
+        private boolean showRenderingStasLabel = true;
 
         private Skin skin;
         private Label label;
-
-        public Touchpad touchPad;
+        private Button quickSlotButton, avatarButton;
+        private Label renderingStats;
+        private Touchpad touchPad;
         private Direction currentTouchPadDirection = null;
+        private Window avatarWindow;
+
+
 
 
         @Override
@@ -49,6 +50,59 @@ public class HudSpatial implements Spatial,EventListener, InputProcessor {
         public void init(AssetManager assetManager) {
                 initialized = true;
 
+                float margin = 15;
+                float buttonSize = 100;
+                float touchPadSize = 150;
+
+                if(showRenderingStasLabel){
+                        renderingStats = new Label("",skin);
+                        world.stage.addActor(renderingStats);
+                        renderingStats.setBounds(Gdx.graphics.getWidth()-buttonSize-margin,Gdx.graphics.getHeight()-buttonSize-margin,buttonSize,buttonSize);
+                        renderingStats.setAlignment(Align.topRight, Align.right);
+                }
+
+                label = new Label(" ", skin);
+                world.stage.addActor(label);
+                label.setBounds(Gdx.graphics.getWidth()*.25f,margin,Gdx.graphics.getWidth()*.5f,buttonSize*.25f);
+                label.setAlignment(Align.bottom, Align.center);
+
+                avatarButton = new Button(skin);
+                world.stage.addActor(avatarButton);
+                avatarButton.setBounds(margin, Gdx.graphics.getHeight()-buttonSize-margin,buttonSize,buttonSize);
+                avatarButton.add(new Label("Avatar", skin));
+                avatarButton.addCaptureListener(this);
+
+
+                quickSlotButton = new Button(skin);
+                world.stage.addActor(quickSlotButton);
+                quickSlotButton.setBounds(Gdx.graphics.getWidth()-buttonSize-margin,margin, buttonSize, buttonSize);
+                quickSlotButton.add(new Label("<Empty>", skin));
+                quickSlotButton.addCaptureListener(this);
+
+
+                if(arrowKeysMove){
+                        touchPad = new Touchpad(8, skin);
+                        touchPad.setBounds(margin, margin, touchPadSize, touchPadSize);
+                        world.stage.addActor(touchPad);
+                        touchPad.addCaptureListener(this);
+                }
+
+                avatarWindow = new Window("Avatar",skin);
+                world.stage.addActor(avatarWindow);
+                avatarWindow.setModal(true);
+                avatarWindow.setMovable(false);
+                avatarWindow.setResizable(false);
+                avatarWindow.setBounds(Gdx.graphics.getWidth() * .25f * .5f, Gdx.graphics.getHeight() * .25f * .5f, Gdx.graphics.getWidth() * .75f, Gdx.graphics.getHeight() * .75f);
+                Button closeButton = new Button(skin);
+                closeButton.add(new Label("X",skin));
+                closeButton.addCaptureListener(new ChangeListener() {
+                        @Override
+                        public void changed(ChangeEvent event, Actor actor) {
+                                avatarWindow.remove();
+                        }
+                });
+                avatarWindow.add(closeButton);
+                avatarWindow.debug();
 
 
                 Label nameLabel = new Label("Name:", skin);
@@ -68,24 +122,6 @@ public class HudSpatial implements Spatial,EventListener, InputProcessor {
                 table.debug();      // turn on all debug lines (table, cell, and widget)
                 //table.debugTable(); // OR turn on only table lines
 
-                HorizontalGroup bottomBar = new HorizontalGroup();
-                bottomBar.setPosition(15,15);
-                world.stage.addActor(bottomBar);
-
-                label = new Label(" ", skin);
-                //world.stage.addActor(label);
-                label.setAlignment(Align.bottomLeft);
-                bottomBar.addActor(label);
-
-
-                bottomBar.debugAll();
-                if(arrowKeysMove){
-                        touchPad = new Touchpad(10, skin);
-                        touchPad.setBounds(15, 15, 200, 200);
-                        world.stage.addActor(touchPad);
-                        touchPad.addCaptureListener(this);
-                }
-
 
 
         }
@@ -99,7 +135,11 @@ public class HudSpatial implements Spatial,EventListener, InputProcessor {
         @Override
         public void update(float delta) {
 
-                label.setText("FPS : " + Gdx.graphics.getFramesPerSecond() + " Knight: " + localPlayerToken.getHealth());
+                label.setText("Knight : " + localPlayerToken.getHealth());
+
+                if(renderingStats != null){
+                        renderingStats.setText("FPS : " + Gdx.graphics.getFramesPerSecond());
+                }
 
         }
 
@@ -229,17 +269,21 @@ public class HudSpatial implements Spatial,EventListener, InputProcessor {
          */
         @Override
         public boolean handle(Event event) {
+                if(!(event instanceof ChangeListener.ChangeEvent)){
+                        return false;
+                }
 
-                if (event.getListenerActor() == touchPad && event instanceof ChangeListener.ChangeEvent) {
+                if (event.getListenerActor() == touchPad) {
                         Direction newDir = calcTouchPadDirection();
                         if(newDir != currentTouchPadDirection){
                                 currentTouchPadDirection = newDir;
-                                if(localPlayerToken != null){
-
-                                }
                                 localPlayerToken.setMoveDir(newDir);
                         }
-                        //Gdx.app.log("change",String.valueOf(currentTouchPadDirection));
+                        return true;
+                }else if(event.getListenerActor() == avatarButton){
+                        //Gdx.app.log("handle",event+"");
+                        world.stage.addActor(avatarWindow);
+                        return true;
                 }
                 return false;
         }

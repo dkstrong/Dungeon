@@ -7,7 +7,6 @@ import com.badlogic.gdx.Screen;
 
 public class DungeonApp implements ApplicationListener {
 
-
         private Screen screen;
         private DungeonWorld worldManager;
         private Resolver platformActionResolver;
