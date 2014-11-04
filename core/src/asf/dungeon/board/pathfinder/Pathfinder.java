@@ -5,6 +5,7 @@ Self-explanatory. Comes with 2 methods you can use, one for integer positions an
 */
 
 
+import asf.dungeon.board.Pair;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;

@@ -1,6 +1,5 @@
 package asf.dungeon.board;
 
-import asf.dungeon.board.pathfinder.Pair;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;

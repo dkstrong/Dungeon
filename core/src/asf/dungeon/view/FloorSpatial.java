@@ -1,7 +1,6 @@
 package asf.dungeon.view;
 
 import asf.dungeon.board.Direction;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -19,13 +18,12 @@ import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import asf.dungeon.board.FloorMap;
 import asf.dungeon.board.FloorTile;
 import asf.dungeon.board.FogMap;
 import asf.dungeon.board.FogState;
-import asf.dungeon.board.pathfinder.Pair;
+import asf.dungeon.board.Pair;
 import asf.dungeon.board.pathfinder.Tile;
 import asf.dungeon.view.shape.CustomBox;
 import asf.dungeon.utility.MoreMath;

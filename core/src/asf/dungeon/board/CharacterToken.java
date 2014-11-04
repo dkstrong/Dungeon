@@ -3,7 +3,6 @@ package asf.dungeon.board;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import asf.dungeon.board.logic.LogicProvider;
-import asf.dungeon.board.pathfinder.Pair;
 import asf.dungeon.board.pathfinder.Tile;
 
 import java.util.HashMap;
@@ -54,9 +53,11 @@ public class CharacterToken extends DamageableToken {
         // state variables
         private final Array<Pair> path = new Array<Pair>(32);   // the current path that this token is trying to follow, it may be regularly refreshed with new paths
         private final Pair pathedTarget = new Pair();           // the last element of path. this is compared against continuesMoveTarget to prevent spamming the pathfinder coder
-        private Pair continuousMoveTarget;                      // the location that this token wants to move to, token will move and attack through tiles along the way to get to its destination
-        private Direction continuousMoveDir;                    // alternative to continuousMoveTarget
-        private Token continuousMoveTokenTarget;                    // alternative to continuousMoveTarget and continousMoveDir, will constantly try to move to location of this token
+        private Pair continuousMoveLocation;                      // the location that this token wants to move to, token will move and attack through tiles along the way to get to its destination
+        private Direction continuousMoveDir;                    // alternative to continuousMoveLocation
+        private Token continuousMoveToken;                    // alternative to continuousMoveLocation and continousMoveDir, will constantly try to move to location of this token
+        private final Pair continuousMoveTokenLastLoc = new Pair();
+        private float continuousMoveTokenLostVisionCountdown = 0;
         private float moveU = 1;                                // 1 = fully on the location, less then 1 means moving on to the location still even though it occupies it, use direction variable to determine which way token is walking towards the location
         private float attackU = 0;                              // 0 = not attacking, >0 attacking, once attackU >=attackDuration then attackU is reset to 0
         private DamageableToken attackTarget;                             // the token that is being attacked, this also marks if this token is in the "attacking" state
@@ -87,7 +88,7 @@ public class CharacterToken extends DamageableToken {
                 if (teleported) {
                         moveU = 1;
                         path.clear();
-                        continuousMoveTarget = null;
+                        continuousMoveLocation = null;
                         continuousMoveDir = null;
                         pathedTarget.set(location);
                         attackU = 0;
@@ -115,17 +116,17 @@ public class CharacterToken extends DamageableToken {
          */
         public void setMoveTarget(Pair targetLocation) {
                 continuousMoveDir = null;
-                continuousMoveTarget = targetLocation;
-                continuousMoveTokenTarget = null;
+                continuousMoveLocation = targetLocation;
+                continuousMoveToken = null;
         }
 
         public boolean hasMoveTarget() {
-                return continuousMoveTarget != null;
+                return continuousMoveLocation != null;
         }
 
         public void setMoveDir(Direction dir) {
 
-                continuousMoveTokenTarget = null;
+                continuousMoveToken = null;
                 Direction oldDir = continuousMoveDir;
                 continuousMoveDir = dir;
 
@@ -133,20 +134,20 @@ public class CharacterToken extends DamageableToken {
                         // this is here to lock play in to combat when releasin key
 
                         if(isHit()){
-                                if (continuousMoveTarget == null) {
-                                        continuousMoveTarget = new Pair(location).add(oldDir);
+                                if (continuousMoveLocation == null) {
+                                        continuousMoveLocation = new Pair(location).add(oldDir);
                                 } else {
-                                        continuousMoveTarget.set(location).add(oldDir);
+                                        continuousMoveLocation.set(location).add(oldDir);
                                 }
                         }
                         return;
                 }
 
 
-                if (continuousMoveTarget == null) {
-                        continuousMoveTarget = new Pair(location).add(continuousMoveDir);
+                if (continuousMoveLocation == null) {
+                        continuousMoveLocation = new Pair(location).add(continuousMoveDir);
                 } else {
-                        continuousMoveTarget.set(location).add(continuousMoveDir);
+                        continuousMoveLocation.set(location).add(continuousMoveDir);
                 }
 
         }
@@ -156,15 +157,26 @@ public class CharacterToken extends DamageableToken {
         }
 
         public void setMoveTokenTarget(Token target){
-                if(this.continuousMoveTokenTarget == target){
+                if(this.continuousMoveToken == target){
                         return;
                 }
-                this.continuousMoveTokenTarget = target;
+
+                if(isFogMappingEnabled()){
+                        FogMap fogMap = getFogMap(floorMap);
+                        if(!fogMap.isVisible(target.location.x, target.location.y)){
+                                // cant target token that is not currently visible
+                                return;
+                        }
+                }
+
+
+
+                this.continuousMoveToken = target;
                 continuousMoveDir = null;
-                if (continuousMoveTarget == null) {
-                        continuousMoveTarget = new Pair(target.location);
+                if (continuousMoveLocation == null) {
+                        continuousMoveLocation = new Pair(target.location);
                 } else {
-                        continuousMoveTarget.set(target.location);
+                        continuousMoveLocation.set(target.location);
                 }
 
 
@@ -240,16 +252,36 @@ public class CharacterToken extends DamageableToken {
                 if (logicProvider != null)
                         logicProvider.updateLogic(delta);
 
-                if(continuousMoveTokenTarget != null){
-                        if (continuousMoveTarget == null) {
-                                continuousMoveTarget = new Pair(continuousMoveTokenTarget.location);
-                        } else {
-                                continuousMoveTarget.set(continuousMoveTokenTarget.location);
+                if(continuousMoveToken != null){
+                        // set the move targt location to the target tokens location
+                        // if the target token is in the fog, then set target location to their last known location
+                        // if target token is lost in the fog for over the second, then continue to its last known location but give up pursuit
+
+                        if (continuousMoveLocation == null)
+                                continuousMoveLocation = new Pair(continuousMoveToken.location);
+
+                        FogMap fogMap;
+                        if(isFogMappingEnabled())
+                                fogMap = getFogMap(floorMap);
+                        else
+                                fogMap = null;
+
+                        if(fogMap== null || fogMap.isVisible(continuousMoveToken.location.x, continuousMoveToken.location.y)){
+                                continuousMoveLocation.set(continuousMoveToken.location);
+                                continuousMoveTokenLastLoc.set(continuousMoveToken.location);
+                                continuousMoveTokenLostVisionCountdown = 1;
+                        }else{
+                                continuousMoveLocation.set(continuousMoveTokenLastLoc);
+                                continuousMoveTokenLostVisionCountdown -=delta;
+                                if(continuousMoveTokenLostVisionCountdown <0)
+                                        continuousMoveToken = null; // lost sight for over a second, no longer chasing
+
                         }
+
                 }
 
-                if (continuousMoveTarget != null)
-                        calcPathToLocation(continuousMoveTarget);
+                if (continuousMoveLocation != null)
+                        calcPathToLocation(continuousMoveLocation);
 
                 float deltaMoveU = delta * moveSpeed * 0.25f;
                 moveU += deltaMoveU;
@@ -257,7 +289,10 @@ public class CharacterToken extends DamageableToken {
                 if (isAttacking()) {
                         moveU = 1;
                         attack(delta);
-                } else if (moveU >= 1) {
+                        return;
+                }
+
+                if(moveU > 1) {
                         if (path.size > 1) {
                                 Pair nextLocation = path.get(1);
 
@@ -273,9 +308,9 @@ public class CharacterToken extends DamageableToken {
                                         moveU -= 1;
                                         computeFogMap();
 
-                                        if (continuousMoveDir != null) {
-                                                continuousMoveTarget.set(location).add(continuousMoveDir);
-                                        }
+                                        if (continuousMoveDir != null)
+                                                continuousMoveLocation.set(location).add(continuousMoveDir);
+
 
 
                                 } else {
@@ -293,7 +328,7 @@ public class CharacterToken extends DamageableToken {
 
                                 }
 
-                        } else if (path.size == 1 || continuousMoveTarget == null || isLocatedAt(continuousMoveTarget)) {
+                        } else if (path.size == 1 || continuousMoveLocation == null || isLocatedAt(continuousMoveLocation)) {
                                 // idle
                                 if (path.size > 0) {
                                         path.clear();
@@ -305,7 +340,7 @@ public class CharacterToken extends DamageableToken {
                                         }
                                 }
                                 moveU = 1;
-                                continuousMoveTarget = null;
+                                continuousMoveLocation = null;
                                 continuousMoveDir = null;
 
                         }
@@ -533,16 +568,5 @@ public class CharacterToken extends DamageableToken {
                 return fogMaps != null;
         }
 
-        @Override
-        public String toString() {
-                return "{" +
 
-                        " location=" + location +
-                        ", pTarget=" + pathedTarget +
-                        ", cMoveDir=" + continuousMoveDir +
-                        ", moveU=" + moveU +
-                        ", aTarget=" + (attackTarget != null) +
-                        ", aCoolDown=" + attackCoolDown +
-                        '}';
-        }
 }

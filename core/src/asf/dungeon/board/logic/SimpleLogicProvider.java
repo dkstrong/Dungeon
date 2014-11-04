@@ -4,7 +4,7 @@ package asf.dungeon.board.logic;
 import asf.dungeon.board.CharacterToken;
 import asf.dungeon.board.Dungeon;
 import asf.dungeon.board.FloorTile;
-import asf.dungeon.board.pathfinder.Pair;
+import asf.dungeon.board.Pair;
 import com.badlogic.gdx.math.MathUtils;
 
 /**

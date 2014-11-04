@@ -1,6 +1,5 @@
 package asf.dungeon.board;
 
-import asf.dungeon.board.pathfinder.Pair;
 import asf.dungeon.board.pathfinder.Tile;
 
 /**

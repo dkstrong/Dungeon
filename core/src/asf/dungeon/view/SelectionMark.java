@@ -1,6 +1,6 @@
 package asf.dungeon.view;
 
-import asf.dungeon.board.pathfinder.Pair;
+import asf.dungeon.board.Pair;
 
 /**
  * Created by danny on 10/20/14.

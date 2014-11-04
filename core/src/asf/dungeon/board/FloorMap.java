@@ -1,7 +1,6 @@
 package asf.dungeon.board;
 
 import com.badlogic.gdx.utils.Array;
-import asf.dungeon.board.pathfinder.Pair;
 import asf.dungeon.board.pathfinder.Pathfinder;
 import asf.dungeon.board.pathfinder.Tile;
 

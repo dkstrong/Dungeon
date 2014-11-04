@@ -146,6 +146,9 @@ public abstract class DamageableToken extends Token {
         }
 
         protected void setHitDuration(float hitDuration, Token hitSource){
+                if(this.hitSource != null)
+                        return; // dont accept new hit duration of a second attacker. this prevents from being put into a helpless state when attacked by 2 enemies at once
+
                 this.hitDuration = hitDuration;
                 this.hitSource = hitSource;
                 this.hitU = 0;
@@ -187,5 +190,14 @@ public abstract class DamageableToken extends Token {
 
         public void setDeathRemovalCountdown(float deathRemovalCountdown) {
                 this.deathRemovalCountdown = deathRemovalCountdown;
+        }
+
+        @Override
+        public String toString() {
+                return "Token{" +
+                        "id=" + getId() +" "+ getName()+
+                        ", location=" + location +
+                        ", health=" + health +
+                        '}';
         }
 }

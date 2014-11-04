@@ -43,6 +43,7 @@ public class FloorMapFactory {
                         }
                         knightToken.setAttackDamage(3);
                         knightToken.setDeathRemovalCountdown(Float.NaN);
+                        knightToken.setMoveSpeed(50);
                 }
 
                 String[] characters;

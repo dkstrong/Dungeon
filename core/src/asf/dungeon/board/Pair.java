@@ -1,7 +1,5 @@
-package asf.dungeon.board.pathfinder;
+package asf.dungeon.board;
 
-
-import asf.dungeon.board.Direction;
 
 /**
  * Created by danny on 10/21/14.

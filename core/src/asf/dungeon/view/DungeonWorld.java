@@ -9,7 +9,7 @@ import asf.dungeon.board.LootToken;
 import asf.dungeon.board.Token;
 import asf.dungeon.board.factory.DungeonFactory;
 import asf.dungeon.board.logic.LocalPlayerLogicProvider;
-import asf.dungeon.board.pathfinder.Pair;
+import asf.dungeon.board.Pair;
 import asf.dungeon.utility.ModelFactory;
 import asf.dungeon.view.shape.Box;
 import com.badlogic.gdx.Gdx;
@@ -20,7 +20,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -31,12 +30,9 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 /**
  * Created by danny on 10/20/14.

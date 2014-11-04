@@ -1,5 +1,7 @@
 package asf.dungeon.board.pathfinder;
 
+import asf.dungeon.board.Pair;
+
 /**
  * Created by danny on 10/23/14.
  */

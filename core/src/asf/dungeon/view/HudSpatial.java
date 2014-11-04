@@ -3,7 +3,7 @@ package asf.dungeon.view;
 import asf.dungeon.board.CharacterToken;
 import asf.dungeon.board.Direction;
 import asf.dungeon.board.Token;
-import asf.dungeon.board.pathfinder.Pair;
+import asf.dungeon.board.Pair;
 import asf.dungeon.utility.MoreMath;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -27,7 +27,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor {
         private DungeonWorld world;
         protected CharacterToken localPlayerToken;
 
-        private boolean arrowKeysMove = false; // TODO: this setting should be stored on an app level object so it can be easily changed in the settings
+        // TODO: these settings should be stored on an app level object so it can be easily changed in the settings
+        private boolean arrowKeysMove = false;
         private boolean showRenderingStasLabel = true;
 
         private Skin skin;
@@ -249,14 +250,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor {
         @Override
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 Ray ray = world.cam.getPickRay(screenX, screenY);
-                if (arrowKeysMove) {
-                        Token targetToken = world.getToken(ray, localPlayerToken);
-                        if (targetToken != null) {
-                                localPlayerToken.setMoveTokenTarget(targetToken);
-                                world.selectionMark.mark(targetToken.getLocation());
-                                return true;
-                        }
-                } else {
+                Token targetToken = world.getToken(ray, localPlayerToken);
+                if (targetToken != null) {
+                        localPlayerToken.setMoveTokenTarget(targetToken);
+                        world.selectionMark.mark(targetToken.getLocation());
+                        return true;
+                }
+
+                if (!arrowKeysMove) {
                         final float distance = -ray.origin.y / ray.direction.y;
                         tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
                         world.getMapCoords(tempWorldCoords, tempMapCoords);
@@ -272,14 +273,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor {
         @Override
         public boolean touchDragged(int screenX, int screenY, int pointer) {
                 Ray ray = world.cam.getPickRay(screenX, screenY);
-                if (arrowKeysMove) {
-                        Token targetToken = world.getToken(ray, localPlayerToken);
-                        if (targetToken != null) {
-                                localPlayerToken.setMoveTokenTarget(targetToken);
-                                world.selectionMark.mark(targetToken.getLocation());
-                                return true;
-                        }
-                } else {
+                Token targetToken = world.getToken(ray, localPlayerToken);
+                if (targetToken != null) {
+                        localPlayerToken.setMoveTokenTarget(targetToken);
+                        world.selectionMark.mark(targetToken.getLocation());
+                        return true;
+                }
+
+                if (!arrowKeysMove) {
                         final float distance = -ray.origin.y / ray.direction.y;
                         tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
                         world.getMapCoords(tempWorldCoords, tempMapCoords);
