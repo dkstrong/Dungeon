@@ -33,8 +33,7 @@ public class CrateTokenControl implements TokenControl{
         public void start(TokenSpatial actorSpatial) {
                 this.actorSpatial = actorSpatial;
 
-                // TODO: i need to scale the Ceramic Pitcher up 20 times in blender and apply scale
-                // also i need ot figure out why im having so much issue changing the texture name, its mysteriously somehow keeping the diffuse texture reference
+
                 //float scale = 20f;
                 //actorSpatial.scale.set(scale, scale, scale);
                 //actorSpatial.translationBase.set(0, actorSpatial.shape.getDimensions().y / 2f * scale + 1.35f * scale, 0);

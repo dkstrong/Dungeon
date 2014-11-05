@@ -278,7 +278,6 @@ public class MoreMath {
         /**
          * Takes a float with a min and max value and makes it between 0 and 1 with the same percentage value. reverse of scalarOfPercent()
          *
-         * TODO: need to check inputs for sanity.
          *
          * @param input val between oldMin and oldMax
          * @param oldMin

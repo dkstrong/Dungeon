@@ -24,7 +24,7 @@ public class Pathfinder {
                 /**
                  * can move horizontal and vertical. Will move diagonal if not cutting a corner
                  */
-                CanNotCutCorners,
+                CanDiagonalIfNotCuttingCorner,
                 /**
                  * can move horizontal, vertical, and diagonal
                  */
@@ -39,7 +39,7 @@ public class Pathfinder {
          * the mover will prefer to maintain its momentum and move in a straight line if possible
          * instead of making zig zag shapes.
          *
-         * this sometimes produces weird results with CanNotCutCorners and CanCutCorners, really only mean too be used with Manhattan
+         * this sometimes produces weird results with CanDiagonalIfNotCuttingCorner and CanCutCorners, really only mean too be used with Manhattan
          */
         public boolean avoidZigZagging = true;
 
@@ -171,23 +171,21 @@ public class Pathfinder {
         }
         final Array<Pair> found = new Array<Pair>(12);
         private Array<Pair> getNeighborNodes(Pair n) {
-                // TODO: if getting neighbors of a edge tile that is not a wall, it is possible to walk off into "null"
-                // need to add checks for that
                 found.clear();
                 if(isWalkable(n.x + 1,n.y)) found.add(toPair(n.x + 1, n.y));
                 if(isWalkable(n.x - 1,n.y)) found.add(toPair(n.x - 1, n.y));
                 if(isWalkable(n.x,n.y+1)) found.add(toPair(n.x, n.y + 1));
                 if(isWalkable(n.x,n.y-1)) found.add(toPair(n.x, n.y - 1));
                 if(pathingPolicy == PathingPolicy.CanCutCorners) {
-                        if(!map[n.x + 1][n.y + 1].isBlockMovement() && (!map[n.x + 1][n.y].isBlockMovement() || !map[n.x][n.y + 1].isBlockMovement())) found.add(toPair(n.x + 1, n.y + 1));
-                        if(!map[n.x - 1][n.y + 1].isBlockMovement() && (!map[n.x - 1][n.y].isBlockMovement() || !map[n.x][n.y + 1].isBlockMovement())) found.add(toPair(n.x - 1, n.y + 1));
-                        if(!map[n.x - 1][n.y - 1].isBlockMovement() && (!map[n.x - 1][n.y].isBlockMovement() || !map[n.x][n.y - 1].isBlockMovement())) found.add(toPair(n.x - 1, n.y - 1));
-                        if(!map[n.x + 1][n.y - 1].isBlockMovement() && (!map[n.x + 1][n.y].isBlockMovement() || !map[n.x][n.y - 1].isBlockMovement())) found.add(toPair(n.x + 1, n.y - 1));
-                }else if(pathingPolicy == PathingPolicy.CanNotCutCorners){
-                        if(!map[n.x + 1][n.y + 1].isBlockMovement() && (!map[n.x + 1][n.y].isBlockMovement() && !map[n.x][n.y + 1].isBlockMovement())) found.add(toPair(n.x + 1, n.y + 1));
-                        if(!map[n.x - 1][n.y + 1].isBlockMovement() && (!map[n.x - 1][n.y].isBlockMovement() && !map[n.x][n.y + 1].isBlockMovement())) found.add(toPair(n.x - 1, n.y + 1));
-                        if(!map[n.x - 1][n.y - 1].isBlockMovement() && (!map[n.x - 1][n.y].isBlockMovement() && !map[n.x][n.y - 1].isBlockMovement())) found.add(toPair(n.x - 1, n.y - 1));
-                        if(!map[n.x + 1][n.y - 1].isBlockMovement() && (!map[n.x + 1][n.y].isBlockMovement() && !map[n.x][n.y - 1].isBlockMovement())) found.add(toPair(n.x + 1, n.y - 1));
+                        if(isWalkable(n.x + 1,n.y + 1) && (isWalkable(n.x + 1,n.y) || isWalkable(n.x,n.y+1))) found.add(toPair(n.x + 1, n.y + 1));
+                        if(isWalkable(n.x - 1,n.y + 1) && (isWalkable(n.x - 1,n.y) || isWalkable(n.x,n.y+1))) found.add(toPair(n.x - 1, n.y + 1));
+                        if(isWalkable(n.x - 1,n.y - 1) && (isWalkable(n.x - 1,n.y) || isWalkable(n.x,n.y-1))) found.add(toPair(n.x - 1, n.y - 1));
+                        if(isWalkable(n.x + 1,n.y - 1) && (isWalkable(n.x + 1,n.y) || isWalkable(n.x,n.y-1))) found.add(toPair(n.x + 1, n.y - 1));
+                }else if(pathingPolicy == PathingPolicy.CanDiagonalIfNotCuttingCorner){
+                        if(isWalkable(n.x + 1,n.y + 1) && (isWalkable(n.x + 1,n.y) && isWalkable(n.x,n.y+1))) found.add(toPair(n.x + 1, n.y + 1));
+                        if(isWalkable(n.x - 1,n.y + 1) && (isWalkable(n.x - 1,n.y) && isWalkable(n.x,n.y+1))) found.add(toPair(n.x - 1, n.y + 1));
+                        if(isWalkable(n.x - 1,n.y - 1) && (isWalkable(n.x - 1,n.y) && isWalkable(n.x,n.y-1))) found.add(toPair(n.x - 1, n.y - 1));
+                        if(isWalkable(n.x + 1,n.y - 1) && (isWalkable(n.x + 1,n.y) && isWalkable(n.x,n.y-1))) found.add(toPair(n.x + 1, n.y - 1));
                 }
                 return found;
         }

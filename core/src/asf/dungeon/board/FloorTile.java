@@ -122,7 +122,10 @@ public class FloorTile implements Tile {
                         return "|";   // Wall
 
                 if (isStairs()) {
-                        return "^"; // TODO: this wont displat & for stair down
+                        if(isBlockVision())
+                                return "^";
+                        else
+                                return "&";
                 }
 
 
