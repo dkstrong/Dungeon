@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
+import javax.print.DocPrintJob;
+
 /**
  *
  * makes a floor that is similiar to the classic "Rouge" maps where
@@ -23,11 +25,15 @@ public class ConnectedRoomsGenerator implements FloorMapGenerator{
         private int maxFloorWidth = 50;
         private int minFloorHeight = 30;
         private int maxFloorHeight = 50;
+        private int maxRooms = 8;
+        private boolean makeDoors = false;
+        private int floorIndex;
 
         @Override
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
 
-                FloorTile[][] floorTiles = generateTiles();
+
+                FloorTile[][] floorTiles = generateTiles(floorIndex);
                 UtFloorGen.printFloorTile(floorTiles);
 
                 FloorMap floorMap = new FloorMap(floorIndex, floorTiles);
@@ -36,16 +42,22 @@ public class ConnectedRoomsGenerator implements FloorMapGenerator{
                 return floorMap;
         }
 
-        public FloorTile[][] generateTiles(){
+        public FloorTile[][] generateTiles(int floorIndex){
                 int floorWidth = MathUtils.random(minFloorWidth, maxFloorWidth);
                 int floorHeight = MathUtils.random(minFloorHeight, maxFloorHeight);
 
                 FloorTile[][] tiles = new FloorTile[floorWidth][floorHeight];
-                int numRooms = numRooms = Math.round(floorWidth /maxRoomSize * floorHeight / maxRoomSize * .5f);
+                int numRooms = Math.round(floorWidth /maxRoomSize * floorHeight / maxRoomSize * .5f);
+                if(numRooms > maxRooms)
+                        numRooms = maxRooms;
+
+                numRooms -= MathUtils.random.nextInt(Math.round(numRooms*.25f));
+
 
                 Array<Room> rooms = new Array<Room>(true, numRooms, Room.class);
 
-                while(rooms.size <= numRooms){
+                // make and fill rooms
+                while(rooms.size < numRooms){
                         Room newRoom = new Room(0,0,maxRoomSize,maxRoomSize);
                         do{
                                 int roomWidth = MathUtils.random(minRoomSize, maxRoomSize);
@@ -60,11 +72,41 @@ public class ConnectedRoomsGenerator implements FloorMapGenerator{
                         fillRoom(tiles, newRoom);
                 }
 
+                // fill tunnels and doors
                 for (int i = 1; i < rooms.size; i++) {
                         Room prevRoom = rooms.get(i-1);
                         Room room = rooms.get(i);
                         fillTunnel(tiles, room, prevRoom);
                 }
+
+                // fill stairways
+
+                Room room = rooms.get(0);
+                boolean done = false;
+                do{
+                        int x = MathUtils.random(room.x1+2, room.x2-2);
+                        int y = MathUtils.random(room.y1+2, room.y2-2);
+                        if(tiles[x][y].isFloor()){
+                                tiles[x][y] = FloorTile.makeStairs(floorIndex,floorIndex+1);
+                                done = true;
+                        }
+                }while(!done);
+
+                if(floorIndex >0){
+                        room = rooms.get(rooms.size-1);
+                        done = false;
+                        do{
+                                int x = MathUtils.random(room.x1+2, room.x2-2);
+                                int y = MathUtils.random(room.y1+2, room.y2-2);
+                                if(tiles[x][y].isFloor()){
+                                        tiles[x][y] = FloorTile.makeStairs(floorIndex,floorIndex-1);
+                                        done = true;
+                                }
+                        }while(!done);
+                }
+
+
+
 
                 return tiles;
         }
@@ -121,7 +163,7 @@ public class ConnectedRoomsGenerator implements FloorMapGenerator{
                                 if(tiles[x][y-1] == null)
                                         tiles[x][y-1] = FloorTile.makeWall();
 
-                                if(tiles[x][y] == null) {
+                                if(tiles[x][y] == null || !makeDoors) {
                                         tiles[x][y] = FloorTile.makeFloor(); // make a floor for the hallway
                                 }else if(tiles[x][y].isWall()){
                                         int countWall = 0;
@@ -148,12 +190,12 @@ public class ConnectedRoomsGenerator implements FloorMapGenerator{
                                 if(tiles[x-1][y] == null)
                                         tiles[x-1][y] = FloorTile.makeWall();
 
-                                if(tiles[x][y] == null) {
+                                if(tiles[x][y] == null || !makeDoors) {
                                         tiles[x][y] = FloorTile.makeFloor(); // make a floor for the hallway
                                 }else if(tiles[x][y].isWall()){
                                         int countWall = 0;
                                         if(tiles[x+1][y].isWall()) countWall++;
-                                        if(tiles[x+1][y].isWall()) countWall++;
+                                        if(tiles[x-1][y].isWall()) countWall++;
                                         if(countWall == 2)
                                                 tiles[x][y] = FloorTile.makeDoor(); // if the hall goes through a wall, convert wall in to a door
                                         else

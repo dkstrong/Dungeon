@@ -32,7 +32,7 @@ public class MazeGenerator implements FloorMapGenerator{
                         for(int x=0; x<tiles.length; x++){
                                 for(int y=0; y<tiles[x].length; y++){
                                         if(!tiles[x][y].isBlockMovement() && !tiles[x][y].isBlockVision()){
-                                                tiles[x][y] = new FloorTile(true, floorIndex-1);
+                                                tiles[x][y] = FloorTile.makeStairs(floorIndex, floorIndex-1);
                                                 break outerloop;
                                         }
                                 }
@@ -45,7 +45,7 @@ public class MazeGenerator implements FloorMapGenerator{
                 for (int x = tiles.length - 1; x >= 0; x--) {
                         for (int y = tiles[x].length - 1; y >= 0; y--) {
                                 if(!tiles[x][y].isBlockMovement() && !tiles[x][y].isBlockVision()){
-                                        tiles[x][y] = new FloorTile(false, floorIndex+1);
+                                        tiles[x][y] = FloorTile.makeStairs(floorIndex, floorIndex+1);
                                         break outerloop;
                                 }
                         }
@@ -67,11 +67,9 @@ public class MazeGenerator implements FloorMapGenerator{
                 for (int i = 0; i < generate.length; i++) {
                         for (int i1 = 0; i1 < generate[i].length; i1++) {
                                 if(generate[i][i1]){
-                                        // wall
-                                        tiles[i][i1] = new FloorTile(true, true);
+                                        tiles[i][i1] = FloorTile.makeWall();
                                 }else{
-                                        // floor
-                                        tiles[i][i1] = new FloorTile(false, false);
+                                        tiles[i][i1] = FloorTile.makeFloor();
                                 }
                         }
                 }

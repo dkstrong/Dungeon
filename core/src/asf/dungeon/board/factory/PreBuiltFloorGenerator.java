@@ -95,23 +95,16 @@ public class PreBuiltFloorGenerator implements FloorMapGenerator{
                                 char charAt = tileData[tileData.length - y - 1].charAt(x);
 
                                 if (charAt == '-' || charAt == '|') { // Wall
-                                        tiles[x][y] = new FloorTile(true, true);
+                                        tiles[x][y] = FloorTile.makeWall();
                                 } else if(charAt == '+'){ // Door
-                                        tiles[x][y] = new FloorTile(false, true);
+                                        tiles[x][y] = FloorTile.makeDoor();
                                 } else if(charAt == '^'){ // Stairs Up
-                                        int stairsTo = floorIndex-1;
-                                        if(stairsTo >=0)
-                                                tiles[x][y] = new FloorTile(true, stairsTo);
-                                        else
-                                                tiles[x][y] = new FloorTile(false, false);
+                                        if(floorIndex >0)
+                                                tiles[x][y] = FloorTile.makeStairs(floorIndex, floorIndex-1);
                                 } else if(charAt == '&'){ // Stairs Down
-                                        int stairsTo = floorIndex+1;
-                                        if(stairsTo >=0)
-                                                tiles[x][y] = new FloorTile(false, stairsTo);
-                                        else
-                                                tiles[x][y] = new FloorTile(false, false);
+                                        tiles[x][y] = FloorTile.makeStairs(floorIndex, floorIndex-1);
                                 } else{ // Floor
-                                        tiles[x][y] = new FloorTile(false, false);
+                                        tiles[x][y] = FloorTile.makeFloor();
                                 }
                         }
                 }

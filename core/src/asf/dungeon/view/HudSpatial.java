@@ -252,9 +252,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor {
                 Ray ray = world.cam.getPickRay(screenX, screenY);
                 Token targetToken = world.getToken(ray, localPlayerToken);
                 if (targetToken != null) {
-                        localPlayerToken.setMoveTokenTarget(targetToken);
-                        world.selectionMark.mark(targetToken.getLocation());
-                        return true;
+                        localPlayerToken.setContinousMoveToken(targetToken);
+                        if(localPlayerToken.getContinuousMoveToken() != null){
+                                world.selectionMark.mark(targetToken.getLocation());
+                                return true;
+                        }
+
                 }
 
                 if (!arrowKeysMove) {
@@ -275,9 +278,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor {
                 Ray ray = world.cam.getPickRay(screenX, screenY);
                 Token targetToken = world.getToken(ray, localPlayerToken);
                 if (targetToken != null) {
-                        localPlayerToken.setMoveTokenTarget(targetToken);
-                        world.selectionMark.mark(targetToken.getLocation());
-                        return true;
+                        localPlayerToken.setContinousMoveToken(targetToken);
+                        if(localPlayerToken.getContinuousMoveToken() != null){
+                                world.selectionMark.mark(targetToken.getLocation());
+                                return true;
+                        }
                 }
 
                 if (!arrowKeysMove) {

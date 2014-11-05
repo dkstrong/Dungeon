@@ -10,17 +10,31 @@ public class FloorTile implements Tile {
         private boolean blockMovement;
         private boolean blockVision;
         private int stairsTo;
+        private boolean door;
+        private boolean opened;
+        private boolean locked;
+        private int keyId;
 
-        public FloorTile(boolean blockMovement, boolean blockVision) {
+        private FloorTile(boolean blockMovement, boolean blockVision) {
                 this.blockMovement = blockMovement;
-                this.blockVision=blockVision;
+                this.blockVision = blockVision;
                 this.stairsTo = -1;
         }
 
-        public FloorTile(boolean blockVision, int stairsTo) {
+        private FloorTile(boolean blockVision, int stairsTo) {
                 this.blockMovement = false;
-                this.blockVision=blockVision;
+                this.blockVision = blockVision;
                 this.stairsTo = stairsTo;
+        }
+
+        private FloorTile(boolean doorOpened, boolean doorLocked, int keyId) {
+                this.door =true;
+                this.opened = doorOpened;
+                this.blockVision = !opened;
+                this.locked = doorLocked;
+                this.blockMovement = locked;
+                this.keyId = keyId;
+                this.stairsTo = -1;
         }
 
         @Override
@@ -28,34 +42,55 @@ public class FloorTile implements Tile {
                 return blockMovement;
         }
 
-        public boolean isBlockVision(){return blockVision; }
-
-        public boolean isWall(){
-                return blockMovement && blockVision;
+        public boolean isBlockVision() {
+                return blockVision;
         }
 
-        public boolean isFloor(){
-                return stairsTo <0 && !blockMovement && !blockVision;
+        public boolean isWall() {return !isDoor() && !isStairs() && blockMovement;}
+
+        public boolean isFloor() {return !isDoor() && !isStairs() && !blockMovement && !blockVision;}
+
+        public boolean isDoor() {
+                return door;
         }
 
-        public boolean isDoor(){
-                return stairsTo <0 && !blockMovement && blockVision;
+        public boolean isDoorOpened() {
+                return opened;
         }
 
-        public boolean isStairs(){
+        public boolean isDoorLocked() {
+                return locked;
+        }
+
+        public int getKeyId(){
+                return keyId;
+        }
+
+        protected void setDoorOpened(boolean opened) {
+                this.opened = opened;
+                blockVision = !this.opened;
+        }
+
+        protected void setDoorLocked(boolean locked) {
+                this.locked = locked;
+                blockMovement = locked;
+        }
+
+        public boolean isStairs() {
                 return stairsTo >= 0;
         }
 
-        public int getStairsTo(){
+        public int getStairsTo() {
                 return stairsTo;
         }
 
         /**
          * if the stairs go to an upper floor or a lower floor
+         *
          * @param currentFloorIndex
          * @return
          */
-        public boolean isStairsUp(int currentFloorIndex){
+        public boolean isStairsUp(int currentFloorIndex) {
                 return stairsTo < currentFloorIndex;
         }
 
@@ -64,36 +99,34 @@ public class FloorTile implements Tile {
                 return movementCost;
         }
 
-        public static FloorTile makeFloor(){
+        public static FloorTile makeFloor() {
                 return new FloorTile(false, false);
         }
 
-        public static FloorTile makeWall(){
+        public static FloorTile makeWall() {
                 return new FloorTile(true, true);
         }
 
-        public static FloorTile makeDoor(){
-                return new FloorTile(false, true);
-        }
+        public static FloorTile makeDoor() {return new FloorTile(false, false, 0);}
 
-        public static FloorTile makeStairs(int currentFloorIndex, int stairsTo){
-                return new FloorTile(stairsTo<currentFloorIndex, stairsTo);
+        public static FloorTile makeStairs(int currentFloorIndex, int stairsTo) {
+                return new FloorTile(stairsTo < currentFloorIndex, stairsTo);
         }
 
         @Override
         public String toString() {
-                if(blockMovement == false && blockVision == false)
+                if (isFloor())
                         return "."; // Floor
 
-                if(blockMovement == true && blockVision == true)
+                if (isWall())
                         return "|";   // Wall
 
-                if(isStairs()){
+                if (isStairs()) {
                         return "^"; // TODO: this wont displat & for stair down
                 }
 
 
-                if(blockMovement == false && blockVision == true)
+                if (isDoor())
                         return "+";  // Door
 
                 return "?";

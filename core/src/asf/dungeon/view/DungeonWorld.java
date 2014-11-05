@@ -150,6 +150,8 @@ public class DungeonWorld implements Disposable {
                 float distance = -1;
 
                 for (Spatial spatial : spatials) {
+                        if(!spatial.isInitialized())
+                                continue;
                         if (spatial instanceof TokenSpatial) {
                                 TokenSpatial tokenSpatial = (TokenSpatial) spatial;
                                 Token targetToken = tokenSpatial.getControl().getToken();

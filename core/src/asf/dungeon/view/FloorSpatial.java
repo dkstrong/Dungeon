@@ -136,6 +136,14 @@ public class FloorSpatial implements Spatial {
 
                         DecalNodeProp prop = decalNode.prop;
                         if(prop != null){
+                                if(decalNode.tile.isDoor()){
+                                        if(decalNode.tile.isDoorOpened()){
+                                                prop.animController.setAnimation("Open",1);
+                                        }else{
+                                                prop.animController.setAnimation("Open",1,-1,null);
+                                        }
+                                }
+
                                 if(prop.animController != null)
                                         prop.animController.update(delta);
 
@@ -206,6 +214,7 @@ public class FloorSpatial implements Spatial {
 
                 world.assetManager.load("Models/Dungeon/Stairs/StairsUp.g3db", Model.class);
                 world.assetManager.load("Models/Dungeon/Stairs/StairsDown.g3db", Model.class);
+                world.assetManager.load("Models/Dungeon/Door/Door.g3db", Model.class);
         }
 
 
@@ -234,6 +243,29 @@ public class FloorSpatial implements Spatial {
                 decalNodePropsTemp.clear();
         }
 
+        private Direction whichDirectionToFaceDoor(int x, int y){
+                FloorTile nw = floorMap.getTile(x-1,y+1);
+                FloorTile n = floorMap.getTile(x,y+1);
+                FloorTile ne = floorMap.getTile(x+1,y+1);
+                if(nw.isFloor() && n.isFloor() && ne.isFloor())
+                        return Direction.North;
+                FloorTile e = floorMap.getTile(x+1,y);
+                FloorTile se = floorMap.getTile(x+1,y-1);
+                if(ne.isFloor() && e.isFloor() && se.isFloor())
+                        return Direction.East;
+                FloorTile s = floorMap.getTile(x,y-1);
+                FloorTile sw = floorMap.getTile(x-1,y-1);
+                if(se.isFloor() && s.isFloor() && sw.isFloor())
+                        return Direction.South;
+                FloorTile w = floorMap.getTile(x-1,y);
+                if(sw.isFloor() && w.isFloor() && nw.isFloor())
+                        return Direction.West;
+
+                if(n.isFloor() && s.isFloor())
+                        return Direction.South;
+
+                return Direction.West;
+        }
 
         private Vector3 worldCoordsTemp = new Vector3();
 
@@ -242,11 +274,20 @@ public class FloorSpatial implements Spatial {
                 DecalNodeProp prop;
                 Texture tex;
                 float visibleY = 0;
-                if(!tile.isStairs()){
+                // "Models/Dungeon/Door/Door.g3db"
+                if(tile.isDoor()){
                         tex = floorTex;
-                        prop = null;
+                        String asset = "Models/Dungeon/Door/Door.g3db";
+                        prop = makeDecalNodeProp(asset);
+                        Quaternion rot = whichDirectionToFaceDoor(x,y).quaternion;
+                        prop.modelInstance.transform.set(
+                                worldCoordsTemp.x,worldCoordsTemp.y,worldCoordsTemp.z,
+                                rot.x,rot.y,rot.z,rot.w,
+                                1,1,1
+                        );
+                        decalNodeProps.add(prop);
+                }else if(tile.isStairs()){
 
-                }else{
                         String asset;
                         if(tile.isStairsUp(floorMap.index)){
                                 tex = stairUpTex;
@@ -264,6 +305,9 @@ public class FloorSpatial implements Spatial {
                                 1,1,1
                         );
                         decalNodeProps.add(prop);
+                }else{
+                        tex = floorTex;
+                        prop = null;
                 }
 
                 Decal decal = Decal.newDecal(
@@ -282,7 +326,7 @@ public class FloorSpatial implements Spatial {
 
         }
 
-        private void makeDecalWall(Tile tile, int x, int y){
+        private void makeDecalWall(FloorTile tile, int x, int y){
 
                 getWorldCoords(x, y, worldCoordsTemp);
 
@@ -360,11 +404,11 @@ public class FloorSpatial implements Spatial {
                 public Decal decal;
                 public int x;
                 public int y;
-                public Tile tile;
+                public FloorTile tile;
                 public float visibleY; // floor tiles start in the sky, then once visited they move to y=0, this is to prevent their sillouete from giving away what they are
                 public DecalNodeProp prop;
 
-                public DecalNode(Decal decal, int x, int y, Tile tile, float visibleY) {
+                public DecalNode(Decal decal, int x, int y, FloorTile tile, float visibleY) {
                         this.decal = decal;
                         this.x = x;
                         this.y = y;

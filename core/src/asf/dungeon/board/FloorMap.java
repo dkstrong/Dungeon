@@ -91,7 +91,7 @@ public class FloorMap {
 
                 for(int x=0; x< getWidth(); x++){
                         for(int y=0; y<getHeight(); y++){
-                                if(tiles[x][y].isStairs()){
+                                if(tiles[x][y]!=null && tiles[x][y].isStairs()){
                                         if(tiles[x][y].getStairsTo() < index){
                                                 return new Pair(x,y);
                                         }
@@ -106,7 +106,7 @@ public class FloorMap {
 
                 for(int x=0; x< getWidth(); x++){
                         for(int y=0; y<getHeight(); y++){
-                                if(tiles[x][y].isStairs()){
+                                if(tiles[x][y]!=null && tiles[x][y].isStairs()){
                                         if(tiles[x][y].getStairsTo() > index){
                                                 return new Pair(x,y);
                                         }
@@ -117,6 +117,15 @@ public class FloorMap {
                 return null;
         }
 
+
+        public boolean hasTokensAt(int x, int y){
+                for(Token token : tokens){
+                        if(token.location.x ==x && token.location.y == y){
+                                return true;
+                        }
+                }
+                return false;
+        }
 
         private Array<Token> tokensAt = new Array<Token>(8);
 

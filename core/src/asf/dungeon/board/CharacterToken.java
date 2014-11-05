@@ -156,7 +156,7 @@ public class CharacterToken extends DamageableToken {
                 return continuousMoveDir;
         }
 
-        public void setMoveTokenTarget(Token target){
+        public void setContinousMoveToken(Token target){
                 if(this.continuousMoveToken == target){
                         return;
                 }
@@ -165,6 +165,7 @@ public class CharacterToken extends DamageableToken {
                         FogMap fogMap = getFogMap(floorMap);
                         if(!fogMap.isVisible(target.location.x, target.location.y)){
                                 // cant target token that is not currently visible
+                                continuousMoveToken = null;
                                 return;
                         }
                 }
@@ -180,6 +181,9 @@ public class CharacterToken extends DamageableToken {
                 }
 
 
+        }
+        public Token getContinuousMoveToken(){
+                return continuousMoveToken;
         }
 
         private void calcPathToLocation(Pair targetLocation) {
@@ -299,6 +303,13 @@ public class CharacterToken extends DamageableToken {
                                 // if there are more pairs to move to, then move towards it
                                 if (!floorMap.isLocationBlocked(nextLocation)) {
                                         // there is nothing on the next pair, just move there
+                                        FloorTile prevFloorTile = floorMap.getTile(location);
+                                        if(prevFloorTile.isDoor())
+                                                prevFloorTile.setDoorOpened(false);
+
+                                        FloorTile nextFloorTile = floorMap.getTile(nextLocation);
+                                        if(nextFloorTile.isDoor())
+                                                nextFloorTile.setDoorOpened(true);
 
                                         path.removeIndex(0);
                                         Direction newDirection = Direction.getDirection(location, nextLocation);
@@ -307,6 +318,7 @@ public class CharacterToken extends DamageableToken {
                                         location.set(nextLocation);
                                         moveU -= 1;
                                         computeFogMap();
+
 
                                         if (continuousMoveDir != null)
                                                 continuousMoveLocation.set(location).add(continuousMoveDir);
