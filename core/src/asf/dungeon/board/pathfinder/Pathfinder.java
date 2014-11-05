@@ -162,13 +162,22 @@ public class Pathfinder {
                 }
         }
 
+        private boolean isWalkable(int x, int y){
+                if(x <0 || x >= map.length || y<0 || y >= map[0].length){
+                        return false;
+                }
+                Tile tile = map[x][y];
+                return tile!= null && !tile.isBlockMovement();
+        }
         final Array<Pair> found = new Array<Pair>(12);
         private Array<Pair> getNeighborNodes(Pair n) {
+                // TODO: if getting neighbors of a edge tile that is not a wall, it is possible to walk off into "null"
+                // need to add checks for that
                 found.clear();
-                if(!map[n.x + 1][n.y].isBlockMovement()) found.add(toPair(n.x + 1, n.y));
-                if(!map[n.x - 1][n.y].isBlockMovement()) found.add(toPair(n.x - 1, n.y));
-                if(!map[n.x][n.y + 1].isBlockMovement()) found.add(toPair(n.x, n.y + 1));
-                if(!map[n.x][n.y - 1].isBlockMovement()) found.add(toPair(n.x, n.y - 1));
+                if(isWalkable(n.x + 1,n.y)) found.add(toPair(n.x + 1, n.y));
+                if(isWalkable(n.x - 1,n.y)) found.add(toPair(n.x - 1, n.y));
+                if(isWalkable(n.x,n.y+1)) found.add(toPair(n.x, n.y + 1));
+                if(isWalkable(n.x,n.y-1)) found.add(toPair(n.x, n.y - 1));
                 if(pathingPolicy == PathingPolicy.CanCutCorners) {
                         if(!map[n.x + 1][n.y + 1].isBlockMovement() && (!map[n.x + 1][n.y].isBlockMovement() || !map[n.x][n.y + 1].isBlockMovement())) found.add(toPair(n.x + 1, n.y + 1));
                         if(!map[n.x - 1][n.y + 1].isBlockMovement() && (!map[n.x - 1][n.y].isBlockMovement() || !map[n.x][n.y + 1].isBlockMovement())) found.add(toPair(n.x - 1, n.y + 1));

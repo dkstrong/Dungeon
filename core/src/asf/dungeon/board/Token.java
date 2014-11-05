@@ -47,7 +47,7 @@ public abstract class Token {
         public boolean teleportToLocation(int x, int y, Direction direction){
 
                 Tile tile = floorMap.tiles[x][y];
-                if (tile.isBlockMovement()) {
+                if (tile == null || tile.isBlockMovement()) {
                         return false;
                 }
                 if(blocksPathing){
@@ -165,7 +165,7 @@ public abstract class Token {
                 return "Token{" +
                         "id=" + id +
                         ", name='" + name + '\'' +
-                        ", location=" + location +
+                        ", location=" + location + "(floor "+floorMap.index+ ")"+
                         ", direction=" + direction +
                         '}';
         }

@@ -196,7 +196,7 @@ public abstract class DamageableToken extends Token {
         public String toString() {
                 return "Token{" +
                         "id=" + getId() +" "+ getName()+
-                        ", location=" + location +
+                        ", location=" + location + "(floor "+floorMap.index+ ")"+
                         ", health=" + health +
                         '}';
         }

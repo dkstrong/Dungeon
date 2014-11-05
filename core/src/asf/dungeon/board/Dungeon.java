@@ -1,7 +1,7 @@
 package asf.dungeon.board;
 
+import asf.dungeon.board.factory.FloorMapGenerator;
 import com.badlogic.gdx.Gdx;
-import asf.dungeon.board.factory.FloorMapFactory;
 import asf.dungeon.board.logic.LocalPlayerLogicProvider;
 import asf.dungeon.board.logic.LogicProvider;
 
@@ -12,13 +12,13 @@ import java.util.Map;
  * Created by danny on 10/22/14.
  */
 public class Dungeon {
-        private final FloorMapFactory floorMapFactory;
+        private final FloorMapGenerator floorMapFactory;
         private final Map<Integer, FloorMap> floorMaps = new HashMap<Integer, FloorMap>(16);
         private FloorMap currentFloorMap;
         private int nextTokenId = 0;
         private final Listener listener;
 
-        public Dungeon(Listener listener, FloorMapFactory floorMapFactory) {
+        public Dungeon(Listener listener, FloorMapGenerator floorMapFactory) {
                 this.listener = listener;
                 this.floorMapFactory = floorMapFactory;
         }

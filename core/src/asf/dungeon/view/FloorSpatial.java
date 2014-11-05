@@ -219,11 +219,14 @@ public class FloorSpatial implements Spatial {
                 for (int x = 0; x < floorMap.getWidth(); x++) {
                         for (int y = 0; y < floorMap.getHeight(); y++) {
                                 FloorTile tile = floorMap.getTile(x,y);
-                                if(tile.isBlockMovement()){
-                                        makeDecalWall(tile, x, y);
-                                }else{
-                                        makeDecalFloor(tile, x,y);
+                                if(tile != null){
+                                        if(tile.isBlockMovement()){
+                                                makeDecalWall(tile, x, y);
+                                        }else{
+                                                makeDecalFloor(tile, x,y);
+                                        }
                                 }
+
 
                         }
                 }

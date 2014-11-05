@@ -29,7 +29,7 @@ public class SimpleLogicProvider implements LogicProvider {
                         int x = MathUtils.random.nextInt(token.getFloorMap().getWidth());
                         int y = MathUtils.random.nextInt(token.getFloorMap().getHeight());
                         FloorTile tile = token.getFloorMap().getTile(x, y);
-                        if (!tile.isBlockMovement() && !tile.isStairs()) {
+                        if (tile != null && !tile.isBlockMovement() && !tile.isStairs()) {
                                 token.setMoveTarget(new Pair(x, y));
                         }
                 }

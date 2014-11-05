@@ -7,7 +7,11 @@ import asf.dungeon.board.DamageableToken;
 import asf.dungeon.board.Dungeon;
 import asf.dungeon.board.LootToken;
 import asf.dungeon.board.Token;
+import asf.dungeon.board.factory.ConnectedRoomsGenerator;
+import asf.dungeon.board.factory.PreBuiltFloorGenerator;
 import asf.dungeon.board.factory.DungeonFactory;
+import asf.dungeon.board.factory.FloorMapGenerator;
+import asf.dungeon.board.factory.MazeGenerator;
 import asf.dungeon.board.logic.LocalPlayerLogicProvider;
 import asf.dungeon.board.Pair;
 import asf.dungeon.utility.ModelFactory;
@@ -92,11 +96,21 @@ public class DungeonWorld implements Disposable {
                 floorDecals = new FloorSpatial();
                 addSpatial(floorDecals);
 
-                addSpatial(new ActorSpatial("Models/skydome.g3db", null, null));
+                //addSpatial(new ActorSpatial("Models/skydome.g3db", null, null));
 
                 selectionMark = addSpatial(new ActorSpatial(new ModelInstance(ModelFactory.box(5, 1, 5, Color.RED)), new Box(), environment)).setControl(new SelectionMark(this));
 
-                dungeon = DungeonFactory.dungeon(internalInput); // this triggers the creation of various TokenSpatials...
+
+                DungeonFactory dungeonFactory = new DungeonFactory(new FloorMapGenerator[]{
+                        new ConnectedRoomsGenerator(),
+                        new PreBuiltFloorGenerator(),new PreBuiltFloorGenerator(),new MazeGenerator(7,4)
+                },new FloorMapGenerator[]{
+                        new PreBuiltFloorGenerator(), new MazeGenerator(7,4)
+                });
+
+
+                dungeon = dungeonFactory.makeDungeon(internalInput); // this triggers the creation of various TokenSpatials...
+
 
 
 

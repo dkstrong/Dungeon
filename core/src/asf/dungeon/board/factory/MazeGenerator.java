@@ -1,15 +1,61 @@
 package asf.dungeon.board.factory;
 
-
-
+import asf.dungeon.board.Dungeon;
+import asf.dungeon.board.FloorMap;
 import asf.dungeon.board.FloorTile;
 
 import java.util.Random;
 
 /**
- * Created by danny on 10/26/14.
+ * Created by Danny on 11/4/2014.
  */
-public class MazeGenerator {
+public class MazeGenerator implements FloorMapGenerator{
+
+        private int width;
+        private int height;
+
+        public MazeGenerator(int width, int height) {
+                this.width = width;
+                this.height = height;
+        }
+
+        public void setSize(int width, int height){
+                this.width = width;
+                this.height = height;
+        }
+
+        public FloorMap generate(Dungeon dungeon, int floorIndex){
+                FloorTile[][] tiles = MazeGenerator.generateTiles(width, height);
+                // upper stairs is on bottom left
+                if(floorIndex >0){
+                        outerloop:
+                        for(int x=0; x<tiles.length; x++){
+                                for(int y=0; y<tiles[x].length; y++){
+                                        if(!tiles[x][y].isBlockMovement() && !tiles[x][y].isBlockVision()){
+                                                tiles[x][y] = new FloorTile(true, floorIndex-1);
+                                                break outerloop;
+                                        }
+                                }
+                        }
+                }
+
+
+                // lower stairs is on top right
+                outerloop:
+                for (int x = tiles.length - 1; x >= 0; x--) {
+                        for (int y = tiles[x].length - 1; y >= 0; y--) {
+                                if(!tiles[x][y].isBlockMovement() && !tiles[x][y].isBlockVision()){
+                                        tiles[x][y] = new FloorTile(false, floorIndex+1);
+                                        break outerloop;
+                                }
+                        }
+                }
+
+                FloorMap floorMap = new FloorMap(floorIndex,tiles);
+                UtFloorGen.spawnTokens(dungeon, floorMap);
+                return floorMap;
+        }
+
         private static boolean[][] blocks;
         private static boolean[][] visited;
         private static Random rand = new Random();
