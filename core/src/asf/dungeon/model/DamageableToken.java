@@ -1,4 +1,4 @@
-package asf.dungeon.board;
+package asf.dungeon.model;
 
 /**
  * A token that can be attacked by attempting to move on to its tile.
@@ -16,6 +16,10 @@ public abstract class DamageableToken extends Token {
          */
         private int health;
         /**
+         * the maximum health of the token.
+         */
+        private int maxHealth;
+        /**
          * how long since being killed (health ==0) until in the state of being fully dead. once fully dead this token can no longer block the path even if blocksPathing = true;
          */
         private float deathDuration = 3;
@@ -30,9 +34,10 @@ public abstract class DamageableToken extends Token {
         private float deathCountdown = 0;                         // the time that must pass before this token is "fully dead", invalid if health>0
         private float deathRemovalCountdown = 10;           // the time after being fully dead to remove this token from the Dungeon. Use Float.NaN to never remove it. The main purpose of this is for performance
 
-        protected DamageableToken(Dungeon dungeon, FloorMap floorMap, int id, String name, int initialHealth) {
-                super(dungeon, floorMap,  id, name);
+        protected DamageableToken(Dungeon dungeon, FloorMap floorMap, int id, String name, ModelId modelId, int initialHealth) {
+                super(dungeon, floorMap,  id, name, modelId);
                 this.health = initialHealth;
+                this.maxHealth = initialHealth;
         }
 
         /**
@@ -76,24 +81,48 @@ public abstract class DamageableToken extends Token {
                 }
         }
 
-        protected abstract void receiveDamageFrom(Token token);
+        /**
+         * CharacterToken calls this on the token it attacked, tokens decide for the
+         * @param token
+         */
+        protected abstract void receiveDamageFrom(CharacterToken token);
 
         /**
-         * apply pure damage to this token (ignores stats)
-         * @param damage
+         * adds or subtracts health, will kill or revive token
+         * if health reaches or recovers from zero
+         * @param value
          */
-        public void applyDamage(int damage){
-                if (isDead()) {
-                        return;
-                }
-                health -= damage;
-                if (health < 0)
-                        health = 0;
+        public void addHealth(int value){
+                if(value >0){
+                        boolean wasDead= isDead();
+                        this.health+= value;
+                        if(health>maxHealth)
+                                health = maxHealth;
 
-                if (isDead()) {
-                        deathCountdown = deathDuration;
-                        onDied();
+                        if(wasDead && !isDead()){
+                                deathCountdown = 0;
+                                onRevive();
+                        }
+                }else if(value <0){
+                        if (isDead()) {
+                                return;
+                        }
+                        health += value;
+                        if (health < 0)
+                                health = 0;
+
+                        if (isDead()) {
+                                deathCountdown = deathDuration;
+                                onDied();
+                        }
                 }
+
+
+
+        }
+
+        protected void onRevive(){
+
         }
 
         protected void onDied(){
@@ -144,6 +173,8 @@ public abstract class DamageableToken extends Token {
         public int getHealth(){
                 return health;
         }
+
+
 
         protected void setHitDuration(float hitDuration, Token hitSource){
                 if(this.hitSource != null)

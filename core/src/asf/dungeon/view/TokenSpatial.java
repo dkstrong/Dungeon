@@ -1,11 +1,11 @@
 package asf.dungeon.view;
 
-import asf.dungeon.board.CharacterToken;
-import asf.dungeon.board.CrateToken;
-import asf.dungeon.board.FogMap;
-import asf.dungeon.board.FogState;
-import asf.dungeon.board.LootToken;
-import asf.dungeon.board.Token;
+import asf.dungeon.model.CharacterToken;
+import asf.dungeon.model.CrateToken;
+import asf.dungeon.model.FogMap;
+import asf.dungeon.model.FogState;
+import asf.dungeon.model.LootToken;
+import asf.dungeon.model.Token;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
@@ -39,20 +39,10 @@ public class TokenSpatial implements Spatial {
         protected TokenControl tokenControl;
         protected float visU = 0; // how visible this object is, 0 = not drawn, 1 = fully visible, inbetween for partially visible
 
-        public TokenSpatial(DungeonWorld world, Token token, ModelInstance modelInstance, Shape shape, Environment environment) {
+        public TokenSpatial(DungeonWorld world, Token token, Shape shape, Environment environment) {
                 this.world = world;
                 this.token = token;
-                this.modelInstance = modelInstance;
-                this.assetLocation = null;
-                this.shape = shape;
-                this.environment = environment;
-                postConstruct();
-        }
-
-        public TokenSpatial(DungeonWorld world, Token token, String assetLocation, Shape shape, Environment environment) {
-                this.world = world;
-                this.token = token;
-                this.assetLocation = assetLocation;
+                this.assetLocation = token.getModelId().assetLocation;
                 this.shape = shape;
                 this.environment = environment;
                 postConstruct();
@@ -186,6 +176,9 @@ public class TokenSpatial implements Spatial {
                 if (assetLocation == null)
                         if (modelInstance != null)
                                 modelInstance.model.dispose();
+
+                if(this.tokenControl != null)
+                        this.tokenControl.dispose();
                 initialized = false;
         }
 

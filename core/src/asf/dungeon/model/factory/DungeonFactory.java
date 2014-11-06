@@ -1,8 +1,8 @@
-package asf.dungeon.board.factory;
+package asf.dungeon.model.factory;
 
 
-import asf.dungeon.board.Dungeon;
-import asf.dungeon.board.FloorMap;
+import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.FloorMap;
 import com.badlogic.gdx.math.MathUtils;
 
 /**

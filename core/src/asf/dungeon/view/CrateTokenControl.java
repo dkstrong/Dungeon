@@ -3,9 +3,9 @@ package asf.dungeon.view;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
-import asf.dungeon.board.CrateToken;
-import asf.dungeon.board.Dungeon;
-import asf.dungeon.board.Token;
+import asf.dungeon.model.CrateToken;
+import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.Token;
 
 /**
  * Created by danny on 10/20/14.
@@ -77,4 +77,8 @@ public class CrateTokenControl implements TokenControl{
         }
 
 
+        @Override
+        public void dispose() {
+
+        }
 }

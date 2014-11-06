@@ -1,25 +1,26 @@
 package asf.dungeon.view;
 
+import asf.dungeon.model.Item;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
-import asf.dungeon.board.CharacterToken;
-import asf.dungeon.board.Dungeon;
+import asf.dungeon.model.CharacterToken;
 import asf.dungeon.utility.MoreMath;
 
 /**
  * Created by danny on 10/20/14.
  */
-public class CharacterTokenControl implements TokenControl {
+public class CharacterTokenControl implements TokenControl, CharacterToken.Listener {
         public TokenSpatial actorSpatial;
         private DungeonWorld world;
-        private Dungeon dungeon;
+
         public final CharacterToken token;
         private Animation idle, walk, attack, hit, die;
 
 
         public CharacterTokenControl(DungeonWorld world, CharacterToken token) {
                 this.world = world;
-                this.dungeon = world.dungeon;
                 this.token = token;
+                this.token.setListener(this);
 
         }
 
@@ -60,9 +61,16 @@ public class CharacterTokenControl implements TokenControl {
         }
 
         private Animation current;
+        private Item currentItemConsume;
 
         @Override
         public void update(float delta) {
+
+
+                if(currentItemConsume != null){
+                        Gdx.app.log("CharacterTokenControl","bloob bloob bloob "+currentItemConsume+"!");
+                        currentItemConsume = null;
+                }
 
                 Animation anim = token.isMoving() ? walk : token.isAttacking() ? attack : token.isHit() ? hit : token.isDead() ? die : idle;
 
@@ -93,4 +101,29 @@ public class CharacterTokenControl implements TokenControl {
         }
 
 
+        @Override
+        public void onInventoryAdd(Item item) {
+                if(world.getHud().localPlayerToken == token)
+                        world.getHud().onInventoryAdd(item);
+
+        }
+
+        @Override
+        public void onInventoryRemove(Item item) {
+                if(world.getHud().localPlayerToken == token)
+                        world.getHud().onInventoryRemove(item);
+        }
+
+        @Override
+        public void onConsumeItem(Item item) {
+                currentItemConsume = item;
+                if(world.getHud().localPlayerToken == token)
+                        world.getHud().onConsumeItem(item);
+        }
+
+        @Override
+        public void dispose() {
+                if(this.token!=null)
+                        this.token.setListener(null);
+        }
 }

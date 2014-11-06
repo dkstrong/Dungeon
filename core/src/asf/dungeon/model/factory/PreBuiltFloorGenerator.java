@@ -1,8 +1,8 @@
-package asf.dungeon.board.factory;
+package asf.dungeon.model.factory;
 
-import asf.dungeon.board.Dungeon;
-import asf.dungeon.board.FloorMap;
-import asf.dungeon.board.FloorTile;
+import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.Tile;
 
 /**
  * Created by Danny on 11/4/2014.
@@ -87,24 +87,24 @@ public class PreBuiltFloorGenerator implements FloorMapGenerator{
                 return floorMap;
         }
 
-        private static FloorTile[][] convertTileData(int floorIndex, String[] tileData){
-                FloorTile[][] tiles;
-                tiles = new FloorTile[tileData[0].length()][tileData.length];
+        private static Tile[][] convertTileData(int floorIndex, String[] tileData){
+                Tile[][] tiles;
+                tiles = new Tile[tileData[0].length()][tileData.length];
                 for (int y = 0; y < tileData.length; y++) {
                         for (int x = 0; x < tileData[0].length(); x++) {
                                 char charAt = tileData[tileData.length - y - 1].charAt(x);
 
                                 if (charAt == '-' || charAt == '|') { // Wall
-                                        tiles[x][y] = FloorTile.makeWall();
+                                        tiles[x][y] = Tile.makeWall();
                                 } else if(charAt == '+'){ // Door
-                                        tiles[x][y] = FloorTile.makeDoor();
+                                        tiles[x][y] = Tile.makeDoor();
                                 } else if(charAt == '^'){ // Stairs Up
                                         if(floorIndex >0)
-                                                tiles[x][y] = FloorTile.makeStairs(floorIndex, floorIndex-1);
+                                                tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
                                 } else if(charAt == '&'){ // Stairs Down
-                                        tiles[x][y] = FloorTile.makeStairs(floorIndex, floorIndex-1);
+                                        tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex + 1);
                                 } else{ // Floor
-                                        tiles[x][y] = FloorTile.makeFloor();
+                                        tiles[x][y] = Tile.makeFloor();
                                 }
                         }
                 }

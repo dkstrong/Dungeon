@@ -1,10 +1,10 @@
-package asf.dungeon.board.logic;
+package asf.dungeon.model.logic;
 
 
-import asf.dungeon.board.CharacterToken;
-import asf.dungeon.board.Dungeon;
-import asf.dungeon.board.FloorTile;
-import asf.dungeon.board.Pair;
+import asf.dungeon.model.CharacterToken;
+import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.Tile;
+import asf.dungeon.model.Pair;
 import com.badlogic.gdx.math.MathUtils;
 
 /**
@@ -28,7 +28,7 @@ public class SimpleLogicProvider implements LogicProvider {
                 if (!token.hasMoveTarget()) {
                         int x = MathUtils.random.nextInt(token.getFloorMap().getWidth());
                         int y = MathUtils.random.nextInt(token.getFloorMap().getHeight());
-                        FloorTile tile = token.getFloorMap().getTile(x, y);
+                        Tile tile = token.getFloorMap().getTile(x, y);
                         if (tile != null && !tile.isBlockMovement() && !tile.isStairs()) {
                                 token.setMoveTarget(new Pair(x, y));
                         }

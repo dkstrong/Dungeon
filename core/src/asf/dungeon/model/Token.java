@@ -1,6 +1,5 @@
-package asf.dungeon.board;
+package asf.dungeon.model;
 
-import asf.dungeon.board.pathfinder.Tile;
 
 /**
  * Created by danny on 10/22/14.
@@ -8,6 +7,7 @@ import asf.dungeon.board.pathfinder.Tile;
 public abstract class Token {
         public final Dungeon dungeon;
         private final int id;
+        private final ModelId modelId;
         /**
          * the name of this character or item for the interfce
          */
@@ -22,11 +22,12 @@ public abstract class Token {
         protected FloorMap floorMap;
         protected Direction direction = Direction.South;          // the direction that this token is facing, this affects certain gameplay mechanics.
 
-        protected Token(Dungeon dungeon, FloorMap floorMap, int id, String name) {
+        protected Token(Dungeon dungeon, FloorMap floorMap, int id, String name, ModelId modelId) {
                 this.dungeon = dungeon;
                 this.floorMap = floorMap;
                 this.id = id;
                 this.name = name;
+                this.modelId = modelId;
         }
 
         public final boolean teleportToLocation(int x, int y) {
@@ -46,7 +47,7 @@ public abstract class Token {
          */
         public boolean teleportToLocation(int x, int y, Direction direction){
 
-                FloorTile tile = floorMap.tiles[x][y];
+                Tile tile = floorMap.tiles[x][y];
                 if (tile == null || tile.isBlockMovement() || tile.isDoor()) {
                         return false;
                 }
@@ -128,6 +129,9 @@ public abstract class Token {
                 return name;
         }
 
+        public ModelId getModelId() {
+                return modelId;
+        }
 
         /**
          * if the token prevents other tokens from sharing the same tile.

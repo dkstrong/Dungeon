@@ -1,4 +1,4 @@
-package asf.dungeon.board;
+package asf.dungeon.model;
 
 import com.badlogic.gdx.utils.Array;
 
@@ -101,7 +101,7 @@ public class FogMap {
                 // standing on them.. but it seems to cause fuckery
 
 
-                FloorTile tile = floorMap.getTile(xMapCoord, yMapCoord);
+                Tile tile = floorMap.getTile(xMapCoord, yMapCoord);
                 if(tile != null && tile.isStairs()){
                         if(xMapCoord == xCenter && yMapCoord == yCenter){
                                 return false;

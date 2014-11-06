@@ -1,9 +1,9 @@
-package asf.dungeon.board;
+package asf.dungeon.model;
 
+import asf.dungeon.model.logic.LogicProvider;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
-import asf.dungeon.board.logic.LogicProvider;
-import asf.dungeon.board.pathfinder.Tile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,8 +19,6 @@ import java.util.Map;
  * Created by danny on 10/24/14.
  */
 public class CharacterToken extends DamageableToken {
-        // final variables
-        private static final String logName = null;//"berzerker";
         // configuration variables
         /**
          * change between different AI states by changing the logic provider. if logic provider is null then the token will just sit there.
@@ -49,9 +47,9 @@ public class CharacterToken extends DamageableToken {
         /**
          * if this character will pick up items when standing on tiles with items
          */
-        private boolean consumesItems = true;
+        private boolean picksUpItems = true;
         // state variables
-        private final Array<Pair> path = new Array<Pair>(32);   // the current path that this token is trying to follow, it may be regularly refreshed with new paths
+        private final Array<Pair> path = new Array<Pair>(true, 32, Pair.class);   // the current path that this token is trying to follow, it may be regularly refreshed with new paths
         private final Pair pathedTarget = new Pair();           // the last element of path. this is compared against continuesMoveTarget to prevent spamming the pathfinder coder
         private Pair continuousMoveLocation;                      // the location that this token wants to move to, token will move and attack through tiles along the way to get to its destination
         private Direction continuousMoveDir;                    // alternative to continuousMoveLocation
@@ -59,15 +57,18 @@ public class CharacterToken extends DamageableToken {
         private final Pair continuousMoveTokenLastLoc = new Pair();
         private float continuousMoveTokenLostVisionCountdown = 0;
         private float moveU = 1;                                // 1 = fully on the location, less then 1 means moving on to the location still even though it occupies it, use direction variable to determine which way token is walking towards the location
+        private Array<Item> inventory = new Array<Item>(true, 16, Item.class);
+        private Item consumeItem;                               // item to be  consumed on next update
         private float attackU = 0;                              // 0 = not attacking, >0 attacking, once attackU >=attackDuration then attackU is reset to 0
         private DamageableToken attackTarget;                             // the token that is being attacked, this also marks if this token is in the "attacking" state
         private boolean attackDamageApplied = false;            // flag to determine if the damage has been applied from the current "attacking" state, invalid if attackTarget == null
         private float attackCoolDown = 0;                       // time until this token can send another attack, after attacking this value is reset to attackCooldownDuration
         private Map<FloorMap, FogMap> fogMaps;
+        private transient Listener listener;
 
 
-        protected CharacterToken(Dungeon dungeon, FloorMap floorMap, int id, String name) {
-                super(dungeon, floorMap, id, name, 10);
+        protected CharacterToken(Dungeon dungeon, FloorMap floorMap, int id, String name, ModelId modelId) {
+                super(dungeon, floorMap, id, name, modelId, 10);
                 this.setDeathDuration(3f);
                 this.setDeathRemovalCountdown(10f);
         }
@@ -84,7 +85,7 @@ public class CharacterToken extends DamageableToken {
          * @return true if moved, false if did not move
          */
         public boolean teleportToLocation(int x, int y, Direction direction) {
-                boolean teleported = super.teleportToLocation( x, y, direction);
+                boolean teleported = super.teleportToLocation(x, y, direction);
                 if (teleported) {
                         moveU = 1;
                         path.clear();
@@ -94,9 +95,9 @@ public class CharacterToken extends DamageableToken {
                         attackU = 0;
                         attackTarget = null;
 
-                        if(fogMaps != null){
+                        if (fogMaps != null) {
                                 FogMap fogMap = fogMaps.get(floorMap);
-                                if(fogMap == null){
+                                if (fogMap == null) {
                                         fogMap = new FogMap(floorMap, this);
                                         fogMaps.put(floorMap, fogMap);
                                 }
@@ -130,10 +131,10 @@ public class CharacterToken extends DamageableToken {
                 Direction oldDir = continuousMoveDir;
                 continuousMoveDir = dir;
 
-                if(dir == null && (isAttacking() || isHit())){
+                if (dir == null && (isAttacking() || isHit())) {
                         // this is here to lock play in to combat when releasin key
 
-                        if(isHit()){
+                        if (isHit()) {
                                 if (continuousMoveLocation == null) {
                                         continuousMoveLocation = new Pair(location).add(oldDir);
                                 } else {
@@ -152,24 +153,23 @@ public class CharacterToken extends DamageableToken {
 
         }
 
-        public Direction getMoveDir(){
+        public Direction getMoveDir() {
                 return continuousMoveDir;
         }
 
-        public void setContinousMoveToken(Token target){
-                if(this.continuousMoveToken == target){
+        public void setContinousMoveToken(Token target) {
+                if (this.continuousMoveToken == target) {
                         return;
                 }
 
-                if(isFogMappingEnabled()){
+                if (isFogMappingEnabled()) {
                         FogMap fogMap = getFogMap(floorMap);
-                        if(!fogMap.isVisible(target.location.x, target.location.y)){
+                        if (!fogMap.isVisible(target.location.x, target.location.y)) {
                                 // cant target token that is not currently visible
                                 continuousMoveToken = null;
                                 return;
                         }
                 }
-
 
 
                 this.continuousMoveToken = target;
@@ -182,81 +182,65 @@ public class CharacterToken extends DamageableToken {
 
 
         }
-        public Token getContinuousMoveToken(){
+
+        public Token getContinuousMoveToken() {
                 return continuousMoveToken;
         }
 
-        private void calcPathToLocation(Pair targetLocation) {
-                if (targetLocation.equals(pathedTarget)) {
-                        //Gdx.app.log(name, "already pathing: " + targetLocation);
-                        return; // already targeting this loaction, dont calc again
+        public boolean useItem(Item item) {
+                if (consumeItem != null)
+                        return false; // already consuming an item
+
+                if (item.isConsumable()) {
+                        consumeItem = item;
+                        return true;
                 }
 
+                return false;
 
-                if(location.equals(targetLocation)){
-                        // if already on this location, avoid pathing ... (not sure if i need this)
-                        path.clear();
-                        path.add(location);
-                        pathedTarget.set(targetLocation);
-                        return;
-                }
+        }
 
+        public void addItem(Item item){
+                inventory.add(item);
+                if(listener != null)
+                        listener.onInventoryAdd(item);
+        }
 
-                Tile targetTile = floorMap.getTile(targetLocation);
-                if (targetTile == null || targetTile.isBlockMovement()) {
-                        // trying to path into an illegal location, stop moving
-                        path.clear();
-                        path.add(location);
-                        pathedTarget.set(targetLocation);
-                        return;
-                }
+        public boolean discardItem(Item item) {
+                boolean valid = inventory.removeValue(item, true);
+                if (valid) {
+                        if (listener != null)
+                                listener.onInventoryRemove(item);
+                } else
+                        throw new AssertionError(getName() + " is not carrying " + item + " and can not discard it");
 
-
-                Array<Pair> newPath = floorMap.computePath(new Pair(location), new Pair(targetLocation));
-                if (newPath == null) {
-                        return; // no path was found
-                }
-
-                // apply the path that was found
-
-                if (isMoving() && newPath.size > 1 && !floorMap.isLocationBlocked(newPath.get(1))) {
-                        // if new path causes the token to reverse direction, the reverse hapens
-                        // immediatly without having to finish passing through the tile.
-                        // this reverses the direction and fixes the path to account for this
-                        Pair nextLocation = newPath.get(1);
-                        Direction newDir = Direction.getDirection(newPath.get(0), nextLocation);
-                        if (newDir.isOpposite(direction)) {
-                                moveU = 1 - moveU;
-                                direction = newDir;
-                                path.clear();
-                                path.addAll(newPath);
-                                path.removeIndex(0);
-                                location.set(nextLocation); // set location to path[1] (which is now 0 after removing the original 0)
-                                // attackCoolDown == attackCooldownDuration;  // i could do this here to punish making uturns, and give an advantage for coming up from behind
-                                return;
-                        }
-                }
-
-
-                path.clear();
-                path.addAll(newPath);
-                pathedTarget.set(path.get(path.size - 1));
+                return valid;
         }
 
         protected void incremenetU(float delta) {
+                if (logicProvider != null)    // TODO: i might want to change the floorMap.update() so that all the logic providers are updated then do incrementU(). this would give the ai a more consistent way to interact with other character tokens
+                        logicProvider.updateLogic(delta);
+
                 super.incremenetU(delta);
                 if (isDead()) {
                         return;
                 }
+
+                // TODO: maybe i could add this before the isDead() check to allow for resurrection items? would require doing additional checks on all items for the dead or alive state
+                if (consumeItem != null) {
+                        consumeItem.consume(this);
+                        if(listener!=null)
+                                listener.onConsumeItem(consumeItem);
+                        discardItem(consumeItem);
+                        consumeItem = null;
+                }
                 attackCoolDown -= delta;
+
                 if (isHit()) {
                         return;
                 }
 
-                if (logicProvider != null)
-                        logicProvider.updateLogic(delta);
-
-                if(continuousMoveToken != null){
+                if (continuousMoveToken != null) {
                         // set the move targt location to the target tokens location
                         // if the target token is in the fog, then set target location to their last known location
                         // if target token is lost in the fog for over the second, then continue to its last known location but give up pursuit
@@ -265,19 +249,19 @@ public class CharacterToken extends DamageableToken {
                                 continuousMoveLocation = new Pair(continuousMoveToken.location);
 
                         FogMap fogMap;
-                        if(isFogMappingEnabled())
+                        if (isFogMappingEnabled())
                                 fogMap = getFogMap(floorMap);
                         else
                                 fogMap = null;
 
-                        if(fogMap== null || fogMap.isVisible(continuousMoveToken.location.x, continuousMoveToken.location.y)){
+                        if (fogMap == null || fogMap.isVisible(continuousMoveToken.location.x, continuousMoveToken.location.y)) {
                                 continuousMoveLocation.set(continuousMoveToken.location);
                                 continuousMoveTokenLastLoc.set(continuousMoveToken.location);
                                 continuousMoveTokenLostVisionCountdown = 1;
-                        }else{
+                        } else {
                                 continuousMoveLocation.set(continuousMoveTokenLastLoc);
-                                continuousMoveTokenLostVisionCountdown -=delta;
-                                if(continuousMoveTokenLostVisionCountdown <0)
+                                continuousMoveTokenLostVisionCountdown -= delta;
+                                if (continuousMoveTokenLostVisionCountdown < 0)
                                         continuousMoveToken = null; // lost sight for over a second, no longer chasing
 
                         }
@@ -296,20 +280,20 @@ public class CharacterToken extends DamageableToken {
                         return;
                 }
 
-                if(moveU > 1) {
+                if (moveU > 1) {
                         if (path.size > 1) {
                                 Pair nextLocation = path.get(1);
 
                                 // if there are more pairs to move to, then move towards it
                                 if (!floorMap.isLocationBlocked(nextLocation)) {
                                         // there is nothing on the next pair, just move there
-                                        FloorTile prevFloorTile = floorMap.getTile(location);
-                                        if(prevFloorTile.isDoor())
-                                                prevFloorTile.setDoorOpened(false);
+                                        Tile prevTile = floorMap.getTile(location);
+                                        if (prevTile.isDoor())
+                                                prevTile.setDoorOpened(false);
 
-                                        FloorTile nextFloorTile = floorMap.getTile(nextLocation);
-                                        if(nextFloorTile.isDoor())
-                                                nextFloorTile.setDoorOpened(true);
+                                        Tile nextTile = floorMap.getTile(nextLocation);
+                                        if (nextTile.isDoor())
+                                                nextTile.setDoorOpened(true);
 
                                         path.removeIndex(0);
                                         Direction newDirection = Direction.getDirection(location, nextLocation);
@@ -322,7 +306,6 @@ public class CharacterToken extends DamageableToken {
 
                                         if (continuousMoveDir != null)
                                                 continuousMoveLocation.set(location).add(continuousMoveDir);
-
 
 
                                 } else {
@@ -345,8 +328,8 @@ public class CharacterToken extends DamageableToken {
                                 if (path.size > 0) {
                                         path.clear();
                                         pathedTarget.set(location);
-                                        FloorTile tile = floorMap.getTile(location);
-                                        if(tile.isStairs()){
+                                        Tile tile = floorMap.getTile(location);
+                                        if (tile.isStairs()) {
                                                 teleportToFloor(tile.getStairsTo());
                                                 return;
                                         }
@@ -361,6 +344,72 @@ public class CharacterToken extends DamageableToken {
                 }
 
 
+        }
+
+        private void calcPathToLocation(Pair targetLocation) {
+                if (targetLocation.equals(pathedTarget)) {
+                        //Gdx.app.log(name, "already pathing: " + targetLocation);
+                        return; // already targeting this loaction, dont calc again
+                }
+
+
+                if (location.equals(targetLocation)) {
+                        // if already on this location, avoid pathing ... (not sure if i need this)
+                        path.clear();
+                        path.add(location);
+                        pathedTarget.set(targetLocation);
+                        return;
+                }
+
+
+                Tile targetTile = floorMap.getTile(targetLocation);
+                if (targetTile == null || targetTile.isBlockMovement()) {
+                        // trying to path into an illegal location, stop moving
+                        path.clear();
+                        path.add(location);
+                        pathedTarget.set(targetLocation);
+                        return;
+                }
+
+
+                boolean foundPath = floorMap.computePath(new Pair(location), new Pair(targetLocation), path);
+                if (!foundPath) {
+                        Gdx.app.error("Character Token", "No path found");
+                        // TODO: perhaps i should "cancel" out movement as in previous if statements?
+                        return; // no path was found
+                }
+
+                // apply the path that was found
+                pathedTarget.set(path.get(path.size - 1));
+
+
+                if (isMoving() && path.size > 1) {
+                        // if new path causes the token to reverse direction, the reverse happens
+                        // immediatly without having to finish passing through the tile.
+                        // this reverses the direction and fixes the path to account for this
+                        Pair nextLocation = path.get(1);
+                        if (!floorMap.isLocationBlocked(nextLocation)) {
+                                Direction newDir = Direction.getDirection(path.get(0), nextLocation);  // should this be locatioin,nextlocation?
+                                if (newDir.isOpposite(direction)) {
+                                        Tile prevTile = floorMap.getTile(location);
+                                        if (prevTile.isDoor())
+                                                prevTile.setDoorOpened(false);
+
+                                        Tile nextTile = floorMap.getTile(nextLocation);
+                                        if (nextTile.isDoor())
+                                                nextTile.setDoorOpened(true);
+
+                                        path.removeIndex(0);
+                                        direction = newDir;
+                                        location.set(nextLocation); // set location to path[1] (which is now 0 after removing the original 0)
+                                        moveU = 1 - moveU;
+                                        computeFogMap();
+                                        // attackCoolDown == attackCooldownDuration;  // i could do this here to punish making uturns, and give an advantage for coming up from behind
+                                }
+                        }
+
+
+                }
         }
 
         private boolean attack(float delta) {
@@ -415,13 +464,13 @@ public class CharacterToken extends DamageableToken {
         }
 
         private void pickUpItems() {
-                if (!consumesItems)
+                if (!picksUpItems)
                         return;
                 Array<Token> tokensAt = floorMap.getTokensAt(location, LootToken.class);
                 for (Token t : tokensAt) {
                         LootToken lootToken = (LootToken) t;
                         lootToken.becomeRemoved();
-                        // TODO: consume item, add to inventory, do its effect, whatever
+                        addItem(lootToken.getItem());
                 }
         }
 
@@ -431,21 +480,16 @@ public class CharacterToken extends DamageableToken {
                 // TODO: hook to check for death of target, maybe add XP or other stuff
         }
 
+        @Override
+        protected void receiveDamageFrom(CharacterToken characterToken) {
+                // TODO: make use of attack damage, armor, chance to evade, etc, etc
+                addHealth(-characterToken.attackDamage);
+        }
+
         private void computeFogMap() {
                 if (fogMaps == null)
                         return;
                 fogMaps.get(floorMap).update();
-        }
-
-        @Override
-        protected void receiveDamageFrom(Token token) {
-                if (token instanceof CharacterToken) {
-                        CharacterToken characterToken = (CharacterToken) token;
-                        // TODO: use attackDamage, armor, maybe some random chance
-                        // to come up with a damage value, then apply it via applyDamage()
-                        applyDamage(characterToken.attackDamage);
-                }
-
         }
 
 
@@ -545,6 +589,14 @@ public class CharacterToken extends DamageableToken {
                 this.attackDamage = attackDamage;
         }
 
+        /**
+         * do not modify! use addItem() and discardItem(), this is required to properly announce this change to the listener
+         * @return
+         */
+        public Array<Item> getInventory() {
+                return inventory;
+        }
+
         public LogicProvider getLogicProvider() {
                 return logicProvider;
         }
@@ -564,7 +616,7 @@ public class CharacterToken extends DamageableToken {
 
         public void setFogMappingEnabled(boolean enabled) {
                 if (enabled && fogMaps == null) {
-                        fogMaps= new HashMap<FloorMap, FogMap>(16);
+                        fogMaps = new HashMap<FloorMap, FogMap>(16);
                         fogMaps.put(floorMap, new FogMap(floorMap, this));
                         computeFogMap();
                 } else if (!enabled && fogMaps != null) {
@@ -576,8 +628,21 @@ public class CharacterToken extends DamageableToken {
                 return fogMaps.get(floorMap);
         }
 
-        public boolean isFogMappingEnabled(){
+        public boolean isFogMappingEnabled() {
                 return fogMaps != null;
+        }
+
+
+        public void setListener(Listener listener) {
+                this.listener = listener;
+        }
+
+        public static interface Listener {
+                public void onInventoryAdd(Item item);
+
+                public void onInventoryRemove(Item item);
+
+                public void onConsumeItem(Item item);
         }
 
 

@@ -1,11 +1,10 @@
-package asf.dungeon.board.pathfinder;
+package asf.dungeon.model;
 
 /*
 Self-explanatory. Comes with 2 methods you can use, one for integer positions and another for nodes as positions. paths return are lists of nodes, but using my class should be very simple :)
 */
 
 
-import asf.dungeon.board.Pair;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
@@ -245,5 +244,16 @@ public class Pathfinder {
                         h *=calcMomentumFactor(start);
 
                 return h;
+        }
+
+        public static interface DynamicMovementCostProvider {
+
+                /**
+                 * return dynamic movement cost for this tile (movment cost caused by
+                 * moving characters etc)
+                 * @param loc
+                 * @return eg return 1 for character blocking path, return 0 for clear path
+                 */
+                public int getMovementCost(Pair loc);
         }
 }

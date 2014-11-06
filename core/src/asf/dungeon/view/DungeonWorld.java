@@ -1,19 +1,17 @@
 package asf.dungeon.view;
 
 import asf.dungeon.DungeonApp;
-import asf.dungeon.board.CharacterToken;
-import asf.dungeon.board.CrateToken;
-import asf.dungeon.board.DamageableToken;
-import asf.dungeon.board.Dungeon;
-import asf.dungeon.board.LootToken;
-import asf.dungeon.board.Token;
-import asf.dungeon.board.factory.ConnectedRoomsGenerator;
-import asf.dungeon.board.factory.PreBuiltFloorGenerator;
-import asf.dungeon.board.factory.DungeonFactory;
-import asf.dungeon.board.factory.FloorMapGenerator;
-import asf.dungeon.board.factory.MazeGenerator;
-import asf.dungeon.board.logic.LocalPlayerLogicProvider;
-import asf.dungeon.board.Pair;
+import asf.dungeon.model.CharacterToken;
+import asf.dungeon.model.DamageableToken;
+import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.Token;
+import asf.dungeon.model.factory.ConnectedRoomsGenerator;
+import asf.dungeon.model.factory.PreBuiltFloorGenerator;
+import asf.dungeon.model.factory.DungeonFactory;
+import asf.dungeon.model.factory.FloorMapGenerator;
+import asf.dungeon.model.factory.MazeGenerator;
+import asf.dungeon.model.logic.LocalPlayerLogicProvider;
+import asf.dungeon.model.Pair;
 import asf.dungeon.utility.ModelFactory;
 import asf.dungeon.view.shape.Box;
 import com.badlogic.gdx.Gdx;
@@ -144,6 +142,7 @@ public class DungeonWorld implements Disposable {
         protected CharacterToken getLocalPlayerToken(){
                 return hudSpatial.localPlayerToken;
         }
+        protected HudSpatial getHud(){return hudSpatial;}
 
         public Token getToken(Ray ray, Token ignoreToken) {
                 Token result = null;
@@ -296,7 +295,7 @@ public class DungeonWorld implements Disposable {
                                 floorDecals.setFloorMap(hudSpatial.localPlayerToken.getFloorMap());
                         } else if (token instanceof CharacterToken) {
                                 CharacterToken characterToken = (CharacterToken) token;
-                                TokenSpatial tokenSpatial = addSpatial(new TokenSpatial(DungeonWorld.this, characterToken, "Models/Characters/" + token.getName() + ".g3db", floorDecals.tokenCustomBox, environment));
+                                TokenSpatial tokenSpatial = addSpatial(new TokenSpatial(DungeonWorld.this, characterToken, floorDecals.tokenCustomBox, environment));
                                 if (characterToken.getLogicProvider() instanceof LocalPlayerLogicProvider) {
                                         Gdx.app.log("DungeonWorld", "Local character token is added");
                                         LocalPlayerLogicProvider localLogic = (LocalPlayerLogicProvider) characterToken.getLogicProvider();
@@ -307,12 +306,8 @@ public class DungeonWorld implements Disposable {
 
                                         }
                                 }
-                        } else if (token instanceof CrateToken) {
-                                CrateToken crateToken = (CrateToken) token;
-                                addSpatial(new TokenSpatial(DungeonWorld.this, crateToken, "Models/Crates/" + crateToken.getName() + ".g3db", floorDecals.tokenCustomBox, environment));
-                        } else if (token instanceof LootToken) {
-                                LootToken lootToken = (LootToken) token;
-                                addSpatial(new TokenSpatial(DungeonWorld.this, lootToken, "Models/Loot/" + lootToken.getName() + ".g3db", floorDecals.tokenCustomBox, environment));
+                        } else  {
+                                addSpatial(new TokenSpatial(DungeonWorld.this, token, floorDecals.tokenCustomBox, environment));
                         }
 
                 }

@@ -1,12 +1,14 @@
-package asf.dungeon.board.factory;
+package asf.dungeon.model.factory;
 
-import asf.dungeon.board.CharacterToken;
-import asf.dungeon.board.CrateToken;
-import asf.dungeon.board.Dungeon;
-import asf.dungeon.board.FloorMap;
-import asf.dungeon.board.FloorTile;
-import asf.dungeon.board.logic.LocalPlayerLogicProvider;
-import asf.dungeon.board.logic.SimpleLogicProvider;
+import asf.dungeon.model.CharacterToken;
+import asf.dungeon.model.CrateToken;
+import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.Tile;
+import asf.dungeon.model.ModelId;
+import asf.dungeon.model.HealthPotion;
+import asf.dungeon.model.logic.LocalPlayerLogicProvider;
+import asf.dungeon.model.logic.SimpleLogicProvider;
 import com.badlogic.gdx.math.MathUtils;
 
 /**
@@ -14,11 +16,11 @@ import com.badlogic.gdx.math.MathUtils;
  */
 public class UtFloorGen {
 
-        protected static void printFloorTile(FloorTile[][] tiles){
+        protected static void printFloorTile(Tile[][] tiles){
 
                 for (int y = tiles[0].length - 1; y >= 0; y--) {
                         for (int x = 0; x < tiles.length; x++) {
-                                FloorTile tile = tiles[x][y];
+                                Tile tile = tiles[x][y];
                                 if(tile == null)
                                         System.out.print(" ");
                                 else
@@ -34,34 +36,36 @@ public class UtFloorGen {
 
         protected static void spawnTokens(Dungeon dungeon, FloorMap floorMap){
                 if(floorMap.index == 0){
-                        CharacterToken knightToken = dungeon.newCharacterToken(floorMap,"knight",new LocalPlayerLogicProvider(0,"Player 1"));
+                        CharacterToken knightToken = dungeon.newCharacterToken(floorMap,"Dunganeer", ModelId.Knight, new LocalPlayerLogicProvider(0,"Player 1"));
 
                         while(!knightToken.teleportToLocation( MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight()))){
                         }
                         knightToken.setAttackDamage(3);
                         knightToken.setDeathRemovalCountdown(Float.NaN);
+                        knightToken.addItem(new HealthPotion());
+                        knightToken.addItem(new HealthPotion());
                         //knightToken.setMoveSpeed(50);
                 }
 
-                String[] characters;
+                ModelId[] characters;
                 if(floorMap.index == 0)
-                        characters = new String[]{"priest"};
+                        characters = new ModelId[]{ModelId.Priest};
                 else{
-                        characters = new String[]{"archer","berzerker","diablous","female_mage","mage","priest"}; // "cerberus"
+                        characters = new ModelId[]{ModelId.Archer,ModelId.Berzerker,ModelId.Diablous,ModelId.FemaleMage,ModelId.Mage,ModelId.Priest}; // "cerberus"
                 }
                 //characters = new String[]{};
 
-                for(String characterName : characters){
-                        CharacterToken characterToken = dungeon.newCharacterToken(floorMap,characterName, new SimpleLogicProvider());
+                for(ModelId modelId : characters){
+                        CharacterToken characterToken = dungeon.newCharacterToken(floorMap,modelId.name(),modelId, new SimpleLogicProvider());
                         while(!characterToken.teleportToLocation(MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight()))){
                         }
                 }
 
                 // TODO: make sure crates dont spawn on stairs
-                String[] crates = new String[]{"CeramicPitcher","CeramicPitcher","CeramicPitcher"};
+                ModelId[] crates = new ModelId[]{ModelId.CeramicPitcher,ModelId.CeramicPitcher,ModelId.CeramicPitcher,ModelId.CeramicPitcher,ModelId.CeramicPitcher};
 
-                for(String crateName : crates){
-                        CrateToken crateToken = dungeon.newCrateToken(floorMap,crateName);
+                for(ModelId modelId : crates){
+                        CrateToken crateToken = dungeon.newCrateToken(floorMap,modelId.name(), modelId, new HealthPotion());
                         while(!crateToken.teleportToLocation(MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight()))){
                         }
                 }

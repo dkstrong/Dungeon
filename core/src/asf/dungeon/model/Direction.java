@@ -1,4 +1,4 @@
-package asf.dungeon.board;
+package asf.dungeon.model;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.MathUtils;

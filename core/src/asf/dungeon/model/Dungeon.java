@@ -1,9 +1,9 @@
-package asf.dungeon.board;
+package asf.dungeon.model;
 
-import asf.dungeon.board.factory.FloorMapGenerator;
+import asf.dungeon.model.factory.FloorMapGenerator;
 import com.badlogic.gdx.Gdx;
-import asf.dungeon.board.logic.LocalPlayerLogicProvider;
-import asf.dungeon.board.logic.LogicProvider;
+import asf.dungeon.model.logic.LocalPlayerLogicProvider;
+import asf.dungeon.model.logic.LogicProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,8 +65,8 @@ public class Dungeon {
                 return floorMaps.get(floorIndex);
         }
 
-        public CharacterToken newCharacterToken(FloorMap fm, String name, LogicProvider logicProvider) {
-                CharacterToken t = new CharacterToken(this,fm, nextTokenId++, name);
+        public CharacterToken newCharacterToken(FloorMap fm, String name, ModelId modelId, LogicProvider logicProvider) {
+                CharacterToken t = new CharacterToken(this,fm, nextTokenId++, name, modelId);
                 t.setLogicProvider(logicProvider);
                 fm.tokens.add(t);
                 if(currentFloorMap == fm)
@@ -74,16 +74,16 @@ public class Dungeon {
                 return t;
         }
 
-        public CrateToken newCrateToken(FloorMap fm, String name) {
-                CrateToken t = new CrateToken(this, fm, nextTokenId++, name);
+        public CrateToken newCrateToken(FloorMap fm, String name, ModelId modelId, Item item) {
+                CrateToken t = new CrateToken(this, fm, nextTokenId++, name, modelId, item );
                 fm.tokens.add(t);
                 if(currentFloorMap == fm)
                         listener.onTokenAdded(t);
                 return t;
         }
 
-        public LootToken newLootToken(FloorMap fm, String name, int x, int y) {
-                LootToken t = new LootToken(this, fm,nextTokenId++, name);
+        public LootToken newLootToken(FloorMap fm, Item item, int x, int y) {
+                LootToken t = new LootToken(this, fm,nextTokenId++, item);
                 fm.tokens.add(t);
                 t.teleportToLocation( x, y);
                 if(currentFloorMap == fm)

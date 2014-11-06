@@ -1,8 +1,8 @@
 package asf.dungeon.view;
 
 import com.badlogic.gdx.graphics.g3d.model.Animation;
-import asf.dungeon.board.Dungeon;
-import asf.dungeon.board.LootToken;
+import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.LootToken;
 
 /**
  * Created by danny on 10/20/14.
@@ -59,4 +59,8 @@ public class LootTokenControl implements TokenControl{
         }
 
 
+        @Override
+        public void dispose() {
+
+        }
 }

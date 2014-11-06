@@ -1,6 +1,7 @@
 package asf.dungeon.view;
 
-import asf.dungeon.board.Direction;
+import asf.dungeon.model.Direction;
+import asf.dungeon.model.Tile;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -19,12 +20,10 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import asf.dungeon.board.FloorMap;
-import asf.dungeon.board.FloorTile;
-import asf.dungeon.board.FogMap;
-import asf.dungeon.board.FogState;
-import asf.dungeon.board.Pair;
-import asf.dungeon.board.pathfinder.Tile;
+import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FogMap;
+import asf.dungeon.model.FogState;
+import asf.dungeon.model.Pair;
 import asf.dungeon.view.shape.CustomBox;
 import asf.dungeon.utility.MoreMath;
 
@@ -227,7 +226,7 @@ public class FloorSpatial implements Spatial {
 
                 for (int x = 0; x < floorMap.getWidth(); x++) {
                         for (int y = 0; y < floorMap.getHeight(); y++) {
-                                FloorTile tile = floorMap.getTile(x,y);
+                                Tile tile = floorMap.getTile(x,y);
                                 if(tile != null){
                                         if(tile.isBlockMovement()){
                                                 makeDecalWall(tile, x, y);
@@ -244,20 +243,20 @@ public class FloorSpatial implements Spatial {
         }
 
         private Direction whichDirectionToFaceDoor(int x, int y){
-                FloorTile nw = floorMap.getTile(x-1,y+1);
-                FloorTile n = floorMap.getTile(x,y+1);
-                FloorTile ne = floorMap.getTile(x+1,y+1);
+                Tile nw = floorMap.getTile(x-1,y+1);
+                Tile n = floorMap.getTile(x,y+1);
+                Tile ne = floorMap.getTile(x+1,y+1);
                 if(nw.isFloor() && n.isFloor() && ne.isFloor())
                         return Direction.North;
-                FloorTile e = floorMap.getTile(x+1,y);
-                FloorTile se = floorMap.getTile(x+1,y-1);
+                Tile e = floorMap.getTile(x+1,y);
+                Tile se = floorMap.getTile(x+1,y-1);
                 if(ne.isFloor() && e.isFloor() && se.isFloor())
                         return Direction.East;
-                FloorTile s = floorMap.getTile(x,y-1);
-                FloorTile sw = floorMap.getTile(x-1,y-1);
+                Tile s = floorMap.getTile(x,y-1);
+                Tile sw = floorMap.getTile(x-1,y-1);
                 if(se.isFloor() && s.isFloor() && sw.isFloor())
                         return Direction.South;
-                FloorTile w = floorMap.getTile(x-1,y);
+                Tile w = floorMap.getTile(x-1,y);
                 if(sw.isFloor() && w.isFloor() && nw.isFloor())
                         return Direction.West;
 
@@ -269,7 +268,7 @@ public class FloorSpatial implements Spatial {
 
         private Vector3 worldCoordsTemp = new Vector3();
 
-        private void makeDecalFloor(FloorTile tile, int x, int y) {
+        private void makeDecalFloor(Tile tile, int x, int y) {
                 getWorldCoords(x, y, worldCoordsTemp);
                 DecalNodeProp prop;
                 Texture tex;
@@ -326,7 +325,7 @@ public class FloorSpatial implements Spatial {
 
         }
 
-        private void makeDecalWall(FloorTile tile, int x, int y){
+        private void makeDecalWall(Tile tile, int x, int y){
 
                 getWorldCoords(x, y, worldCoordsTemp);
 
@@ -404,11 +403,11 @@ public class FloorSpatial implements Spatial {
                 public Decal decal;
                 public int x;
                 public int y;
-                public FloorTile tile;
+                public Tile tile;
                 public float visibleY; // floor tiles start in the sky, then once visited they move to y=0, this is to prevent their sillouete from giving away what they are
                 public DecalNodeProp prop;
 
-                public DecalNode(Decal decal, int x, int y, FloorTile tile, float visibleY) {
+                public DecalNode(Decal decal, int x, int y, Tile tile, float visibleY) {
                         this.decal = decal;
                         this.x = x;
                         this.y = y;

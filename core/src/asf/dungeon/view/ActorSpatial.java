@@ -159,4 +159,8 @@ public class ActorSpatial implements Spatial {
                 return initialized;
         }
 
+        public static enum CullType {
+                Always, Never, Dynamic;
+        }
+
 }

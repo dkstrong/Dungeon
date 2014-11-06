@@ -1,4 +1,4 @@
-package asf.dungeon.board;
+package asf.dungeon.model;
 
 
 /**

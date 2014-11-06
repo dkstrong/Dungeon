@@ -1,8 +1,8 @@
-package asf.dungeon.board.factory;
+package asf.dungeon.model.factory;
 
-import asf.dungeon.board.Dungeon;
-import asf.dungeon.board.FloorMap;
-import asf.dungeon.board.FloorTile;
+import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.Tile;
 
 import java.util.Random;
 
@@ -25,14 +25,14 @@ public class MazeGenerator implements FloorMapGenerator{
         }
 
         public FloorMap generate(Dungeon dungeon, int floorIndex){
-                FloorTile[][] tiles = MazeGenerator.generateTiles(width, height);
+                Tile[][] tiles = MazeGenerator.generateTiles(width, height);
                 // upper stairs is on bottom left
                 if(floorIndex >0){
                         outerloop:
                         for(int x=0; x<tiles.length; x++){
                                 for(int y=0; y<tiles[x].length; y++){
                                         if(!tiles[x][y].isBlockMovement() && !tiles[x][y].isBlockVision()){
-                                                tiles[x][y] = FloorTile.makeStairs(floorIndex, floorIndex-1);
+                                                tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
                                                 break outerloop;
                                         }
                                 }
@@ -45,7 +45,7 @@ public class MazeGenerator implements FloorMapGenerator{
                 for (int x = tiles.length - 1; x >= 0; x--) {
                         for (int y = tiles[x].length - 1; y >= 0; y--) {
                                 if(!tiles[x][y].isBlockMovement() && !tiles[x][y].isBlockVision()){
-                                        tiles[x][y] = FloorTile.makeStairs(floorIndex, floorIndex+1);
+                                        tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex + 1);
                                         break outerloop;
                                 }
                         }
@@ -60,16 +60,16 @@ public class MazeGenerator implements FloorMapGenerator{
         private static boolean[][] visited;
         private static Random rand = new Random();
 
-        public static FloorTile[][] generateTiles(int w, int h){
+        public static Tile[][] generateTiles(int w, int h){
 
                 boolean[][] generate = generate(w, h);
-                FloorTile[][] tiles = new FloorTile[generate.length][generate[0].length];
+                Tile[][] tiles = new Tile[generate.length][generate[0].length];
                 for (int i = 0; i < generate.length; i++) {
                         for (int i1 = 0; i1 < generate[i].length; i1++) {
                                 if(generate[i][i1]){
-                                        tiles[i][i1] = FloorTile.makeWall();
+                                        tiles[i][i1] = Tile.makeWall();
                                 }else{
-                                        tiles[i][i1] = FloorTile.makeFloor();
+                                        tiles[i][i1] = Tile.makeFloor();
                                 }
                         }
                 }

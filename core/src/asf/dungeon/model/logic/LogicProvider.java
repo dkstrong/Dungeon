@@ -1,7 +1,7 @@
-package asf.dungeon.board.logic;
+package asf.dungeon.model.logic;
 
 
-import asf.dungeon.board.CharacterToken;
+import asf.dungeon.model.CharacterToken;
 
 /**
  * Created by danny on 10/23/14.

@@ -1,11 +1,10 @@
-package asf.dungeon.board;
+package asf.dungeon.model;
 
-import asf.dungeon.board.pathfinder.Tile;
 
 /**
  * Created by danny on 10/26/14.
  */
-public class FloorTile implements Tile {
+public class Tile {
         private int movementCost;
         private boolean blockMovement;
         private boolean blockVision;
@@ -15,19 +14,19 @@ public class FloorTile implements Tile {
         private boolean locked;
         private int keyId;
 
-        private FloorTile(boolean blockMovement, boolean blockVision) {
+        private Tile(boolean blockMovement, boolean blockVision) {
                 this.blockMovement = blockMovement;
                 this.blockVision = blockVision;
                 this.stairsTo = -1;
         }
 
-        private FloorTile(boolean blockVision, int stairsTo) {
+        private Tile(boolean blockVision, int stairsTo) {
                 this.blockMovement = false;
                 this.blockVision = blockVision;
                 this.stairsTo = stairsTo;
         }
 
-        private FloorTile(boolean doorOpened, boolean doorLocked, int keyId) {
+        private Tile(boolean doorOpened, boolean doorLocked, int keyId) {
                 this.door =true;
                 this.opened = doorOpened;
                 this.blockVision = !opened;
@@ -37,7 +36,7 @@ public class FloorTile implements Tile {
                 this.stairsTo = -1;
         }
 
-        @Override
+
         public boolean isBlockMovement() {
                 return blockMovement;
         }
@@ -94,23 +93,23 @@ public class FloorTile implements Tile {
                 return stairsTo < currentFloorIndex;
         }
 
-        @Override
+
         public int getMovementCost() {
                 return movementCost;
         }
 
-        public static FloorTile makeFloor() {
-                return new FloorTile(false, false);
+        public static Tile makeFloor() {
+                return new Tile(false, false);
         }
 
-        public static FloorTile makeWall() {
-                return new FloorTile(true, true);
+        public static Tile makeWall() {
+                return new Tile(true, true);
         }
 
-        public static FloorTile makeDoor() {return new FloorTile(false, false, 0);}
+        public static Tile makeDoor() {return new Tile(false, false, 0);}
 
-        public static FloorTile makeStairs(int currentFloorIndex, int stairsTo) {
-                return new FloorTile(stairsTo < currentFloorIndex, stairsTo);
+        public static Tile makeStairs(int currentFloorIndex, int stairsTo) {
+                return new Tile(stairsTo < currentFloorIndex, stairsTo);
         }
 
         @Override

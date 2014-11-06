@@ -1,8 +1,6 @@
-package asf.dungeon.board;
+package asf.dungeon.model;
 
 import com.badlogic.gdx.utils.Array;
-import asf.dungeon.board.pathfinder.Pathfinder;
-import asf.dungeon.board.pathfinder.Tile;
 
 import java.util.List;
 
@@ -12,11 +10,11 @@ import java.util.List;
  */
 public class FloorMap {
         public final int index;
-        public final FloorTile[][] tiles;
+        public final Tile[][] tiles;
         private final Pathfinder pathfinder;
         protected Array<Token> tokens = new Array<Token>(true, 16, Token.class);
 
-        public FloorMap(int index, FloorTile[][] tiles) {
+        public FloorMap(int index, Tile[][] tiles) {
                 this.index = index;
                 this.tiles = tiles;
                 pathfinder = new Pathfinder(tiles);
@@ -32,20 +30,19 @@ public class FloorMap {
         }
 
 
-        public Array<Pair> computePath(Pair start, Pair goal) {
+        public boolean computePath(Pair start, Pair goal, Array<Pair> store) {
                 List<Pair> path = pathfinder.generate(start, goal);
 
                 if(path == null){
-                        return null;
+                        return false;
                 }
 
-                // TODO: instead of creating a new array, pass in a store argument
-                Array<Pair> pathArray = new Array<Pair>();
+                store.clear();
                 for (Pair pair : path) {
-                        pathArray.add(pair);
+                        store.add(pair);
                 }
 
-                return pathArray;
+                return true;
         }
 
         public int getWidth() {
@@ -57,20 +54,20 @@ public class FloorMap {
         }
 
 
-        public FloorTile getTile(Pair loc){
+        public Tile getTile(Pair loc){
                 if(loc.x >= getWidth() || loc.x <0 || loc.y >= getHeight() || loc.y<0){
                         return null;
                 }
                 return tiles[loc.x][loc.y];
         }
-        public FloorTile getTile(int x, int y){
+        public Tile getTile(int x, int y){
                 if(x >= getWidth() || x <0 || y >= getHeight() || y<0){
                         return null;
                 }
                 return tiles[x][y];
         }
 
-        public FloorTile getTile(int x, int y, Direction dir){
+        public Tile getTile(int x, int y, Direction dir){
                 if(dir == Direction.North){
                         y++;
                 }else if(dir == Direction.South){

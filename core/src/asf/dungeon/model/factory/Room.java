@@ -1,6 +1,4 @@
-package asf.dungeon.board.factory;
-
-import asf.dungeon.board.Pair;
+package asf.dungeon.model.factory;
 
 /**
  * Created by Danny on 11/4/2014.

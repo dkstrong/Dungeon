@@ -1,6 +1,6 @@
 package asf.dungeon.view;
 
-import asf.dungeon.board.Pair;
+import asf.dungeon.model.Pair;
 
 /**
  * Created by danny on 10/20/14.
@@ -16,7 +16,7 @@ public class SelectionMark implements ActorControl {
 
         @Override
         public void start(ActorSpatial actorSpatial) {
-                actorSpatial.cullType = CullType.Always;
+                actorSpatial.cullType = ActorSpatial.CullType.Always;
                 this.actorSpatial = actorSpatial;
 
         }
@@ -24,7 +24,7 @@ public class SelectionMark implements ActorControl {
         @Override
         public void update(float delta) {
                 if(count <=0){
-                        actorSpatial.cullType = CullType.Always;
+                        actorSpatial.cullType = ActorSpatial.CullType.Always;
                         count = Float.NaN;
                 }else{
                         count-=delta;
@@ -33,11 +33,11 @@ public class SelectionMark implements ActorControl {
 
         public void mark(Pair loc){
                 if(loc == null){
-                        actorSpatial.cullType = CullType.Always;
+                        actorSpatial.cullType = ActorSpatial.CullType.Always;
                         count = Float.NaN;
                         return;
                 }
-                actorSpatial.cullType = CullType.Dynamic;
+                actorSpatial.cullType = ActorSpatial.CullType.Dynamic;
                 count = 2;
                 world.getWorldCoords(loc, actorSpatial.translation);
 
