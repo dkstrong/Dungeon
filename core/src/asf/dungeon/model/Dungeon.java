@@ -12,15 +12,23 @@ import java.util.Map;
  * Created by danny on 10/22/14.
  */
 public class Dungeon {
+        private final MasterJournal masterJournal;
         private final FloorMapGenerator floorMapFactory;
         private final Map<Integer, FloorMap> floorMaps = new HashMap<Integer, FloorMap>(16);
         private FloorMap currentFloorMap;
         private int nextTokenId = 0;
+
         private final Listener listener;
 
-        public Dungeon(Listener listener, FloorMapGenerator floorMapFactory) {
+        public Dungeon(Listener listener, MasterJournal masterJournal,FloorMapGenerator floorMapFactory) {
                 this.listener = listener;
+                this.masterJournal = masterJournal;
                 this.floorMapFactory = floorMapFactory;
+
+        }
+
+        public MasterJournal getMasterJournal(){
+                return masterJournal;
         }
 
         public void update(float delta) {
@@ -41,6 +49,9 @@ public class Dungeon {
         }
 
         public void setCurrentFloor(FloorMap newFloor) {
+                if(newFloor == currentFloorMap){
+                        return;
+                }
                 Gdx.app.log("Dungeon","setCurrentFloor: "+newFloor.index);
                 FloorMap oldFloorMap = currentFloorMap;
                 currentFloorMap = newFloor;

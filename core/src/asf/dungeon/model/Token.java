@@ -80,7 +80,12 @@ public abstract class Token {
                         stairLoc = floorMap.getLocationOfDownStairs();
                 }
 
-                teleportToLocation(stairLoc.x, stairLoc.y, Direction.North);
+                boolean valid = teleportToLocation(stairLoc.x, stairLoc.y, Direction.North);
+                if(!valid){
+                        // TODO: if there is something in the way of teleporting here (eg a character standing on the up stairs), then teleportToLocation()
+                        // i need a way to handle this
+                        throw new AssertionError("It seems I coudlnt teleport to the location of the stairs");
+                }
                 dungeon.moveTokenToFloor(this, floorMap);
 
                 return true;

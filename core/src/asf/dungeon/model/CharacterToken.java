@@ -58,12 +58,13 @@ public class CharacterToken extends DamageableToken {
         private float continuousMoveTokenLostVisionCountdown = 0;
         private float moveU = 1;                                // 1 = fully on the location, less then 1 means moving on to the location still even though it occupies it, use direction variable to determine which way token is walking towards the location
         private Array<Item> inventory = new Array<Item>(true, 16, Item.class);
-        private Item consumeItem;                               // item to be  consumed on next update
+        private ConsumableItem consumeItem;                               // item to be  consumed on next update
         private float attackU = 0;                              // 0 = not attacking, >0 attacking, once attackU >=attackDuration then attackU is reset to 0
         private DamageableToken attackTarget;                             // the token that is being attacked, this also marks if this token is in the "attacking" state
         private boolean attackDamageApplied = false;            // flag to determine if the damage has been applied from the current "attacking" state, invalid if attackTarget == null
         private float attackCoolDown = 0;                       // time until this token can send another attack, after attacking this value is reset to attackCooldownDuration
         private Map<FloorMap, FogMap> fogMaps;
+        private Journal journal;
         private transient Listener listener;
 
 
@@ -191,8 +192,8 @@ public class CharacterToken extends DamageableToken {
                 if (consumeItem != null)
                         return false; // already consuming an item
 
-                if (item.isConsumable()) {
-                        consumeItem = item;
+                if (item instanceof ConsumableItem) {
+                        consumeItem = (ConsumableItem)item;
                         return true;
                 }
 
@@ -628,8 +629,33 @@ public class CharacterToken extends DamageableToken {
                 return fogMaps.get(floorMap);
         }
 
+        /**
+         *
+         * @deprecated temporarily here for debugging
+         */
+        @Deprecated
+        public Map<FloorMap, FogMap> getFogMaps(){
+                return fogMaps;
+        }
+
         public boolean isFogMappingEnabled() {
                 return fogMaps != null;
+        }
+
+        public void setJournalEnabled(boolean enabled){
+                if(enabled && journal == null){
+                        journal = new Journal();
+                }else if(!enabled && journal != null){
+                        journal = null;
+                }
+        }
+
+        public Journal getJournal(){
+                return journal;
+        }
+
+        public boolean isJournalEnabled(){
+                return journal != null;
         }
 
 
@@ -642,7 +668,7 @@ public class CharacterToken extends DamageableToken {
 
                 public void onInventoryRemove(Item item);
 
-                public void onConsumeItem(Item item);
+                public void onConsumeItem(ConsumableItem item);
         }
 
 

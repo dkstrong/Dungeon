@@ -1,6 +1,7 @@
 package asf.dungeon.model;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.SnapshotArray;
 
 import java.util.List;
 
@@ -24,6 +25,13 @@ public class FloorMap {
         }
 
         protected void update(float delta){
+                // TODO: if teleporting, i think it could cause the token list to shift, and a token would miss an update.
+                // I need to find a way to make sure all tokens are still updated
+                // This same sort of issue would also happen when removing a token in general
+                // TODO: snapsshot array maybe?  http://libgdx.badlogicgames.com/nightlies/docs/api/com/badlogic/gdx/utils/SnapshotArray.html
+                // Or maybe somehow enque the tokens to be removed?
+                // or something with an iterator?
+
                 for (int i = 0; i < tokens.size; i++) {
                         tokens.items[i].incremenetU(delta);
                 }

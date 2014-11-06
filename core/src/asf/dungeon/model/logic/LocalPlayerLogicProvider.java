@@ -30,6 +30,7 @@ public class LocalPlayerLogicProvider implements LogicProvider {
                 this.token = token;
                 this.dungeon = token.dungeon;
                 token.setFogMappingEnabled(true);
+                token.setJournalEnabled(true);
         }
 
         @Override

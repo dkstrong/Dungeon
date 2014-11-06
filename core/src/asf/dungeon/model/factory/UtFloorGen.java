@@ -4,9 +4,9 @@ import asf.dungeon.model.CharacterToken;
 import asf.dungeon.model.CrateToken;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.PotionItem;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.ModelId;
-import asf.dungeon.model.HealthPotion;
 import asf.dungeon.model.logic.LocalPlayerLogicProvider;
 import asf.dungeon.model.logic.SimpleLogicProvider;
 import com.badlogic.gdx.math.MathUtils;
@@ -42,8 +42,8 @@ public class UtFloorGen {
                         }
                         knightToken.setAttackDamage(3);
                         knightToken.setDeathRemovalCountdown(Float.NaN);
-                        knightToken.addItem(new HealthPotion());
-                        knightToken.addItem(new HealthPotion());
+                        knightToken.addItem(new PotionItem(dungeon, PotionItem.Type.Health));
+                        knightToken.addItem(new PotionItem(dungeon, PotionItem.Type.Health));
                         //knightToken.setMoveSpeed(50);
                 }
 
@@ -65,7 +65,7 @@ public class UtFloorGen {
                 ModelId[] crates = new ModelId[]{ModelId.CeramicPitcher,ModelId.CeramicPitcher,ModelId.CeramicPitcher,ModelId.CeramicPitcher,ModelId.CeramicPitcher};
 
                 for(ModelId modelId : crates){
-                        CrateToken crateToken = dungeon.newCrateToken(floorMap,modelId.name(), modelId, new HealthPotion());
+                        CrateToken crateToken = dungeon.newCrateToken(floorMap,modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health));
                         while(!crateToken.teleportToLocation(MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight()))){
                         }
                 }
