@@ -2,6 +2,7 @@ package asf.dungeon.view;
 
 import asf.dungeon.model.ConsumableItem;
 import asf.dungeon.model.Item;
+import asf.dungeon.model.StatusEffect;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import asf.dungeon.model.CharacterToken;
@@ -120,6 +121,12 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
                 currentItemConsume = item;
                 if(world.getHud().localPlayerToken == token)
                         world.getHud().onConsumeItem(item);
+        }
+
+        @Override
+        public void onStatusEffectChange(StatusEffect effect, float duration) {
+                if(world.getHud().localPlayerToken == token)
+                        world.getHud().onStatusEffectChange(effect, duration);
         }
 
         @Override

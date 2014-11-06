@@ -38,6 +38,7 @@ public class PotionItem implements ConsumableItem {
 
         @Override
         public String getNameFromJournal(CharacterToken token){
+
                 if(!token.isJournalEnabled() || token.getJournal().knows(type))
                         return getName();
                 return color.name()+" Potion";
@@ -52,23 +53,31 @@ public class PotionItem implements ConsumableItem {
         public void consume(CharacterToken token) {
                 switch(type){
                         case Health:
-                                token.addHealth(3);
+                                token.addStatusEffect(StatusEffect.Heal, 1, 3);
                                 break;
                         case Experience:
                                 break;
                         case Invisibility:
+                                token.addStatusEffect(StatusEffect.Invisibility, 10,1);
                                 break;
                         case Purity:
+                                token.removeNegativeStatusEffects();
                                 break;
                         case Poison:
+                                token.addStatusEffect(StatusEffect.Poison, 10, 5);
                                 break;
                         case Paralyze:
+                                token.addStatusEffect(StatusEffect.Paralyze, 5,1);
                                 break;
                         case MindVision:
+                                token.addStatusEffect(StatusEffect.MindVision, 5,1);
                                 break;
                         case Strength:
                                 break;
                         case Might:
+                                break;
+                        case Speed:
+                                token.addStatusEffect(StatusEffect.Speed, 10,1);
                                 break;
                 }
                 if(token.isJournalEnabled())
@@ -77,7 +86,7 @@ public class PotionItem implements ConsumableItem {
         }
 
         public static enum Type{
-                Health, Experience, Invisibility, Purity, Poison, Paralyze, MindVision, Strength, Might;
+                Health, Experience, Invisibility, Purity, Poison, Paralyze, MindVision, Strength, Might, Speed;
         }
 
         public static enum Color{

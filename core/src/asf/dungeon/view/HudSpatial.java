@@ -4,6 +4,7 @@ import asf.dungeon.model.CharacterToken;
 import asf.dungeon.model.ConsumableItem;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Pair;
+import asf.dungeon.model.StatusEffect;
 import asf.dungeon.model.Token;
 import asf.dungeon.model.Item;
 import asf.dungeon.utility.MoreMath;
@@ -376,6 +377,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         public void onConsumeItem(ConsumableItem item) {
                 // refreshInventoryElements();  // onInventoryRemove will be called right after, no point in doing this twice
                 this.setCenterLabelText("You just drank "+item.getNameFromJournal(localPlayerToken));
+        }
+
+        @Override
+        public void onStatusEffectChange(StatusEffect effect, float duration) {
+                // TODO: refresh status effect display
         }
 
         private void refreshInventoryElements() {

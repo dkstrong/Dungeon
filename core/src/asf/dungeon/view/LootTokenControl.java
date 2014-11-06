@@ -1,8 +1,13 @@
 package asf.dungeon.view;
 
+import asf.dungeon.model.PotionItem;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.LootToken;
+
+import javax.swing.text.AttributeSet;
 
 /**
  * Created by danny on 10/20/14.
@@ -41,6 +46,14 @@ public class LootTokenControl implements TokenControl{
                 }
 
                 //actorSpatial.animController.setAnimation("Default Take",-1);
+
+                if(token.getItem() instanceof PotionItem){
+                        PotionItem potion = (PotionItem) token.getItem();
+                        for (Material mat : actorSpatial.modelInstance.materials) {
+                                ColorAttribute colorAttribute = (ColorAttribute)mat.get(ColorAttribute.Diffuse);
+                                colorAttribute.color.set(potion.getColor().color);
+                        }
+                }
 
         }
 

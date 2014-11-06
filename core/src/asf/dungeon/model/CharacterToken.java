@@ -5,7 +5,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -49,6 +51,7 @@ public class CharacterToken extends DamageableToken {
          */
         private boolean picksUpItems = true;
         // state variables
+        private final Map<StatusEffect, Array<Float>> statusEffects = new EnumMap<StatusEffect, Array<Float>>(StatusEffect.class);
         private final Array<Pair> path = new Array<Pair>(true, 32, Pair.class);   // the current path that this token is trying to follow, it may be regularly refreshed with new paths
         private final Pair pathedTarget = new Pair();           // the last element of path. this is compared against continuesMoveTarget to prevent spamming the pathfinder coder
         private Pair continuousMoveLocation;                      // the location that this token wants to move to, token will move and attack through tiles along the way to get to its destination
@@ -68,8 +71,15 @@ public class CharacterToken extends DamageableToken {
         private transient Listener listener;
 
 
+
         protected CharacterToken(Dungeon dungeon, FloorMap floorMap, int id, String name, ModelId modelId) {
                 super(dungeon, floorMap, id, name, modelId, 10);
+
+
+                for (StatusEffect statusEffect : StatusEffect.values) {
+                        statusEffects.put(statusEffect, new Array<Float>(false, 8, Float.class));
+                }
+
                 this.setDeathDuration(3f);
                 this.setDeathRemovalCountdown(10f);
         }
@@ -218,9 +228,69 @@ public class CharacterToken extends DamageableToken {
                 return valid;
         }
 
+        public void addStatusEffect(StatusEffect statusEffect, float duration){
+                addStatusEffect(statusEffect,duration,1);
+        }
+        public void addStatusEffect(StatusEffect statusEffect, float duration, int value){
+                if(duration < this.getStatusEffectDuration(statusEffect)){
+                        return;
+                }
+
+                Array<Float> durations = statusEffects.get(statusEffect);
+
+                float subDuration = duration/value;
+                for(int i=0; i<value; i++){
+                        durations.add(subDuration);
+                }
+                statusEffect.begin(this);
+                if(listener != null)
+                        listener.onStatusEffectChange(statusEffect, duration);
+        }
+
+        public void removeStatusEffect(StatusEffect statusEffect){
+                Array<Float> durations = statusEffects.get(statusEffect);
+                durations.clear();
+                statusEffect.end(this);
+                if(listener != null)
+                        listener.onStatusEffectChange(statusEffect, 0);
+        }
+
+        public void removeNegativeStatusEffects(){
+                removeStatusEffect(StatusEffect.Poison);
+                removeStatusEffect(StatusEffect.Paralyze);
+        }
+
+        public void removeAllStatusEffects(){
+                for (StatusEffect statusEffect : StatusEffect.values()) {
+                        removeStatusEffect(statusEffect);
+                }
+        }
+
         protected void incremenetU(float delta) {
                 if (logicProvider != null)    // TODO: i might want to change the floorMap.update() so that all the logic providers are updated then do incrementU(). this would give the ai a more consistent way to interact with other character tokens
                         logicProvider.updateLogic(delta);
+
+                for (StatusEffect statusEffect : StatusEffect.values) {
+                        Array<Float> durations = statusEffects.get(statusEffect);
+                        if(durations.size ==0){
+                                continue;
+                        }
+                        durations.items[0] -= delta;
+                        if(durations.items[0] <=0){
+                                statusEffect.apply(this);
+                                if(durations.size>1){
+                                        durations.items[1] += durations.items[0]; // carry over the remaining duration to the next on the list
+                                }
+                                durations.removeIndex(0);
+
+                                if(durations.size ==0){
+                                        statusEffect.end(this);
+                                        if(listener != null)
+                                                listener.onStatusEffectChange(statusEffect, 0);
+                                }
+                        }
+                }
+
 
                 super.incremenetU(delta);
                 if (isDead()) {
@@ -544,6 +614,19 @@ public class CharacterToken extends DamageableToken {
                 return attackTarget != null;
         }
 
+        public boolean hasStatusEffect(StatusEffect statusEffect){
+                return statusEffects.get(statusEffect).size >0;
+        }
+
+        public float getStatusEffectDuration(StatusEffect statusEffect){
+                float duration = 0;
+                Array<Float> durations = statusEffects.get(statusEffect);
+                for (Float aFloat : durations) {
+                        duration+=aFloat;
+                }
+                return duration;
+        }
+
         /**
          * how fast the token moves between tiles
          *
@@ -669,7 +752,11 @@ public class CharacterToken extends DamageableToken {
                 public void onInventoryRemove(Item item);
 
                 public void onConsumeItem(ConsumableItem item);
+
+                public void onStatusEffectChange(StatusEffect effect, float duration);
         }
+
+
 
 
 }

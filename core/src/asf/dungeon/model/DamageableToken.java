@@ -1,11 +1,13 @@
 package asf.dungeon.model;
 
+import com.badlogic.gdx.math.MathUtils;
+
 /**
  * A token that can be attacked by attempting to move on to its tile.
  * DamageableTokens block pathing
- *
+ * <p/>
  * Typically this is stuff like crates and characters
- *
+ * <p/>
  * Created by danny on 10/25/14.
  */
 public abstract class DamageableToken extends Token {
@@ -35,7 +37,7 @@ public abstract class DamageableToken extends Token {
         private float deathRemovalCountdown = 10;           // the time after being fully dead to remove this token from the Dungeon. Use Float.NaN to never remove it. The main purpose of this is for performance
 
         protected DamageableToken(Dungeon dungeon, FloorMap floorMap, int id, String name, ModelId modelId, int initialHealth) {
-                super(dungeon, floorMap,  id, name, modelId);
+                super(dungeon, floorMap, id, name, modelId);
                 this.health = initialHealth;
                 this.maxHealth = initialHealth;
         }
@@ -43,17 +45,17 @@ public abstract class DamageableToken extends Token {
         /**
          * teleports token to this new location, if the new location
          * can not be moved to (normally because it is already occupied) then the move will not work.
-         *
+         * <p/>
          * this generally is used for setting up the dungeon, could eventually be used for stairways to lead to other rooms.
          *
          * @param direction
          * @return true if moved, false if did not move
          */
         @Override
-        public boolean teleportToLocation( int x, int y, Direction direction) {
-                boolean teleported = super.teleportToLocation( x,y, direction);
-                if(teleported){
-                        hitU =0;
+        public boolean teleportToLocation(int x, int y, Direction direction) {
+                boolean teleported = super.teleportToLocation(x, y, direction);
+                if (teleported) {
+                        hitU = 0;
                         hitSource = null;
                 }
                 return teleported;
@@ -61,17 +63,17 @@ public abstract class DamageableToken extends Token {
         }
 
         @Override
-        protected void incremenetU(float delta){
+        protected void incremenetU(float delta) {
                 if (isFullyDead()) {
                         deathCountdown -= delta;
-                        if(deathCountdown < -deathRemovalCountdown ){
+                        if (deathCountdown < -deathRemovalCountdown) {
                                 dungeon.removeToken(this);
                         }
                         return;
                 } else if (isDead()) {
                         deathCountdown -= delta;
                         return;
-                }else if (isHit()) {
+                } else if (isHit()) {
                         hitU += delta;
                         if (hitU > hitDuration) {
                                 hitU = 0;
@@ -83,6 +85,7 @@ public abstract class DamageableToken extends Token {
 
         /**
          * CharacterToken calls this on the token it attacked, tokens decide for the
+         *
          * @param token
          */
         protected abstract void receiveDamageFrom(CharacterToken token);
@@ -90,20 +93,21 @@ public abstract class DamageableToken extends Token {
         /**
          * adds or subtracts health, will kill or revive token
          * if health reaches or recovers from zero
+         *
          * @param value
          */
-        public void addHealth(int value){
-                if(value >0){
-                        boolean wasDead= isDead();
-                        this.health+= value;
-                        if(health>maxHealth)
+        public void addHealth(int value) {
+                if (value > 0) {
+                        boolean wasDead = isDead();
+                        this.health += value;
+                        if (health > maxHealth)
                                 health = maxHealth;
 
-                        if(wasDead && !isDead()){
+                        if (wasDead && !isDead()) {
                                 deathCountdown = 0;
                                 onRevive();
                         }
-                }else if(value <0){
+                } else if (value < 0) {
                         if (isDead()) {
                                 return;
                         }
@@ -118,47 +122,50 @@ public abstract class DamageableToken extends Token {
                 }
 
 
+        }
+
+        protected void onRevive() {
 
         }
 
-        protected void onRevive(){
-
-        }
-
-        protected void onDied(){
+        protected void onDied() {
         }
 
 
         /**
          * if the token prevents other tokens from sharing the same tile.
+         *
          * @return
          */
         @Override
-        public  boolean isBlocksPathing(){
+        public boolean isBlocksPathing() {
                 return super.isBlocksPathing() && !isFullyDead();
         }
 
-        public boolean isAttackable(){return attackable && !isDead(); }
+        public boolean isAttackable() {
+                return attackable && !isDead();
+        }
 
         /**
          * interacting is the state of not being idle (moving, attacking, being dead)
          *
          * @return
          */
-        public boolean isInteracting(){
+        public boolean isInteracting() {
                 return isHit() || isDead();
         }
 
-        public boolean isHit(){
+        public boolean isHit() {
                 return hitSource != null;
         }
 
         /**
          * health <=0, may or may not be fully dead
+         *
          * @return
          */
-        public boolean isDead(){
-                return health <=0;
+        public boolean isDead() {
+                return health <= 0;
         }
 
         /**
@@ -166,18 +173,16 @@ public abstract class DamageableToken extends Token {
          *
          * @return
          */
-        public boolean isFullyDead(){
+        public boolean isFullyDead() {
                 return isDead() && deathCountdown <= 0;
         }
 
-        public int getHealth(){
+        public int getHealth() {
                 return health;
         }
 
-
-
-        protected void setHitDuration(float hitDuration, Token hitSource){
-                if(this.hitSource != null)
+        protected void setHitDuration(float hitDuration, Token hitSource) {
+                if (this.hitSource != null)
                         return; // dont accept new hit duration of a second attacker. this prevents from being put into a helpless state when attacked by 2 enemies at once
 
                 this.hitDuration = hitDuration;
@@ -187,9 +192,10 @@ public abstract class DamageableToken extends Token {
 
         /**
          * how long the being hit animaiton takes
+         *
          * @return
          */
-        public float getHitDuration(){
+        public float getHitDuration() {
                 return hitDuration;
         }
 
@@ -199,9 +205,10 @@ public abstract class DamageableToken extends Token {
 
         /**
          * how long the death animaiton takes
+         *
          * @param deathDuration
          */
-        public void setDeathDuration(float deathDuration){
+        public void setDeathDuration(float deathDuration) {
                 if (isDead())
                         throw new IllegalStateException("can not change this value while dead");
                 this.deathDuration = deathDuration;
@@ -209,9 +216,10 @@ public abstract class DamageableToken extends Token {
 
         /**
          * how long the death animaiton takes
+         *
          * @return
          */
-        public float getDeathDuration(){
+        public float getDeathDuration() {
                 return deathDuration;
         }
 
@@ -226,8 +234,8 @@ public abstract class DamageableToken extends Token {
         @Override
         public String toString() {
                 return "Token{" +
-                        "id=" + getId() +" "+ getName()+
-                        ", location=" + location + "(floor "+floorMap.index+ ")"+
+                        "id=" + getId() + " " + getName() +
+                        ", location=" + location + "(floor " + floorMap.index + ")" +
                         ", health=" + health +
                         '}';
         }
