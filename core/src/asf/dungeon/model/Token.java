@@ -118,10 +118,6 @@ public abstract class Token {
                 return location.y;
         }
 
-        public int getDistance(Pair targetLocation){
-                return location.distance(targetLocation);
-        }
-
         public int getId() {
                 return id;
         }

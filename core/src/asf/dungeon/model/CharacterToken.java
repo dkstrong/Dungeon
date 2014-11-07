@@ -1,5 +1,6 @@
 package asf.dungeon.model;
 
+import asf.dungeon.model.logic.LocalPlayerLogicProvider;
 import asf.dungeon.model.logic.LogicProvider;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
@@ -7,7 +8,6 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -34,6 +34,10 @@ public class CharacterToken extends DamageableToken {
          * this value is used in determening how much damage will be dealt when attacking other tokens.
          */
         private int attackDamage = 1;
+        /**
+         * how far away this character can attack using ranged attacks
+         */
+        private int attackRange = 3;
         /**
          * how long the "is attacking" phase lasts.
          */
@@ -62,6 +66,7 @@ public class CharacterToken extends DamageableToken {
         private float moveU = 1;                                // 1 = fully on the location, less then 1 means moving on to the location still even though it occupies it, use direction variable to determine which way token is walking towards the location
         private Array<Item> inventory = new Array<Item>(true, 16, Item.class);
         private ConsumableItem consumeItem;                               // item to be  consumed on next update
+        private boolean ableRangedAttack = true;
         private float attackU = 0;                              // 0 = not attacking, >0 attacking, once attackU >=attackDuration then attackU is reset to 0
         private DamageableToken attackTarget;                             // the token that is being attacked, this also marks if this token is in the "attacking" state
         private boolean attackDamageApplied = false;            // flag to determine if the damage has been applied from the current "attacking" state, invalid if attackTarget == null
@@ -199,7 +204,7 @@ public class CharacterToken extends DamageableToken {
         }
 
         public boolean useItem(Item item) {
-                if (consumeItem != null)
+                if (consumeItem != null || isDead())
                         return false; // already consuming an item
 
                 if (item instanceof ConsumableItem) {
@@ -218,6 +223,9 @@ public class CharacterToken extends DamageableToken {
         }
 
         public boolean discardItem(Item item) {
+                if(isDead()){
+                        return false;
+                }
                 boolean valid = inventory.removeValue(item, true);
                 if (valid) {
                         if (listener != null)
@@ -267,6 +275,13 @@ public class CharacterToken extends DamageableToken {
         }
 
         protected void incremenetU(float delta) {
+
+
+                super.incremenetU(delta);
+                if (isDead()) {
+                        return;
+                }
+
                 if (logicProvider != null)    // TODO: i might want to change the floorMap.update() so that all the logic providers are updated then do incrementU(). this would give the ai a more consistent way to interact with other character tokens
                         logicProvider.updateLogic(delta);
 
@@ -292,23 +307,26 @@ public class CharacterToken extends DamageableToken {
                 }
 
 
-                super.incremenetU(delta);
-                if (isDead()) {
-                        return;
-                }
+
 
                 // TODO: maybe i could add this before the isDead() check to allow for resurrection items? would require doing additional checks on all items for the dead or alive state
-                if (consumeItem != null) {
+                if (consumeItem != null) { // if an item was marked for consumption by useItem() then do so now
                         consumeItem.consume(this);
                         if(listener!=null)
                                 listener.onConsumeItem(consumeItem);
                         discardItem(consumeItem);
                         consumeItem = null;
                 }
-                attackCoolDown -= delta;
+
+                attackCoolDown -= delta; // the attack cooldown timer always decreases as long as not dead
 
                 if (isHit()) {
-                        return;
+                        return; // can not attack or move while being hit
+                }
+
+
+                if (attack(delta, false)) { // attempt to attack anything in range, but do not auto attack non targetted tokens
+                        return; // can not moveor pick up loot while attacking, so just return out
                 }
 
                 if (continuousMoveToken != null) {
@@ -334,7 +352,13 @@ public class CharacterToken extends DamageableToken {
                                 continuousMoveTokenLostVisionCountdown -= delta;
                                 if (continuousMoveTokenLostVisionCountdown < 0)
                                         continuousMoveToken = null; // lost sight for over a second, no longer chasing
+                        }
 
+                        if(continuousMoveToken instanceof DamageableToken){
+                                DamageableToken damageableToken = (DamageableToken)continuousMoveToken;
+                                if(damageableToken.isDead()){
+                                        continuousMoveToken = null; // target died, well keep moving to its last location but we wont target it anymore
+                                }
                         }
 
                 }
@@ -342,19 +366,18 @@ public class CharacterToken extends DamageableToken {
                 if (continuousMoveLocation != null)
                         calcPathToLocation(continuousMoveLocation);
 
+
+
                 float deltaMoveU = delta * moveSpeed * 0.25f;
                 moveU += deltaMoveU;
 
-                if (isAttacking()) {
-                        moveU = 1;
-                        attack(delta);
-                        return;
-                }
-
                 if (moveU > 1) {
+
+                        if (path.size >0)  // check for loot as long as not idle in square. TODO: when path is blocked and stuff in the "chilling" state, pickUpLoot will get spammed, but its better than always spamming it
+                                pickUpLoot(); // we check for loot before applying moveU because we want to pick up loot only when fully in the tile and not when just entering a new one
+
                         if (path.size > 1) {
                                 Pair nextLocation = path.get(1);
-
                                 // if there are more pairs to move to, then move towards it
                                 if (!floorMap.isLocationBlocked(nextLocation)) {
                                         // there is nothing on the next pair, just move there
@@ -390,7 +413,7 @@ public class CharacterToken extends DamageableToken {
                                                         direction = newDirection;
                                         }
 
-                                        attack(delta);
+                                        attack(delta, true); // auto attack anything in front of me
 
                                 }
 
@@ -410,9 +433,92 @@ public class CharacterToken extends DamageableToken {
                                 continuousMoveDir = null;
 
                         }
-                        pickUpItems();
+
+
 
                 }
+
+
+        }
+
+        private boolean attack(float delta, boolean initiateMelee) {
+                if (attackCoolDown > 0) {
+                        // attack is on cooldown
+                        return false;
+                }
+                if (!isAttacking()) {
+
+                        if(ableRangedAttack && continuousMoveToken instanceof DamageableToken){
+                                DamageableToken damageableToken = (DamageableToken)continuousMoveToken;
+                                if(damageableToken.isAttackable()){
+                                        int distance = location.distance(continuousMoveToken.location);
+                                        //if(distance == 1 && initiateMelee){
+                                                // do nothing, let this be handled by melee attack code
+                                        //}else
+                                        if(distance <= attackRange && direction.isDirection(location, continuousMoveToken.location)){
+                                                attackU = 0;
+                                                attackDamageApplied = false;
+                                                attackTarget = damageableToken;
+                                                attackTarget.setHitDuration(attackDuration, this);
+                                                return true;
+                                        }
+                                }
+                        }
+                        //
+                        if(initiateMelee){
+                                Array<Token> tokensAt = floorMap.getTokensAt(location, direction);
+                                if (tokensAt.size > 0) {
+                                        for (Token t : tokensAt) {
+                                                if (t instanceof DamageableToken) {
+                                                        attackTarget = (DamageableToken) t;
+                                                        if (attackTarget.isAttackable()) {
+                                                                if(attackTarget instanceof CharacterToken){
+                                                                        CharacterToken attackCharacterTarget = (CharacterToken)attackTarget;
+                                                                        if(attackCharacterTarget.moveU < .75f){
+                                                                                attackTarget = null;
+                                                                                continue; // if the target moveU is less than .75 that means theyre not that far in to the square, need to wait some
+                                                                        }
+                                                                }
+                                                                break; // we can attack this target, no need to keep looping
+                                                        } else {
+                                                                attackTarget = null;
+                                                        }
+                                                }
+                                        }
+                                        if (attackTarget != null) {
+                                                attackU = 0;
+                                                attackDamageApplied = false;
+                                                attackTarget.setHitDuration(attackDuration, this);
+                                                return true;
+                                        } else {
+                                                //  no token in blocking tile that can be attacked
+                                                return false;
+                                        }
+                                } else {
+                                        // no tokens in blocking tile can be attacked
+                                        return false;
+                                }
+                        }
+                        return false;
+
+                } else {
+                        attackU += delta;
+                        if (attackU >= attackDuration) {
+                                if (!attackDamageApplied) {
+                                        // normally this should be applied in the below if statement, however it is possibly feasible
+                                        // that with bad framerates that applying damage might not work, so check to make sure its done here
+                                        sendDamageToAttackTarget();
+                                        attackDamageApplied = true;
+                                }
+                                attackTarget = null;
+                                attackCoolDown = attackCooldownDuration;
+                        } else if (!attackDamageApplied && attackU > attackDuration / 2f) {
+                                sendDamageToAttackTarget();
+                                attackDamageApplied = true;
+                        }
+                        return true;
+                }
+
 
 
         }
@@ -446,7 +552,7 @@ public class CharacterToken extends DamageableToken {
                 boolean foundPath = floorMap.computePath(new Pair(location), new Pair(targetLocation), path);
                 if (!foundPath) {
                         Gdx.app.error("Character Token", "No path found");
-                        // TODO: perhaps i should "cancel" out movement as in previous if statements?
+                        // TODO: perhaps i should "cancel" out movement ag path.clear() path.addLocation() pathedTarget.set(targetLocation);
                         return; // no path was found
                 }
 
@@ -483,58 +589,9 @@ public class CharacterToken extends DamageableToken {
                 }
         }
 
-        private boolean attack(float delta) {
-                if (attackCoolDown > 0) {
-                        // attack is on cooldown
-                        return false;
-                }
-                if (!isAttacking()) {
-                        Array<Token> tokensAt = floorMap.getTokensAt(location, direction);
-                        if (tokensAt.size > 0) {
-                                for (Token t : tokensAt) {
-                                        if (t instanceof DamageableToken) {
-                                                attackTarget = (DamageableToken) t;
-                                                if (attackTarget.isAttackable()) {
-                                                        break;
-                                                } else {
-                                                        attackTarget = null;
-                                                }
-                                        }
-                                }
-                                if (attackTarget != null) {
-                                        attackU = 0;
-                                        attackDamageApplied = false;
-                                        attackTarget.setHitDuration(attackDuration, this);
-                                } else {
-                                        //  no token in blocking tile that can be attacked
-                                        return false;
-                                }
-                        } else {
-                                // no tokens in blocking tile can be attacked
-                                return false;
-                        }
-                } else {
-                        attackU += delta;
-                        if (attackU >= attackDuration) {
-                                if (!attackDamageApplied) {
-                                        // normally this should be applied in the below if statement, however it is possibly feasible
-                                        // that with bad framerates that applying damage might not work, so check to make sure its done here
-                                        sendDamageToAttackTarget();
-                                        attackDamageApplied = true;
-                                }
-                                attackTarget = null;
-                                attackCoolDown = attackCooldownDuration;
-                        } else if (!attackDamageApplied && attackU > attackDuration / 2f) {
-                                sendDamageToAttackTarget();
-                                attackDamageApplied = true;
-                        }
-                }
 
-                return true;
 
-        }
-
-        private void pickUpItems() {
+        private void pickUpLoot() {
                 if (!picksUpItems)
                         return;
                 Array<Token> tokensAt = floorMap.getTokensAt(location, LootToken.class);
@@ -671,6 +728,16 @@ public class CharacterToken extends DamageableToken {
 
         public void setAttackDamage(int attackDamage) {
                 this.attackDamage = attackDamage;
+        }
+
+        /**
+         * TODO: this is here more for temporary/debugging purposes, normally the character token should know
+         * if it can do a ranged attack based on what weapon he or she is holding.
+         *
+         * @param ableRangedAttack
+         */
+        public void setAbleRangedAttack(boolean ableRangedAttack) {
+                this.ableRangedAttack = ableRangedAttack;
         }
 
         /**

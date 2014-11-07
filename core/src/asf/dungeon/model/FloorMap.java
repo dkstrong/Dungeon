@@ -199,6 +199,28 @@ public class FloorMap {
                 }
                 return tokensAt;
         }
+
+        /**
+         * list of tokens in the supplied direction within the supplied range.
+         *
+         * target tokens must be within +- 89 degrees of the supplied direction
+         *
+         * if a range of 1 is supplied, then will return melee range
+         *
+         * note that the Array that is returned shouldnt be stored as it will be reused next time this method is called
+         *
+         * @param loc
+         * @param dir
+         * @param range
+         * @return
+         */
+        public Array<Token> getTokensAt(Pair loc, Direction dir, int range){
+                tokensAt.clear();
+                for (Token token : tokens) {
+                        // TODO: need to actually code this
+                }
+                return tokensAt;
+        }
         /**
          * returns true if this location is blocking tile (eg a wall) or if there is a blocking token on it (eg a character)
          *

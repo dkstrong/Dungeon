@@ -100,10 +100,10 @@ public class DungeonWorld implements Disposable {
 
 
                 DungeonFactory dungeonFactory = new DungeonFactory(new FloorMapGenerator[]{
-                        new ConnectedRoomsGenerator(),
-                        new PreBuiltFloorGenerator(),new PreBuiltFloorGenerator(),new MazeGenerator(7,4)
+                        new PreBuiltFloorGenerator(),
+                        new ConnectedRoomsGenerator(),new MazeGenerator(7,4),new ConnectedRoomsGenerator(),new MazeGenerator(15,18)
                 },new FloorMapGenerator[]{
-                        new PreBuiltFloorGenerator(), new MazeGenerator(7,4)
+                        new ConnectedRoomsGenerator(), new MazeGenerator(10,10)
                 });
 
 
@@ -159,6 +159,10 @@ public class DungeonWorld implements Disposable {
                                 }
 
                                 if (targetToken instanceof DamageableToken) {
+                                        DamageableToken damageableToken = (DamageableToken) targetToken;
+                                        if(damageableToken.isDead())
+                                                continue;
+
                                         final float dist2 = tokenSpatial.intersects(ray);
                                         if (dist2 >= 0f && (distance < 0f || dist2 <= distance)) {
                                                 result = targetToken;

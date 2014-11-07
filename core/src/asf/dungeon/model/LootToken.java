@@ -9,7 +9,7 @@ package asf.dungeon.model;
  * Created by danny on 10/25/14.
  */
 public class LootToken extends Token {
-        private float removed = Float.NaN;
+        private boolean removed = false;
         private Item item;
 
         protected LootToken(Dungeon dungeon, FloorMap floorMap, int id, Item item) {
@@ -20,20 +20,18 @@ public class LootToken extends Token {
 
         @Override
         protected void incremenetU(float delta) {
-                removed -=delta;
-                if(removed < 0){
+
+                if(removed )
                         dungeon.removeToken(this);
-                }
+
         }
 
         protected void becomeRemoved(){
-                if(isRemoved())
-                        return;
-                removed = .5f;
+                removed = true;
         }
 
         public boolean isRemoved(){
-                return !Float.isNaN(removed);
+                return removed;
         }
 
         public Item getItem(){

@@ -36,6 +36,28 @@ public enum Direction {
                 throw new IllegalArgumentException(dir + "");
         }
 
+        /**
+         * determines if the angle indicated by "from" and "to" are within +- 89 degrees of this direction
+         *
+         * this check is similiar to comparing with getDirection(), however this method will consider
+         * diagonal angles and can validate directions that are for example both North and East
+         *
+         * @param from
+         * @param to
+         * @return true if the supplied angle represents this direction
+         */
+        public boolean isDirection(Pair from, Pair to){
+                if(this == East)
+                        return to.x > from.x;
+                else if(this == West)
+                        return to.x < from.x;
+                else if(this == North)
+                        return to.y > from.y;
+                else if(this == South)
+                        return to.y < from.y;
+                return false;
+        }
+
         public static Direction getDirection(Pair from, Pair to) {
                 if (to.x > from.x)
                         return Direction.East;

@@ -25,6 +25,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
@@ -43,7 +44,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         private boolean showRenderingStasLabel = true;
 
         private Skin skin;
-        private Label centerLabel, baseLabel;
+        private Label characterActionInfoLabel, targetInfoLabel;
         private float centerLabelCountdown = Float.NaN;
         private Button inventoryButton, quickSlotButton, avatarButton;
         private Label avatarLabel;
@@ -77,13 +78,17 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 if (renderingStats != null)
                         renderingStats.setBounds(Gdx.graphics.getWidth() - buttonSize - margin, Gdx.graphics.getHeight() - buttonSize - margin, buttonSize, buttonSize);
 
-                centerLabel.setBounds(
+                characterActionInfoLabel.setBounds(
                         Gdx.graphics.getWidth() * .25f,
-                        (Gdx.graphics.getHeight() - (buttonSize*.25f)) *.5f,
+                        (Gdx.graphics.getHeight() - (buttonSize * .25f)) * .5f,
                         Gdx.graphics.getWidth() * .5f,
                         buttonSize * .25f);
 
-                baseLabel.setBounds(Gdx.graphics.getWidth() * .25f, margin, Gdx.graphics.getWidth() * .5f, buttonSize * .25f);
+                targetInfoLabel.setBounds(
+                        Gdx.graphics.getWidth() * .25f,
+                        Gdx.graphics.getHeight() - margin - buttonSize*.5f,
+                        Gdx.graphics.getWidth() * .5f,
+                        buttonSize * .25f);
 
                 quickSlotButton.setBounds(Gdx.graphics.getWidth() - buttonSize - margin, margin, buttonSize, buttonSize);
                 inventoryButton.setBounds(Gdx.graphics.getWidth() - buttonSize - margin - buttonSize - margin, margin, buttonSize, buttonSize);
@@ -145,18 +150,18 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                         renderingStats.setAlignment(Align.topRight);
                 }
 
-                centerLabel = new Label(null, skin);
-                centerLabel.setAlignment(Align.center);
+                characterActionInfoLabel = new Label(null, skin);
+                characterActionInfoLabel.setAlignment(Align.center);
 
 
-                baseLabel = new Label(" ", skin);
-                baseLabel.setAlignment(Align.center);
-                world.stage.addActor(baseLabel);
+                targetInfoLabel = new Label(null, skin);
+                targetInfoLabel.setAlignment(Align.center);
+                world.stage.addActor(targetInfoLabel);
 
                 quickSlotButton = new Button(skin);
                 world.stage.addActor(quickSlotButton);
                 quickSlotButton.add(new Label("<Empty>", skin));
-                quickSlotButton.addCaptureListener(this);
+                quickSlotButton.addCaptureListener(internalGestureListener);
                 setButtonContents(quickSlotButton, null);
 
                 inventoryButton = new Button(skin);
@@ -217,6 +222,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                                 for (int x = 0; x < 4; x++) {
                                         Button invButton = new Button(skin);
                                         invButton.addCaptureListener(this);
+
                                         setButtonContents(invButton, null);
                                         inventoryTable.add(invButton);
                                         inventoryButtons.add(invButton);
@@ -260,17 +266,17 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                         itemWindowUseButton = new Button(skin);
                         itemWindowUseButton.add("Use");
                         itemWindowUseButton.addCaptureListener(this);
-                        itemWindow.add(itemWindowUseButton);
+                        itemWindow.add(itemWindowUseButton).minSize(windowButtonSize*1.25f, windowButtonSize*.75f);
 
                         itemWindowDiscardButton = new Button(skin);
                         itemWindowDiscardButton.add("Discard");
                         itemWindowDiscardButton.addCaptureListener(this);
-                        itemWindow.add(itemWindowDiscardButton).align(Align.bottom);
+                        itemWindow.add(itemWindowDiscardButton).minSize(windowButtonSize*1.25f, windowButtonSize*.75f);
 
                         itemWindowBackButton = new Button(skin);
                         itemWindowBackButton.add("Back");
                         itemWindowBackButton.addCaptureListener(this);
-                        itemWindow.add(itemWindowBackButton).align(Align.bottom);
+                        itemWindow.add(itemWindowBackButton).minSize(windowButtonSize*1.25f, windowButtonSize*.75f);
 
 
                 }
@@ -331,15 +337,21 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         }
 
         private void setCenterLabelText(String text){
-                centerLabel.setText(text);
+                characterActionInfoLabel.setText(text);
                 centerLabelCountdown = 5;
-                world.stage.addActor(centerLabel);
+                world.stage.addActor(characterActionInfoLabel);
         }
 
         @Override
         public void update(float delta) {
 
-                baseLabel.setText("Knight : " + localPlayerToken.getHealth());
+                Token targetToken = localPlayerToken.getContinuousMoveToken();
+                if(targetToken == null)
+                        targetInfoLabel.setText(null);
+                else{
+                        targetInfoLabel.setText("Target: "+targetToken.getName());
+                }
+                avatarLabel.setText(localPlayerToken.getName()+"\nLevel 1\nHealth: "+localPlayerToken.getHealth());
 
                 if (renderingStats != null) {
                         renderingStats.setText("FPS : " + Gdx.graphics.getFramesPerSecond());
@@ -347,7 +359,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
                 centerLabelCountdown-=delta;
                 if(centerLabelCountdown <0){
-                        centerLabel.remove();
+                        characterActionInfoLabel.remove();
                         centerLabelCountdown = Float.NaN;
                 }
 
@@ -569,6 +581,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
          */
         @Override
         public boolean handle(Event event) {
+
                 if (event.getTarget() == itemWindow) {
                         if (event instanceof InputEvent) {
                                 InputEvent inputEvent = (InputEvent) event;
@@ -613,18 +626,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                         return true;
                 } else if (event.getListenerActor() == avatarButton) {
                         return true;
-                } else if (event.getListenerActor() == quickSlotButton) {
-                        Item item = getItem(quickSlotButton);
-                        if(item == null){
-                                // TODO: show screen to set quick slot
-                        }else{
-                                if(item instanceof ConsumableItem){
-                                        setButtonContents(quickSlotButton, null);
-                                        localPlayerToken.useItem(item);
-                                }else{
-                                        throw new AssertionError("TODO: need to handle item of type "+item.getClass());
-                                }
-                        }
                 } else if (event.getListenerActor() == inventoryButton) {
                         if (inventoryWindow.getParent() == null) {
                                 setInventoryWindowVisible(true);
@@ -641,7 +642,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                                 setItemDialogVisible(false);
                 } else if (event.getListenerActor() == itemWindowBackButton) {
                         setItemDialogVisible(false);
-                } else if (event.getListenerActor() instanceof Button) {
+                }else if (event.getListenerActor() instanceof Button) {
+                        // inventory screen button
                         Object userObject = event.getListenerActor().getUserObject();
                         if (userObject instanceof Item) {
                                 setItemWindowContents((Item) userObject);
@@ -650,6 +652,31 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 }
                 return false;
         }
+
+        private final ActorGestureListener internalGestureListener = new ActorGestureListener(){
+                @Override
+                public void tap(InputEvent event, float x, float y, int count, int button) {
+                        if (event.getListenerActor() == quickSlotButton) {
+                                Item item = getItem(quickSlotButton);
+                                if(item == null){
+                                        // TODO: show screen to set quick slot
+                                }else{
+                                        if(item instanceof ConsumableItem){
+                                                setButtonContents(quickSlotButton, null);
+                                                localPlayerToken.useItem(item);
+                                        }else{
+                                                throw new AssertionError("TODO: need to handle item of type "+item.getClass());
+                                        }
+                                }
+                        }
+                }
+
+                @Override
+                public boolean longPress(Actor actor, float x, float y) {
+                        System.out.println("long");
+                        return false;
+                }
+        };
 
         private Direction calcTouchPadDirection() {
                 if (!touchPad.isTouched()) {

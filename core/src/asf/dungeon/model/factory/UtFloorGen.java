@@ -36,11 +36,14 @@ public class UtFloorGen {
 
         protected static void spawnTokens(Dungeon dungeon, FloorMap floorMap){
                 if(floorMap.index == 0){
-                        CharacterToken knightToken = dungeon.newCharacterToken(floorMap,"Dunganeer", ModelId.Knight, new LocalPlayerLogicProvider(0,"Player 1"));
+                        boolean rangedHero = false;//MathUtils.random.nextBoolean();
+
+                        CharacterToken knightToken = dungeon.newCharacterToken(floorMap,"Player 1", rangedHero ? ModelId.Archer : ModelId.Knight, new LocalPlayerLogicProvider(0,"Player 1"));
 
                         while(!knightToken.teleportToLocation( MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight()))){
                         }
                         knightToken.setAttackDamage(3);
+                        knightToken.setAbleRangedAttack(rangedHero);
                         knightToken.setDeathRemovalCountdown(Float.NaN);
                         knightToken.addItem(new PotionItem(dungeon, PotionItem.Type.Health));
                         knightToken.addItem(new PotionItem(dungeon, PotionItem.Type.Health));
@@ -57,7 +60,7 @@ public class UtFloorGen {
 
                 for(ModelId modelId : characters){
                         CharacterToken characterToken = dungeon.newCharacterToken(floorMap,modelId.name(),modelId, new SimpleLogicProvider());
-                        while(!characterToken.teleportToLocation(MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight()))){
+                        while(!characterToken.teleportToLocation(MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight())) || floorMap.getTile(characterToken.getLocation()).isStairs() ){
                         }
                 }
 
@@ -66,8 +69,9 @@ public class UtFloorGen {
 
                 for(ModelId modelId : crates){
                         CrateToken crateToken = dungeon.newCrateToken(floorMap,modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health));
-                        while(!crateToken.teleportToLocation(MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight()))){
+                        while(!crateToken.teleportToLocation(MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight())) || floorMap.getTile(crateToken.getLocation()).isStairs() ){
                         }
+
                 }
 
         }
