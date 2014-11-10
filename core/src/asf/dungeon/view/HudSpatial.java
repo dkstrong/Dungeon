@@ -1,7 +1,6 @@
 package asf.dungeon.view;
 
 import asf.dungeon.model.CharacterToken;
-import asf.dungeon.model.ConsumableItem;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.StatusEffect;
@@ -12,6 +11,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -20,6 +20,8 @@ import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -29,6 +31,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SnapshotArray;
 
 /**
@@ -48,6 +51,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         private float centerLabelCountdown = Float.NaN;
         private Button inventoryButton, quickSlotButton, avatarButton;
         private Label avatarLabel;
+        private HorizontalGroup avatarStatusEffectsGroup;
+        private Image[] statusEffectImage;
         private Label renderingStats;
         private Touchpad touchPad;
         private Direction currentTouchPadDirection = null;
@@ -74,7 +79,17 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 float touchPadSize = 150;
 
                 avatarButton.setBounds(margin, Gdx.graphics.getHeight() - buttonSize - margin, buttonSize, buttonSize);
-                avatarLabel.setBounds(margin + buttonSize, Gdx.graphics.getHeight() - buttonSize - margin, buttonSize, buttonSize);
+                avatarLabel.setBounds(
+                        margin + buttonSize, Gdx.graphics.getHeight() - buttonSize - margin,
+                        buttonSize, buttonSize);
+
+                avatarStatusEffectsGroup.setBounds(
+                        margin+buttonSize,
+                        Gdx.graphics.getHeight()-buttonSize-margin,
+                        buttonSize* .333f,
+                        buttonSize*.333f);
+
+
                 if (renderingStats != null)
                         renderingStats.setBounds(Gdx.graphics.getWidth() - buttonSize - margin, Gdx.graphics.getHeight() - buttonSize - margin, buttonSize, buttonSize);
 
@@ -141,8 +156,24 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
                 avatarLabel = new Label("Knight\nLevel 1\nXP 25/100", skin);
                 world.stage.addActor(avatarLabel);
-
                 avatarLabel.setAlignment(Align.topLeft);
+
+                avatarStatusEffectsGroup = new HorizontalGroup();
+                world.stage.addActor(avatarStatusEffectsGroup);
+                avatarStatusEffectsGroup.align(Align.bottomLeft);
+
+                StatusEffect[] statusEffectValues = StatusEffect.values();
+                statusEffectImage = new Image[statusEffectValues.length];
+                for (int i = 0; i < statusEffectValues.length; i++) {
+                        statusEffectImage[i] =new Image(new Texture(Gdx.files.internal("Interface/Hud/health.png")));
+                        //statusEffectImage[i].setScaling(Scaling.fit);
+                        statusEffectImage[i].setScaling(Scaling.fillY);
+                        statusEffectImage[i].setAlign(Align.bottomLeft);
+                        //avatarStatusEffectsGroup.addActor(statusEffectImage[i]);
+                };
+
+
+
 
                 if (showRenderingStasLabel) {
                         renderingStats = new Label("", skin);
@@ -290,60 +321,15 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 localPlayerToken = token;
         }
 
-        private void setButtonContents(Button button, Item item) {
-                if (item == null) {
-                        if (button.getUserObject() != null) {
-                                button.clearChildren();
-                                if (button == quickSlotButton) {
-                                        button.add("<Empty>");
-                                } else {
-                                        button.add("");
-                                }
 
-                        }
-                        button.setDisabled(true);
-                        button.setUserObject(null);
-                } else {
-                        if (button.getUserObject() == null) {
-                                button.clearChildren();
-                                Label nameLabel = new Label(item.getNameFromJournal(localPlayerToken), skin);
-                                nameLabel.setUserObject("Name");
-                                button.add(nameLabel);
-                        } else {
-                                SnapshotArray<Actor> children = button.getChildren();
-                                for (int i = 0; i < children.size; i++) {
-                                        Actor actor = children.get(i);
-                                        if (String.valueOf(actor.getUserObject()).equals("Name")) {
-                                                Label label = (Label) actor;
-                                                label.setText(item.getNameFromJournal(localPlayerToken));
-                                        }
-
-                                }
-                        }
-                        button.setDisabled(false);
-                        button.setUserObject(item);
-
-
-                }
-
-        }
-
-        private void setItemWindowContents(Item item) {
-                itemWindow.setTitle(item.getNameFromJournal(localPlayerToken));
-                itemWindowLabel.setText(item.getDescriptionFromJournal(localPlayerToken));
-
-                itemWindow.setUserObject(item);
-
-        }
-
-        private void setCenterLabelText(String text){
-                characterActionInfoLabel.setText(text);
-                centerLabelCountdown = 5;
-                world.stage.addActor(characterActionInfoLabel);
-        }
 
         @Override
         public void update(float delta) {
+
+
+                avatarLabel.setText(localPlayerToken.getName()+"\nLevel 1\nHealth: "+localPlayerToken.getHealth());
+
+
 
                 Token targetToken = localPlayerToken.getContinuousMoveToken();
                 if(targetToken == null)
@@ -351,7 +337,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 else{
                         targetInfoLabel.setText("Target: "+targetToken.getName());
                 }
-                avatarLabel.setText(localPlayerToken.getName()+"\nLevel 1\nHealth: "+localPlayerToken.getHealth());
+
 
                 if (renderingStats != null) {
                         renderingStats.setText("FPS : " + Gdx.graphics.getFramesPerSecond());
@@ -382,18 +368,39 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
         @Override
         public void onInventoryRemove(Item item) {
+                if(getItem(quickSlotButton) == item){
+                        // change the quick slot to another item that .equals it (eg to another health potion) otherwise set to null
+                        Item setItem = null;
+                        for (Item i : localPlayerToken.getInventory()) {
+                                if(i.equals(item)){
+                                        setItem = i;
+                                        break;
+                                }
+                        };
+
+                        setButtonContents(quickSlotButton, setItem);
+                }
+
                 refreshInventoryElements();
         }
 
         @Override
-        public void onConsumeItem(ConsumableItem item) {
+        public void onConsumeItem(Item.Consumable item) {
                 // refreshInventoryElements();  // onInventoryRemove will be called right after, no point in doing this twice
                 this.setCenterLabelText("You just drank "+item.getNameFromJournal(localPlayerToken));
         }
 
         @Override
         public void onStatusEffectChange(StatusEffect effect, float duration) {
-                // TODO: refresh status effect display
+                Image statusImage = statusEffectImage[effect.ordinal()];
+                if(duration == 0){
+                        statusImage.remove();
+                }else if(statusImage.getParent() == null){
+                        avatarStatusEffectsGroup.addActor(statusImage);
+                }
+
+
+
         }
 
         private void refreshInventoryElements() {
@@ -406,9 +413,17 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                         int buttonI=0;
                         for (int i = 0; i < localPlayerToken.getInventory().size; i++) {
                                 Item item = localPlayerToken.getInventory().get(i);
-                                if(quickItem == item){
+                                if(item.equals(quickItem))
                                         continue;
+                                boolean hasItem = false;
+                                for(int j=buttonI-1; j>=0; j--){
+                                       if(inventoryButtons.get(j).getUserObject().equals(item)){
+                                               hasItem = true;
+                                               break;
+                                       }
                                 }
+                                if(hasItem)
+                                        continue;
                                 setButtonContents(inventoryButtons.get(buttonI), item);
                                 buttonI++;
                         }
@@ -421,6 +436,84 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 }
 
 
+        }
+
+        private void setButtonContents(Button button, Item item) {
+                if (item == null) {
+                        if (button.getUserObject() != null) {
+                                button.clearChildren();
+                                if (button == quickSlotButton) {
+                                        button.add("<Empty>");
+                                } else {
+                                        button.add("");
+                                }
+
+                        }
+                        button.setDisabled(true);
+                        button.setUserObject(null);
+                } else {
+                        if (button.getUserObject() == null) {
+                                //button.debugAll();
+
+                                button.clearChildren();
+                                button.defaults().pad(0,0,0,0).space(0,0,0,0);
+                                button.row().expand();
+                                int quantity = localPlayerToken.getQuantity(item);
+                                Label quantityLabel = new Label(quantity >1 ? "x"+quantity : "",skin);
+                                quantityLabel.setUserObject("Quantity");
+                                button.add(quantityLabel).align(Align.topRight).colspan(2).pad(5,0,0,5);
+
+                                button.row().expand();
+                                Label nameLabel = new Label(item.getNameFromJournal(localPlayerToken), skin);
+                                nameLabel.setUserObject("Name");
+                                button.add(nameLabel).colspan(2).center();
+
+                                button.row().expand();;
+
+                                Label reqLabel = new Label(" ",skin);
+                                reqLabel.setUserObject("Req");
+                                button.add(reqLabel).align(Align.bottomLeft).pad(0,5,3,0);
+
+                                Label valLabel = new Label(" ",skin);
+                                valLabel.setUserObject("Val");
+                                button.add(valLabel).align(Align.bottomRight).pad(0,0,3,5);
+
+                        } else {
+                                SnapshotArray<Actor> children = button.getChildren();
+                                for (int i = 0; i < children.size; i++) {
+                                        Actor actor = children.get(i);
+                                        String uoName = String.valueOf(actor.getUserObject());
+                                        if (uoName.equals("Name")) {
+                                                Label label = (Label) actor;
+                                                label.setText(item.getNameFromJournal(localPlayerToken));
+                                        }else if(uoName.equals("Quantity")){
+                                                Label label = (Label) actor;
+                                                int quantity = localPlayerToken.getQuantity(item);
+                                                label.setText(quantity >1 ? "x"+quantity : "");
+                                        }
+
+                                }
+                        }
+                        button.setDisabled(false);
+                        button.setUserObject(item);
+
+
+                }
+
+        }
+
+        private void setItemWindowContents(Item item) {
+                itemWindow.setTitle(item.getNameFromJournal(localPlayerToken));
+                itemWindowLabel.setText(item.getDescriptionFromJournal(localPlayerToken));
+
+                itemWindow.setUserObject(item);
+
+        }
+
+        private void setCenterLabelText(String text){
+                characterActionInfoLabel.setText(text);
+                centerLabelCountdown = 5;
+                world.stage.addActor(characterActionInfoLabel);
         }
 
         @Override
@@ -661,8 +754,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                                 if(item == null){
                                         // TODO: show screen to set quick slot
                                 }else{
-                                        if(item instanceof ConsumableItem){
-                                                setButtonContents(quickSlotButton, null);
+                                        if(item instanceof Item.Consumable){
                                                 localPlayerToken.useItem(item);
                                         }else{
                                                 throw new AssertionError("TODO: need to handle item of type "+item.getClass());

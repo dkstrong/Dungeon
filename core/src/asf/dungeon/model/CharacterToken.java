@@ -65,7 +65,7 @@ public class CharacterToken extends DamageableToken {
         private float continuousMoveTokenLostVisionCountdown = 0;
         private float moveU = 1;                                // 1 = fully on the location, less then 1 means moving on to the location still even though it occupies it, use direction variable to determine which way token is walking towards the location
         private Array<Item> inventory = new Array<Item>(true, 16, Item.class);
-        private ConsumableItem consumeItem;                               // item to be  consumed on next update
+        private Item.Consumable consumeItem;                               // item to be  consumed on next update
         private boolean ableRangedAttack = true;
         private float attackU = 0;                              // 0 = not attacking, >0 attacking, once attackU >=attackDuration then attackU is reset to 0
         private DamageableToken attackTarget;                             // the token that is being attacked, this also marks if this token is in the "attacking" state
@@ -207,8 +207,8 @@ public class CharacterToken extends DamageableToken {
                 if (consumeItem != null || isDead())
                         return false; // already consuming an item
 
-                if (item instanceof ConsumableItem) {
-                        consumeItem = (ConsumableItem)item;
+                if (item instanceof Item.Consumable) {
+                        consumeItem = (Item.Consumable)item;
                         return true;
                 }
 
@@ -748,6 +748,15 @@ public class CharacterToken extends DamageableToken {
                 return inventory;
         }
 
+        public int getQuantity(Item item){
+                int count =0;
+                for (Item i : inventory) {
+                        if(item.equals(i))
+                                count++;
+                }
+                return count;
+        }
+
         public LogicProvider getLogicProvider() {
                 return logicProvider;
         }
@@ -818,7 +827,7 @@ public class CharacterToken extends DamageableToken {
 
                 public void onInventoryRemove(Item item);
 
-                public void onConsumeItem(ConsumableItem item);
+                public void onConsumeItem(Item.Consumable item);
 
                 public void onStatusEffectChange(StatusEffect effect, float duration);
         }

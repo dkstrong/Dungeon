@@ -21,5 +21,8 @@ public interface Item {
         public String getDescriptionFromJournal(CharacterToken token);
 
 
+        public interface Consumable extends Item{
+                public void consume(CharacterToken token);
+        }
 
 }

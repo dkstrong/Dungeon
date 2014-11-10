@@ -4,7 +4,7 @@ package asf.dungeon.model;
 /**
  * Created by Danny on 11/5/2014.
  */
-public class PotionItem implements ConsumableItem {
+public class PotionItem implements Item.Consumable {
         private final Color color;
         private final Type type;
 
@@ -83,6 +83,23 @@ public class PotionItem implements ConsumableItem {
                 if(token.isJournalEnabled())
                         token.getJournal().learn(type);
 
+        }
+
+        @Override
+        public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+
+                PotionItem that = (PotionItem) o;
+
+                if (type != that.type) return false;
+
+                return true;
+        }
+
+        @Override
+        public int hashCode() {
+                return type != null ? type.hashCode() : 0;
         }
 
         public static enum Type{

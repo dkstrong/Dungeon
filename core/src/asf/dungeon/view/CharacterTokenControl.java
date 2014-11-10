@@ -1,6 +1,5 @@
 package asf.dungeon.view;
 
-import asf.dungeon.model.ConsumableItem;
 import asf.dungeon.model.Item;
 import asf.dungeon.model.StatusEffect;
 import com.badlogic.gdx.Gdx;
@@ -63,7 +62,7 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
         }
 
         private Animation current;
-        private ConsumableItem currentItemConsume;
+        private Item.Consumable currentItemConsume;
 
         @Override
         public void update(float delta) {
@@ -117,7 +116,7 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
         }
 
         @Override
-        public void onConsumeItem(ConsumableItem item) {
+        public void onConsumeItem(Item.Consumable item) {
                 currentItemConsume = item;
                 if(world.getHud().localPlayerToken == token)
                         world.getHud().onConsumeItem(item);
