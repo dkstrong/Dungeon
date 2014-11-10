@@ -12,6 +12,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -23,7 +24,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
@@ -33,6 +36,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SnapshotArray;
+
 
 /**
  * Created by Danny on 11/1/2014.
@@ -50,9 +54,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         private Label characterActionInfoLabel, targetInfoLabel;
         private float centerLabelCountdown = Float.NaN;
         private Button inventoryButton, quickSlotButton, avatarButton;
+        private ProgressBar healthProgressBar;
         private Label avatarLabel;
         private HorizontalGroup avatarStatusEffectsGroup;
         private Image[] statusEffectImage;
+        private Window avatarWindow;
         private Label renderingStats;
         private Touchpad touchPad;
         private Direction currentTouchPadDirection = null;
@@ -66,83 +72,10 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         @Override
         public void preload(DungeonWorld world) {
                 this.world = world;
-                skin = new Skin(Gdx.files.internal("Skins/DefaultSkin/uiskin.json"));
+                skin = new Skin(Gdx.files.internal("Skins/BasicSkin/uiskin.json"));
         }
 
-        public void resize(int width, int height) {
-                if (avatarButton == null)
-                        return;
 
-                float margin = 15;
-
-                float buttonSize = 100;
-                float touchPadSize = 150;
-
-                avatarButton.setBounds(margin, Gdx.graphics.getHeight() - buttonSize - margin, buttonSize, buttonSize);
-                avatarLabel.setBounds(
-                        margin + buttonSize, Gdx.graphics.getHeight() - buttonSize - margin,
-                        buttonSize, buttonSize);
-
-                avatarStatusEffectsGroup.setBounds(
-                        margin+buttonSize,
-                        Gdx.graphics.getHeight()-buttonSize-margin,
-                        buttonSize* .333f,
-                        buttonSize*.333f);
-
-
-                if (renderingStats != null)
-                        renderingStats.setBounds(Gdx.graphics.getWidth() - buttonSize - margin, Gdx.graphics.getHeight() - buttonSize - margin, buttonSize, buttonSize);
-
-                characterActionInfoLabel.setBounds(
-                        Gdx.graphics.getWidth() * .25f,
-                        (Gdx.graphics.getHeight() - (buttonSize * .25f)) * .5f,
-                        Gdx.graphics.getWidth() * .5f,
-                        buttonSize * .25f);
-
-                targetInfoLabel.setBounds(
-                        Gdx.graphics.getWidth() * .25f,
-                        Gdx.graphics.getHeight() - margin - buttonSize*.5f,
-                        Gdx.graphics.getWidth() * .5f,
-                        buttonSize * .25f);
-
-                quickSlotButton.setBounds(Gdx.graphics.getWidth() - buttonSize - margin, margin, buttonSize, buttonSize);
-                inventoryButton.setBounds(Gdx.graphics.getWidth() - buttonSize - margin - buttonSize - margin, margin, buttonSize, buttonSize);
-
-                if (touchPad != null)
-                        touchPad.setBounds(margin, margin, touchPadSize, touchPadSize);
-
-                float windowHeight = Gdx.graphics.getHeight() - margin - margin;
-                float windowWidth = windowHeight * .75f;
-                float windowButtonSize = windowWidth * .25f;
-                float windowCloseButtonSize = windowButtonSize * .5f;
-                inventoryWindow.setBounds(
-                        (Gdx.graphics.getWidth() - windowWidth) * .5f,
-                        ((Gdx.graphics.getHeight() - windowHeight) * .5f),
-                        windowWidth,
-                        windowHeight);
-
-                for (Cell cell : inventoryWindow.getCells()) {
-                        if (String.valueOf(cell.getActor().getUserObject()).equals("Close Inventory")) {
-                                cell.prefSize(windowCloseButtonSize, windowCloseButtonSize * .5f).pad(windowCloseButtonSize * .35f, 0, windowCloseButtonSize * .15f, 0);
-                        } else {
-                                cell.prefSize(windowButtonSize, windowButtonSize);
-                        }
-
-                }
-
-                float itemWindowHeight = Gdx.graphics.getHeight() * .5f;
-                float itemWindowWidth = itemWindowHeight * 1.75f;
-                float itemWindowButtonSize = itemWindowWidth * .25f;
-                float itemWindowCloseButtonSize = itemWindowButtonSize * .5f;
-
-                itemWindow.setBounds(
-                        (Gdx.graphics.getWidth() - itemWindowWidth) * .5f,
-                        (Gdx.graphics.getHeight() - itemWindowHeight) * .5f,
-                        itemWindowWidth,
-                        itemWindowHeight);
-
-
-        }
 
         @Override
         public void init(AssetManager assetManager) {
@@ -153,6 +86,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
                 avatarButton.add(new Label("Avatar", skin));
                 avatarButton.addCaptureListener(this);
+
+                healthProgressBar = new ProgressBar(0,10,1,false,skin,"default");
+                healthProgressBar.setAnimateInterpolation(Interpolation.linear);
+                healthProgressBar.setAnimateDuration(1f);
+                world.stage.addActor(healthProgressBar);
 
                 avatarLabel = new Label("Knight\nLevel 1\nXP 25/100", skin);
                 world.stage.addActor(avatarLabel);
@@ -205,6 +143,38 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
                         world.stage.addActor(touchPad);
                         touchPad.addCaptureListener(this);
+                }
+
+                avatarWindow = new Window("Avatar", skin);
+                avatarWindow.setMovable(false);
+                avatarWindow.setModal(true);
+                avatarWindow.addCaptureListener(this);
+                avatarWindow.removeActor(avatarWindow.getButtonTable());
+                world.stage.addActor(avatarWindow);
+                avatarWindow.debugAll();
+                {
+                        avatarWindow.row();
+                        Label nameLabel = new Label("Name",skin);
+                        nameLabel.setUserObject("nameLabel");
+                        avatarWindow.add(nameLabel).colspan(4).expand();
+
+                        avatarWindow.row();
+                        Label statsLabel = new Label("Stats", skin);
+                                statsLabel.setUserObject("statsLabel");
+                        avatarWindow.add(statsLabel).colspan(4).expand();
+
+
+                        avatarWindow.row();
+                        Button closeButton = new Button(skin);
+                        closeButton.add("Close");
+                        closeButton.setUserObject("Close");
+                        closeButton.addCaptureListener(new ChangeListener() {
+                                @Override
+                                public void changed(ChangeEvent event, Actor actor) {
+                                        setAvatarWindowVisible(false);
+                                }
+                        });
+                        avatarWindow.add(closeButton).colspan(4);
                 }
 
 
@@ -317,6 +287,108 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
         }
 
+        protected void resize(int width, int height) {
+                if (avatarButton == null)
+                        return;
+
+                float margin = 15;
+
+                float buttonSize = 100;
+                float touchPadSize = 150;
+
+                avatarButton.setBounds(margin, Gdx.graphics.getHeight() - buttonSize - margin, buttonSize, buttonSize);
+
+                healthProgressBar.setBounds(margin+buttonSize, Gdx.graphics.getHeight()-margin-buttonSize*.333f,
+                        buttonSize*1.5f,
+                        buttonSize*.333f);
+
+                avatarLabel.setBounds(
+                        margin + buttonSize, Gdx.graphics.getHeight() - buttonSize - margin-buttonSize*.333f,
+                        buttonSize, buttonSize);
+
+                avatarStatusEffectsGroup.setBounds(
+                        margin+buttonSize,
+                        Gdx.graphics.getHeight()-buttonSize-margin,
+                        buttonSize* .333f,
+                        buttonSize*.333f);
+
+
+
+
+
+                if (renderingStats != null)
+                        renderingStats.setBounds(Gdx.graphics.getWidth() - buttonSize - margin, Gdx.graphics.getHeight() - buttonSize - margin, buttonSize, buttonSize);
+
+                characterActionInfoLabel.setBounds(
+                        Gdx.graphics.getWidth() * .25f,
+                        (Gdx.graphics.getHeight() - (buttonSize * .25f)) * .5f,
+                        Gdx.graphics.getWidth() * .5f,
+                        buttonSize * .25f);
+
+                targetInfoLabel.setBounds(
+                        Gdx.graphics.getWidth() * .25f,
+                        Gdx.graphics.getHeight() - margin - buttonSize*.5f,
+                        Gdx.graphics.getWidth() * .5f,
+                        buttonSize * .25f);
+
+                quickSlotButton.setBounds(Gdx.graphics.getWidth() - buttonSize - margin, margin, buttonSize, buttonSize);
+                inventoryButton.setBounds(margin, margin, buttonSize, buttonSize);
+
+                if (touchPad != null)
+                        touchPad.setBounds(margin, margin, touchPadSize, touchPadSize);
+
+                float avatarWindowHeight = Gdx.graphics.getHeight() - margin - margin;
+                float avatarWindowWidth = avatarWindowHeight * .75f;
+                float avatarWindowButtonSize = avatarWindowWidth * .25f;
+                float avatarWindowCloseButtonSize = avatarWindowButtonSize * .5f;
+                avatarWindow.setBounds(
+                        (Gdx.graphics.getWidth() - avatarWindowWidth) * .5f,
+                        ((Gdx.graphics.getHeight() - avatarWindowHeight) * .5f),
+                        avatarWindowWidth,
+                        avatarWindowHeight);
+
+                for (Cell cell : avatarWindow.getCells()) {
+                        if (String.valueOf(cell.getActor().getUserObject()).equals("Close")) {
+                                cell.prefSize(avatarWindowCloseButtonSize, avatarWindowCloseButtonSize * .5f).pad(avatarWindowCloseButtonSize * .35f, 0, avatarWindowCloseButtonSize * .15f, 0);
+                        } else {
+                                cell.prefSize(avatarWindowButtonSize, avatarWindowButtonSize);
+                        }
+
+                }
+
+                float windowHeight = Gdx.graphics.getHeight() - margin - margin;
+                float windowWidth = windowHeight * .75f;
+                float windowButtonSize = windowWidth * .25f;
+                float windowCloseButtonSize = windowButtonSize * .5f;
+                inventoryWindow.setBounds(
+                        (Gdx.graphics.getWidth() - windowWidth) * .5f,
+                        ((Gdx.graphics.getHeight() - windowHeight) * .5f),
+                        windowWidth,
+                        windowHeight);
+
+                for (Cell cell : inventoryWindow.getCells()) {
+                        if (String.valueOf(cell.getActor().getUserObject()).equals("Close Inventory")) {
+                                cell.prefSize(windowCloseButtonSize, windowCloseButtonSize * .5f).pad(windowCloseButtonSize * .35f, 0, windowCloseButtonSize * .15f, 0);
+                        } else {
+                                cell.prefSize(windowButtonSize, windowButtonSize);
+                        }
+
+                }
+
+                float itemWindowHeight = Gdx.graphics.getHeight() * .5f;
+                float itemWindowWidth = itemWindowHeight * 1.75f;
+                float itemWindowButtonSize = itemWindowWidth * .25f;
+                float itemWindowCloseButtonSize = itemWindowButtonSize * .5f;
+
+                itemWindow.setBounds(
+                        (Gdx.graphics.getWidth() - itemWindowWidth) * .5f,
+                        (Gdx.graphics.getHeight() - itemWindowHeight) * .5f,
+                        itemWindowWidth,
+                        itemWindowHeight);
+
+
+        }
+
         protected void setToken(CharacterToken token) {
                 localPlayerToken = token;
         }
@@ -327,7 +399,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         public void update(float delta) {
 
 
-                avatarLabel.setText(localPlayerToken.getName()+"\nLevel 1\nHealth: "+localPlayerToken.getHealth());
+                healthProgressBar.setValue(localPlayerToken.getHealth());
+                healthProgressBar.act(delta);
+                avatarLabel.setText("");
 
 
 
@@ -403,6 +477,27 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
         }
 
+        private void refreshAvatarWindowElements() {
+                if (avatarWindow.getParent() != null) {
+
+                        SnapshotArray<Actor> children = avatarWindow.getChildren();
+                        for (Actor child : children) {
+                                String uoName = String.valueOf(child.getUserObject());
+                                if(uoName.equals("nameLabel")){
+                                        Label label = (Label) child;
+                                        label.setText(localPlayerToken.getName());
+                                }else if(uoName.equals("statsLabel")){
+                                        Label label = (Label) child;
+                                        label.setText("Level 1\nHP: "+localPlayerToken.getHealth()+" / 10\nAttack: 3\nDefense: 5\nAgility: 3\n");
+                                }
+                        }
+
+
+                }
+
+
+        }
+
         private void refreshInventoryElements() {
                 Gdx.app.log("HudSpatial","refresh quick button");
                 Item quickItem = getItem(quickSlotButton);
@@ -458,10 +553,13 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                                 button.clearChildren();
                                 button.defaults().pad(0,0,0,0).space(0,0,0,0);
                                 button.row().expand();
-                                int quantity = localPlayerToken.getQuantity(item);
-                                Label quantityLabel = new Label(quantity >1 ? "x"+quantity : "",skin);
-                                quantityLabel.setUserObject("Quantity");
-                                button.add(quantityLabel).align(Align.topRight).colspan(2).pad(5,0,0,5);
+                                Label reqLabel = new Label(" ",skin);
+                                reqLabel.setUserObject("Req");
+                                button.add(reqLabel).align(Align.topLeft).pad(5,5,0,0);
+
+                                Label valLabel = new Label(" ",skin);
+                                valLabel.setUserObject("Val");
+                                button.add(valLabel).align(Align.topRight).pad(5,0,0,5);
 
                                 button.row().expand();
                                 Label nameLabel = new Label(item.getNameFromJournal(localPlayerToken), skin);
@@ -470,13 +568,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
                                 button.row().expand();;
 
-                                Label reqLabel = new Label(" ",skin);
-                                reqLabel.setUserObject("Req");
-                                button.add(reqLabel).align(Align.bottomLeft).pad(0,5,3,0);
+                                int quantity = localPlayerToken.getQuantity(item);
+                                Label quantityLabel = new Label(quantity >1 ? "x"+quantity : "",skin);
+                                quantityLabel.setUserObject("Quantity");
+                                button.add(quantityLabel).align(Align.bottomRight).colspan(2).pad(0,0,3,5);
 
-                                Label valLabel = new Label(" ",skin);
-                                valLabel.setUserObject("Val");
-                                button.add(valLabel).align(Align.bottomRight).pad(0,0,3,5);
+
 
                         } else {
                                 SnapshotArray<Actor> children = button.getChildren();
@@ -534,8 +631,25 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
         }
 
-        protected void setInventoryWindowVisible(boolean visible) {
+        protected void closeAllWindows(){
+                setAvatarWindowVisible(false);
+                setInventoryWindowVisible(false);
+        }
+
+        private void setAvatarWindowVisible(boolean visible) {
                 if (visible) {
+                        setInventoryWindowVisible(false);
+                        if (avatarWindow.getParent() == null)
+                                world.stage.addActor(avatarWindow);
+                        refreshAvatarWindowElements();
+                } else {
+                        avatarWindow.remove();
+                }
+        }
+
+        private void setInventoryWindowVisible(boolean visible) {
+                if (visible) {
+                        setAvatarWindowVisible(false);
                         if (inventoryWindow.getParent() == null)
                                 world.stage.addActor(inventoryWindow);
                         refreshInventoryElements();
@@ -548,6 +662,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
         private void setItemDialogVisible(boolean visible) {
                 if (visible) {
+                        setAvatarWindowVisible(false);
                         if (inventoryWindow.getParent() == null)
                                 world.stage.addActor(inventoryWindow);
                         inventoryWindow.setModal(false);
@@ -675,6 +790,21 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         @Override
         public boolean handle(Event event) {
 
+                if (event.getTarget() == avatarWindow) {
+                        if (event instanceof InputEvent) {
+                                InputEvent inputEvent = (InputEvent) event;
+                                if (inputEvent.getType() == InputEvent.Type.touchDown) {
+                                        float clickX = inputEvent.getStageX();
+                                        float clickY = inputEvent.getStageY();
+                                        if (clickX < avatarWindow.getX() || clickY < avatarWindow.getY() || clickX > avatarWindow.getX() + avatarWindow.getWidth() || clickY > avatarWindow.getY() + avatarWindow.getHeight()) {
+                                                setAvatarWindowVisible(false);
+                                                return true;
+                                        }
+                                }
+                        }
+                        return false;
+                }
+
                 if (event.getTarget() == itemWindow) {
                         if (event instanceof InputEvent) {
                                 InputEvent inputEvent = (InputEvent) event;
@@ -718,11 +848,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                         }
                         return true;
                 } else if (event.getListenerActor() == avatarButton) {
-                        return true;
+                        setAvatarWindowVisible(true);
                 } else if (event.getListenerActor() == inventoryButton) {
-                        if (inventoryWindow.getParent() == null) {
-                                setInventoryWindowVisible(true);
-                        }
+                        setInventoryWindowVisible(true);
                 } else if (event.getListenerActor() == itemWindowUseButton) {
                         Item item = (Item) itemWindow.getUserObject();
                         boolean valid = localPlayerToken.useItem(item);

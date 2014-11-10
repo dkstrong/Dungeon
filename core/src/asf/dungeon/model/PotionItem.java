@@ -53,7 +53,7 @@ public class PotionItem implements Item.Consumable {
         public void consume(CharacterToken token) {
                 switch(type){
                         case Health:
-                                token.addStatusEffect(StatusEffect.Heal, 1, 3);
+                                token.addStatusEffect(StatusEffect.Heal, 3, 3);
                                 break;
                         case Experience:
                                 break;
