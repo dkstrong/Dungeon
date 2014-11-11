@@ -21,40 +21,22 @@ import java.util.Map;
  */
 public class CharacterToken extends DamageableToken {
         // configuration variables
-        /**
-         * change between different AI states by changing the logic provider. if logic provider is null then the token will just sit there.
-         */
-        private LogicProvider logicProvider;
-        /**
-         * how fast the character moves between tiles, generally a value between 1 and 10, could be higher i suppose.
-         */
-        private int moveSpeed = 6;
-
-        /**
-         * this value is used in determening how much damage will be dealt when attacking other tokens.
-         */
-        private int attackDamage = 1;
-        /**
-         * how far away this character can attack using ranged attacks
-         */
-        private int attackRange = 3;
-        /**
-         * how long the "is attacking" phase lasts.
-         */
-        private float attackDuration = 2;
-        /**
-         * how long since the last attack ended until a new attack can begin.
-         */
-        private float attackCooldownDuration = 1; // how long until another attack can be done
-        /**
-         * this vaue is used in determening how much damage will be received from other tokens.
-         */
-        private int defenseRating = 1;
-        /**
-         * if this character will pick up items when standing on tiles with items
-         */
-        private boolean picksUpItems = true;
+        // base stats
+        private LogicProvider logicProvider; // change between different AI states by changing the logic provider. if logic provider is null then the token will just sit there.
+        private int levelRating = 1;
+        private int strengthRating = 1;
+        private int speedRating = 1;
+        private int defenseRating = 1; // this vaue is used in determening how much damage will be received from other tokens.
+        // derived statistics -- changing base stats will change derived stats
+        private int moveSpeed = 6; // how fast the character moves between tiles, generally a value between 1 and 10, could be higher i suppose.
+        private int attackRange = 3; // how far away this character can attack using ranged attacks
+        private float attackDuration = 2; // how long the "is attacking" phase lasts.
+        private float attackCooldownDuration = 1; // how long since the last attack ended until a new attack can begin.
+        private boolean picksUpItems = true; // if this character will pick up items when standing on tiles with items
+        private boolean ableRangedAttack = true;
+        private boolean rangedKeepDistance = true;             // if true the character will hold position while in range of targeted token and it is alive, if false character will persue and get close inbetween shots
         // state variables
+        private int xp;
         private final Map<StatusEffect, Array<Float>> statusEffects = new EnumMap<StatusEffect, Array<Float>>(StatusEffect.class);
         private final Array<Pair> path = new Array<Pair>(true, 32, Pair.class);   // the current path that this token is trying to follow, it may be regularly refreshed with new paths
         private final Pair pathedTarget = new Pair();           // the last element of path. this is compared against continuesMoveTarget to prevent spamming the pathfinder coder
@@ -66,8 +48,6 @@ public class CharacterToken extends DamageableToken {
         private float moveU = 1;                                // 1 = fully on the location, less then 1 means moving on to the location still even though it occupies it, use direction variable to determine which way token is walking towards the location
         private Array<Item> inventory = new Array<Item>(true, 16, Item.class);
         private Item.Consumable consumeItem;                               // item to be  consumed on next update
-        private boolean ableRangedAttack = true;
-        private boolean rangedKeepDistance = true;             // if true the character will hold position while in range of targeted token and it is alive, if false character will persue and get close inbetween shots
         private boolean inAttackRangeOfContinousMoveToken = false;
         private float attackU = 0;                              // 0 = not attacking, >0 attacking, once attackU >=attackDuration then attackU is reset to 0
         private DamageableToken meleeAttackTarget;                             // the token that is being attacked, this also marks if this token is in the "attacking" state
@@ -629,15 +609,43 @@ public class CharacterToken extends DamageableToken {
         private void sendDamageToAttackTarget(DamageableToken targetToken, boolean ranged) {
 
                 targetToken.receiveDamageFrom(this);
-                // TODO: hook to check for death of target, maybe add XP or other stuff
+
+                if(targetToken.isDead() && targetToken instanceof CharacterToken){
+                        CharacterToken targetCharacter = (CharacterToken) targetToken;
+                        int gainXp = targetCharacter.levelRating - levelRating +1 ;
+                        if(gainXp <0)
+                                gainXp = 0;
+                        xp+=gainXp;
+
+                }
         }
 
         @Override
         protected void receiveDamageFrom(CharacterToken characterToken) {
-                // TODO: make use of attack damage, armor, chance to evade, etc, etc
-                addHealth(-characterToken.attackDamage);
-                //if(listener != null)
-                //        listener.onAttacked(characterToken, characterToken.attackDamage);
+
+                int speedDifference = speedRating - characterToken.speedRating;
+                // if negative, im slower than my attacker
+                boolean dodge;
+                if(speedDifference >=0){
+                        dodge = MathUtils.randomBoolean(.5f);
+                }else{
+                        dodge = MathUtils.randomBoolean(.15f);
+                }
+
+                int damage;
+                if(!dodge){
+                        damage = characterToken.strengthRating - defenseRating;
+                        if(damage  >0){
+                                addHealth(-damage);
+                        }else{
+                                damage = 0;
+                        }
+                }else{
+                        damage = 0;
+                }
+
+                if(listener != null)
+                        listener.onAttacked(characterToken, this, damage);
         }
 
         private void computeFogMap() {
@@ -716,50 +724,12 @@ public class CharacterToken extends DamageableToken {
                 return duration;
         }
 
-        /**
-         * how fast the token moves between tiles
-         *
-         * @param moveSpeed
-         */
-        public void setMoveSpeed(int moveSpeed) {
-                this.moveSpeed = moveSpeed;
-        }
-
-        /**
-         * how fast the token moves between tiles
-         *
-         * @return
-         */
         public int getMoveSpeed() {
                 return moveSpeed;
         }
 
-        /**
-         * how long the attack animation takes
-         *
-         * @return
-         */
         public float getAttackDuration() {
                 return attackDuration;
-        }
-
-        /**
-         * how long the attack animation should take (can not be set while currently attacking)
-         *
-         * @param attackDuration
-         */
-        public void setAttackDuration(float attackDuration) {
-                if (this.isAttacking())
-                        throw new IllegalStateException("can not change this value while attacking");
-                this.attackDuration = attackDuration;
-        }
-
-        public int getAttackDamage() {
-                return attackDamage;
-        }
-
-        public void setAttackDamage(int attackDamage) {
-                this.attackDamage = attackDamage;
         }
 
         public int getAttackRange() {
@@ -770,10 +740,6 @@ public class CharacterToken extends DamageableToken {
                 return attackCooldownDuration;
         }
 
-        public int getDefenseRating() {
-                return defenseRating;
-        }
-
         public DamageableToken getAttackTarget() {
                 return meleeAttackTarget;
         }
@@ -782,15 +748,7 @@ public class CharacterToken extends DamageableToken {
                 return rangedAttackTarget;
         }
 
-        /**
-         * TODO: this is here more for temporary/debugging purposes, normally the character token should know
-         * if it can do a ranged attack based on what weapon he or she is holding.
-         *
-         * @param ableRangedAttack
-         */
-        public void setAbleRangedAttack(boolean ableRangedAttack) {
-                this.ableRangedAttack = ableRangedAttack;
-        }
+
 
         /**
          * do not modify! use addItem() and discardItem(), this is required to properly announce this change to the listener
@@ -809,8 +767,8 @@ public class CharacterToken extends DamageableToken {
                 return count;
         }
 
-        public LogicProvider getLogicProvider() {
-                return logicProvider;
+        public int getXp() {
+                return xp;
         }
 
         /**
@@ -825,6 +783,72 @@ public class CharacterToken extends DamageableToken {
                 } else
                         this.setMoveTarget(location);
         }
+
+        public LogicProvider getLogicProvider() {
+                return logicProvider;
+        }
+
+        /**
+         * TODO: this is here more for temporary/debugging purposes, normally the character token should know
+         * if it can do a ranged attack based on what weapon he or she is holding.
+         *
+         * @param ableRangedAttack
+         */
+        public void setAbleRangedAttack(boolean ableRangedAttack) {
+                this.ableRangedAttack = ableRangedAttack;
+        }
+
+        public void setStats(int levelRating, int strengthRating, int speedRating, int defenseRating){
+                this.setLevelRating(levelRating);
+                this.setStrengthRating(strengthRating);
+                this.setSpeedRating(speedRating);
+                this.setDefenseRating(defenseRating);
+        }
+
+        public void setLevelRating(int levelRating) {
+                this.levelRating = levelRating;
+        }
+
+        public int getLevelRating() {
+                return levelRating;
+        }
+
+        public void setStrengthRating(int strengthRating) {
+
+                this.strengthRating = strengthRating;
+
+                if (this.isAttacking())
+                        throw new IllegalStateException("can not change this value while attacking");
+                this.attackDuration = 2;
+
+
+        }
+
+        public int getStrengthRating() {
+                return strengthRating;
+        }
+
+        public void setSpeedRating(int speedRating) {
+                this.speedRating = speedRating;
+                moveSpeed = speedRating;
+                attackRange = Math.round(moveSpeed/2f);
+                attackCooldownDuration = moveSpeed/6f;
+
+        }
+
+        public int getSpeedRating() {
+                return speedRating;
+        }
+
+        public void setDefenseRating(int defenseRating) {
+                this.defenseRating = defenseRating;
+        }
+
+        public int getDefenseRating() {
+                return defenseRating;
+        }
+
+
 
         public void setFogMappingEnabled(boolean enabled) {
                 if (enabled && fogMaps == null) {
@@ -876,6 +900,8 @@ public class CharacterToken extends DamageableToken {
 
         public static interface Listener {
 
+                public void onAttacked(CharacterToken attacker, CharacterToken target, int damage);
+
                 public void onInventoryAdd(Item item);
 
                 public void onInventoryRemove(Item item);
@@ -883,6 +909,8 @@ public class CharacterToken extends DamageableToken {
                 public void onConsumeItem(Item.Consumable item);
 
                 public void onStatusEffectChange(StatusEffect effect, float duration);
+
+
         }
 
 

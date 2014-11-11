@@ -153,7 +153,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 avatarWindow.addCaptureListener(this);
                 avatarWindow.removeActor(avatarWindow.getButtonTable());
 
-                avatarWindow.debugAll();
+                //avatarWindow.debugAll();
                 {
                         avatarWindow.row();
                         Label nameLabel = new Label("Name",skin);
@@ -179,8 +179,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                         avatarWindow.add(closeButton).colspan(4);
                 }
 
-                world.stage.addActor(avatarWindow);
-                this.refreshAvatarWindowElements();
+                //world.stage.addActor(avatarWindow);
+                //this.refreshAvatarWindowElements();
 
                 inventoryWindow = new Window("Inventory", skin);
                 inventoryWindow.setMovable(false);
@@ -451,11 +451,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                                         Label label = (Label) child;
                                         StringBuilder sb = new StringBuilder();
                                         sb.append(String.format("HP: %s / %s\n",localPlayerToken.getHealth(),localPlayerToken.getMaxHealth()));
-                                        sb.append(String.format("Move Speed: %s \n",localPlayerToken.getMoveSpeed()));
-                                        sb.append(String.format("Attack Duration: %s \n",localPlayerToken.getAttackDuration()));
-                                        sb.append(String.format("Attack Damage: %s \n",localPlayerToken.getAttackDamage()));
-                                        sb.append(String.format("Attack Range: %s \n",localPlayerToken.getAttackRange()));
-                                        sb.append(String.format("Attack Cooldown Duration: %s \n",localPlayerToken.getAttackCooldownDuration()));
+                                        sb.append(String.format("Strength: %s \n",localPlayerToken.getStrengthRating()));
+                                        sb.append(String.format("Speed: %s \n",localPlayerToken.getSpeedRating()));
+                                        sb.append(String.format("Defense: %s \n",localPlayerToken.getDefenseRating()));
 
 
                                         label.setText(sb);
@@ -625,6 +623,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                         itemWindow.remove();
                         inventoryWindow.setModal(true);
                 }
+        }
+
+        @Override
+        public void onAttacked(CharacterToken attacker, CharacterToken target, int damage) {
+                // TODO: show info about being attacked
         }
 
         @Override

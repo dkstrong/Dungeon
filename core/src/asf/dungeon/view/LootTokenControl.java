@@ -37,7 +37,7 @@ public class LootTokenControl implements TokenControl{
 
                 float scale = 10f;
                 actorSpatial.scale.set(scale, scale, scale);
-                //actorSpatial.translationBase.set(0, actorSpatial.shape.getDimensions().y / 2f * scale + 1.35f * scale, 0);
+                //spatial.translationBase.set(0, spatial.shape.getDimensions().y / 2f * scale + 1.35f * scale, 0);
                 actorSpatial.translation.set(0, 0, 0);
 
                 for (Animation animation : actorSpatial.modelInstance.model.animations) {
@@ -45,7 +45,7 @@ public class LootTokenControl implements TokenControl{
 
                 }
 
-                //actorSpatial.animController.setAnimation("Default Take",-1);
+                //spatial.animController.setAnimation("Default Take",-1);
 
                 if(token.getItem() instanceof PotionItem){
                         PotionItem potion = (PotionItem) token.getItem();

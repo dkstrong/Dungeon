@@ -42,7 +42,7 @@ public class UtFloorGen {
 
                         while(!knightToken.teleportToLocation( MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight()))){
                         }
-                        knightToken.setAttackDamage(3);
+                        knightToken.setStats(1, 10, 6, 10);
                         knightToken.setAbleRangedAttack(rangedHero);
                         knightToken.setDeathRemovalCountdown(Float.NaN);
                         knightToken.addItem(new PotionItem(dungeon, PotionItem.Type.Health));
@@ -52,7 +52,7 @@ public class UtFloorGen {
 
                 ModelId[] characters;
                 if(floorMap.index == 0)
-                        characters = new ModelId[]{}; //destLoc
+                        characters = new ModelId[]{ModelId.FemaleMage}; //destLoc
                 else{
                         characters = new ModelId[]{ModelId.Archer,ModelId.Berzerker,ModelId.Diablous,ModelId.FemaleMage,ModelId.Mage,ModelId.Priest}; // "cerberus"
                 }
@@ -62,6 +62,7 @@ public class UtFloorGen {
                         CharacterToken characterToken = dungeon.newCharacterToken(floorMap,modelId.name(),modelId, new SimpleLogicProvider());
                         while(!characterToken.teleportToLocation(MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight())) || floorMap.getTile(characterToken.getLocation()).isStairs() ){
                         }
+                        characterToken.setStats(1, 7, 6, 7);
                 }
 
                 // TODO: make sure crates dont spawn on stairs

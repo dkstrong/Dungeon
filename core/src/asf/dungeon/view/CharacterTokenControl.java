@@ -1,7 +1,6 @@
 package asf.dungeon.view;
 
 import asf.dungeon.model.CharacterToken;
-import asf.dungeon.model.DamageableToken;
 import asf.dungeon.model.Item;
 import asf.dungeon.model.StatusEffect;
 import asf.dungeon.utility.MoreMath;
@@ -14,7 +13,7 @@ import com.badlogic.gdx.math.Vector3;
  * Created by danny on 10/20/14.
  */
 public class CharacterTokenControl implements TokenControl, CharacterToken.Listener {
-        public TokenSpatial actorSpatial;
+        public TokenSpatial spatial;
         private DungeonWorld world;
 
         public final CharacterToken token;
@@ -35,7 +34,7 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
 
         @Override
         public void start(TokenSpatial actorSpatial) {
-                this.actorSpatial = actorSpatial;
+                this.spatial = actorSpatial;
 
                 float scale = .45f;
                 actorSpatial.scale.set(scale, scale, scale);
@@ -71,7 +70,7 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
 
         @Override
         public void update(float delta) {
-                world.getWorldCoords(token.getLocationFloatX(), token.getLocationFloatY(), actorSpatial.translation);
+                world.getWorldCoords(token.getLocationFloatX(), token.getLocationFloatY(), spatial.translation);
 
                 if (currentItemConsume != null) {
                         Gdx.app.log("CharacterTokenControl", "bloob bloob bloob " + currentItemConsume + "!");
@@ -82,7 +81,7 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
 
                 if (token.isDead()) {
                         if(current != die){
-                                actorSpatial.animController.animate(die.id, 1, die.duration / token.getDeathDuration(), null, .2f);
+                                spatial.animController.animate(die.id, 1, die.duration / token.getDeathDuration(), null, .2f);
                                 current = die;
                         }
 
@@ -94,16 +93,16 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
                                 if (hit == null) {
                                         throw new Error(token.getName());
                                 }
-                                actorSpatial.animController.animate(hit.id, 1, hit.duration / token.getHitDuration(), null, .2f);
+                                spatial.animController.animate(hit.id, 1, hit.duration / token.getHitDuration(), null, .2f);
                                 current = hit;
                         }
                 } else if (token.isAttacking()) {
                         if (current != attack) {
-                                actorSpatial.animController.animate(attack.id, 1, attack.duration / token.getAttackDuration(), null, .2f);
+                                spatial.animController.animate(attack.id, 1, attack.duration / token.getAttackDuration(), null, .2f);
                                 if(token.hasProjectile()){
                                         Vector3 rotDir = temp;
                                         world.getWorldCoords(token.getAttackTarget().getLocationFloatX(), token.getAttackTarget().getLocationFloatY(), rotDir);
-                                        rotDir.sub(actorSpatial.translation);
+                                        rotDir.sub(spatial.translation);
                                         MoreMath.normalize(rotDir);
                                         tempTargetRot.setFromCross(Vector3.Z, rotDir);
 
@@ -114,12 +113,12 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
                 } else if (token.isMoving()) {
                         if(current != walk){
                                 float v = MoreMath.scalarLimitsInterpolation(token.getMoveSpeed(), 1, 10, 0.25f, 1f);
-                                actorSpatial.animController.animate(walk.id, -1, v, null, .2f);
+                                spatial.animController.animate(walk.id, -1, v, null, .2f);
                                 current = walk;
                         }
                 } else {
                         if(current != idle){
-                                actorSpatial.animController.animate(idle.id, -1, .25f, null, .2f);
+                                spatial.animController.animate(idle.id, -1, .25f, null, .2f);
                                 current = idle;
                         }
                 }
@@ -129,15 +128,20 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
 
                 if (token.isAttacking() && token.hasProjectile()) {
                         float rotSpeed = delta * (MoreMath.largest(token.getMoveSpeed(), 7) + 0.5f);
-                        actorSpatial.rotation.slerp(tempTargetRot, rotSpeed);
+                        spatial.rotation.slerp(tempTargetRot, rotSpeed);
                 } else {
                         float rotSpeed = delta * (MoreMath.largest(token.getMoveSpeed(), 7) + 0.5f);
-                        actorSpatial.rotation.slerp(token.getDirection().quaternion, rotSpeed);
+                        spatial.rotation.slerp(token.getDirection().quaternion, rotSpeed);
                 }
 
 
         }
 
+        @Override
+        public void onAttacked(CharacterToken attacker, CharacterToken target, int damage) {
+                // always foward this, let the Hud decide if the information is worth showing
+                world.getHud().onAttacked(attacker, target,damage);
+        }
 
         @Override
         public void onInventoryAdd(Item item) {

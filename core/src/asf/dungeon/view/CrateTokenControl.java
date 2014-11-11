@@ -35,16 +35,16 @@ public class CrateTokenControl implements TokenControl{
 
 
                 //float scale = 20f;
-                //actorSpatial.scale.set(scale, scale, scale);
-                //actorSpatial.translationBase.set(0, actorSpatial.shape.getDimensions().y / 2f * scale + 1.35f * scale, 0);
-                //actorSpatial.translation.set(0, 0, 0);
+                //spatial.scale.set(scale, scale, scale);
+                //spatial.translationBase.set(0, spatial.shape.getDimensions().y / 2f * scale + 1.35f * scale, 0);
+                //spatial.translation.set(0, 0, 0);
 
                 for (Animation animation : actorSpatial.modelInstance.model.animations) {
                         //System.out.println(animation.id);
 
                 }
 
-                //actorSpatial.animController.setAnimation("Default Take",-1);
+                //spatial.animController.setAnimation("Default Take",-1);
 
 
         }
