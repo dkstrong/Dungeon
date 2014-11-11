@@ -53,8 +53,10 @@ public class CharacterToken extends DamageableToken {
         private DamageableToken meleeAttackTarget;                             // the token that is being attacked, this also marks if this token is in the "attacking" state
         private float attackProjectileU =Float.NaN;
         private float attackProjectileMaxU = Float.NaN;
-        private DamageableToken rangedAttackTarget;
+        private DamageableToken projectileAttackTarget;
+        private boolean rangedAttack = false;
         private float attackCoolDown = 0;                       // time until this token can send another attack, after attacking this value is reset to attackCooldownDuration
+        private boolean sentAttackResult = false;
         private Map<FloorMap, FogMap> fogMaps;
         private Journal journal;
         private transient Listener listener;
@@ -271,10 +273,9 @@ public class CharacterToken extends DamageableToken {
 
                 attackProjectileU+=delta;
                 if(attackProjectileU >= attackProjectileMaxU){
-                        // TODO: check to make sure target hasnt totally left its location at launch of the projectile
-                        // if so then do not send damage or set hit duration
-                        rangedAttackTarget.setHitDuration(attackDuration, this);
-                        sendDamageToAttackTarget(rangedAttackTarget, true);
+                        //Gdx.app.log("Character Token","send ranged damage to: "+projectileAttackTarget.getName());
+                        sendDamageToAttackTarget(projectileAttackTarget, true);
+                        projectileAttackTarget = null;
                         attackProjectileU = Float.NaN;
                 }
 
@@ -319,11 +320,10 @@ public class CharacterToken extends DamageableToken {
                         consumeItem = null;
                 }
 
+
                 attackCoolDown -= delta; // the attack cooldown timer always decreases as long as not dead
 
-                if (isHit()) {
-                        return; // can not attack or move while being hit
-                }
+
 
 
                 inAttackRangeOfContinousMoveToken = false;
@@ -341,6 +341,10 @@ public class CharacterToken extends DamageableToken {
                         return; // can not moveor pick up loot while attacking, so just return out
                 }else if(rangedKeepDistance && inAttackRangeOfContinousMoveToken){
                         return; // still in range of target, dont move
+                }
+
+                if (isHit()) {
+                        return; // can not attack or move while being hit
                 }
 
                 if (continuousMoveToken != null) {
@@ -464,14 +468,10 @@ public class CharacterToken extends DamageableToken {
                 }
                 if (!isAttacking()) {
 
-                        if(initiateRanged && !this.hasProjectile()){
+                        if(initiateRanged && !this.hasProjectile() && rangedAttack == false){
                                 attackU = 0;
-                                attackProjectileU = -attackDuration/2f;
-                                attackProjectileMaxU = 1; //TODO: MaxU should be calculated based on distance to target
                                 meleeAttackTarget = (DamageableToken)continuousMoveToken;
-                                rangedAttackTarget = (DamageableToken)continuousMoveToken;
-                                //if(listener != null)
-                                //        listener.onAttack(rangedAttackTarget, true);
+                                rangedAttack = true;
                                 return true;
                         }
                         //
@@ -498,9 +498,7 @@ public class CharacterToken extends DamageableToken {
                                         if (meleeAttackTarget != null) {
                                                 attackU = 0;
                                                 meleeAttackTarget.setHitDuration(attackDuration, this);
-                                                sendDamageToAttackTarget(meleeAttackTarget, false);
-                                                //if(listener != null)
-                                                //        listener.onAttack(meleeAttackTarget, false);
+                                                sentAttackResult = false;
                                                 return true;
                                         } else {
                                                 //  no token in blocking tile that can be attacked
@@ -516,14 +514,56 @@ public class CharacterToken extends DamageableToken {
                 } else {
                         attackU += delta;
                         if (attackU >= attackDuration) {
+                                if(!sentAttackResult){
+                                        sendAttackResult();
+                                }
                                 meleeAttackTarget = null;
                                 attackCoolDown = attackCooldownDuration;
+                                sentAttackResult = false;
+
+                        }else if(attackU >= attackDuration/2f && !sentAttackResult){
+                                sendAttackResult();
+                                sentAttackResult = true;
                         }
                         return true;
                 }
 
+        }
+
+        private void sendAttackResult(){
+
+                if(rangedAttack){
+                        // TODO: check to make sure the shot can still be lined up, if it cant then dont launch
+                        // the projectile
+                        attackProjectileU = 0;
+                        attackProjectileMaxU = getLocation().distance(meleeAttackTarget.getLocation()) / 2f;
+                        projectileAttackTarget = meleeAttackTarget;
+                        meleeAttackTarget.setHitDuration(attackProjectileMaxU, this);
+                        if(listener != null)
+                                listener.onAttack(projectileAttackTarget, true);
+                        rangedAttack = false;
+                }else{
+                        sendDamageToAttackTarget(meleeAttackTarget, false);
+                        if(listener != null)
+                                listener.onAttack(meleeAttackTarget, false);
+                }
 
 
+
+
+        }
+        private void sendDamageToAttackTarget(DamageableToken targetToken, boolean ranged) {
+
+                targetToken.receiveDamageFrom(this);
+
+                if(targetToken.isDead() && targetToken instanceof CharacterToken){
+                        CharacterToken targetCharacter = (CharacterToken) targetToken;
+                        int gainXp = targetCharacter.levelRating - levelRating +1 ;
+                        if(gainXp <0)
+                                gainXp = 0;
+                        xp+=gainXp;
+
+                }
         }
 
         private void calcPathToLocation(Pair targetLocation) {
@@ -606,19 +646,7 @@ public class CharacterToken extends DamageableToken {
         }
 
 
-        private void sendDamageToAttackTarget(DamageableToken targetToken, boolean ranged) {
 
-                targetToken.receiveDamageFrom(this);
-
-                if(targetToken.isDead() && targetToken instanceof CharacterToken){
-                        CharacterToken targetCharacter = (CharacterToken) targetToken;
-                        int gainXp = targetCharacter.levelRating - levelRating +1 ;
-                        if(gainXp <0)
-                                gainXp = 0;
-                        xp+=gainXp;
-
-                }
-        }
 
         @Override
         protected void receiveDamageFrom(CharacterToken characterToken) {
@@ -703,6 +731,11 @@ public class CharacterToken extends DamageableToken {
 
         public boolean isAttacking() {return meleeAttackTarget != null;}
 
+        public boolean isAttackingRanged(){
+                return isAttacking() && rangedAttack;
+        }
+
+
         public boolean hasProjectile(){return  !Float.isNaN(attackProjectileU);}
 
         /**
@@ -736,6 +769,10 @@ public class CharacterToken extends DamageableToken {
                 return attackRange;
         }
 
+        public float getAttackCoolDown() {
+                return attackCoolDown;
+        }
+
         public float getAttackCooldownDuration() {
                 return attackCooldownDuration;
         }
@@ -744,10 +781,9 @@ public class CharacterToken extends DamageableToken {
                 return meleeAttackTarget;
         }
 
-        public DamageableToken getRangedAttackTarget() {
-                return rangedAttackTarget;
+        public DamageableToken getProjectileAttackTarget() {
+                return projectileAttackTarget;
         }
-
 
 
         /**
@@ -864,15 +900,6 @@ public class CharacterToken extends DamageableToken {
                 return fogMaps.get(floorMap);
         }
 
-        /**
-         *
-         * @deprecated temporarily here for debugging
-         */
-        @Deprecated
-        public Map<FloorMap, FogMap> getFogMaps(){
-                return fogMaps;
-        }
-
         public boolean isFogMappingEnabled() {
                 return fogMaps != null;
         }
@@ -893,12 +920,13 @@ public class CharacterToken extends DamageableToken {
                 return journal != null;
         }
 
-
         public void setListener(Listener listener) {
                 this.listener = listener;
         }
 
         public static interface Listener {
+
+                public void onAttack(DamageableToken target, boolean ranged);
 
                 public void onAttacked(CharacterToken attacker, CharacterToken target, int damage, boolean dodge);
 

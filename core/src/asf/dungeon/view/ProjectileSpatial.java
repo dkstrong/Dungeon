@@ -1,6 +1,7 @@
 package asf.dungeon.view;
 
 import asf.dungeon.model.CharacterToken;
+import asf.dungeon.model.DamageableToken;
 import asf.dungeon.model.FogMap;
 import asf.dungeon.model.FogState;
 import asf.dungeon.model.Pair;
@@ -38,7 +39,8 @@ public class ProjectileSpatial implements Spatial {
         protected float visU = 0; // how visible this object is, 0 = not drawn, 1 = fully visible, inbetween for partially visible
 
         // current active
-        private CharacterToken sourceToken;
+        private CharacterToken attackerToken;
+        private TokenSpatial targetTokenSpatial;
         private final Pair destLoc = new Pair();
         private final Vector3 worldMoveDir = new Vector3(), worldStartLoc = new Vector3(), worldDestLoc = new Vector3();
 
@@ -83,43 +85,63 @@ public class ProjectileSpatial implements Spatial {
 
         }
 
-        public void shootProjectile(CharacterToken source, Pair destLoc) {
-                this.sourceToken = source;
+        public void shootProjectile(CharacterToken attacker, Pair destLoc){
+                this.attackerToken = attacker;
+                targetTokenSpatial = null;
                 this.destLoc.set(destLoc);
-                world.getWorldCoords(source.getLocationFloatX(), source.getLocationFloatY(), worldStartLoc);
-                world.getWorldCoords(destLoc, worldDestLoc);
+                world.getWorldCoords(attacker.getLocationFloatX(), attacker.getLocationFloatY(), worldStartLoc);
+                world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
+
                 worldMoveDir.set(worldDestLoc).sub(worldStartLoc);
                 MoreMath.normalize(worldMoveDir);
-                translation.set(worldStartLoc);
                 rotation.setFromCross(Vector3.Z, worldMoveDir);
+
+                translation.set(worldStartLoc);
+        }
+
+        public void shootProjectile(CharacterToken attacker, DamageableToken targetToken) {
+                this.attackerToken = attacker;
+                targetTokenSpatial = world.getTokenSpatial(targetToken);
+
+                world.getWorldCoords(attacker.getLocationFloatX(), attacker.getLocationFloatY(), worldStartLoc);
+                world.getWorldCoords(targetToken.getLocationFloatX(), targetToken.getLocationFloatY(), worldDestLoc);
+
+                worldMoveDir.set(worldDestLoc).sub(worldStartLoc);
+                MoreMath.normalize(worldMoveDir);
+                rotation.setFromCross(Vector3.Z, worldMoveDir);
+
+                translation.set(worldStartLoc);
+
                 //Gdx.app.log("ProjectileSpatial", "shoot: " + destLoc + " start: " + translation + "end: " + worldDestLoc + " moveDir: " + worldMoveDir);
         }
 
 
         @Override
         public void update(final float delta) {
-                if (sourceToken == null || !sourceToken.hasProjectile()) {
+                if (attackerToken == null || !attackerToken.hasProjectile()) {
                         reset();
                         return;
-                } else if (sourceToken.getEffectiveProjectileU() < 0) {
+                } else if (attackerToken.getEffectiveProjectileU() < 0) {
                         return;
                 }
 
-                // this token is only visible if on the same floor
-                // as the local player, and if fog mapping is enabled
-                if (sourceToken.getFloorMap() == world.getLocalPlayerToken().getFloorMap() && world.getLocalPlayerToken().isFogMappingEnabled()) {
-                        FogMap fogMap = world.getLocalPlayerToken().getFogMap(world.getLocalPlayerToken().getFloorMap());
-                        if (fogMap != null) {
-                                FogState fogState = fogMap.getFogState(destLoc.x, destLoc.y);
-                                if (fogState == FogState.Visible) {
-                                        visU += delta * .5f;
-                                } else {
-                                        visU -= delta * .75f;
+                if(targetTokenSpatial != null)
+                        visU = targetTokenSpatial.visU;
+                else{
+                        if(attackerToken.getFloorMap() == world.getLocalPlayerToken().getFloorMap() && world.getLocalPlayerToken().isFogMappingEnabled()){
+                                FogMap fogMap = world.getLocalPlayerToken().getFogMap(world.getLocalPlayerToken().getFloorMap());
+                                if(fogMap != null){
+                                        FogState fogState = fogMap.getFogState(destLoc.x, destLoc.y);
+                                        if(fogState == FogState.Visible){
+                                                visU+=delta*.5f;
+                                        }else{
+                                                visU-=delta*.75f;
+                                        }
+                                        visU = MathUtils.clamp(visU, 0, 1);
                                 }
-                                visU = MathUtils.clamp(visU, 0, 1);
+                        }else{
+                                visU = 1;
                         }
-                } else {
-                        visU = 1; // force rendering
                 }
 
 
@@ -128,14 +150,17 @@ public class ProjectileSpatial implements Spatial {
                         colorAttribute.color.a = visU;
                 }
 
-                if (animController != null) {
+                if (animController != null)
                         animController.update(delta);
-                }
 
+                //world.getWorldCoords(targetToken.getLocationFloatX(), targetToken.getLocationFloatY(), worldDestLoc);
+                //worldMoveDir.set(worldDestLoc).sub(worldStartLoc);
+                //MoreMath.normalize(worldMoveDir);
+                //rotation.setFromCross(Vector3.Z, worldMoveDir);
 
                 MoreMath.interpolate(
                         Interpolation.pow3,
-                        sourceToken.getEffectiveProjectileU(),
+                        attackerToken.getEffectiveProjectileU(),
                         worldStartLoc,
                         worldDestLoc,
                         translation);
@@ -147,33 +172,33 @@ public class ProjectileSpatial implements Spatial {
 
         @Override
         public void render(float delta) {
-                if (sourceToken == null || sourceToken.getEffectiveProjectileU() < 0) {
+                if (attackerToken == null || attackerToken.getEffectiveProjectileU() < 0) {
                         return;
                 }
 
-                if (world.getLocalPlayerToken().isFogMappingEnabled()) {
-                        if (visU <= 0) {
-                                return;
-                        }
+                if (visU <= 0) {
+                        return;
                 }
+
                 modelInstance.transform.set(
                         translation.x + translationBase.x, translation.y + translationBase.y, translation.z + translationBase.z,
                         rotation.x, rotation.y, rotation.z, rotation.w,
                         scale.x, scale.y, scale.z
                 );
 
+                //Gdx.app.log("ProjectileSpatial", "render: " + translation);
 
                 world.modelBatch.render(modelInstance, environment);
 
         }
 
         public void reset() {
-                sourceToken = null;
+                attackerToken = null;
                 visU = 0;
         }
 
         public boolean isActive() {
-                return sourceToken != null;
+                return attackerToken != null;
         }
 
         @Override

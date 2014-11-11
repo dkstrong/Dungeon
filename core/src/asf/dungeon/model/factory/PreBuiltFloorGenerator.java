@@ -11,9 +11,12 @@ public class PreBuiltFloorGenerator implements FloorMapGenerator{
 
         public FloorMap generate(Dungeon dungeon, int floorIndex){
                 FloorMap floorMap;
-                if(floorIndex ==0 ){
+                if(floorIndex == 0){
+                        floorMap = openRoom(floorIndex);
+                }else
+                if(floorIndex ==1 ){
                         floorMap = smallRoom(floorIndex);
-                }else if(floorIndex == 1){
+                }else if(floorIndex == 2){
                         floorMap = mediumRoom(floorIndex);
                 }else{
                         floorMap = tinyRoom(floorIndex);
@@ -46,6 +49,30 @@ public class PreBuiltFloorGenerator implements FloorMapGenerator{
                 return floorMap;
         }
 
+        public static FloorMap openRoom(int floorIndex){
+
+                String[] tileData = new String[]{
+                        "-------------------",
+                        "|.................|",
+                        "|.^...............|",
+                        "|.................|",
+                        "|.................|",
+                        "|.................|",
+                        "|.................|",
+                        "|.................|",
+                        "|.................|",
+                        "|.................|",
+                        "|.................|",
+                        "|...............&.|",
+                        "|.................|",
+                        "|-----------------|"
+
+                };
+
+                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(floorIndex,tileData));
+
+                return floorMap;
+        }
         public static FloorMap smallRoom(int floorIndex){
 
                 String[] tileData = new String[]{

@@ -67,14 +67,6 @@ public class FloorSpatial implements Spatial {
 
                 fogMap = world.getLocalPlayerToken().getFogMap(floorMap);
                 if(fogMap == null){
-
-                        System.err.println("floor spatial was set to this floor map: : "+floorMap.index);
-                        System.err.println("the current floor map of the player token: "+world.getLocalPlayerToken().getFloorMap().index);
-                        Map<FloorMap, FogMap> fogMaps =  world.getLocalPlayerToken().getFogMaps();
-                        for (Map.Entry<FloorMap, FogMap> entry : fogMaps.entrySet()) {
-                                System.err.println("floor: "+entry.getKey().index+", fog: "+entry.getValue());
-                        }
-
                         throw new AssertionError("should not be null");
                 }
 

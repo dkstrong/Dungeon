@@ -52,7 +52,7 @@ public class UtFloorGen {
 
                 ModelId[] characters;
                 if(floorMap.index == 0)
-                        characters = new ModelId[]{ModelId.FemaleMage,ModelId.Berzerker,ModelId.Mage}; //destLoc
+                        characters = new ModelId[]{ModelId.Knight}; //destLoc
                 else{
                         characters = new ModelId[]{ModelId.Archer,ModelId.Berzerker,ModelId.Diablous,ModelId.FemaleMage,ModelId.Mage,ModelId.Priest}; // "cerberus"
                 }

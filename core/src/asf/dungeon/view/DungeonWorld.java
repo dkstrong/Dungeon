@@ -140,6 +140,19 @@ public class DungeonWorld implements Disposable {
                 spatial.dispose();
         }
 
+        protected void shootProjectile(CharacterToken source, DamageableToken target){
+                for (ProjectileSpatial projectileSpatial : projectileSpatialPool) {
+                        if(!projectileSpatial.isActive()){
+                                projectileSpatial.shootProjectile(source, target);
+                                return;
+                        }
+                }
+
+                ProjectileSpatial projectileSpatial = new ProjectileSpatial(this, environment);
+                addSpatial(projectileSpatial);
+                projectileSpatial.shootProjectile(source, target);
+        }
+
         protected void shootProjectile(CharacterToken source, Pair destLoc){
                 for (ProjectileSpatial projectileSpatial : projectileSpatialPool) {
                         if(!projectileSpatial.isActive()){
@@ -336,13 +349,13 @@ public class DungeonWorld implements Disposable {
                 public void onTokenAdded(Token token) {
 
                         if (token == hudSpatial.localPlayerToken) {
-                                Gdx.app.log("DungeonWorld", "moving view to move with the player token");
+                                //Gdx.app.log("DungeonWorld", "moving view to move with the player token");
                                 floorDecals.setFloorMap(hudSpatial.localPlayerToken.getFloorMap());
                         } else if (token instanceof CharacterToken) {
                                 CharacterToken characterToken = (CharacterToken) token;
                                 TokenSpatial tokenSpatial = addSpatial(new TokenSpatial(DungeonWorld.this, characterToken, floorDecals.tokenCustomBox, environment));
                                 if (characterToken.getLogicProvider() instanceof LocalPlayerLogicProvider) {
-                                        Gdx.app.log("DungeonWorld", "Local character token is added");
+                                        //Gdx.app.log("DungeonWorld", "Local character token is added");
                                         LocalPlayerLogicProvider localLogic = (LocalPlayerLogicProvider) characterToken.getLogicProvider();
                                         if (localLogic.getId() == 0) {
                                                 hudSpatial.setToken(characterToken);
@@ -359,7 +372,7 @@ public class DungeonWorld implements Disposable {
 
                 @Override
                 public void onTokenRemoved(Token token) {
-                        Gdx.app.log("DungeonWorld", "tokenRemoved: " + token);
+                        //Gdx.app.log("DungeonWorld", "tokenRemoved: " + token);
                         if (token == hudSpatial.localPlayerToken) {
                                 dungeon.setCurrentFloor(hudSpatial.localPlayerToken.getFloorMap());
                                 return;

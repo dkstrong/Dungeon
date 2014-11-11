@@ -1,6 +1,7 @@
 package asf.dungeon.view;
 
 import asf.dungeon.model.CharacterToken;
+import asf.dungeon.model.DamageableToken;
 import asf.dungeon.model.Item;
 import asf.dungeon.model.StatusEffect;
 import asf.dungeon.utility.MoreMath;
@@ -99,15 +100,7 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
                 } else if (token.isAttacking()) {
                         if (current != attack) {
                                 spatial.animController.animate(attack.id, 1, attack.duration / token.getAttackDuration(), null, .2f);
-                                if(token.hasProjectile()){
-                                        Vector3 rotDir = temp;
-                                        world.getWorldCoords(token.getAttackTarget().getLocationFloatX(), token.getAttackTarget().getLocationFloatY(), rotDir);
-                                        rotDir.sub(spatial.translation);
-                                        MoreMath.normalize(rotDir);
-                                        tempTargetRot.setFromCross(Vector3.Z, rotDir);
 
-                                        world.shootProjectile(token, token.getAttackTarget().getLocation());
-                                }
                                 current = attack;
                         }
                 } else if (token.isMoving()) {
@@ -126,15 +119,34 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
 
 
 
-                if (token.isAttacking() && token.hasProjectile()) {
+                if (token.isAttackingRanged()) {
+                        Vector3 rotDir = temp;
+                        world.getWorldCoords(token.getAttackTarget().getLocationFloatX(), token.getAttackTarget().getLocationFloatY(), rotDir);
+                        rotDir.sub(spatial.translation);
+                        MoreMath.normalize(rotDir);
+                        tempTargetRot.setFromCross(Vector3.Z, rotDir);
+
                         float rotSpeed = delta * (MoreMath.largest(token.getMoveSpeed(), 7) + 0.5f);
                         spatial.rotation.slerp(tempTargetRot, rotSpeed);
-                } else {
+                } else if(token.hasProjectile()){
+                        float rotSpeed = delta * (MoreMath.largest(token.getMoveSpeed(), 7) + 0.5f)*.05f;
+                        spatial.rotation.slerp(token.getDirection().quaternion, rotSpeed);
+                } else{
                         float rotSpeed = delta * (MoreMath.largest(token.getMoveSpeed(), 7) + 0.5f);
                         spatial.rotation.slerp(token.getDirection().quaternion, rotSpeed);
                 }
 
 
+        }
+
+        @Override
+        public void onAttack(DamageableToken target, boolean ranged) {
+                if(ranged){
+                        world.shootProjectile(token, token.getAttackTarget());
+                }
+
+                if (world.getHud().localPlayerToken == token)
+                        world.getHud().onAttack(target, ranged);
         }
 
         @Override

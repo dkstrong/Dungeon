@@ -1,6 +1,7 @@
 package asf.dungeon.view;
 
 import asf.dungeon.model.CharacterToken;
+import asf.dungeon.model.DamageableToken;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Item;
 import asf.dungeon.model.Pair;
@@ -403,7 +404,10 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 healthProgressBar.setRange(0, localPlayerToken.getMaxHealth());
                 healthProgressBar.setValue(localPlayerToken.getHealth());
                 healthProgressBar.act(delta);
-                avatarLabel.setText(localPlayerToken.getHealth() + " / " + localPlayerToken.getMaxHealth() + "\n\n");
+
+                String s = String.format("%s / %s\n%s / %s",localPlayerToken.getHealth(),localPlayerToken.getMaxHealth(),localPlayerToken.getAttackCoolDown(),localPlayerToken.getAttackCooldownDuration());
+                avatarLabel.setText(s);
+
 
 
                 Token targetToken = localPlayerToken.getContinuousMoveToken();
@@ -656,12 +660,17 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         }
 
         @Override
+        public void onAttack(DamageableToken target, boolean ranged) {
+
+        }
+
+        @Override
         public void onAttacked(CharacterToken attacker, CharacterToken target, int damage, boolean dodge) {
                 if (dodge) {
-                        //System.out.println(String.format("%s dodged attack from %s", target.getName(), attacker.getName()));
+                        System.out.println(String.format("%s dodged attack from %s", target.getName(), attacker.getName()));
                         spawnDamageInfoLabel("dodge", target, Color.YELLOW);
                 } else {
-                        //System.out.println(String.format("%s received %s damage from %s", target.getName(), damage, attacker.getName()));
+                        System.out.println(String.format("%s received %s damage from %s", target.getName(), damage, attacker.getName()));
                         spawnDamageInfoLabel(String.valueOf(damage), target, Color.RED);
                 }
 
