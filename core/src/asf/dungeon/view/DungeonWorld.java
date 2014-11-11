@@ -22,13 +22,17 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -50,7 +54,7 @@ public class DungeonWorld implements Disposable {
         protected final ModelBatch modelBatch;
         protected final AssetManager assetManager;
         private final Array<ProjectileSpatial> projectileSpatialPool;
-        protected final Array<Spatial> spatials;
+        private final Array<Spatial> spatials;
         private final InternalInputAdapter internalInput;
         private boolean loading;
         private boolean simulationStarted = false;
@@ -161,10 +165,26 @@ public class DungeonWorld implements Disposable {
                 return floorDecals.getWorldCoords(mapCoords, storeWorldCoords);
         }
 
+        public void getScreenCoords(float mapCoordsX, float mapCoordsY, Vector3 storeScreenCoords){
+                getWorldCoords(mapCoordsX, mapCoordsY, storeScreenCoords);
+                cam.project(storeScreenCoords);
+        }
+
         protected CharacterToken getLocalPlayerToken(){
                 return hudSpatial.localPlayerToken;
         }
         protected HudSpatial getHud(){return hudSpatial;}
+        protected TokenSpatial getTokenSpatial(Token token){
+                for (Spatial spatial : spatials) {
+                        if(spatial instanceof TokenSpatial){
+                                TokenSpatial ts = (TokenSpatial ) spatial;
+                                if(ts.token == token){
+                                        return ts;
+                                }
+                        }
+                }
+                return null;
+        }
 
         public Token getToken(Ray ray, Token ignoreToken) {
                 Token result = null;
@@ -235,6 +255,7 @@ public class DungeonWorld implements Disposable {
                         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
                         modelBatch.begin(cam);
+
                         final float effectiveDelta = paused ? 0 : delta;
                         for (final Spatial spatial : spatials) {
                                 if (spatial.isInitialized())
@@ -242,9 +263,7 @@ public class DungeonWorld implements Disposable {
 
                         }
                         modelBatch.end();
-
                         decalBatch.flush();
-
                         stage.draw();
                 } else {
 

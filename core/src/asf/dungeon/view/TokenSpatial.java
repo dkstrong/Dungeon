@@ -117,8 +117,7 @@ public class TokenSpatial implements Spatial {
                                 visU = MathUtils.clamp(visU,0,1);
                         }
                 }else{
-                        // TODO: maybe i should do visU = 1 if fogmapping is turned off to force all tokens to be rendered?
-                        visU = 0;
+                        visU = 1;
                 }
 
 

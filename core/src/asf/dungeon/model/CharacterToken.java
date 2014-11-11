@@ -645,7 +645,7 @@ public class CharacterToken extends DamageableToken {
                 }
 
                 if(listener != null)
-                        listener.onAttacked(characterToken, this, damage);
+                        listener.onAttacked(characterToken, this, damage, dodge);
         }
 
         private void computeFogMap() {
@@ -900,7 +900,7 @@ public class CharacterToken extends DamageableToken {
 
         public static interface Listener {
 
-                public void onAttacked(CharacterToken attacker, CharacterToken target, int damage);
+                public void onAttacked(CharacterToken attacker, CharacterToken target, int damage, boolean dodge);
 
                 public void onInventoryAdd(Item item);
 

@@ -138,9 +138,9 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
         }
 
         @Override
-        public void onAttacked(CharacterToken attacker, CharacterToken target, int damage) {
+        public void onAttacked(CharacterToken attacker, CharacterToken target, int damage, boolean dodge) {
                 // always foward this, let the Hud decide if the information is worth showing
-                world.getHud().onAttacked(attacker, target,damage);
+                world.getHud().onAttacked(attacker, target,damage, dodge);
         }
 
         @Override
