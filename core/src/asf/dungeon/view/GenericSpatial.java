@@ -14,7 +14,7 @@ import asf.dungeon.view.shape.Shape;
 /**
  * Created by danny on 10/20/14.
  */
-public class ActorSpatial implements Spatial {
+public class GenericSpatial implements Spatial {
 
         private boolean initialized = false;
         private DungeonWorld world;
@@ -28,36 +28,36 @@ public class ActorSpatial implements Spatial {
         public final Vector3 translation = new Vector3();
         public final Quaternion rotation = new Quaternion();
         public final Vector3 scale = new Vector3(1, 1, 1);
-        protected ActorControl actorControl;
+        protected GenericControl genericControl;
 
-        public ActorSpatial(ModelInstance modelInstance, Shape shape, Environment environment) {
+        public GenericSpatial(ModelInstance modelInstance, Shape shape, Environment environment) {
                 this.modelInstance = modelInstance;
                 this.assetLocation = null;
                 this.shape = shape;
                 this.environment = environment;
         }
 
-        public ActorSpatial(String assetLocation, Shape shape, Environment environment) {
+        public GenericSpatial(String assetLocation, Shape shape, Environment environment) {
                 this.assetLocation = assetLocation;
                 this.shape = shape;
                 this.environment = environment;
         }
 
-        public <T extends ActorControl> T setControl(T gameControl) {
-                this.actorControl = gameControl;
+        public <T extends GenericControl> T setControl(T gameControl) {
+                this.genericControl = gameControl;
                 if (initialized)
-                        actorControl.start(this);
+                        genericControl.start(this);
                 return gameControl;
         }
 
-        public ActorControl getControl(){
-                return actorControl;
+        public GenericControl getControl(){
+                return genericControl;
         }
 
-        public <T extends ActorControl> T removeControl() {
-                ActorControl actorControlTemp = actorControl;
-                actorControl = null;
-                return (T) actorControlTemp;
+        public <T extends GenericControl> T removeControl() {
+                GenericControl genericControlTemp = genericControl;
+                genericControl = null;
+                return (T) genericControlTemp;
         }
 
         public void preload(DungeonWorld world){
@@ -88,15 +88,15 @@ public class ActorSpatial implements Spatial {
                         //animController.setAnimation(modelInstance.animations.get(0).id, 100);
                 }
 
-                if (actorControl != null)
-                        actorControl.start(this);
+                if (genericControl != null)
+                        genericControl.start(this);
         }
 
 
         public void update(final float delta) {
 
-                if (actorControl != null)
-                        actorControl.update(delta);
+                if (genericControl != null)
+                        genericControl.update(delta);
 
                 if (animController != null) {
                         animController.update(delta);

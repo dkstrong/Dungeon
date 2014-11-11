@@ -1,11 +1,14 @@
 package asf.dungeon.view;
 
+import asf.dungeon.model.CharacterToken;
+import asf.dungeon.model.DamageableToken;
 import asf.dungeon.model.Item;
 import asf.dungeon.model.StatusEffect;
+import asf.dungeon.utility.MoreMath;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
-import asf.dungeon.model.CharacterToken;
-import asf.dungeon.utility.MoreMath;
+import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector3;
 
 /**
  * Created by danny on 10/20/14.
@@ -26,7 +29,7 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
         }
 
         @Override
-        public CharacterToken getToken(){
+        public CharacterToken getToken() {
                 return token;
         }
 
@@ -36,7 +39,7 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
 
                 float scale = .45f;
                 actorSpatial.scale.set(scale, scale, scale);
-                actorSpatial.translationBase.set(0, (actorSpatial.shape.getDimensions().y / 2f)+1.45f , 0);
+                actorSpatial.translationBase.set(0, (actorSpatial.shape.getDimensions().y / 2f) + 1.45f, 0);
                 actorSpatial.translation.set(0, 0, 0);
 
                 for (Animation animation : actorSpatial.modelInstance.model.animations) {
@@ -57,80 +60,114 @@ public class CharacterTokenControl implements TokenControl, CharacterToken.Liste
                 }
         }
 
-        public void end(){
+        public void end() {
 
         }
 
         private Animation current;
         private Item.Consumable currentItemConsume;
+        private static final Vector3 temp = new Vector3();
+        private final Quaternion tempTargetRot = new Quaternion();
 
         @Override
         public void update(float delta) {
+                world.getWorldCoords(token.getLocationFloatX(), token.getLocationFloatY(), actorSpatial.translation);
 
-
-                if(currentItemConsume != null){
-                        Gdx.app.log("CharacterTokenControl","bloob bloob bloob "+currentItemConsume+"!");
+                if (currentItemConsume != null) {
+                        Gdx.app.log("CharacterTokenControl", "bloob bloob bloob " + currentItemConsume + "!");
                         currentItemConsume = null;
                 }
 
                 Animation anim = token.isMoving() ? walk : token.isAttacking() ? attack : token.isHit() ? hit : token.isDead() ? die : idle;
 
-                if(current != anim){
-                        if(token.isDead()){
-                                actorSpatial.animController.animate(die.id, 1, die.duration / token.getDeathDuration(),null,.2f);
-                        }else if (token.isHit()) {
-                                if(hit == null){
+                if (token.isDead()) {
+                        if(current != die){
+                                actorSpatial.animController.animate(die.id, 1, die.duration / token.getDeathDuration(), null, .2f);
+                                current = die;
+                        }
+
+                } else if (token.isHit()) {
+                        if(current != hit){
+                                if (world.getHud().localPlayerToken == token)
+                                        world.getHud().closeAllWindows();
+
+                                if (hit == null) {
                                         throw new Error(token.getName());
                                 }
-                                actorSpatial.animController.animate(hit.id, 1, hit.duration/token.getHitDuration(), null, .2f);
-                        } else if (token.isAttacking()) {
-                                actorSpatial.animController.animate(attack.id, 1, attack.duration/token.getAttackDuration(), null, .2f);
-                        } else if (token.isMoving()) {
+                                actorSpatial.animController.animate(hit.id, 1, hit.duration / token.getHitDuration(), null, .2f);
+                                current = hit;
+                        }
+                } else if (token.isAttacking()) {
+                        if (current != attack) {
+                                actorSpatial.animController.animate(attack.id, 1, attack.duration / token.getAttackDuration(), null, .2f);
+                                if(token.hasProjectile()){
+                                        Vector3 rotDir = temp;
+                                        world.getWorldCoords(token.getAttackTarget().getLocationFloatX(), token.getAttackTarget().getLocationFloatY(), rotDir);
+                                        rotDir.sub(actorSpatial.translation);
+                                        MoreMath.normalize(rotDir);
+                                        tempTargetRot.setFromCross(Vector3.Z, rotDir);
+
+                                        world.shootProjectile(token, token.getAttackTarget().getLocation());
+                                }
+                                current = attack;
+                        }
+                } else if (token.isMoving()) {
+                        if(current != walk){
                                 float v = MoreMath.scalarLimitsInterpolation(token.getMoveSpeed(), 1, 10, 0.25f, 1f);
                                 actorSpatial.animController.animate(walk.id, -1, v, null, .2f);
-                        } else {
+                                current = walk;
+                        }
+                } else {
+                        if(current != idle){
                                 actorSpatial.animController.animate(idle.id, -1, .25f, null, .2f);
+                                current = idle;
                         }
                 }
 
 
 
-                world.getWorldCoords(token.getLocationFloatX(), token.getLocationFloatY(), actorSpatial.translation);
-                float rotSpeed = delta * (MoreMath.largest(token.getMoveSpeed(), 7) + 0.5f);
-                actorSpatial.rotation.slerp(token.getDirection().quaternion, rotSpeed);
+
+                if (token.isAttacking() && token.hasProjectile()) {
+                        float rotSpeed = delta * (MoreMath.largest(token.getMoveSpeed(), 7) + 0.5f);
+                        actorSpatial.rotation.slerp(tempTargetRot, rotSpeed);
+                } else {
+                        float rotSpeed = delta * (MoreMath.largest(token.getMoveSpeed(), 7) + 0.5f);
+                        actorSpatial.rotation.slerp(token.getDirection().quaternion, rotSpeed);
+                }
+
 
         }
 
 
         @Override
         public void onInventoryAdd(Item item) {
-                if(world.getHud().localPlayerToken == token)
+                if (world.getHud().localPlayerToken == token)
                         world.getHud().onInventoryAdd(item);
 
         }
 
         @Override
         public void onInventoryRemove(Item item) {
-                if(world.getHud().localPlayerToken == token)
+                if (world.getHud().localPlayerToken == token)
                         world.getHud().onInventoryRemove(item);
         }
 
         @Override
         public void onConsumeItem(Item.Consumable item) {
                 currentItemConsume = item;
-                if(world.getHud().localPlayerToken == token)
+                if (world.getHud().localPlayerToken == token)
                         world.getHud().onConsumeItem(item);
         }
 
         @Override
         public void onStatusEffectChange(StatusEffect effect, float duration) {
-                if(world.getHud().localPlayerToken == token)
+                if (world.getHud().localPlayerToken == token)
                         world.getHud().onStatusEffectChange(effect, duration);
         }
 
         @Override
         public void dispose() {
-                if(this.token!=null)
+                if (this.token != null)
                         this.token.setListener(null);
         }
 }

@@ -1,5 +1,6 @@
 package asf.dungeon.utility;
 
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -100,24 +101,18 @@ public class MoreMath {
                 return ((1f - scale) * startValue) + (scale * endValue);
         }
 
-
-        /**
-         * Linear interpolation from startValue to endValue by the given percent.
-         * Basically: ((1 - percent) * startValue) + (percent * endValue)
-         *
-         * @param scale
-         *            scale value to use. if 1, use endValue, if 0, use startValue.
-         * @param startValue
-         *            Begining value. 0% of f
-         * @param endValue
-         *            ending value. 100% of f
-         * @param store a vector3f to store the result
-         * @return The interpolated value between startValue and endValue.
-         */
         public static void interpolateLinear(float scale, Vector3 startValue, Vector3 endValue, Vector3 store) {
                 store.x = interpolateLinear(scale, startValue.x, endValue.x);
                 store.y = interpolateLinear(scale, startValue.y, endValue.y);
                 store.z = interpolateLinear(scale, startValue.z, endValue.z);
+        }
+
+        public static void interpolate(Interpolation interpolation,
+                                       float scale,
+                                       Vector3 startValue, Vector3 endValue, Vector3 store){
+                store.x =interpolation.apply(startValue.x, endValue.x, scale);
+                store.y =interpolation.apply(startValue.y, endValue.y, scale);
+                store.z =interpolation.apply(startValue.z, endValue.z, scale);
         }
 
         public static void normalize(Vector3 vec){

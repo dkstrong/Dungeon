@@ -181,6 +181,10 @@ public abstract class DamageableToken extends Token {
                 return health;
         }
 
+        public int getMaxHealth() {
+                return maxHealth;
+        }
+
         protected void setHitDuration(float hitDuration, Token hitSource) {
                 if (this.hitSource != null)
                         return; // dont accept new hit duration of a second attacker. this prevents from being put into a helpless state when attacked by 2 enemies at once

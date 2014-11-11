@@ -36,7 +36,7 @@ public class UtFloorGen {
 
         protected static void spawnTokens(Dungeon dungeon, FloorMap floorMap){
                 if(floorMap.index == 0){
-                        boolean rangedHero = false;//MathUtils.random.nextBoolean();
+                        boolean rangedHero = true;//MathUtils.random.nextBoolean();
 
                         CharacterToken knightToken = dungeon.newCharacterToken(floorMap,"Player 1", rangedHero ? ModelId.Archer : ModelId.Knight, new LocalPlayerLogicProvider(0,"Player 1"));
 
@@ -52,7 +52,7 @@ public class UtFloorGen {
 
                 ModelId[] characters;
                 if(floorMap.index == 0)
-                        characters = new ModelId[]{ModelId.Priest};
+                        characters = new ModelId[]{}; //destLoc
                 else{
                         characters = new ModelId[]{ModelId.Archer,ModelId.Berzerker,ModelId.Diablous,ModelId.FemaleMage,ModelId.Mage,ModelId.Priest}; // "cerberus"
                 }

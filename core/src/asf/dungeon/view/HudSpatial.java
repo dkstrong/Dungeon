@@ -1,6 +1,7 @@
 package asf.dungeon.view;
 
 import asf.dungeon.model.CharacterToken;
+import asf.dungeon.model.DamageableToken;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.StatusEffect;
@@ -87,7 +88,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 avatarButton.add(new Label("Avatar", skin));
                 avatarButton.addCaptureListener(this);
 
-                healthProgressBar = new ProgressBar(0,10,1,false,skin,"default");
+                healthProgressBar = new ProgressBar(0,localPlayerToken.getMaxHealth(),1,false,skin,"default");
+                healthProgressBar.setValue(localPlayerToken.getHealth());
                 healthProgressBar.setAnimateInterpolation(Interpolation.linear);
                 healthProgressBar.setAnimateDuration(1f);
                 world.stage.addActor(healthProgressBar);
@@ -150,7 +152,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 avatarWindow.setModal(true);
                 avatarWindow.addCaptureListener(this);
                 avatarWindow.removeActor(avatarWindow.getButtonTable());
-                world.stage.addActor(avatarWindow);
+
                 avatarWindow.debugAll();
                 {
                         avatarWindow.row();
@@ -177,6 +179,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                         avatarWindow.add(closeButton).colspan(4);
                 }
 
+                world.stage.addActor(avatarWindow);
+                this.refreshAvatarWindowElements();
 
                 inventoryWindow = new Window("Inventory", skin);
                 inventoryWindow.setMovable(false);
@@ -281,7 +285,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
 
                 }
-
 
                 resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -399,9 +402,10 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         public void update(float delta) {
 
 
+                healthProgressBar.setRange(0,localPlayerToken.getMaxHealth());
                 healthProgressBar.setValue(localPlayerToken.getHealth());
                 healthProgressBar.act(delta);
-                avatarLabel.setText("");
+                avatarLabel.setText(localPlayerToken.getHealth()+" / "+localPlayerToken.getMaxHealth()+"\n\n");
 
 
 
@@ -432,50 +436,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 return null;
         }
 
-        @Override
-        public void onInventoryAdd(Item item) {
-                if(getItem(quickSlotButton) == null)
-                        setButtonContents(quickSlotButton, item);
 
-                refreshInventoryElements();
-        }
-
-        @Override
-        public void onInventoryRemove(Item item) {
-                if(getItem(quickSlotButton) == item){
-                        // change the quick slot to another item that .equals it (eg to another health potion) otherwise set to null
-                        Item setItem = null;
-                        for (Item i : localPlayerToken.getInventory()) {
-                                if(i.equals(item)){
-                                        setItem = i;
-                                        break;
-                                }
-                        };
-
-                        setButtonContents(quickSlotButton, setItem);
-                }
-
-                refreshInventoryElements();
-        }
-
-        @Override
-        public void onConsumeItem(Item.Consumable item) {
-                // refreshInventoryElements();  // onInventoryRemove will be called right after, no point in doing this twice
-                this.setCenterLabelText("You just drank "+item.getNameFromJournal(localPlayerToken));
-        }
-
-        @Override
-        public void onStatusEffectChange(StatusEffect effect, float duration) {
-                Image statusImage = statusEffectImage[effect.ordinal()];
-                if(duration == 0){
-                        statusImage.remove();
-                }else if(statusImage.getParent() == null){
-                        avatarStatusEffectsGroup.addActor(statusImage);
-                }
-
-
-
-        }
 
         private void refreshAvatarWindowElements() {
                 if (avatarWindow.getParent() != null) {
@@ -488,7 +449,16 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                                         label.setText(localPlayerToken.getName());
                                 }else if(uoName.equals("statsLabel")){
                                         Label label = (Label) child;
-                                        label.setText("Level 1\nHP: "+localPlayerToken.getHealth()+" / 10\nAttack: 3\nDefense: 5\nAgility: 3\n");
+                                        StringBuilder sb = new StringBuilder();
+                                        sb.append(String.format("HP: %s / %s\n",localPlayerToken.getHealth(),localPlayerToken.getMaxHealth()));
+                                        sb.append(String.format("Move Speed: %s \n",localPlayerToken.getMoveSpeed()));
+                                        sb.append(String.format("Attack Duration: %s \n",localPlayerToken.getAttackDuration()));
+                                        sb.append(String.format("Attack Damage: %s \n",localPlayerToken.getAttackDamage()));
+                                        sb.append(String.format("Attack Range: %s \n",localPlayerToken.getAttackRange()));
+                                        sb.append(String.format("Attack Cooldown Duration: %s \n",localPlayerToken.getAttackCooldownDuration()));
+
+
+                                        label.setText(sb);
                                 }
                         }
 
@@ -499,7 +469,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         }
 
         private void refreshInventoryElements() {
-                Gdx.app.log("HudSpatial","refresh quick button");
+                Gdx.app.log("HudSpatial", "refresh quick button");
                 Item quickItem = getItem(quickSlotButton);
                 setButtonContents(quickSlotButton, quickItem); // refresh the display
 
@@ -613,24 +583,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 world.stage.addActor(characterActionInfoLabel);
         }
 
-        @Override
-        public void render(float delta) {
-
-        }
-
-        @Override
-        public boolean isInitialized() {
-                return initialized;
-        }
-
-        @Override
-        public void dispose() {
-                initialized = false;
-                if (skin != null)
-                        skin.dispose();
-
-        }
-
         protected void closeAllWindows(){
                 setAvatarWindowVisible(false);
                 setInventoryWindowVisible(false);
@@ -674,6 +626,69 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                         inventoryWindow.setModal(true);
                 }
         }
+
+        @Override
+        public void onInventoryAdd(Item item) {
+                if(getItem(quickSlotButton) == null)
+                        setButtonContents(quickSlotButton, item);
+
+                refreshInventoryElements();
+        }
+
+        @Override
+        public void onInventoryRemove(Item item) {
+                if(getItem(quickSlotButton) == item){
+                        // change the quick slot to another item that .equals it (eg to another health potion) otherwise set to null
+                        Item setItem = null;
+                        for (Item i : localPlayerToken.getInventory()) {
+                                if(i.equals(item)){
+                                        setItem = i;
+                                        break;
+                                }
+                        };
+
+                        setButtonContents(quickSlotButton, setItem);
+                }
+
+                refreshInventoryElements();
+        }
+
+        @Override
+        public void onConsumeItem(Item.Consumable item) {
+                // refreshInventoryElements();  // onInventoryRemove will be called right after, no point in doing this twice
+                this.setCenterLabelText("You just drank "+item.getNameFromJournal(localPlayerToken));
+        }
+
+        @Override
+        public void onStatusEffectChange(StatusEffect effect, float duration) {
+                Image statusImage = statusEffectImage[effect.ordinal()];
+                if(duration == 0){
+                        statusImage.remove();
+                }else if(statusImage.getParent() == null){
+                        avatarStatusEffectsGroup.addActor(statusImage);
+                }
+
+        }
+
+        @Override
+        public void render(float delta) {
+
+        }
+
+        @Override
+        public boolean isInitialized() {
+                return initialized;
+        }
+
+        @Override
+        public void dispose() {
+                initialized = false;
+                if (skin != null)
+                        skin.dispose();
+
+        }
+
+
 
         private final Vector3 tempWorldCoords = new Vector3();
         private final Pair tempMapCoords = new Pair();

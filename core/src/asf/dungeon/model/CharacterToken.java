@@ -1,6 +1,5 @@
 package asf.dungeon.model;
 
-import asf.dungeon.model.logic.LocalPlayerLogicProvider;
 import asf.dungeon.model.logic.LogicProvider;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
@@ -30,6 +29,7 @@ public class CharacterToken extends DamageableToken {
          * how fast the character moves between tiles, generally a value between 1 and 10, could be higher i suppose.
          */
         private int moveSpeed = 6;
+
         /**
          * this value is used in determening how much damage will be dealt when attacking other tokens.
          */
@@ -49,7 +49,7 @@ public class CharacterToken extends DamageableToken {
         /**
          * this vaue is used in determening how much damage will be received from other tokens.
          */
-        private int armorValue = 1;
+        private int defenseRating = 1;
         /**
          * if this character will pick up items when standing on tiles with items
          */
@@ -67,9 +67,13 @@ public class CharacterToken extends DamageableToken {
         private Array<Item> inventory = new Array<Item>(true, 16, Item.class);
         private Item.Consumable consumeItem;                               // item to be  consumed on next update
         private boolean ableRangedAttack = true;
+        private boolean rangedKeepDistance = true;             // if true the character will hold position while in range of targeted token and it is alive, if false character will persue and get close inbetween shots
+        private boolean inAttackRangeOfContinousMoveToken = false;
         private float attackU = 0;                              // 0 = not attacking, >0 attacking, once attackU >=attackDuration then attackU is reset to 0
-        private DamageableToken attackTarget;                             // the token that is being attacked, this also marks if this token is in the "attacking" state
-        private boolean attackDamageApplied = false;            // flag to determine if the damage has been applied from the current "attacking" state, invalid if attackTarget == null
+        private DamageableToken meleeAttackTarget;                             // the token that is being attacked, this also marks if this token is in the "attacking" state
+        private float attackProjectileU =Float.NaN;
+        private float attackProjectileMaxU = Float.NaN;
+        private DamageableToken rangedAttackTarget;
         private float attackCoolDown = 0;                       // time until this token can send another attack, after attacking this value is reset to attackCooldownDuration
         private Map<FloorMap, FogMap> fogMaps;
         private Journal journal;
@@ -109,7 +113,7 @@ public class CharacterToken extends DamageableToken {
                         continuousMoveDir = null;
                         pathedTarget.set(location);
                         attackU = 0;
-                        attackTarget = null;
+                        meleeAttackTarget = null;
 
                         if (fogMaps != null) {
                                 FogMap fogMap = fogMaps.get(floorMap);
@@ -245,11 +249,20 @@ public class CharacterToken extends DamageableToken {
                 }
 
                 Array<Float> durations = statusEffects.get(statusEffect);
+                durations.clear();
+                if(value >1){
+                        float subDuration = duration/(value-1);
+                        durations.add(0f);
+                        for(int i=1; i<value; i++){
+                                durations.add(subDuration);
+                        }
 
-                float subDuration = duration/value;
-                for(int i=0; i<value; i++){
-                        durations.add(subDuration);
+                }else{
+                        durations.add(duration);
                 }
+
+                System.out.println(durations);
+
                 statusEffect.begin(this);
                 if(listener != null)
                         listener.onStatusEffectChange(statusEffect, duration);
@@ -276,6 +289,14 @@ public class CharacterToken extends DamageableToken {
 
         protected void incremenetU(float delta) {
 
+                attackProjectileU+=delta;
+                if(attackProjectileU >= attackProjectileMaxU){
+                        // TODO: check to make sure target hasnt totally left its location at launch of the projectile
+                        // if so then do not send damage or set hit duration
+                        rangedAttackTarget.setHitDuration(attackDuration, this);
+                        sendDamageToAttackTarget(rangedAttackTarget, true);
+                        attackProjectileU = Float.NaN;
+                }
 
                 super.incremenetU(delta);
                 if (isDead()) {
@@ -325,8 +346,21 @@ public class CharacterToken extends DamageableToken {
                 }
 
 
-                if (attack(delta, false)) { // attempt to attack anything in range, but do not auto attack non targetted tokens
+                inAttackRangeOfContinousMoveToken = false;
+                if (ableRangedAttack &&  continuousMoveToken instanceof DamageableToken) {
+                        DamageableToken damageableToken = (DamageableToken)continuousMoveToken;
+                        if(damageableToken.isAttackable()){
+                                int distance = location.distance(continuousMoveToken.location);
+                                if(distance <= attackRange && direction.isDirection(location, continuousMoveToken.location)){
+                                        inAttackRangeOfContinousMoveToken = true;
+                                }
+                        }
+                }
+
+                if (attack(delta, false, inAttackRangeOfContinousMoveToken)) { // attempt to attack anything in range, but do not auto attack non targetted tokens
                         return; // can not moveor pick up loot while attacking, so just return out
+                }else if(rangedKeepDistance && inAttackRangeOfContinousMoveToken){
+                        return; // still in range of target, dont move
                 }
 
                 if (continuousMoveToken != null) {
@@ -368,8 +402,10 @@ public class CharacterToken extends DamageableToken {
 
 
 
-                float deltaMoveU = delta * moveSpeed * 0.25f;
-                moveU += deltaMoveU;
+
+                moveU += delta * moveSpeed * 0.25f;
+
+
 
                 if (moveU > 1) {
 
@@ -413,7 +449,7 @@ public class CharacterToken extends DamageableToken {
                                                         direction = newDirection;
                                         }
 
-                                        attack(delta, true); // auto attack anything in front of me
+                                        attack(delta, true, false); // auto attack anything in front of me, do not do ranged attack
 
                                 }
 
@@ -441,28 +477,22 @@ public class CharacterToken extends DamageableToken {
 
         }
 
-        private boolean attack(float delta, boolean initiateMelee) {
+        private boolean attack(float delta, boolean initiateMelee, boolean initiateRanged) {
                 if (attackCoolDown > 0) {
                         // attack is on cooldown
                         return false;
                 }
                 if (!isAttacking()) {
 
-                        if(ableRangedAttack && continuousMoveToken instanceof DamageableToken){
-                                DamageableToken damageableToken = (DamageableToken)continuousMoveToken;
-                                if(damageableToken.isAttackable()){
-                                        int distance = location.distance(continuousMoveToken.location);
-                                        //if(distance == 1 && initiateMelee){
-                                                // do nothing, let this be handled by melee attack code
-                                        //}else
-                                        if(distance <= attackRange && direction.isDirection(location, continuousMoveToken.location)){
-                                                attackU = 0;
-                                                attackDamageApplied = false;
-                                                attackTarget = damageableToken;
-                                                attackTarget.setHitDuration(attackDuration, this);
-                                                return true;
-                                        }
-                                }
+                        if(initiateRanged && !this.hasProjectile()){
+                                attackU = 0;
+                                attackProjectileU = -attackDuration/2f;
+                                attackProjectileMaxU = 1; //TODO: MaxU should be calculated based on distance to target
+                                meleeAttackTarget = (DamageableToken)continuousMoveToken;
+                                rangedAttackTarget = (DamageableToken)continuousMoveToken;
+                                //if(listener != null)
+                                //        listener.onAttack(rangedAttackTarget, true);
+                                return true;
                         }
                         //
                         if(initiateMelee){
@@ -470,25 +500,27 @@ public class CharacterToken extends DamageableToken {
                                 if (tokensAt.size > 0) {
                                         for (Token t : tokensAt) {
                                                 if (t instanceof DamageableToken) {
-                                                        attackTarget = (DamageableToken) t;
-                                                        if (attackTarget.isAttackable()) {
-                                                                if(attackTarget instanceof CharacterToken){
-                                                                        CharacterToken attackCharacterTarget = (CharacterToken)attackTarget;
+                                                        meleeAttackTarget = (DamageableToken) t;
+                                                        if (meleeAttackTarget.isAttackable()) {
+                                                                if(meleeAttackTarget instanceof CharacterToken){
+                                                                        CharacterToken attackCharacterTarget = (CharacterToken) meleeAttackTarget;
                                                                         if(attackCharacterTarget.moveU < .75f){
-                                                                                attackTarget = null;
+                                                                                meleeAttackTarget = null;
                                                                                 continue; // if the target moveU is less than .75 that means theyre not that far in to the square, need to wait some
                                                                         }
                                                                 }
                                                                 break; // we can attack this target, no need to keep looping
                                                         } else {
-                                                                attackTarget = null;
+                                                                meleeAttackTarget = null;
                                                         }
                                                 }
                                         }
-                                        if (attackTarget != null) {
+                                        if (meleeAttackTarget != null) {
                                                 attackU = 0;
-                                                attackDamageApplied = false;
-                                                attackTarget.setHitDuration(attackDuration, this);
+                                                meleeAttackTarget.setHitDuration(attackDuration, this);
+                                                sendDamageToAttackTarget(meleeAttackTarget, false);
+                                                //if(listener != null)
+                                                //        listener.onAttack(meleeAttackTarget, false);
                                                 return true;
                                         } else {
                                                 //  no token in blocking tile that can be attacked
@@ -504,17 +536,8 @@ public class CharacterToken extends DamageableToken {
                 } else {
                         attackU += delta;
                         if (attackU >= attackDuration) {
-                                if (!attackDamageApplied) {
-                                        // normally this should be applied in the below if statement, however it is possibly feasible
-                                        // that with bad framerates that applying damage might not work, so check to make sure its done here
-                                        sendDamageToAttackTarget();
-                                        attackDamageApplied = true;
-                                }
-                                attackTarget = null;
+                                meleeAttackTarget = null;
                                 attackCoolDown = attackCooldownDuration;
-                        } else if (!attackDamageApplied && attackU > attackDuration / 2f) {
-                                sendDamageToAttackTarget();
-                                attackDamageApplied = true;
                         }
                         return true;
                 }
@@ -560,7 +583,7 @@ public class CharacterToken extends DamageableToken {
                 pathedTarget.set(path.get(path.size - 1));
 
 
-                if (isMoving() && path.size > 1) {
+                if (moveU != 1 && path.size > 1) {
                         // if new path causes the token to reverse direction, the reverse happens
                         // immediatly without having to finish passing through the tile.
                         // this reverses the direction and fixes the path to account for this
@@ -603,8 +626,9 @@ public class CharacterToken extends DamageableToken {
         }
 
 
-        private void sendDamageToAttackTarget() {
-                attackTarget.receiveDamageFrom(this);
+        private void sendDamageToAttackTarget(DamageableToken targetToken, boolean ranged) {
+
+                targetToken.receiveDamageFrom(this);
                 // TODO: hook to check for death of target, maybe add XP or other stuff
         }
 
@@ -612,6 +636,8 @@ public class CharacterToken extends DamageableToken {
         protected void receiveDamageFrom(CharacterToken characterToken) {
                 // TODO: make use of attack damage, armor, chance to evade, etc, etc
                 addHealth(-characterToken.attackDamage);
+                //if(listener != null)
+                //        listener.onAttacked(characterToken, characterToken.attackDamage);
         }
 
         private void computeFogMap() {
@@ -624,11 +650,11 @@ public class CharacterToken extends DamageableToken {
         protected void setHitDuration(float hitDuration, Token hitSource) {
                 super.setHitDuration(hitDuration, hitSource);
                 attackU = 0;
-                attackTarget = null;
+                meleeAttackTarget = null;
         }
 
         public float getLocationFloatX() {
-                if (!isMoving() || direction == Direction.South || direction == Direction.North)
+                if (moveU==1 || direction == Direction.South || direction == Direction.North)
                         return location.x;
                 else if (direction == Direction.East)
                         return MathUtils.lerp(location.x - 1, location.x, moveU);
@@ -638,7 +664,7 @@ public class CharacterToken extends DamageableToken {
         }
 
         public float getLocationFloatY() {
-                if (!isMoving() || direction == Direction.West || direction == Direction.East)
+                if (moveU==1 || direction == Direction.West || direction == Direction.East)
                         return location.y;
                 else if (direction == Direction.North)
                         return MathUtils.lerp(location.y - 1, location.y, moveU);
@@ -664,12 +690,18 @@ public class CharacterToken extends DamageableToken {
          * @return
          */
         public boolean isMoving() {
-                return moveU != 1;
+                return moveU != 1 && (!rangedKeepDistance || !inAttackRangeOfContinousMoveToken);
         }
 
-        public boolean isAttacking() {
-                return attackTarget != null;
-        }
+        public boolean isAttacking() {return meleeAttackTarget != null;}
+
+        public boolean hasProjectile(){return  !Float.isNaN(attackProjectileU);}
+
+        /**
+         *
+         * @return percentage value between this token and its attack target. value less than 0 means that the attack animation is still happening and the projectile hasnt launched yet
+         */
+        public float getEffectiveProjectileU(){return attackProjectileU /attackProjectileMaxU;}
 
         public boolean hasStatusEffect(StatusEffect statusEffect){
                 return statusEffects.get(statusEffect).size >0;
@@ -728,6 +760,26 @@ public class CharacterToken extends DamageableToken {
 
         public void setAttackDamage(int attackDamage) {
                 this.attackDamage = attackDamage;
+        }
+
+        public int getAttackRange() {
+                return attackRange;
+        }
+
+        public float getAttackCooldownDuration() {
+                return attackCooldownDuration;
+        }
+
+        public int getDefenseRating() {
+                return defenseRating;
+        }
+
+        public DamageableToken getAttackTarget() {
+                return meleeAttackTarget;
+        }
+
+        public DamageableToken getRangedAttackTarget() {
+                return rangedAttackTarget;
         }
 
         /**
@@ -823,6 +875,7 @@ public class CharacterToken extends DamageableToken {
         }
 
         public static interface Listener {
+
                 public void onInventoryAdd(Item item);
 
                 public void onInventoryRemove(Item item);

@@ -34,6 +34,7 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 /**
@@ -48,6 +49,7 @@ public class DungeonWorld implements Disposable {
         protected final DecalBatch decalBatch;
         protected final ModelBatch modelBatch;
         protected final AssetManager assetManager;
+        private final Array<ProjectileSpatial> projectileSpatialPool;
         protected final Array<Spatial> spatials;
         private final InternalInputAdapter internalInput;
         private boolean loading;
@@ -80,6 +82,7 @@ public class DungeonWorld implements Disposable {
                 decalBatch = new DecalBatch(1000, new CameraGroupStrategy(cam));
                 modelBatch = new ModelBatch();
                 assetManager = new AssetManager();
+                projectileSpatialPool = new Array<ProjectileSpatial>(false, 16, ProjectileSpatial.class);
                 spatials = new Array<Spatial>(true, 16, Spatial.class);
                 loading = true;
 
@@ -96,8 +99,8 @@ public class DungeonWorld implements Disposable {
 
                 //addSpatial(new ActorSpatial("Models/skydome.g3db", null, null));
 
-                selectionMark = addSpatial(new ActorSpatial(new ModelInstance(ModelFactory.box(5, 1, 5, Color.RED)), new Box(), environment)).setControl(new SelectionMark(this));
-
+                selectionMark = addSpatial(new GenericSpatial(new ModelInstance(ModelFactory.box(5, 1, 5, Color.RED)), new Box(), environment)).setControl(new SelectionMark(this));
+                addSpatial(new ProjectileSpatial(this, environment));
 
                 DungeonFactory dungeonFactory = new DungeonFactory(new FloorMapGenerator[]{
                         new PreBuiltFloorGenerator(),
@@ -115,16 +118,35 @@ public class DungeonWorld implements Disposable {
 
         }
 
-        public <T extends Spatial> T addSpatial(T spatial) {
+        private <T extends Spatial> T addSpatial(T spatial) {
                 spatial.preload(this);
                 spatials.add(spatial);
                 loading = true;
+                if(spatial instanceof ProjectileSpatial){
+                        projectileSpatialPool.add((ProjectileSpatial) spatial);
+                }
                 return spatial;
         }
 
-        public void removeSpatial(Spatial spatial) {
+        private void removeSpatial(Spatial spatial) {
                 spatials.removeValue(spatial, true);
+                if(spatial instanceof ProjectileSpatial){
+                        projectileSpatialPool.removeValue((ProjectileSpatial)spatial, true);
+                }
                 spatial.dispose();
+        }
+
+        protected void shootProjectile(CharacterToken source, Pair destLoc){
+                for (ProjectileSpatial projectileSpatial : projectileSpatialPool) {
+                        if(!projectileSpatial.isActive()){
+                                projectileSpatial.shootProjectile(source, destLoc);
+                                return;
+                        }
+                }
+
+                ProjectileSpatial projectileSpatial = new ProjectileSpatial(this, environment);
+                addSpatial(projectileSpatial);
+                projectileSpatial.shootProjectile(source, destLoc);
         }
 
         public Pair getMapCoords(Vector3 worldCoords, Pair storeMapCoords) {

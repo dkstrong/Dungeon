@@ -3,10 +3,10 @@ package asf.dungeon.view;
 /**
  * Created by danny on 10/20/14.
  */
-public interface ActorControl {
+public interface GenericControl {
 
 
-        public void start(ActorSpatial actorSpatial);
+        public void start(GenericSpatial genericSpatial);
 
         public void update(float delta);
 }

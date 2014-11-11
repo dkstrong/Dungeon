@@ -5,8 +5,8 @@ import asf.dungeon.model.Pair;
 /**
  * Created by danny on 10/20/14.
  */
-public class SelectionMark implements ActorControl {
-        private ActorSpatial actorSpatial;
+public class SelectionMark implements GenericControl {
+        private GenericSpatial genericSpatial;
         private float count = 0;
         private DungeonWorld world;
 
@@ -15,16 +15,16 @@ public class SelectionMark implements ActorControl {
         }
 
         @Override
-        public void start(ActorSpatial actorSpatial) {
-                actorSpatial.cullType = ActorSpatial.CullType.Always;
-                this.actorSpatial = actorSpatial;
+        public void start(GenericSpatial genericSpatial) {
+                genericSpatial.cullType = GenericSpatial.CullType.Always;
+                this.genericSpatial = genericSpatial;
 
         }
 
         @Override
         public void update(float delta) {
                 if(count <=0){
-                        actorSpatial.cullType = ActorSpatial.CullType.Always;
+                        genericSpatial.cullType = GenericSpatial.CullType.Always;
                         count = Float.NaN;
                 }else{
                         count-=delta;
@@ -33,13 +33,13 @@ public class SelectionMark implements ActorControl {
 
         public void mark(Pair loc){
                 if(loc == null){
-                        actorSpatial.cullType = ActorSpatial.CullType.Always;
+                        genericSpatial.cullType = GenericSpatial.CullType.Always;
                         count = Float.NaN;
                         return;
                 }
-                actorSpatial.cullType = ActorSpatial.CullType.Dynamic;
+                genericSpatial.cullType = GenericSpatial.CullType.Dynamic;
                 count = 2;
-                world.getWorldCoords(loc, actorSpatial.translation);
+                world.getWorldCoords(loc, genericSpatial.translation);
 
         }
 }
