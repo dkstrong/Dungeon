@@ -1,5 +1,7 @@
 package asf.dungeon.model;
 
+import asf.dungeon.model.token.Token;
+
 /**
  * Created by Danny on 11/5/2014.
  */
@@ -16,13 +18,13 @@ public interface Item {
          * @param token
          * @return true name if this item is identified, obscure name if this item is not identified
          */
-        public String getNameFromJournal(CharacterToken token);
+        public String getNameFromJournal(Token token);
 
-        public String getDescriptionFromJournal(CharacterToken token);
+        public String getDescriptionFromJournal(Token token);
 
 
         public interface Consumable extends Item{
-                public void consume(CharacterToken token);
+                public void consume(Token token);
         }
 
 }

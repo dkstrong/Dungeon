@@ -65,7 +65,7 @@ public class Tile {
                 return keyId;
         }
 
-        protected void setDoorOpened(boolean opened) {
+        public void setDoorOpened(boolean opened) {
                 this.opened = opened;
                 blockVision = !this.opened;
         }

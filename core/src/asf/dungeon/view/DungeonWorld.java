@@ -1,16 +1,15 @@
 package asf.dungeon.view;
 
 import asf.dungeon.DungeonApp;
-import asf.dungeon.model.CharacterToken;
-import asf.dungeon.model.DamageableToken;
 import asf.dungeon.model.Dungeon;
-import asf.dungeon.model.Token;
+import asf.dungeon.model.token.Token;
 import asf.dungeon.model.factory.ConnectedRoomsGenerator;
 import asf.dungeon.model.factory.PreBuiltFloorGenerator;
 import asf.dungeon.model.factory.DungeonFactory;
 import asf.dungeon.model.factory.FloorMapGenerator;
 import asf.dungeon.model.factory.MazeGenerator;
-import asf.dungeon.model.logic.LocalPlayerLogicProvider;
+import asf.dungeon.model.token.Damage;
+import asf.dungeon.model.token.logic.LocalPlayerLogicProvider;
 import asf.dungeon.model.Pair;
 import asf.dungeon.utility.ModelFactory;
 import asf.dungeon.view.shape.Box;
@@ -22,23 +21,18 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
-import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 /**
@@ -140,7 +134,7 @@ public class DungeonWorld implements Disposable {
                 spatial.dispose();
         }
 
-        protected void shootProjectile(CharacterToken source, DamageableToken target){
+        protected void shootProjectile(Token source, Token target){
                 for (ProjectileSpatial projectileSpatial : projectileSpatialPool) {
                         if(!projectileSpatial.isActive()){
                                 projectileSpatial.shootProjectile(source, target);
@@ -153,7 +147,7 @@ public class DungeonWorld implements Disposable {
                 projectileSpatial.shootProjectile(source, target);
         }
 
-        protected void shootProjectile(CharacterToken source, Pair destLoc){
+        protected void shootProjectile(Token source, Pair destLoc){
                 for (ProjectileSpatial projectileSpatial : projectileSpatialPool) {
                         if(!projectileSpatial.isActive()){
                                 projectileSpatial.shootProjectile(source, destLoc);
@@ -183,7 +177,7 @@ public class DungeonWorld implements Disposable {
                 cam.project(storeScreenCoords);
         }
 
-        protected CharacterToken getLocalPlayerToken(){
+        protected Token getLocalPlayerToken(){
                 return hudSpatial.localPlayerToken;
         }
         protected HudSpatial getHud(){return hudSpatial;}
@@ -208,19 +202,19 @@ public class DungeonWorld implements Disposable {
                                 continue;
                         if (spatial instanceof TokenSpatial) {
                                 TokenSpatial tokenSpatial = (TokenSpatial) spatial;
-                                Token targetToken = tokenSpatial.getControl().getToken();
-                                if (targetToken == ignoreToken) {
+
+                                if (tokenSpatial.token == ignoreToken) {
                                         continue;
                                 }
 
-                                if (targetToken instanceof DamageableToken) {
-                                        DamageableToken damageableToken = (DamageableToken) targetToken;
-                                        if(damageableToken.isDead())
+                                Damage damage = tokenSpatial.token.get(Damage.class);
+                                if (damage != null) {
+                                        if(damage.isDead())
                                                 continue;
 
                                         final float dist2 = tokenSpatial.intersects(ray);
                                         if (dist2 >= 0f && (distance < 0f || dist2 <= distance)) {
-                                                result = targetToken;
+                                                result = tokenSpatial.token;
                                                 distance = dist2;
                                         }
                                 }
@@ -351,21 +345,15 @@ public class DungeonWorld implements Disposable {
                         if (token == hudSpatial.localPlayerToken) {
                                 //Gdx.app.log("DungeonWorld", "moving view to move with the player token");
                                 floorDecals.setFloorMap(hudSpatial.localPlayerToken.getFloorMap());
-                        } else if (token instanceof CharacterToken) {
-                                CharacterToken characterToken = (CharacterToken) token;
-                                TokenSpatial tokenSpatial = addSpatial(new TokenSpatial(DungeonWorld.this, characterToken, floorDecals.tokenCustomBox, environment));
-                                if (characterToken.getLogicProvider() instanceof LocalPlayerLogicProvider) {
-                                        //Gdx.app.log("DungeonWorld", "Local character token is added");
-                                        LocalPlayerLogicProvider localLogic = (LocalPlayerLogicProvider) characterToken.getLogicProvider();
-                                        if (localLogic.getId() == 0) {
-                                                hudSpatial.setToken(characterToken);
-                                                cameraChaseTarget = tokenSpatial;
-                                                floorDecals.setFloorMap(hudSpatial.localPlayerToken.getFloorMap());
-
-                                        }
-                                }
                         } else  {
-                                addSpatial(new TokenSpatial(DungeonWorld.this, token, floorDecals.tokenCustomBox, environment));
+                                TokenSpatial tokenSpatial = addSpatial(new TokenSpatial(DungeonWorld.this, token, floorDecals.tokenCustomBox, environment));
+                                LocalPlayerLogicProvider logicProvider = token.get(LocalPlayerLogicProvider.class);
+                                //Gdx.app.log("DungeonWorld", "Local character token is added");
+                                if(logicProvider != null && logicProvider.getId() == 0){
+                                        hudSpatial.setToken(token);
+                                        cameraChaseTarget = tokenSpatial;
+                                        floorDecals.setFloorMap(hudSpatial.localPlayerToken.getFloorMap());
+                                }
                         }
 
                 }
@@ -377,17 +365,9 @@ public class DungeonWorld implements Disposable {
                                 dungeon.setCurrentFloor(hudSpatial.localPlayerToken.getFloorMap());
                                 return;
                         }
-                        Spatial removeSpatial = null;
-                        for (Spatial spatial : spatials) {
-                                if (spatial instanceof TokenSpatial) {
-                                        TokenSpatial tokenSpatial = (TokenSpatial) spatial;
-                                        if (tokenSpatial.getControl().getToken() == token) {
-                                                tokenSpatial.getControl().end();
-                                                removeSpatial = spatial;
-                                                break;
-                                        }
-                                }
-                        }
+
+                        TokenSpatial removeSpatial = getTokenSpatial(token);
+
                         if (removeSpatial != null)
                                 removeSpatial(removeSpatial);
                 }

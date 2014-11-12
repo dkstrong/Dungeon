@@ -1,7 +1,10 @@
-package asf.dungeon.model.logic;
+package asf.dungeon.model.token.logic;
 
-import asf.dungeon.model.CharacterToken;
+import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.token.FogMapping;
+import asf.dungeon.model.token.Journal;
+import asf.dungeon.model.token.Token;
 
 /**
  * Created by danny on 10/26/14.
@@ -10,7 +13,7 @@ public class LocalPlayerLogicProvider implements LogicProvider {
         private final int id;
         private String name;
         private Dungeon dungeon;
-        private CharacterToken token;
+        private Token token;
 
         public LocalPlayerLogicProvider(int id, String name) {
                 this.id = id;
@@ -26,18 +29,21 @@ public class LocalPlayerLogicProvider implements LogicProvider {
         }
 
         @Override
-        public void setToken(CharacterToken token) {
+        public void setToken(Token token) {
                 this.token = token;
                 this.dungeon = token.dungeon;
-                token.setFogMappingEnabled(true);
-                token.setJournalEnabled(true);
+                token.add(new FogMapping(token));
+                token.add(new Journal());
+        }
+
+
+        @Override
+        public boolean teleportToLocation(int x, int y, Direction direction) {
+                return true;
         }
 
         @Override
-        public void updateLogic(float delta) {
-
-
+        public boolean update(float delta) {
+                return false;
         }
-
-
 }

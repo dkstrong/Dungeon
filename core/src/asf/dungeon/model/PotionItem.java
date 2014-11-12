@@ -1,6 +1,10 @@
 package asf.dungeon.model;
 
 
+import asf.dungeon.model.token.Journal;
+import asf.dungeon.model.token.StatusEffects;
+import asf.dungeon.model.token.Token;
+
 /**
  * Created by Danny on 11/5/2014.
  */
@@ -37,51 +41,56 @@ public class PotionItem implements Item.Consumable {
         }
 
         @Override
-        public String getNameFromJournal(CharacterToken token){
-
-                if(!token.isJournalEnabled() || token.getJournal().knows(type))
+        public String getNameFromJournal(Token token){
+                Journal journal = token.get(Journal.class);
+                if(journal != null || journal.knows(type))
                         return getName();
                 return color.name()+" Potion";
         }
-        public String getDescriptionFromJournal(CharacterToken token){
-                if(!token.isJournalEnabled() || token.getJournal().knows(type))
+        public String getDescriptionFromJournal(Token token){
+                Journal journal = token.get(Journal.class);
+                if(journal != null || journal.knows(type))
                         return "This is a "+getName();
                 return "A mysterious "+color.name()+" potion. The effects of drinking this are not known.";
         }
 
         @Override
-        public void consume(CharacterToken token) {
+        public void consume(Token token) {
+                StatusEffects statusEffects = token.get(StatusEffects.class);
+                if(statusEffects == null)
+                        return;
                 switch(type){
                         case Health:
-                                token.addStatusEffect(StatusEffect.Heal, 3, 3);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Heal, 3, 3);
                                 break;
                         case Experience:
                                 break;
                         case Invisibility:
-                                token.addStatusEffect(StatusEffect.Invisibility, 10,1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Invisibility, 10,1);
                                 break;
                         case Purity:
-                                token.removeNegativeStatusEffects();
+                                statusEffects.removeNegativeStatusEffects();
                                 break;
                         case Poison:
-                                token.addStatusEffect(StatusEffect.Poison, 10, 5);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Poison, 10, 5);
                                 break;
                         case Paralyze:
-                                token.addStatusEffect(StatusEffect.Paralyze, 5,1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Paralyze, 5,1);
                                 break;
                         case MindVision:
-                                token.addStatusEffect(StatusEffect.MindVision, 5,1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.MindVision, 5,1);
                                 break;
                         case Strength:
                                 break;
                         case Might:
                                 break;
                         case Speed:
-                                token.addStatusEffect(StatusEffect.Speed, 10,1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Speed, 10,1);
                                 break;
                 }
-                if(token.isJournalEnabled())
-                        token.getJournal().learn(type);
+                Journal journal = token.get(Journal.class);
+                if(journal != null)
+                        journal.learn(type);
 
         }
 

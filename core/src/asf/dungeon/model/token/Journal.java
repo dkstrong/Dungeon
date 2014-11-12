@@ -1,5 +1,7 @@
-package asf.dungeon.model;
+package asf.dungeon.model.token;
 
+import asf.dungeon.model.Direction;
+import asf.dungeon.model.PotionItem;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.List;
@@ -7,7 +9,7 @@ import java.util.List;
 /**
  * Created by Danny on 11/5/2014.
  */
-public class Journal {
+public class Journal implements TokenComponent{
 
         private final Array<PotionItem.Type> potions = new Array<PotionItem.Type>(false,16, PotionItem.Type.class);
 
@@ -21,5 +23,15 @@ public class Journal {
 
         public boolean knows(PotionItem.Type type){
                 return potions.contains(type, true);
+        }
+
+        @Override
+        public boolean teleportToLocation(int x, int y, Direction direction) {
+                return true;
+        }
+
+        @Override
+        public boolean update(float delta) {
+                return false;
         }
 }

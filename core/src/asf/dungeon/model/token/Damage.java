@@ -1,34 +1,20 @@
-package asf.dungeon.model;
+package asf.dungeon.model.token;
 
+import asf.dungeon.model.Direction;
+import asf.dungeon.model.Item;
 import com.badlogic.gdx.math.MathUtils;
 
 /**
- * A token that can be attacked by attempting to move on to its tile.
- * DamageableTokens block pathing
- * <p/>
- * Typically this is stuff like crates and characters
- * <p/>
- * Created by danny on 10/25/14.
+ * Created by Danny on 11/11/2014.
  */
-public abstract class DamageableToken extends Token {
-
-        //configuration variables
-        /**
-         * the health of the token. when health reaches zero it is considered dead
-         */
+public class Damage implements TokenComponent{
+        private final Token token;
         private int health;
-        /**
-         * the maximum health of the token.
-         */
         private int maxHealth;
-        /**
-         * how long since being killed (health ==0) until in the state of being fully dead. once fully dead this token can no longer block the path even if blocksPathing = true;
-         */
-        private float deathDuration = 3;
-        /**
-         * if this token can currently be attackd (eg, not invincible)
-         */
-        private boolean attackable = true;
+        private float deathDuration = 3; // how long since being killed (health ==0) until in the state of being fully dead. once fully dead this token can no longer block the path even if blocksPathing = true;
+
+        private boolean attackable = true; // if this token can currently be attackd (eg, not invincible)
+
         // state variables
         private float hitU = 0;                                 // being hit overrides moving and attacking, hitU >0 means currently in hit animation, hit animaiton ends when hitU>=hitDuration
         private float hitDuration = 1;                          // hitDuration is set by the token that attacked it, while being "hit" this token can not move or attack
@@ -36,59 +22,42 @@ public abstract class DamageableToken extends Token {
         private float deathCountdown = 0;                         // the time that must pass before this token is "fully dead", invalid if health>0
         private float deathRemovalCountdown = 10;           // the time after being fully dead to remove this token from the Dungeon. Use Float.NaN to never remove it. The main purpose of this is for performance
 
-        protected DamageableToken(Dungeon dungeon, FloorMap floorMap, int id, String name, ModelId modelId, int initialHealth) {
-                super(dungeon, floorMap, id, name, modelId);
+        public Damage(Token token, int initialHealth) {
+                this.token = token;
+                token.setBlocksPathing(true);
                 this.health = initialHealth;
                 this.maxHealth = initialHealth;
         }
 
-        /**
-         * teleports token to this new location, if the new location
-         * can not be moved to (normally because it is already occupied) then the move will not work.
-         * <p/>
-         * this generally is used for setting up the dungeon, could eventually be used for stairways to lead to other rooms.
-         *
-         * @param direction
-         * @return true if moved, false if did not move
-         */
         @Override
         public boolean teleportToLocation(int x, int y, Direction direction) {
-                boolean teleported = super.teleportToLocation(x, y, direction);
-                if (teleported) {
-                        hitU = 0;
-                        hitSource = null;
-                }
-                return teleported;
-
+                hitU = 0;
+                hitSource = null;
+                return true;
         }
 
         @Override
-        protected void incremenetU(float delta) {
+        public boolean update(float delta) {
                 if (isFullyDead()) {
+                        token.setBlocksPathing(false);
                         deathCountdown -= delta;
                         if (deathCountdown < -deathRemovalCountdown) {
-                                dungeon.removeToken(this);
+                                token.dungeon.removeToken(token);
                         }
-                        return;
+                        return true;
                 } else if (isDead()) {
                         deathCountdown -= delta;
-                        return;
+                        return true;
                 } else if (isHit()) {
                         hitU += delta;
                         if (hitU > hitDuration) {
                                 hitU = 0;
                                 hitSource = null;
                         }
-                        return;
+                        return true;
                 }
+                return false;
         }
-
-        /**
-         * CharacterToken calls this on the token it attacked, tokens decide for the
-         *
-         * @param token
-         */
-        protected abstract void receiveDamageFrom(CharacterToken token);
 
         /**
          * adds or subtracts health, will kill or revive token
@@ -125,34 +94,21 @@ public abstract class DamageableToken extends Token {
         }
 
         protected void onRevive() {
-
+                token.setBlocksPathing(true);
         }
 
         protected void onDied() {
-        }
 
-
-        /**
-         * if the token prevents other tokens from sharing the same tile.
-         *
-         * @return
-         */
-        @Override
-        public boolean isBlocksPathing() {
-                return super.isBlocksPathing() && !isFullyDead();
+                Inventory inventory = token.get(Inventory.class);
+                if(inventory != null){
+                        Item item = inventory.getItem();
+                        if(item != null)
+                                token.dungeon.newLootToken(token.getFloorMap(), item, token.getLocation().x, token.getLocation().y);
+                }
         }
 
         public boolean isAttackable() {
                 return attackable && !isDead();
-        }
-
-        /**
-         * interacting is the state of not being idle (moving, attacking, being dead)
-         *
-         * @return
-         */
-        public boolean isInteracting() {
-                return isHit() || isDead();
         }
 
         public boolean isHit() {
@@ -194,7 +150,7 @@ public abstract class DamageableToken extends Token {
                 this.hitU = 0;
         }
 
-        /**
+        /**'
          * how long the being hit animaiton takes
          *
          * @return
@@ -235,12 +191,37 @@ public abstract class DamageableToken extends Token {
                 this.deathRemovalCountdown = deathRemovalCountdown;
         }
 
-        @Override
-        public String toString() {
-                return "Token{" +
-                        "id=" + getId() + " " + getName() +
-                        ", location=" + location + "(floor " + floorMap.index + ")" +
-                        ", health=" + health +
-                        '}';
+        protected void receiveDamageFrom(Token attacker) {
+                Experience attackerExperience = attacker.get(Experience.class);
+                Experience experience = token.get(Experience.class);
+                if(experience == null){
+                        addHealth(-attackerExperience.getStrengthRating());
+                        // dont notify listener, not a major thing happening here..
+                        return;
+                }
+
+                int speedDifference = experience.getSpeedRating() - attackerExperience.getSpeedRating();
+                // if negative, im slower than my attacker
+                boolean dodge;
+                if(speedDifference >=0){
+                        dodge = MathUtils.randomBoolean(.5f);
+                }else{
+                        dodge = MathUtils.randomBoolean(.15f);
+                }
+
+                int damage;
+                if(!dodge){
+                        damage = attackerExperience.getStrengthRating() - experience.getStrengthRating();
+                        if(damage  >0){
+                                addHealth(-damage);
+                        }else{
+                                damage = 0;
+                        }
+                }else{
+                        damage = 0;
+                }
+
+                if(token.listener != null)
+                        token.listener.onAttacked(attacker, token, damage, dodge);
         }
 }

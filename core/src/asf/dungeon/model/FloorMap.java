@@ -1,7 +1,7 @@
 package asf.dungeon.model;
 
+import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.SnapshotArray;
 
 import java.util.List;
 
@@ -125,7 +125,7 @@ public class FloorMap {
 
         public boolean hasTokensAt(int x, int y){
                 for(Token token : tokens){
-                        if(token.location.x ==x && token.location.y == y){
+                        if(token.getLocation().x ==x && token.getLocation().y == y){
                                 return true;
                         }
                 }
@@ -233,6 +233,17 @@ public class FloorMap {
                         return true;
                 for (Token token : tokens) {
                         if (token.isBlocksPathing() && token.isLocatedAt(loc))
+                                return true;
+                }
+                return false;
+        }
+
+        public boolean isLocationBlocked(int x, int y) {
+                Tile tile = getTile(x,y);
+                if (tile == null || tile.isBlockMovement())
+                        return true;
+                for (Token token : tokens) {
+                        if (token.isBlocksPathing() && token.isLocatedAt(x,y))
                                 return true;
                 }
                 return false;

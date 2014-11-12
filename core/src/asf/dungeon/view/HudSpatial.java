@@ -1,12 +1,12 @@
 package asf.dungeon.view;
 
-import asf.dungeon.model.CharacterToken;
-import asf.dungeon.model.DamageableToken;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Item;
 import asf.dungeon.model.Pair;
-import asf.dungeon.model.StatusEffect;
-import asf.dungeon.model.Token;
+import asf.dungeon.model.token.StatusEffects;
+import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.Damage;
+import asf.dungeon.model.token.Experience;
 import asf.dungeon.utility.MoreMath;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -14,7 +14,6 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
@@ -44,13 +43,12 @@ import com.badlogic.gdx.utils.SnapshotArray;
 /**
  * Created by Danny on 11/1/2014.
  */
-public class HudSpatial implements Spatial, EventListener, InputProcessor, CharacterToken.Listener {
+public class HudSpatial implements Spatial, EventListener, InputProcessor, Token.Listener {
         private boolean initialized = false;
         private DungeonWorld world;
-        protected CharacterToken localPlayerToken;
+        protected Token localPlayerToken;
 
         // TODO: these settings should be stored on an app level object so it can be easily changed in the settings
-        private boolean arrowKeysMove = false;
         private boolean showRenderingStasLabel = true;
 
         private Skin skin;
@@ -63,7 +61,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         private Image[] statusEffectImage;
         private Window avatarWindow;
         private Label renderingStats;
-        private Touchpad touchPad;
         private Direction currentTouchPadDirection = null;
         private Window inventoryWindow;
         private final Array<Button> inventoryButtons = new Array<Button>(true, 16, Button.class);
@@ -91,8 +88,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 avatarButton.add(new Label("Avatar", skin));
                 avatarButton.addCaptureListener(this);
 
-                healthProgressBar = new ProgressBar(0, localPlayerToken.getMaxHealth(), 1, false, skin, "default");
-                healthProgressBar.setValue(localPlayerToken.getHealth());
+                Damage damage = localPlayerToken.get(Damage.class);
+                healthProgressBar = new ProgressBar(0, damage.getMaxHealth(), 1, false, skin, "default");
+                healthProgressBar.setValue(damage.getHealth());
                 healthProgressBar.setAnimateInterpolation(Interpolation.linear);
                 healthProgressBar.setAnimateDuration(1f);
                 world.stage.addActor(healthProgressBar);
@@ -105,9 +103,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 world.stage.addActor(avatarStatusEffectsGroup);
                 avatarStatusEffectsGroup.align(Align.bottomLeft);
 
-                StatusEffect[] statusEffectValues = StatusEffect.values();
-                statusEffectImage = new Image[statusEffectValues.length];
-                for (int i = 0; i < statusEffectValues.length; i++) {
+
+                statusEffectImage = new Image[StatusEffects.Effect.values.length];
+                for (int i = 0; i < statusEffectImage.length; i++) {
                         statusEffectImage[i] = new Image(new Texture(Gdx.files.internal("Interface/Hud/health.png")));
                         //statusEffectImage[i].setScaling(Scaling.fit);
                         statusEffectImage[i].setScaling(Scaling.fillY);
@@ -141,12 +139,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 inventoryButton.add(new Label("Inventory", skin));
                 inventoryButton.addCaptureListener(this);
 
-                if (arrowKeysMove) {
-                        touchPad = new Touchpad(8, skin);
 
-                        world.stage.addActor(touchPad);
-                        touchPad.addCaptureListener(this);
-                }
 
                 avatarWindow = new Window("Avatar", skin);
                 avatarWindow.setMovable(false);
@@ -335,8 +328,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 quickSlotButton.setBounds(Gdx.graphics.getWidth() - buttonSize - margin, margin, buttonSize, buttonSize);
                 inventoryButton.setBounds(margin, margin, buttonSize, buttonSize);
 
-                if (touchPad != null)
-                        touchPad.setBounds(margin, margin, touchPadSize, touchPadSize);
+
 
                 float avatarWindowHeight = Gdx.graphics.getHeight() - margin - margin;
                 float avatarWindowWidth = avatarWindowHeight * .75f;
@@ -392,7 +384,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
 
 
-        protected void setToken(CharacterToken token) {
+        protected void setToken(Token token) {
                 localPlayerToken = token;
         }
 
@@ -401,16 +393,16 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         public void update(float delta) {
 
 
-                healthProgressBar.setRange(0, localPlayerToken.getMaxHealth());
-                healthProgressBar.setValue(localPlayerToken.getHealth());
+                healthProgressBar.setRange(0, localPlayerToken.getDamage().getMaxHealth());
+                healthProgressBar.setValue(localPlayerToken.getDamage().getHealth());
                 healthProgressBar.act(delta);
 
-                String s = String.format("%s / %s\n%s / %s",localPlayerToken.getHealth(),localPlayerToken.getMaxHealth(),localPlayerToken.getAttackCoolDown(),localPlayerToken.getAttackCooldownDuration());
+                String s = String.format("%s / %s\n%s / %s",localPlayerToken.getDamage().getHealth(),localPlayerToken.getDamage().getMaxHealth(),localPlayerToken.getAttack().getAttackCoolDown(),localPlayerToken.getAttack().getAttackCooldownDuration());
                 avatarLabel.setText(s);
 
 
 
-                Token targetToken = localPlayerToken.getContinuousMoveToken();
+                Token targetToken = localPlayerToken.getTarget().getToken();
                 if (targetToken == null)
                         targetInfoLabel.setText(null);
                 else {
@@ -439,8 +431,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                                 }
 
                                 world.getScreenCoords(
-                                        label.tokenSpatial.token.getLocationFloatX(),
-                                        label.tokenSpatial.token.getLocationFloatY(),
+                                        label.tokenSpatial.token.getMove().getLocationFloatX(),
+                                        label.tokenSpatial.token.getMove().getLocationFloatY(),
                                         tempVec);
 
 
@@ -485,10 +477,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                                 } else if (uoName.equals("statsLabel")) {
                                         Label label = (Label) child;
                                         StringBuilder sb = new StringBuilder();
-                                        sb.append(String.format("HP: %s / %s\n", localPlayerToken.getHealth(), localPlayerToken.getMaxHealth()));
-                                        sb.append(String.format("Strength: %s \n", localPlayerToken.getStrengthRating()));
-                                        sb.append(String.format("Speed: %s \n", localPlayerToken.getSpeedRating()));
-                                        sb.append(String.format("Defense: %s \n", localPlayerToken.getDefenseRating()));
+                                        Damage damage = localPlayerToken.get(Damage.class);
+                                        Experience experience = localPlayerToken.get(Experience.class);
+                                        sb.append(String.format("HP: %s / %s\n", damage.getHealth(), damage.getMaxHealth()));
+                                        sb.append(String.format("Strength: %s \n", experience.getStrengthRating()));
+                                        sb.append(String.format("Speed: %s \n", experience.getSpeedRating()));
+                                        sb.append(String.format("Defense: %s \n", experience.getDefenseRating()));
 
 
                                         label.setText(sb);
@@ -509,8 +503,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 if (inventoryWindow.getParent() != null) {
                         Gdx.app.log("HudSpatial", "refresh inventory window");
                         int buttonI = 0;
-                        for (int i = 0; i < localPlayerToken.getInventory().size; i++) {
-                                Item item = localPlayerToken.getInventory().get(i);
+                        for (int i = 0; i < localPlayerToken.getInventory().size(); i++) {
+                                Item item = localPlayerToken.getInventory().getItem(i);
                                 if (item.equals(quickItem))
                                         continue;
                                 boolean hasItem = false;
@@ -571,7 +565,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
 
                                 button.row().expand();
 
-                                int quantity = localPlayerToken.getQuantity(item);
+                                int quantity = localPlayerToken.getInventory().getQuantity(item);
                                 Label quantityLabel = new Label(quantity > 1 ? "x" + quantity : "", skin);
                                 quantityLabel.setUserObject("Quantity");
                                 button.add(quantityLabel).align(Align.bottomRight).colspan(2).pad(0, 0, 3, 5);
@@ -587,7 +581,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                                                 label.setText(item.getNameFromJournal(localPlayerToken));
                                         } else if (uoName.equals("Quantity")) {
                                                 Label label = (Label) actor;
-                                                int quantity = localPlayerToken.getQuantity(item);
+                                                int quantity = localPlayerToken.getInventory().getQuantity(item);
                                                 label.setText(quantity > 1 ? "x" + quantity : "");
                                         }
 
@@ -660,12 +654,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         }
 
         @Override
-        public void onAttack(DamageableToken target, boolean ranged) {
+        public void onAttack(Token target, boolean ranged) {
 
         }
 
         @Override
-        public void onAttacked(CharacterToken attacker, CharacterToken target, int damage, boolean dodge) {
+        public void onAttacked(Token attacker, Token target, int damage, boolean dodge) {
                 if (dodge) {
                         System.out.println(String.format("%s dodged attack from %s", target.getName(), attacker.getName()));
                         spawnDamageInfoLabel("dodge", target, Color.YELLOW);
@@ -713,7 +707,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 if (getItem(quickSlotButton) == item) {
                         // change the quick slot to another item that .equals it (eg to another health potion) otherwise set to null
                         Item setItem = null;
-                        for (Item i : localPlayerToken.getInventory()) {
+                        for (Item i : localPlayerToken.getInventory().getInventory()) {
                                 if (i.equals(item)) {
                                         setItem = i;
                                         break;
@@ -734,7 +728,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         }
 
         @Override
-        public void onStatusEffectChange(StatusEffect effect, float duration) {
+        public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
                 Image statusImage = statusEffectImage[effect.ordinal()];
                 if (duration == 0) {
                         statusImage.remove();
@@ -767,24 +761,25 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 Ray ray = world.cam.getPickRay(screenX, screenY);
                 Token targetToken = world.getToken(ray, localPlayerToken);
+                // attempt to target specificaly clicked token
                 if (targetToken != null) {
-                        localPlayerToken.setContinousMoveToken(targetToken);
-                        if (localPlayerToken.getContinuousMoveToken() != null) {
+                        localPlayerToken.getTarget().setToken(targetToken);
+                        if (localPlayerToken.getTarget().getToken() != null) {
                                 world.selectionMark.mark(targetToken.getLocation());
                                 return true;
                         }
 
                 }
 
-                if (!arrowKeysMove) {
-                        final float distance = -ray.origin.y / ray.direction.y;
-                        tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
-                        world.getMapCoords(tempWorldCoords, tempMapCoords);
-                        if (localPlayerToken.getFloorMap().getTile(tempMapCoords) != null) {
-                                localPlayerToken.setMoveTarget(tempMapCoords);
-                                world.selectionMark.mark(tempMapCoords);
-                                return true;
-                        }
+                // if no token was clicked then go to the tile that was clicked
+                final float distance = -ray.origin.y / ray.direction.y;
+                tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
+                world.getMapCoords(tempWorldCoords, tempMapCoords);
+                if (localPlayerToken.getFloorMap().getTile(tempMapCoords) != null) {
+                        localPlayerToken.getTarget().setLocation(tempMapCoords);
+                        localPlayerToken.getTarget().setToken(null);
+                        world.selectionMark.mark(tempMapCoords);
+                        return true;
                 }
                 return false;
         }
@@ -793,23 +788,25 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
         public boolean touchDragged(int screenX, int screenY, int pointer) {
                 Ray ray = world.cam.getPickRay(screenX, screenY);
                 Token targetToken = world.getToken(ray, localPlayerToken);
+                // attempt to target specificaly clicked token
                 if (targetToken != null) {
-                        localPlayerToken.setContinousMoveToken(targetToken);
-                        if (localPlayerToken.getContinuousMoveToken() != null) {
+                        localPlayerToken.getTarget().setToken(targetToken);
+                        if (localPlayerToken.getTarget().getToken() != null) {
                                 world.selectionMark.mark(targetToken.getLocation());
                                 return true;
                         }
+
                 }
 
-                if (!arrowKeysMove) {
-                        final float distance = -ray.origin.y / ray.direction.y;
-                        tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
-                        world.getMapCoords(tempWorldCoords, tempMapCoords);
-                        if (localPlayerToken.getFloorMap().getTile(tempMapCoords) != null) {
-                                localPlayerToken.setMoveTarget(tempMapCoords);
-                                world.selectionMark.mark(tempMapCoords);
-                                return true;
-                        }
+                // if no token was clicked then go to the tile that was clicked
+                final float distance = -ray.origin.y / ray.direction.y;
+                tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
+                world.getMapCoords(tempWorldCoords, tempMapCoords);
+                if (localPlayerToken.getFloorMap().getTile(tempMapCoords) != null) {
+                        localPlayerToken.getTarget().setLocation(tempMapCoords);
+                        localPlayerToken.getTarget().setToken(null);
+                        world.selectionMark.mark(tempMapCoords);
+                        return true;
                 }
                 return false;
         }
@@ -827,11 +824,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                                 return true;
                         }
                 }
-                Direction dir = Direction.getDirection(keycode);
-                if (dir != null) {
-                        localPlayerToken.setMoveDir(dir);
-                        return true;
-                }
                 return false;
         }
 
@@ -842,11 +834,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                         return true;
                 }
 
-                Direction dir = Direction.getDirection(keycode);
-                if (dir == localPlayerToken.getMoveDir()) {
-                        localPlayerToken.setMoveDir(null);
-                        return true;
-                }
                 return false;
         }
 
@@ -924,26 +911,18 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                         return false;
                 }
 
-                if (event.getListenerActor() == touchPad) {
-                        setInventoryWindowVisible(false);
-                        Direction newDir = calcTouchPadDirection();
-                        if (newDir != currentTouchPadDirection) {
-                                currentTouchPadDirection = newDir;
-                                localPlayerToken.setMoveDir(newDir);
-                        }
-                        return true;
-                } else if (event.getListenerActor() == avatarButton) {
+               if (event.getListenerActor() == avatarButton) {
                         setAvatarWindowVisible(true);
                 } else if (event.getListenerActor() == inventoryButton) {
                         setInventoryWindowVisible(true);
                 } else if (event.getListenerActor() == itemWindowUseButton) {
                         Item item = (Item) itemWindow.getUserObject();
-                        boolean valid = localPlayerToken.useItem(item);
+                        boolean valid = localPlayerToken.getInventory().useItem(item);
                         if (valid)
                                 setInventoryWindowVisible(false);
                 } else if (event.getListenerActor() == itemWindowDiscardButton) {
                         Item item = (Item) itemWindow.getUserObject();
-                        boolean valid = localPlayerToken.discardItem(item);
+                        boolean valid = localPlayerToken.getInventory().discardItem(item);
                         if (valid)
                                 setItemDialogVisible(false);
                 } else if (event.getListenerActor() == itemWindowBackButton) {
@@ -968,7 +947,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                                         // TODO: show screen to set quick slot
                                 } else {
                                         if (item instanceof Item.Consumable) {
-                                                localPlayerToken.useItem(item);
+                                                localPlayerToken.getInventory().useItem(item);
                                         } else {
                                                 throw new AssertionError("TODO: need to handle item of type " + item.getClass());
                                         }
@@ -983,23 +962,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Chara
                 }
         };
 
-        private Direction calcTouchPadDirection() {
-                if (!touchPad.isTouched()) {
-                        return null;
-                } else if (MoreMath.abs(touchPad.getKnobPercentX()) > MoreMath.abs(touchPad.getKnobPercentY())) {
-                        if (touchPad.getKnobPercentX() > 0) {
-                                return Direction.East;
-                        } else {
-                                return Direction.West;
-                        }
-                } else {
-                        if (touchPad.getKnobPercentY() > 0) {
-                                return Direction.North;
-                        } else {
-                                return Direction.South;
-                        }
-                }
-        }
+
 
         private class DamageLabel{
                 Label label;

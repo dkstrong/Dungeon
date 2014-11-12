@@ -1,10 +1,12 @@
-package asf.dungeon.model.logic;
+package asf.dungeon.model.token.logic;
 
 
-import asf.dungeon.model.CharacterToken;
+
+import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.Pair;
+import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.math.MathUtils;
 
 /**
@@ -12,26 +14,34 @@ import com.badlogic.gdx.math.MathUtils;
  */
 public class SimpleLogicProvider implements LogicProvider {
 
-        private CharacterToken token;
+        private Token token;
         private Dungeon dungeon;
 
 
         @Override
-        public void setToken(CharacterToken token) {
+        public void setToken(Token token) {
                 this.token = token;
                 dungeon = token.dungeon;
 
         }
 
         @Override
-        public void updateLogic(float delta) {
-                if (!token.hasMoveTarget()) {
+        public boolean teleportToLocation(int x, int y, Direction direction) {
+                return true;
+        }
+
+        @Override
+        public boolean update(float delta) {
+
+                if (token.isLocatedAt(token.getTarget().getLocation())) {
                         int x = MathUtils.random.nextInt(token.getFloorMap().getWidth());
                         int y = MathUtils.random.nextInt(token.getFloorMap().getHeight());
                         Tile tile = token.getFloorMap().getTile(x, y);
                         if (tile != null && !tile.isBlockMovement() && !tile.isStairs()) {
-                                token.setMoveTarget(new Pair(x, y));
+                                token.getTarget().setLocation(x,y);
+
                         }
                 }
+                return false;
         }
 }

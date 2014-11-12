@@ -1,5 +1,6 @@
 package asf.dungeon.model;
 
+import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -45,7 +46,7 @@ public class FogMap {
 
         public void update(){
 
-                if(token.floorMap != floorMap){
+                if(token.getFloorMap() != floorMap){
                         // if token not currently on the floor fo this fog map,
                         // then just set all visible fog in to visited
                         for(int x=0; x<fog.length; x++){
@@ -60,8 +61,8 @@ public class FogMap {
 
 
 
-                xCenter =token.location.x;
-                yCenter = token.location.y;
+                xCenter =token.getLocation().x;
+                yCenter = token.getLocation().y;
                 radius = 6;
 
                 if( stepResult == null ) {

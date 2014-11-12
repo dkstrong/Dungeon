@@ -1,9 +1,18 @@
 package asf.dungeon.model;
 
 import asf.dungeon.model.factory.FloorMapGenerator;
+import asf.dungeon.model.token.Attack;
+import asf.dungeon.model.token.Damage;
+import asf.dungeon.model.token.Experience;
+import asf.dungeon.model.token.Inventory;
+import asf.dungeon.model.token.Loot;
+import asf.dungeon.model.token.Move;
+import asf.dungeon.model.token.StatusEffects;
+import asf.dungeon.model.token.Target;
+import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.Gdx;
-import asf.dungeon.model.logic.LocalPlayerLogicProvider;
-import asf.dungeon.model.logic.LogicProvider;
+import asf.dungeon.model.token.logic.LocalPlayerLogicProvider;
+import asf.dungeon.model.token.logic.LogicProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,25 +85,40 @@ public class Dungeon {
                 return floorMaps.get(floorIndex);
         }
 
-        public CharacterToken newCharacterToken(FloorMap fm, String name, ModelId modelId, LogicProvider logicProvider) {
-                CharacterToken t = new CharacterToken(this,fm, nextTokenId++, name, modelId);
-                t.setLogicProvider(logicProvider);
+        public Token newCharacterToken(FloorMap fm, String name, ModelId modelId, LogicProvider logicProvider) {
+                Token t = new Token(this,fm, nextTokenId++, name, modelId);
+                t.add(logicProvider);
+                t.add(new Experience(t));
+                t.add(new Inventory(t));
+                t.add(new StatusEffects(t));
+                t.add(new Target(t));
+                t.add(new Attack(t));
+                t.add(new Damage(t, 10));
+                t.add(new Move(t));
+
+                t.getDamage().setDeathDuration(3f);
+                t.getDamage().setDeathRemovalCountdown(10f);
                 fm.tokens.add(t);
                 if(currentFloorMap == fm)
                         listener.onTokenAdded(t);
                 return t;
         }
 
-        public CrateToken newCrateToken(FloorMap fm, String name, ModelId modelId, Item item) {
-                CrateToken t = new CrateToken(this, fm, nextTokenId++, name, modelId, item );
+        public Token newCrateToken(FloorMap fm, String name, ModelId modelId, Item item) {
+                Token t = new Token(this, fm, nextTokenId++, name, modelId);
+                t.add(new Inventory(t, item));
+                t.add(new Damage(t, 1));
+                t.getDamage().setDeathDuration(2.5f);
+                t.getDamage().setDeathRemovalCountdown(.25f);
                 fm.tokens.add(t);
                 if(currentFloorMap == fm)
                         listener.onTokenAdded(t);
                 return t;
         }
 
-        public LootToken newLootToken(FloorMap fm, Item item, int x, int y) {
-                LootToken t = new LootToken(this, fm,nextTokenId++, item);
+        public Token newLootToken(FloorMap fm, Item item, int x, int y) {
+                Token t = new Token(this, fm, nextTokenId++, item.getName(), item.getModelId());
+                t.add(new Loot(t, item));
                 fm.tokens.add(t);
                 t.teleportToLocation( x, y);
                 if(currentFloorMap == fm)
@@ -116,7 +140,12 @@ public class Dungeon {
         }
 
 
-        protected void moveTokenToFloor(Token token, FloorMap newFloorMap) {
+        /**
+         * should only be called by Token
+         * @param token
+         * @param newFloorMap
+         */
+        public void moveTokenToFloor(Token token, FloorMap newFloorMap) {
                 for (FloorMap oldFloorMap : floorMaps.values()) {
                         boolean b = oldFloorMap.tokens.removeValue(token, true);
                         if (b) {
@@ -130,23 +159,6 @@ public class Dungeon {
                         }
                 }
                 throw new IllegalStateException("This token is not on any floor");
-        }
-
-        public Token getToken(int playerId) {
-                for (FloorMap floorMap : floorMaps.values()) {
-                        for (Token token : floorMap.tokens) {
-                                if (token instanceof CharacterToken) {
-                                        CharacterToken character = (CharacterToken) token;
-                                        if (character.getLogicProvider() instanceof LocalPlayerLogicProvider) {
-                                                LocalPlayerLogicProvider local = (LocalPlayerLogicProvider) character.getLogicProvider();
-                                                if (local.getId() == playerId) {
-                                                        return token;
-                                                }
-                                        }
-                                }
-                        }
-                }
-                return null;
         }
 
 

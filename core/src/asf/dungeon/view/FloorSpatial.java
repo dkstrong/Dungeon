@@ -65,7 +65,7 @@ public class FloorSpatial implements Spatial {
                 if(!isInitialized())
                         return;
 
-                fogMap = world.getLocalPlayerToken().getFogMap(floorMap);
+                fogMap = world.getLocalPlayerToken().getFogMapping().getFogMap(floorMap);
                 if(fogMap == null){
                         throw new AssertionError("should not be null");
                 }
