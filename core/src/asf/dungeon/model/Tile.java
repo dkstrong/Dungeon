@@ -1,10 +1,12 @@
 package asf.dungeon.model;
 
 
+import java.io.Serializable;
+
 /**
  * Created by danny on 10/26/14.
  */
-public class Tile {
+public class Tile  {
         private int movementCost;
         private boolean blockMovement;
         private boolean blockVision;

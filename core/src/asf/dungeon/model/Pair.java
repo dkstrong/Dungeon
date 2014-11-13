@@ -1,10 +1,12 @@
 package asf.dungeon.model;
 
 
+import java.io.Serializable;
+
 /**
  * Created by danny on 10/21/14.
  */
-public class Pair {
+public class Pair  {
         public int x;
         public int y;
 

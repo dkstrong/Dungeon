@@ -2,6 +2,8 @@ package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
 
+import java.io.Serializable;
+
 /**
  * Created by Danny on 11/11/2014.
  */

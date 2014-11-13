@@ -5,7 +5,7 @@ import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.Item;
 import asf.dungeon.model.PotionItem;
-import asf.dungeon.model.token.StatusEffects;
+import asf.dungeon.model.token.Effect;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.utility.MoreMath;
@@ -14,7 +14,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -295,7 +294,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         @Override
-        public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
+        public void onStatusEffectChange(Effect effect, float duration) {
                 if (world.getHud().localPlayerToken == token)
                         world.getHud().onStatusEffectChange(effect, duration);
         }

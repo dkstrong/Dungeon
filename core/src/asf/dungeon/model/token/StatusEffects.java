@@ -2,6 +2,7 @@ package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.reflect.ArrayReflection;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -11,14 +12,24 @@ import java.util.Map;
  */
 public class StatusEffects implements TokenComponent{
         private final Token token;
-        private final Map<Effect, Array<Float>> statusEffects = new EnumMap<Effect, Array<Float>>(Effect.class);
+        private final Array<Float>[] statusEffects;
+
+        //private final Map<Effect, Array<Float>> statusEffects = new EnumMap<Effect, Array<Float>>(Effect.class);
 
         public StatusEffects(Token token) {
                 this.token = token;
 
+                statusEffects = (Array<Float>[]) ArrayReflection.newInstance(Array.class, Effect.values.length);
+
                 for (Effect statusEffect : Effect.values) {
-                        statusEffects.put(statusEffect, new Array<Float>(false, 8, Float.class));
+                        statusEffects[statusEffect.ordinal()] = new Array<Float>(false, 8, Float.class);
                 }
+        }
+
+        private void initGenericArray(){
+
+
+
         }
 
         @Override
@@ -29,7 +40,7 @@ public class StatusEffects implements TokenComponent{
         @Override
         public boolean update(float delta) {
                 for (Effect statusEffect : Effect.values) {
-                        Array<Float> durations = statusEffects.get(statusEffect);
+                        Array<Float> durations = statusEffects[statusEffect.ordinal()];
                         if(durations.size ==0){
                                 continue;
                         }
@@ -59,7 +70,7 @@ public class StatusEffects implements TokenComponent{
                         return;
                 }
 
-                Array<Float> durations = statusEffects.get(statusEffect);
+                Array<Float> durations = statusEffects[statusEffect.ordinal()];
                 durations.clear();
                 if(value >1){
                         float subDuration = duration/(value-1);
@@ -80,7 +91,7 @@ public class StatusEffects implements TokenComponent{
         }
 
         public void removeStatusEffect(Effect statusEffect){
-                Array<Float> durations = statusEffects.get(statusEffect);
+                Array<Float> durations = statusEffects[statusEffect.ordinal()];
                 durations.clear();
                 statusEffect.end(token);
                 if(token.listener != null)
@@ -99,62 +110,16 @@ public class StatusEffects implements TokenComponent{
         }
 
         public boolean hasStatusEffect(Effect statusEffect){
-                return statusEffects.get(statusEffect).size >0;
+                return statusEffects[statusEffect.ordinal()].size >0;
         }
 
         public float getStatusEffectDuration(Effect statusEffect){
                 float duration = 0;
-                Array<Float> durations = statusEffects.get(statusEffect);
+                Array<Float> durations = statusEffects[statusEffect.ordinal()];
                 for (Float aFloat : durations) {
                         duration+=aFloat;
                 }
                 return duration;
         }
 
-        public enum Effect{
-
-                Heal(){
-                        @Override
-                        protected void apply(Token token) {
-                                token.getDamage().addHealth(1);
-                        }
-                },
-                Poison(){
-                        @Override
-                        protected void apply(Token token) {
-                                token.getDamage().addHealth(-1);
-                        }
-                },
-                Paralyze(),
-                Invisibility(),
-                MindVision(),
-                Speed();
-
-                /**
-                 * called when the status effect is added
-                 * @param token
-                 */
-                protected void begin(Token token){
-
-                }
-
-                /**
-                 * called on each interval
-                 * @param token
-                 */
-                protected void apply(Token token){
-
-                }
-
-                /**
-                 * called when the status effect is removed
-                 * @param token
-                 */
-                protected void end(Token token){
-
-                }
-
-                public static final Effect[] values = Effect.values();
-
-        }
 }

@@ -11,10 +11,12 @@ import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.logic.LogicProvider;
 import com.badlogic.gdx.utils.Array;
 
+import java.io.Serializable;
+
 /**
  * Created by danny on 10/22/14.
  */
-public class Token {
+public class Token  {
         public final Dungeon dungeon;
         private final int id;
         private final ModelId modelId;
@@ -32,7 +34,7 @@ public class Token {
         protected FloorMap floorMap;
         protected Direction direction = Direction.South;          // the direction that this token is facing, this affects certain gameplay mechanics.
         private Array<TokenComponent> components = new Array<TokenComponent>(true, 8, TokenComponent.class);
-        protected Listener listener;
+        protected transient Listener listener;
         // Common Components
         private Target target;
         private Move move;
@@ -253,7 +255,7 @@ public class Token {
 
                 public void onConsumeItem(Item.Consumable item);
 
-                public void onStatusEffectChange(StatusEffects.Effect effect, float duration);
+                public void onStatusEffectChange(Effect effect, float duration);
 
 
         }

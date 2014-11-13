@@ -7,6 +7,7 @@ Self-explanatory. Comes with 2 methods you can use, one for integer positions an
 
 import com.badlogic.gdx.utils.Array;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 

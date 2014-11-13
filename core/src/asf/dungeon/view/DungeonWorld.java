@@ -1,16 +1,17 @@
 package asf.dungeon.view;
 
 import asf.dungeon.DungeonApp;
+import asf.dungeon.utility.DungeonLoader;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.factory.BinarySpaceGen;
 import asf.dungeon.model.factory.CellularAutomataGen;
 import asf.dungeon.model.factory.ConnectedRoomsGen;
 import asf.dungeon.model.factory.DirectionalCaveHallGen;
+import asf.dungeon.model.factory.FloorMapGenMultiplexer;
 import asf.dungeon.model.factory.MazeGen;
 import asf.dungeon.model.factory.PreBuiltFloorGen;
 import asf.dungeon.model.factory.RandomWalkGen;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.factory.DungeonFactory;
 import asf.dungeon.model.factory.FloorMapGenerator;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.logic.LocalPlayerLogicProvider;
@@ -38,6 +39,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+import java.io.IOException;
 
 /**
  * Created by danny on 10/20/14.
@@ -104,15 +107,27 @@ public class DungeonWorld implements Disposable {
                 selectionMark = addSpatial(new GenericSpatial(new ModelInstance(ModelFactory.box(5, 1, 5, Color.RED)), new Box(), environment)).setControl(new SelectionMark(this));
                 addSpatial(new ProjectileSpatial(this, environment));
 
-                DungeonFactory dungeonFactory = new DungeonFactory(new FloorMapGenerator[]{
-                        new ConnectedRoomsGen(), new BinarySpaceGen(), new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(), new PreBuiltFloorGen(),
-                        new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
-                },new FloorMapGenerator[]{
-                        new ConnectedRoomsGen(), new MazeGen(10,10)
-                });
+                //dungeon = DungeonLoader.loadDungeon(internalInput);
 
+                if(dungeon == null){
+                        FloorMapGenMultiplexer floorMapGenMultiplexer = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
+                                new PreBuiltFloorGen(), new ConnectedRoomsGen(), new BinarySpaceGen(), new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
+                                new PreBuiltFloorGen(),
+                                new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
+                        },new FloorMapGenerator[]{
+                                new ConnectedRoomsGen(), new MazeGen(10,10)
+                        });
 
-                dungeon = dungeonFactory.makeDungeon(internalInput); // this triggers the creation of various TokenSpatials...
+                        dungeon = DungeonLoader.createDungeon(internalInput, floorMapGenMultiplexer);  // this triggers the creation of various TokenSpatials...
+                        dungeon.setCurrentFloor(0);
+                        try {
+                                DungeonLoader.saveDungeon(dungeon);
+                        } catch (IOException e) {
+                                e.printStackTrace();
+                        }
+                }else{
+
+                }
 
 
 
@@ -370,7 +385,7 @@ public class DungeonWorld implements Disposable {
                 public void onTokenRemoved(Token token) {
                         //Gdx.app.log("DungeonWorld", "tokenRemoved: " + token);
                         if (token == hudSpatial.localPlayerToken) {
-                                dungeon.setCurrentFloor(hudSpatial.localPlayerToken.getFloorMap());
+                                dungeon.setCurrentFloor(hudSpatial.localPlayerToken.getFloorMap().index);
                                 return;
                         }
 

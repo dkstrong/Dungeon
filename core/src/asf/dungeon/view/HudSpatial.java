@@ -3,7 +3,7 @@ package asf.dungeon.view;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Item;
 import asf.dungeon.model.Pair;
-import asf.dungeon.model.token.StatusEffects;
+import asf.dungeon.model.token.Effect;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
@@ -102,7 +102,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 avatarStatusEffectsGroup.align(Align.bottomLeft);
 
 
-                statusEffectImage = new Image[StatusEffects.Effect.values.length];
+                statusEffectImage = new Image[Effect.values.length];
                 for (int i = 0; i < statusEffectImage.length; i++) {
                         statusEffectImage[i] = new Image(new Texture(Gdx.files.internal("Interface/Hud/health.png")));
                         //statusEffectImage[i].setScaling(Scaling.fit);
@@ -726,7 +726,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         @Override
-        public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
+        public void onStatusEffectChange(Effect effect, float duration) {
                 Image statusImage = statusEffectImage[effect.ordinal()];
                 if (duration == 0) {
                         statusImage.remove();

@@ -89,6 +89,7 @@ project(":core") {
 
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+        compile "com.esotericsoftware:kryo:3.0.0"
     }
 }
 

@@ -14,27 +14,29 @@ import com.badlogic.gdx.Gdx;
 import asf.dungeon.model.token.logic.LocalPlayerLogicProvider;
 import asf.dungeon.model.token.logic.LogicProvider;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by danny on 10/22/14.
  */
-public class Dungeon {
+public class Dungeon  {
         private final MasterJournal masterJournal;
         private final FloorMapGenerator floorMapFactory;
         private final Map<Integer, FloorMap> floorMaps = new HashMap<Integer, FloorMap>(16);
         private FloorMap currentFloorMap;
         private int nextTokenId = 0;
 
-        private final Listener listener;
+        private transient  Listener listener;
 
         public Dungeon(Listener listener, MasterJournal masterJournal,FloorMapGenerator floorMapFactory) {
                 this.listener = listener;
                 this.masterJournal = masterJournal;
                 this.floorMapFactory = floorMapFactory;
-
         }
+
+
 
         public MasterJournal getMasterJournal(){
                 return masterJournal;
@@ -51,13 +53,17 @@ public class Dungeon {
                 FloorMap floorMap = floorMaps.get(floorIndex);
                 if(floorMap == null){
                         Gdx.app.log("Dungeon","generateFloor: "+floorIndex);
+
                         floorMap = floorMapFactory.generate(this, floorIndex);
+
                         floorMaps.put(floorIndex, floorMap);
                 }
                 return floorMap;
         }
 
-        public void setCurrentFloor(FloorMap newFloor) {
+
+        public void setCurrentFloor(int floorIndex) {
+                FloorMap newFloor = generateFloor(floorIndex);
                 if(newFloor == currentFloorMap){
                         return;
                 }
@@ -75,6 +81,13 @@ public class Dungeon {
                         listener.onTokenAdded(currentFloorMap.tokens.items[i]);
                 }
 
+        }
+
+        public void setListener(Listener listener){
+                this.listener = listener;
+                for (int i = 0; i < currentFloorMap.tokens.size; i++) {
+                        listener.onTokenAdded(currentFloorMap.tokens.items[i]);
+                }
         }
 
         public FloorMap getCurrentFloopMap() {

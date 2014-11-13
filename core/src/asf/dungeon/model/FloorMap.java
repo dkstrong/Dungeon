@@ -3,13 +3,14 @@ package asf.dungeon.model;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * A single floor of the dungeon. contains information about the tiles that make up the floor
  * and the tokens on this floor.
  */
-public class FloorMap {
+public class FloorMap  {
         public final int index;
         public final Tile[][] tiles;
         private final Pathfinder pathfinder;

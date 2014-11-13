@@ -2,10 +2,12 @@ package asf.dungeon.model;
 
 import asf.dungeon.model.token.Token;
 
+import java.io.Serializable;
+
 /**
  * Created by Danny on 11/5/2014.
  */
-public interface Item {
+public interface Item  {
 
         public String getName();
 

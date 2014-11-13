@@ -5,10 +5,12 @@ import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
 
+import java.io.Serializable;
+
 /**
  * adapted from SensorArea in Monkey Trap by Paul Speed
  */
-public class FogMap {
+public class FogMap implements Serializable{
         private FloorMap floorMap;
         private Token token;
         private FogState[][] fog;
