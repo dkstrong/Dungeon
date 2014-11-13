@@ -7,7 +7,6 @@ import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
-import asf.dungeon.utility.MoreMath;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
@@ -29,7 +28,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
@@ -315,7 +313,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 characterActionInfoLabel.setBounds(
                         Gdx.graphics.getWidth() * .25f,
-                        (Gdx.graphics.getHeight() - (buttonSize * .25f)) * .5f,
+                        (Gdx.graphics.getHeight() - (buttonSize * .25f)) * .625f,
                         Gdx.graphics.getWidth() * .5f,
                         buttonSize * .25f);
 
@@ -397,7 +395,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 healthProgressBar.setValue(localPlayerToken.getDamage().getHealth());
                 healthProgressBar.act(delta);
 
-                String s = String.format("%s / %s\n%s / %s",localPlayerToken.getDamage().getHealth(),localPlayerToken.getDamage().getMaxHealth(),localPlayerToken.getAttack().getAttackCoolDown(),localPlayerToken.getAttack().getAttackCooldownDuration());
+                String s = String.format("%s / %s\n%s , %s",localPlayerToken.getDamage().getHealth(),localPlayerToken.getDamage().getMaxHealth(),localPlayerToken.getLocation().x,localPlayerToken.getLocation().y);
                 avatarLabel.setText(s);
 
 
@@ -566,7 +564,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 button.row().expand();
 
                                 int quantity = localPlayerToken.getInventory().getQuantity(item);
-                                Label quantityLabel = new Label(quantity > 1 ? "x" + quantity : "", skin);
+                                Label quantityLabel = new Label(quantity > 1 ? "x" + quantity : " ", skin);
                                 quantityLabel.setUserObject("Quantity");
                                 button.add(quantityLabel).align(Align.bottomRight).colspan(2).pad(0, 0, 3, 5);
 
@@ -582,7 +580,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         } else if (uoName.equals("Quantity")) {
                                                 Label label = (Label) actor;
                                                 int quantity = localPlayerToken.getInventory().getQuantity(item);
-                                                label.setText(quantity > 1 ? "x" + quantity : "");
+                                                label.setText(quantity > 1 ? "x" + quantity : " ");
                                         }
 
                                 }
@@ -753,59 +751,32 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         }
 
+        /**
+         * called before dungeon.update() to do user input related updates
+         * @param delta
+         */
+        protected void updateInput(float delta){
+                if(mouseDownDrag){
+                        Ray ray = world.cam.getPickRay(Gdx.input.getX(), Gdx.input.getY());
+                        dragCommand(ray);
+                }
+        }
 
-        private final Vector3 tempWorldCoords = new Vector3();
-        private final Pair tempMapCoords = new Pair();
 
         @Override
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                Ray ray = world.cam.getPickRay(screenX, screenY);
-                Token targetToken = world.getToken(ray, localPlayerToken);
-                // attempt to target specificaly clicked token
-                if (targetToken != null) {
-                        localPlayerToken.getTarget().setToken(targetToken);
-                        if (localPlayerToken.getTarget().getToken() != null) {
-                                world.selectionMark.mark(targetToken.getLocation());
-                                return true;
-                        }
-
+                boolean hasTarget = touchCommand(screenX, screenY);
+                if(!hasTarget){
+                        mouseDownDrag = true;
                 }
 
-                // if no token was clicked then go to the tile that was clicked
-                final float distance = -ray.origin.y / ray.direction.y;
-                tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
-                world.getMapCoords(tempWorldCoords, tempMapCoords);
-                if (localPlayerToken.getFloorMap().getTile(tempMapCoords) != null) {
-                        localPlayerToken.getTarget().setLocation(tempMapCoords);
-                        localPlayerToken.getTarget().setToken(null);
-                        world.selectionMark.mark(tempMapCoords);
-                        return true;
-                }
-                return false;
+                return true;
         }
+
 
         @Override
         public boolean touchDragged(int screenX, int screenY, int pointer) {
-                Ray ray = world.cam.getPickRay(screenX, screenY);
-                Token targetToken = world.getToken(ray, localPlayerToken);
-                // attempt to target specificaly clicked token
-                if (targetToken != null) {
-                        localPlayerToken.getTarget().setToken(targetToken);
-                        if (localPlayerToken.getTarget().getToken() != null) {
-                                world.selectionMark.mark(targetToken.getLocation());
-                                return true;
-                        }
-
-                }
-
-                // if no token was clicked then go to the tile that was clicked
-                final float distance = -ray.origin.y / ray.direction.y;
-                tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
-                world.getMapCoords(tempWorldCoords, tempMapCoords);
-                if (localPlayerToken.getFloorMap().getTile(tempMapCoords) != null) {
-                        localPlayerToken.getTarget().setLocation(tempMapCoords);
-                        localPlayerToken.getTarget().setToken(null);
-                        world.selectionMark.mark(tempMapCoords);
+                if(mouseDownDrag){
                         return true;
                 }
                 return false;
@@ -813,6 +784,44 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         @Override
         public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                if(mouseDownDrag){
+                        mouseDownDrag = false;
+                        return true;
+                }
+                return false;
+        }
+
+        private boolean mouseDownDrag = false;
+        private final Vector3 tempWorldCoords = new Vector3();
+        private final Pair tempMapCoords = new Pair();
+
+        private boolean touchCommand(int screenX, int screenY){
+                Ray ray = world.cam.getPickRay(screenX, screenY);
+                Token targetToken = world.getToken(ray, localPlayerToken);
+                // attempt to target specificaly clicked token
+                if (targetToken != null) {
+                        localPlayerToken.getTarget().setToken(targetToken);
+                        if (localPlayerToken.getTarget().getToken() != null) {
+                                world.selectionMark.mark(targetToken.getLocation());
+                                return true;
+                        }
+
+                }
+
+                // if no token was clicked then go to the tile that was clicked
+                return false;
+        }
+
+        private boolean dragCommand(Ray ray){
+                final float distance = -ray.origin.y / ray.direction.y;
+                tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
+                world.getMapCoords(tempWorldCoords, tempMapCoords);
+                if (localPlayerToken.getFloorMap().getTile(tempMapCoords) != null) {
+                        localPlayerToken.getTarget().setLocation(tempMapCoords);
+                        localPlayerToken.getTarget().setToken(null);
+                        world.selectionMark.mark(tempMapCoords);
+                        return true;
+                }
                 return false;
         }
 

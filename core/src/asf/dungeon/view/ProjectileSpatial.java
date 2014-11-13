@@ -1,7 +1,7 @@
 package asf.dungeon.view;
 
-import asf.dungeon.model.FogMap;
-import asf.dungeon.model.FogState;
+import asf.dungeon.model.fogmap.FogMap;
+import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.MoreMath;

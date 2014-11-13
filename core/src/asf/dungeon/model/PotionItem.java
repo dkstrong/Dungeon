@@ -19,7 +19,7 @@ public class PotionItem implements Item.Consumable {
 
         @Override
         public ModelId getModelId() {
-                return ModelId.HealthPotion;
+                return ModelId.Potion;
         }
 
         @Override
@@ -43,13 +43,13 @@ public class PotionItem implements Item.Consumable {
         @Override
         public String getNameFromJournal(Token token){
                 Journal journal = token.get(Journal.class);
-                if(journal != null || journal.knows(type))
+                if(journal != null && journal.knows(type))
                         return getName();
                 return color.name()+" Potion";
         }
         public String getDescriptionFromJournal(Token token){
                 Journal journal = token.get(Journal.class);
-                if(journal != null || journal.knows(type))
+                if(journal != null && journal.knows(type))
                         return "This is a "+getName();
                 return "A mysterious "+color.name()+" potion. The effects of drinking this are not known.";
         }
@@ -116,23 +116,25 @@ public class PotionItem implements Item.Consumable {
         }
 
         public static enum Color{
-                LightBlue(com.badlogic.gdx.graphics.Color.TEAL),
-                Red(com.badlogic.gdx.graphics.Color.RED),
-                Blue(com.badlogic.gdx.graphics.Color.BLUE),
-                Green(com.badlogic.gdx.graphics.Color.GREEN),
-                Yellow(com.badlogic.gdx.graphics.Color.YELLOW),
-                Magenta(com.badlogic.gdx.graphics.Color.MAGENTA),
-                Black(com.badlogic.gdx.graphics.Color.BLACK),
-                Brown(com.badlogic.gdx.graphics.Color.OLIVE),
-                Amber(com.badlogic.gdx.graphics.Color.ORANGE),
-                White(com.badlogic.gdx.graphics.Color.WHITE),
-                Silver(com.badlogic.gdx.graphics.Color.GRAY),
-                Purple(com.badlogic.gdx.graphics.Color.PURPLE);
+                LightBlue(com.badlogic.gdx.graphics.Color.TEAL,"Models/Loot/Potion/potion_silver_blue.png"),
+                Red(com.badlogic.gdx.graphics.Color.RED,"Models/Loot/Potion/potion_silver_red.png"),
+                Blue(com.badlogic.gdx.graphics.Color.BLUE,"Models/Loot/Potion/potion_silver_blue.png"),
+                Green(com.badlogic.gdx.graphics.Color.GREEN,"Models/Loot/Potion/potion_silver_green.png"),
+                Yellow(com.badlogic.gdx.graphics.Color.YELLOW,"Models/Loot/Potion/potion_silver_blue.png"),
+                Magenta(com.badlogic.gdx.graphics.Color.MAGENTA,"Models/Loot/Potion/potion_silver_blue.png"),
+                Black(com.badlogic.gdx.graphics.Color.BLACK,"Models/Loot/Potion/potion_silver_blue.png"),
+                Brown(com.badlogic.gdx.graphics.Color.OLIVE,"Models/Loot/Potion/potion_silver_blue.png"),
+                Amber(com.badlogic.gdx.graphics.Color.ORANGE,"Models/Loot/Potion/potion_silver_blue.png"),
+                White(com.badlogic.gdx.graphics.Color.WHITE,"Models/Loot/Potion/potion_silver_blue.png"),
+                Silver(com.badlogic.gdx.graphics.Color.GRAY,"Models/Loot/Potion/potion_silver_blue.png"),
+                Purple(com.badlogic.gdx.graphics.Color.PURPLE,"Models/Loot/Potion/potion_silver_blue.png");
 
                 public final com.badlogic.gdx.graphics.Color color;
+                public final String textureAssetLocation;
 
-                Color(com.badlogic.gdx.graphics.Color color) {
+                Color(com.badlogic.gdx.graphics.Color color, String textureAssetLocation) {
                         this.color = color;
+                        this.textureAssetLocation = textureAssetLocation;
                 }
         }
 }

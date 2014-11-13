@@ -9,12 +9,12 @@ import java.util.Random;
 /**
  * Created by Danny on 11/4/2014.
  */
-public class MazeGenerator implements FloorMapGenerator{
+public class MazeGen implements FloorMapGenerator{
 
         private int width;
         private int height;
 
-        public MazeGenerator(int width, int height) {
+        public MazeGen(int width, int height) {
                 this.width = width;
                 this.height = height;
         }
@@ -25,7 +25,7 @@ public class MazeGenerator implements FloorMapGenerator{
         }
 
         public FloorMap generate(Dungeon dungeon, int floorIndex){
-                Tile[][] tiles = MazeGenerator.generateTiles(width, height);
+                Tile[][] tiles = MazeGen.generateTiles(width, height);
                 // upper stairs is on bottom left
                 if(floorIndex >0){
                         outerloop:
@@ -52,7 +52,7 @@ public class MazeGenerator implements FloorMapGenerator{
                 }
 
                 FloorMap floorMap = new FloorMap(floorIndex,tiles);
-                UtFloorGen.spawnTokens(dungeon, floorMap);
+                UtFloorGen.spawnCharacters(dungeon, floorMap);
                 return floorMap;
         }
 

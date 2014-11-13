@@ -7,7 +7,7 @@ import asf.dungeon.model.Tile;
 /**
  * Created by Danny on 11/4/2014.
  */
-public class PreBuiltFloorGenerator implements FloorMapGenerator{
+public class PreBuiltFloorGen implements FloorMapGenerator{
 
         public FloorMap generate(Dungeon dungeon, int floorIndex){
                 FloorMap floorMap;
@@ -21,7 +21,7 @@ public class PreBuiltFloorGenerator implements FloorMapGenerator{
                 }else{
                         floorMap = tinyRoom(floorIndex);
                 }
-                UtFloorGen.spawnTokens(dungeon, floorMap);
+                UtFloorGen.spawnCharacters(dungeon, floorMap);
                 return floorMap;
         }
 

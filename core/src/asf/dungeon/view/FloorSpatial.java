@@ -2,6 +2,7 @@ package asf.dungeon.view;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Tile;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -21,14 +22,13 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.FogMap;
-import asf.dungeon.model.FogState;
+import asf.dungeon.model.fogmap.FogMap;
+import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.Pair;
 import asf.dungeon.view.shape.CustomBox;
 import asf.dungeon.utility.MoreMath;
 
 import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Created by danny on 10/29/14.
@@ -41,6 +41,7 @@ public class FloorSpatial implements Spatial {
         private FogMap fogMap;
         private Array<DecalNode> decalNodes;
         private Texture floorTex, wallTex, wallTexDark, stairDownTex, stairUpTex;
+        private TextureRegion[][] floorTexRegions, wallTexRegions;
         private float[] fogAlpha;
         private boolean initialized;
         private Array<DecalNodeProp> decalNodeProps, decalNodePropsTemp;
@@ -65,9 +66,13 @@ public class FloorSpatial implements Spatial {
                 if(!isInitialized())
                         return;
 
-                fogMap = world.getLocalPlayerToken().getFogMapping().getFogMap(floorMap);
-                if(fogMap == null){
-                        throw new AssertionError("should not be null");
+                if( world.getLocalPlayerToken().getFogMapping() != null){
+                        fogMap = world.getLocalPlayerToken().getFogMapping().getFogMap(floorMap);
+                        if(fogMap == null){
+                                throw new AssertionError("should not be null");
+                        }
+                }else{
+                        fogMap = null;
                 }
 
                 fogAlpha[FogState.Dark.ordinal()] = 0;
@@ -120,14 +125,21 @@ public class FloorSpatial implements Spatial {
                         }
                         Decal decal = decalNode.decal;
                         Color color = decal.getColor();
-
-                        FogState fogState = fogMap.getFogState(decalNode.x, decalNode.y);
-                        if(fogState != FogState.Dark && decal.getPosition().y != decalNode.visibleY){
-                                decal.getPosition().y = decalNode.visibleY;
-                                decal.setPosition(decal.getPosition());
+                        boolean tileVisited;
+                        float fog;
+                        if(fogMap == null){
+                                tileVisited = true;
+                                fog = fogAlpha[FogState.Visible.ordinal()];
+                        }else{
+                                FogState fogState = fogMap.getFogState(decalNode.x, decalNode.y);
+                                tileVisited = fogState != FogState.Dark;
+                                fog = fogAlpha[fogState.ordinal()];
                         }
 
-                        float fog = fogAlpha[fogState.ordinal()];
+                        if(tileVisited && decal.getPosition().y != decalNode.visibleY){
+                                decal.getPosition().y = decalNode.visibleY; // if this is the first time this decal tile is "visited" then it needs to "pop up" in to position
+                                decal.setPosition(decal.getPosition());
+                        }
 
                         fog = MathUtils.lerp(color.r, fog, delta);
                         color.set(fog,fog,fog,1);
@@ -189,15 +201,20 @@ public class FloorSpatial implements Spatial {
                 decalNodeProps = new Array<DecalNodeProp>(8);
                 decalNodePropsTemp = new Array<DecalNodeProp>(8);
 
+
+                //pixmap.setColor(new Color(0.45f, 0.45f, 0, 1));
+                //pixmap.fill();
+
+                floorTex = new Texture(Gdx.files.internal("Textures/Dungeon/floorTiles.png"));
+                floorTexRegions = TextureRegion.split(floorTex, 128, 128);
+
+
+                //pixmap.setColor(new Color(0,0,.55f,1));
+                //pixmap.fill();
+                wallTex =new Texture(Gdx.files.internal("Textures/Dungeon/wallTiles.png"));
+                wallTexRegions = TextureRegion.split(wallTex, 256, 256);
+
                 Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-                pixmap.setColor(new Color(0.45f, 0.45f, 0, 1));
-                pixmap.fill();
-                floorTex = new Texture(pixmap);
-
-                pixmap.setColor(new Color(0,0,.55f,1));
-                pixmap.fill();
-                wallTex =new Texture(pixmap);
-
                 pixmap.setColor(new Color(0,0,.35f,1));
                 pixmap.fill();
                 wallTexDark = new Texture(pixmap);
@@ -309,11 +326,17 @@ public class FloorSpatial implements Spatial {
                         tex = floorTex;
                         prop = null;
                 }
+                TextureRegion region;
+                if(tex == floorTex){
+                        region = floorTexRegions[MathUtils.random.nextInt(floorTexRegions.length)][MathUtils.random.nextInt(floorTexRegions[0].length)];
+                }else{
+                        region = new TextureRegion(tex);
+                }
 
                 Decal decal = Decal.newDecal(
                         tileDimensions.x,
                         tileDimensions.z,
-                        new TextureRegion(tex),
+                        region,
                         DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                 // GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA
                 decal.rotateX(-90);
@@ -331,10 +354,11 @@ public class FloorSpatial implements Spatial {
                 getWorldCoords(x, y, worldCoordsTemp);
 
                 // top
+                TextureRegion topEegion = wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)][MathUtils.random.nextInt(wallTexRegions[0].length)];
                 Decal decal = Decal.newDecal(
                         tileDimensions.x,
                         tileDimensions.z,
-                        new TextureRegion(wallTex),
+                        topEegion,
                         DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                 // GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA
                 decal.rotateX(-90);
@@ -345,10 +369,11 @@ public class FloorSpatial implements Spatial {
                 // north
                 Tile northTile = null;//floorMap.getTile(x,y+1);
                 if(northTile == null || !northTile.isBlockMovement()){
+                        TextureRegion region = wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)][MathUtils.random.nextInt(wallTexRegions[0].length)];
                         decal = Decal.newDecal(
                                 tileDimensions.x,
                                 tileDimensions.y,
-                                new TextureRegion(wallTex),
+                                region,
                                 DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                         //decal.rotateX(-90);
                         decal.translate(worldCoordsTemp.x, -tileDimensions.y/2f, worldCoordsTemp.z-tileDimensions.z/2f);
@@ -359,10 +384,11 @@ public class FloorSpatial implements Spatial {
                 // south
                 Tile southTile = null;//floorMap.getTile(x,y-1);
                 if(southTile == null || !southTile.isBlockMovement()){
+                        TextureRegion region = wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)][MathUtils.random.nextInt(wallTexRegions[0].length)];
                         decal = Decal.newDecal(
                                 tileDimensions.x,
                                 tileDimensions.y,
-                                new TextureRegion(wallTexDark),
+                                region, // dark
                                 DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                         //decal.rotateX(-90);
                         decal.translate(worldCoordsTemp.x, -tileDimensions.y/2f, worldCoordsTemp.z+tileDimensions.z/2f);
@@ -373,10 +399,11 @@ public class FloorSpatial implements Spatial {
                 // east
                 Tile eastTile = null;//floorMap.getTile(x+1,y);
                 if(eastTile == null || !eastTile.isBlockMovement()){
+                        TextureRegion region = wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)][MathUtils.random.nextInt(wallTexRegions[0].length)];
                         decal = Decal.newDecal(
                                 tileDimensions.z,
                                 tileDimensions.y,
-                                new TextureRegion(wallTex),
+                                region,
                                 DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                         decal.rotateY(-90);
                         decal.translate(worldCoordsTemp.x+tileDimensions.x/2f, -tileDimensions.y/2f, worldCoordsTemp.z);
@@ -387,10 +414,11 @@ public class FloorSpatial implements Spatial {
                 // west
                 Tile westTile = null;//floorMap.getTile(x-1,y);
                 if(westTile == null || !westTile.isBlockMovement()){
+                        TextureRegion region = wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)][MathUtils.random.nextInt(wallTexRegions[0].length)];
                         decal = Decal.newDecal(
                                 tileDimensions.z,
                                 tileDimensions.y,
-                                new TextureRegion(wallTexDark),
+                                region, // dark
                                 DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                         decal.rotateY(-90);
                         decal.translate(worldCoordsTemp.x-tileDimensions.x/2f, -tileDimensions.y/2f, worldCoordsTemp.z);

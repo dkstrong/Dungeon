@@ -2,8 +2,7 @@ package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.FogMap;
-
+import asf.dungeon.model.fogmap.FogMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,14 +16,13 @@ public class FogMapping implements TokenComponent {
         public FogMapping(Token token) {
                 this.token = token;
                 fogMaps = new HashMap<FloorMap, FogMap>(16);
-                fogMaps.put(token.getFloorMap(), new FogMap(token.getFloorMap(), token));
         }
 
         @Override
         public boolean teleportToLocation(int x, int y, Direction direction) {
                 FogMap fogMap = fogMaps.get(token.getFloorMap());
                 if (fogMap == null) {
-                        fogMap = new FogMap(token.getFloorMap(), token);
+                        fogMap = new FogMap(token.getFloorMap(),token);
                         fogMaps.put(token.getFloorMap(), fogMap);
                 }
                 fogMap.update();

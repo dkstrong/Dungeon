@@ -13,7 +13,8 @@ public enum ModelId {
         Mage("Models/Characters/mage.g3db"),
         Priest("Models/Characters/priest.g3db"),
         CeramicPitcher("Models/Crates/CeramicPitcher.g3db"),
-        HealthPotion("Models/Loot/loot_health_potion.g3db");
+        Potion("Models/Loot/Potion/PotionSmall.g3db");
+        //HealthPotion("Models/Loot/loot_health_potion.g3db");
 
         public final String assetLocation;
 

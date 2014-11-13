@@ -94,7 +94,9 @@ public class Attack implements TokenComponent{
                                                 if (t.getDamage() != null) {
                                                         meleeAttackTarget = t;
                                                         if (meleeAttackTarget.getDamage().isAttackable()) {
-                                                                // TODO: this check might make it impossible for melee token to attack ranged token if ranged token is waiting at <.75f
+                                                                // TODO: this check makes melle attacks look more reasonable.
+                                                                // however it can create a scenario where a ranged character is standing still
+                                                                // and can never be attacked because they are targeting the melee character
                                                                 Move move = meleeAttackTarget.get(Move.class);
                                                                 if(move != null){
                                                                         if(move.moveU < .75f){

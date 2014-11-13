@@ -44,6 +44,7 @@ public class LocalPlayerLogicProvider implements LogicProvider {
 
         @Override
         public boolean update(float delta) {
+
                 return false;
         }
 }

@@ -1,8 +1,8 @@
 package asf.dungeon.view;
 
 import asf.dungeon.model.Direction;
-import asf.dungeon.model.FogMap;
-import asf.dungeon.model.FogState;
+import asf.dungeon.model.fogmap.FogMap;
+import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.Item;
 import asf.dungeon.model.PotionItem;
 import asf.dungeon.model.token.StatusEffects;
@@ -13,9 +13,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
@@ -56,8 +59,17 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
 
         public void preload(DungeonWorld world){
-                if(assetLocation != null)
-                        world.assetManager.load(assetLocation, Model.class);
+
+                world.assetManager.load(assetLocation, Model.class);
+
+                Loot loot = token.get(Loot.class);
+                if(loot != null){
+                        if(loot.getItem() instanceof PotionItem){
+                                world.assetManager.load(((PotionItem) loot.getItem()).getColor().textureAssetLocation, Texture.class);
+                        }
+                }
+
+
         }
 
         public void init(AssetManager assetManager) {
@@ -89,10 +101,13 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
                 Loot loot = token.get(Loot.class);
                 if(loot != null){
-                        PotionItem potion = (PotionItem) loot.getItem();
-                        for (Material mat : modelInstance.materials) {
-                                ColorAttribute colorAttribute = (ColorAttribute)mat.get(ColorAttribute.Diffuse);
-                                colorAttribute.color.set(potion.getColor().color);
+                        if(loot.getItem() instanceof PotionItem){
+                                PotionItem potion = (PotionItem) loot.getItem();
+                                Texture potionTex = assetManager.get(potion.getColor().textureAssetLocation, Texture.class);
+                                Material mat = modelInstance.materials.get(0);
+                                mat.set(TextureAttribute.createDiffuse(potionTex));
+                                //ColorAttribute colorAttribute = (ColorAttribute)mat.get(ColorAttribute.Diffuse);
+                                //colorAttribute.color.set(potion.getColor().color);
                         }
                 }
 
@@ -101,7 +116,6 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         scale.set(s, s, s);
                         translationBase.set(0, (shape.getDimensions().y / 2f) + 1.45f, 0);
                         translation.set(0, 0, 0);
-
                 }
 
                 for (Animation animation : modelInstance.model.animations) {

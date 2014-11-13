@@ -4,26 +4,28 @@ import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.SnapshotArray;
 
 /**
  *
- * makes a floor that is similiar to the classic "Rouge" maps where
- * there are random rooms connected by hallways
+ * floor is made by repeatidaly dividing the floor into 2 smaller parts
+ *
+ * http://www.roguebasin.com/index.php?title=Basic_BSP_Dungeon_generation
  *
  * Created by Danny on 11/4/2014.
  */
-public class ConnectedRoomsGenerator implements FloorMapGenerator{
+public class BinarySpaceGen implements FloorMapGenerator{
 
-        private int minRoomSize = 6;
-        private int maxRoomSize = 10;
-        private int minFloorWidth = 40;
+
+        private int minFloorWidth = 45;
         private int maxFloorWidth = 50;
         private int minFloorHeight = 30;
-        private int maxFloorHeight = 50;
-        private int maxRooms = 8;
+        private int maxFloorHeight = 45;
+
+
+        private int numberOfSubdivisions = 2;
         private boolean makeDoors = false;
-        private int floorIndex;
+
 
         @Override
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
@@ -34,95 +36,132 @@ public class ConnectedRoomsGenerator implements FloorMapGenerator{
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles);
 
-                UtFloorGen.spawnTokens(dungeon, floorMap);
+                UtFloorGen.spawnCharacters(dungeon, floorMap);
+                UtFloorGen.spawnRandomCrates(dungeon, floorMap);
                 return floorMap;
         }
+
 
         public Tile[][] generateTiles(int floorIndex){
                 int floorWidth = MathUtils.random(minFloorWidth, maxFloorWidth);
                 int floorHeight = MathUtils.random(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
-                int numRooms = Math.round(floorWidth /maxRoomSize * floorHeight / maxRoomSize * .5f);
-                if(numRooms > maxRooms)
-                        numRooms = maxRooms;
 
-                numRooms -= MathUtils.random.nextInt(Math.round(numRooms*.25f));
-
-
-                Array<Room> rooms = new Array<Room>(true, numRooms, Room.class);
-
-                // make and fill rooms
-                while(rooms.size < numRooms){
-                        Room newRoom = new Room(0,0,maxRoomSize,maxRoomSize);
-                        do{
-                                int roomWidth = MathUtils.random(minRoomSize, maxRoomSize);
-                                int roomHeight = MathUtils.random(minRoomSize,maxRoomSize);
-                                int x = MathUtils.random.nextInt(tiles.length);
-                                int y = MathUtils.random.nextInt(tiles[0].length);
-
-                                newRoom.set(x, y, x+roomWidth, y+roomHeight);
-
-                        }while(!isValidLocation(tiles, newRoom, rooms));
-                        rooms.add(newRoom);
-                        fillRoom(tiles, newRoom);
-                }
-
-                // fill tunnels and doors
-                // TODO: there is a bug where its the second to last or the second room or something
-                // that doesnt get a connected hallway.
-                for (int i = 1; i < rooms.size; i++) {
-                        Room prevRoom = rooms.get(i-1);
-                        Room room = rooms.get(i);
-                        fillTunnel(tiles, room, prevRoom);
-                }
-
-                // fill stairways
-
-                Room room = rooms.get(0);
-                boolean done = false;
-                do{
-                        int x = MathUtils.random(room.x1+2, room.x2-2);
-                        int y = MathUtils.random(room.y1+2, room.y2-2);
-                        if(tiles[x][y].isFloor()){
-                                tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex + 1);
-                                done = true;
+                for (int x = 0; x < tiles.length; x++){
+                        for (int y = 0; y < tiles[0].length; y++){
+                                tiles[x][y] = Tile.makeWall();
                         }
-                }while(!done);
-
-                if(floorIndex >0){
-                        room = rooms.get(rooms.size-1);
-                        done = false;
-                        do{
-                                int x = MathUtils.random(room.x1+2, room.x2-2);
-                                int y = MathUtils.random(room.y1+2, room.y2-2);
-                                if(tiles[x][y].isFloor()){
-                                        tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
-                                        done = true;
-                                }
-                        }while(!done);
                 }
 
 
+                RoomCell baseRoomCell = new RoomCell(0,0,floorWidth-1, floorHeight-1);
 
+                for(int k=0;k< numberOfSubdivisions; k++){
+                        subdivide(baseRoomCell);
+                }
 
+                fillRooms(tiles, baseRoomCell);
+                fillTunnels(tiles, baseRoomCell);
+
+                UtFloorGen.ensureEdgesAreWalls(tiles);
+                UtFloorGen.placeUpStairs(tiles, floorIndex);
+                UtFloorGen.placeDownStairs(tiles, floorIndex);
                 return tiles;
         }
 
-        private static boolean isValidLocation(Tile[][] tiles, Room testRoom, Array<Room> rooms){
-                if(testRoom.x2 >= tiles.length || testRoom.y2 >= tiles[0].length)
-                        return false;
-
-                for (Room room : rooms) {
-                        if(testRoom.intersects(room)){
-                                return false;
-                        }
+        private void subdivide(RoomCell baseCell){
+                if(baseCell.isLeaf()){
+                        baseCell.split(MathUtils.randomBoolean(), MathUtils.random(.25f, .75f));
+                }else{
+                        subdivide(baseCell.childCell1);
+                        subdivide(baseCell.childCell2);
                 }
-
-
-                return true;
         }
 
+
+        private static class RoomCell {
+                private RoomCell parentCell;
+                private RoomCell childCell1;
+                private RoomCell childCell2;
+                private Room innerRoom;
+
+                private int x1, y1, x2, y2;
+
+                private RoomCell(int x1, int y1, int x2, int y2) {
+                        this.x1 = x1;
+                        this.y1 = y1;
+                        this.x2 = x2;
+                        this.y2 = y2;
+                }
+
+                private boolean isLeaf(){
+                        return childCell1 == null && childCell2 == null;
+                }
+
+                private boolean hasLeafs(){
+                        return childCell1.isLeaf() && childCell2.isLeaf();
+                }
+
+                private void split(boolean vertical, float splitRatio){
+                        if(vertical){
+                                int newX2 = Math.round(MathUtils.lerp(x1,x2,splitRatio));
+                                childCell1= new RoomCell(x1, y1, newX2, y2);
+                                childCell1.parentCell =this;
+
+                                childCell2 = new RoomCell(newX2+1, y1, x2, y2);
+                                childCell2.parentCell = this;
+
+                        }else{
+                                int newY2 = Math.round(MathUtils.lerp(y1,y2,splitRatio));
+                                childCell1= new RoomCell(x1, y1, x2, newY2);
+                                childCell1.parentCell =this;
+
+                                childCell2 = new RoomCell(x1, newY2+1, x2, y2);
+                                childCell2.parentCell = this;
+
+                        }
+
+                }
+
+                private Room getInnerRoom(){
+                        if(innerRoom != null)
+                                return innerRoom;
+
+
+
+                        int innerX1= MathUtils.random(x1,Math.round(MathUtils.lerp(x1,x2, .05f)));
+                        int innerX2 = MathUtils.random(Math.round(MathUtils.lerp(x1,x2, .95f)), x2);
+
+                        int innerY1= MathUtils.random(y1,Math.round(MathUtils.lerp(y1,y2, .05f)));
+                        int innerY2 = MathUtils.random(Math.round(MathUtils.lerp(y1,y2, .95f)), y2);
+
+                        innerRoom = new Room(innerX1, innerY1, innerX2, innerY2);
+                        return innerRoom;
+                }
+        }
+
+
+        private void fillRooms(Tile[][] tiles,RoomCell roomCell){
+                if(roomCell.isLeaf()){
+                        UtFloorGen.fillRoom(tiles, roomCell.getInnerRoom());
+                }else{
+                        fillRooms(tiles, roomCell.childCell1);
+                        fillRooms(tiles, roomCell.childCell2);
+                }
+
+        }
+
+        private void fillTunnels(Tile[][] tiles, RoomCell roomCell){
+                if(roomCell.hasLeafs()){
+                        Room r1= roomCell.childCell1.getInnerRoom();
+                        Room r2 = roomCell.childCell2.getInnerRoom();
+                        fillTunnel(tiles, r1, r2);
+                }else if(!roomCell.isLeaf()){
+                        fillTunnels(tiles,roomCell.childCell1);
+                        fillTunnels(tiles,roomCell.childCell2);
+                }
+        }
 
         private void fillTunnel(Tile[][] tiles, Room room, Room prevRoom){
                 int startX = room.getCenterX();
@@ -214,17 +253,8 @@ public class ConnectedRoomsGenerator implements FloorMapGenerator{
                 if(tiles[endX-1][endY-1] == null)tiles[endX-1][endY-1] = Tile.makeWall();
         }
 
-        private void fillRoom(Tile[][] tiles, Room room){
-                for(int x=room.x1; x<= room.x2; x++){
-                        for(int y=room.y1; y<=room.y2; y++){
-                                if(x == room.x1 || x== room.x2 || y==room.y1 || y==room.y2){
-                                        tiles[x][y] = Tile.makeWall();
-                                }else{
-                                        tiles[x][y] = Tile.makeFloor();
-                                }
-                        }
-                }
 
-        }
+
+
 
 }

@@ -53,6 +53,14 @@ public class FloorMap {
                 return true;
         }
 
+        /**
+         * DO NOT MODIFY
+         * @return
+         */
+        public Tile[][] getTiles() {
+                return tiles;
+        }
+
         public int getWidth() {
                 return tiles.length;
         }

@@ -2,12 +2,16 @@ package asf.dungeon.view;
 
 import asf.dungeon.DungeonApp;
 import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.factory.BinarySpaceGen;
+import asf.dungeon.model.factory.CellularAutomataGen;
+import asf.dungeon.model.factory.ConnectedRoomsGen;
+import asf.dungeon.model.factory.DirectionalCaveHallGen;
+import asf.dungeon.model.factory.MazeGen;
+import asf.dungeon.model.factory.PreBuiltFloorGen;
+import asf.dungeon.model.factory.RandomWalkGen;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.factory.ConnectedRoomsGenerator;
-import asf.dungeon.model.factory.PreBuiltFloorGenerator;
 import asf.dungeon.model.factory.DungeonFactory;
 import asf.dungeon.model.factory.FloorMapGenerator;
-import asf.dungeon.model.factory.MazeGenerator;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.logic.LocalPlayerLogicProvider;
 import asf.dungeon.model.Pair;
@@ -67,14 +71,14 @@ public class DungeonWorld implements Disposable {
         public DungeonWorld(DungeonApp dungeonApp) {
                 this.dungeonApp = dungeonApp;
                 cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-                cam.position.set(0f, 35f, 10f);
-                cam.lookAt(0, 0, 2.5f);
+                cam.position.set(0f, 35f, 10f);   // 0.5f
+                cam.lookAt(0, 0, 0);   //  -2.5f
                 cam.near = .1f;
                 cam.far = 300f;
                 cam.update();
                 chaseCamOffset.set(cam.position);
                 environment = new Environment();
-                environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
+                environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.64f, 0.64f, 0.64f, 1f));
                 environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
                 stage = new Stage(new ScreenViewport());
                 decalBatch = new DecalBatch(1000, new CameraGroupStrategy(cam));
@@ -101,10 +105,10 @@ public class DungeonWorld implements Disposable {
                 addSpatial(new ProjectileSpatial(this, environment));
 
                 DungeonFactory dungeonFactory = new DungeonFactory(new FloorMapGenerator[]{
-                        new PreBuiltFloorGenerator(),
-                        new ConnectedRoomsGenerator(),new MazeGenerator(7,4),new ConnectedRoomsGenerator(),new MazeGenerator(15,18)
+                        new ConnectedRoomsGen(), new BinarySpaceGen(), new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(), new PreBuiltFloorGen(),
+                        new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
                 },new FloorMapGenerator[]{
-                        new ConnectedRoomsGenerator(), new MazeGenerator(10,10)
+                        new ConnectedRoomsGen(), new MazeGen(10,10)
                 });
 
 
@@ -246,6 +250,7 @@ public class DungeonWorld implements Disposable {
 
                 if (simulationStarted) {
                         if (!paused) {
+                                hudSpatial.updateInput(delta);
                                 dungeon.update(delta);
                                 for (final Spatial spatial : spatials) {
                                         if (spatial.isInitialized())
@@ -253,7 +258,10 @@ public class DungeonWorld implements Disposable {
                                 }
 
                                 if (cameraChaseTarget != null) {
-                                        cam.position.set(cameraChaseTarget.translation.x + chaseCamOffset.x, chaseCamOffset.y, cameraChaseTarget.translation.z + chaseCamOffset.z);
+                                        cam.position.set(
+                                                cameraChaseTarget.translation.x + chaseCamOffset.x,
+                                                chaseCamOffset.y,
+                                                cameraChaseTarget.translation.z + chaseCamOffset.z);
                                         cam.update();
                                 }
 

@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.MathUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +32,9 @@ public class DungeonFactory implements FloorMapGenerator{
 
                 Map<PotionItem.Color,PotionItem.Type> potions = new EnumMap<PotionItem.Color,PotionItem.Type>(PotionItem.Color.class);
 
-                List<PotionItem.Color> colors = Arrays.asList(PotionItem.Color.values());
+                List<PotionItem.Color> colors= Arrays.asList(PotionItem.Color.values());
+
+
                 Collections.shuffle(colors, MathUtils.random);
                 PotionItem.Type[] potionTypes = PotionItem.Type.values();
                 for (int i = 0; i < potionTypes.length; i++) {

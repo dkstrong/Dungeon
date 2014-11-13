@@ -1,7 +1,7 @@
 package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
-import asf.dungeon.model.FogMap;
+import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.Pair;
 
 /**
