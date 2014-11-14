@@ -23,12 +23,6 @@ public class StatusEffects implements TokenComponent{
                 }
         }
 
-        private void initGenericArray(){
-
-
-
-        }
-
         @Override
         public boolean teleportToLocation(int x, int y, Direction direction) {
                 return true;

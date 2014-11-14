@@ -173,16 +173,4 @@ public class UtFloorGen {
                 }while(true);
         }
 
-        protected static void fillRoom(Tile[][] tiles, Room room){
-                for(int x=room.x1; x<= room.x2; x++){
-                        for(int y=room.y1; y<=room.y2; y++){
-                                if(x == room.x1 || x== room.x2 || y==room.y1 || y==room.y2){
-                                        tiles[x][y] = Tile.makeWall();
-                                }else{
-                                        tiles[x][y] = Tile.makeFloor();
-                                }
-                        }
-                }
-
-        }
 }

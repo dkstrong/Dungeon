@@ -51,24 +51,20 @@ public class Attack implements TokenComponent{
                 attackCoolDown -= delta; // the attack cooldown timer always decreases as long as not dead
 
                 inAttackRangeOfContinousMoveToken = false;
-                Token targetToken = token.getTarget().getToken();
-                if (ableRangedAttack &&  targetToken!= null && targetToken.getDamage() != null) {
-                        Damage targetTokenDamage = targetToken.getDamage();
-                        if(targetTokenDamage.isAttackable()){
+                if(ableRangedAttack && !token.getDamage().isHit() && (token.getMove() == null || token.getMove().moveU > .75f)){
+                // cant initiate attack if being hit, also must have moveU > .75f to ensure near center of tile and can be hit by melee
+                        Token targetToken = token.getTarget().getToken();
+                        if (targetToken!= null && targetToken.getDamage() != null && targetToken.getDamage().isAttackable()) {
+                                // has target, and target is attackable
                                 int distance = token.location.distance(token.getTarget().getToken().location);
-                                if(distance <= attackRange && token.direction.isDirection(token.location, token.getTarget().getToken().location)){
-
-                                        if(token.getMove() != null && token.getMove().moveU <= .75f){
-                                                // dont do ranged attacks when moveU < .75 .. this should prevent ranged
-                                                // heroes from becoming unattackable while they have a lock.
-                                        }else{
-                                                inAttackRangeOfContinousMoveToken = true;
-                                        }
-
-
+                                if(distance <= attackRange &&
+                                        token.direction.isDirection(token.location, token.getTarget().getToken().location)){
+                                        // within attack range, and is facing towards target  // TODO: may want to remove the facing check unless i add a turn time for doing uTurns.
+                                        inAttackRangeOfContinousMoveToken = true;
                                 }
                         }
                 }
+
 
                 if (attack(delta, false, inAttackRangeOfContinousMoveToken)) { // attempt to attack anything in range, but do not auto attack non targetted tokens
                         return true; // can not moveor pick up loot while attacking, so just return out

@@ -120,7 +120,7 @@ public class DungeonWorld implements Disposable {
                         dungeon.setListener(internalInput);
                 }else {
                         FloorMapGenMultiplexer floorMapGenMultiplexer = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new PreBuiltFloorGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
+                                new BinarySpaceGen(), new PreBuiltFloorGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)

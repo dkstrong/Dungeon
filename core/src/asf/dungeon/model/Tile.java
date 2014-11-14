@@ -98,12 +98,16 @@ public class Tile  {
                 return movementCost;
         }
 
+        private static final Tile floorTile = new Tile(false, false);
+
         public static Tile makeFloor() {
-                return new Tile(false, false);
+                return floorTile;
         }
 
+        private static final Tile wallTile = new Tile(true, true);
+
         public static Tile makeWall() {
-                return new Tile(true, true);
+                return wallTile;
         }
 
         public static Tile makeDoor() {return new Tile(false, false, 0);}

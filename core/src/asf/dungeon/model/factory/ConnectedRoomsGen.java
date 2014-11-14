@@ -66,7 +66,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator{
 
                         }while(!isValidLocation(tiles, newRoom, rooms));
                         rooms.add(newRoom);
-                        UtFloorGen.fillRoom(tiles, newRoom);
+                        Room.fillRoom(tiles, newRoom);
                 }
 
                 // fill tunnels and doors
@@ -75,7 +75,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator{
                 for (int i = 1; i < rooms.size; i++) {
                         Room prevRoom = rooms.get(i-1);
                         Room room = rooms.get(i);
-                        fillTunnel(tiles, room, prevRoom);
+                        Room.fillTunnel(tiles, room, prevRoom, true, makeDoors);
                 }
 
                 // fill stairways
@@ -123,95 +123,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator{
         }
 
 
-        private void fillTunnel(Tile[][] tiles, Room room, Room prevRoom){
-                int startX = room.getCenterX();
-                int startY = room.getCenterY();
-                int endX = prevRoom.getCenterX();
-                int endY = prevRoom.getCenterY();
 
-                if(startX == endX || startY == endY){
-                        fillTunnel(tiles, startX, startY,endX, startY);
-                }else{
-                        // diagonal (convert in to a horizontal and vertical)
-                        if(MathUtils.random.nextBoolean()){ // horizontal then vertical
-                                fillTunnel(tiles, startX, startY,endX, startY);
-                                fillTunnel(tiles, endX, startY,endX, endY);
-                        }else{ // vertical then horizontal
-                                fillTunnel(tiles, startX, startY, startX, endY);
-                                fillTunnel(tiles, startX, endY,endX, endY);
-
-                        }
-                }
-
-        }
-
-        private void fillTunnel(Tile[][] tiles, int startX, int startY, int endX, int endY){
-                if(startY==endY){
-                        // horizontal
-                        if(endX < startX){
-                                int temp = startX;
-                                startX = endX;
-                                endX = temp;
-                        }
-                        int y = startY;
-                        for(int x=startX; x<=endX; x++){
-                                if(tiles[x][y+1] == null)
-                                        tiles[x][y+1] = Tile.makeWall();
-                                if(tiles[x][y-1] == null)
-                                        tiles[x][y-1] = Tile.makeWall();
-
-                                if(tiles[x][y] == null || !makeDoors) {
-                                        tiles[x][y] = Tile.makeFloor(); // make a floor for the hallway
-                                }else if(tiles[x][y].isWall()){
-                                        int countWall = 0;
-                                        if(tiles[x][y+1].isWall()) countWall++;
-                                        if(tiles[x][y-1].isWall()) countWall++;
-                                        if(countWall == 2)
-                                                tiles[x][y] = Tile.makeDoor(); // if the hall goes through a wall, convert wall in to a door
-                                        else
-                                                tiles[x][y] = Tile.makeFloor(); // the hall is going through the broadside of a wall, so were really just extending the room
-                                }
-
-                        }
-                }else if(startX == endX){
-                        // vertical
-                        if(endY < startY){
-                                int temp = startY;
-                                startY = endY;
-                                endY = temp;
-                        }
-                        int x = startX;
-                        for(int y=startY; y<=endY; y++){
-                                if(tiles[x+1][y] == null)
-                                        tiles[x+1][y] = Tile.makeWall();
-                                if(tiles[x-1][y] == null)
-                                        tiles[x-1][y] = Tile.makeWall();
-
-                                if(tiles[x][y] == null || !makeDoors) {
-                                        tiles[x][y] = Tile.makeFloor(); // make a floor for the hallway
-                                }else if(tiles[x][y].isWall()){
-                                        int countWall = 0;
-                                        if(tiles[x+1][y].isWall()) countWall++;
-                                        if(tiles[x-1][y].isWall()) countWall++;
-                                        if(countWall == 2)
-                                                tiles[x][y] = Tile.makeDoor(); // if the hall goes through a wall, convert wall in to a door
-                                        else
-                                                tiles[x][y] = Tile.makeFloor(); // the hall is going through the broadside of a wall, so were really just extending the room
-                                }
-                        }
-                }else{
-                        throw new IllegalArgumentException("must provide horizontal or vertical only coordinates");
-                }
-
-                if(tiles[startX+1][startY+1] == null)tiles[startX+1][startY+1] = Tile.makeWall();
-                if(tiles[startX-1][startY+1] == null)tiles[startX-1][startY+1] = Tile.makeWall();
-                if(tiles[startX+1][startY-1] == null)tiles[startX+1][startY-1] = Tile.makeWall();
-                if(tiles[startX-1][startY-1] == null)tiles[startX-1][startY-1] = Tile.makeWall();
-                if(tiles[endX+1][endY+1] == null)tiles[endX+1][endY+1] = Tile.makeWall();
-                if(tiles[endX-1][endY+1] == null)tiles[endX-1][endY+1] = Tile.makeWall();
-                if(tiles[endX+1][endY-1] == null)tiles[endX+1][endY-1] = Tile.makeWall();
-                if(tiles[endX-1][endY-1] == null)tiles[endX-1][endY-1] = Tile.makeWall();
-        }
 
 
 

@@ -1,5 +1,6 @@
 package asf.dungeon;
 
+import asf.dungeon.model.ModelId;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -28,8 +29,12 @@ public class DungeonApp implements ApplicationListener {
                 Gdx.input.setCatchBackKey(true);
 
 
-                this.setScreen(new MainMenuScreen(this));
-                //loadWorld(new DungeonWorld.Settings(ModelId.Archer));
+                //this.setScreen(new MainMenuScreen(this));
+
+                DungeonWorld.Settings settings = new DungeonWorld.Settings();
+                settings.playerModel=ModelId.Archer;
+
+                loadWorld(settings);
         }
 
         @Override

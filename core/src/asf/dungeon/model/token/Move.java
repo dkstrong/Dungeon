@@ -2,10 +2,9 @@ package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
-import com.badlogic.gdx.Gdx;
+import asf.dungeon.model.fogmap.FogMap;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
@@ -181,7 +180,7 @@ public class Move implements TokenComponent{
 
                 boolean foundPath = token.floorMap.computePath(new Pair(token.location), new Pair(targetLocation), path);
                 if (!foundPath) {
-                        Gdx.app.error("Token", "No path found");
+                        //Gdx.app.error("Token", "No path found");
                         // TODO: perhaps i should "cancel" out movement ag path.clear() path.addLocation() pathedTarget.set(targetLocation);
                         return; // no path was found
                 }
