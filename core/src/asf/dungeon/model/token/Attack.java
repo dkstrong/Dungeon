@@ -57,7 +57,15 @@ public class Attack implements TokenComponent{
                         if(targetTokenDamage.isAttackable()){
                                 int distance = token.location.distance(token.getTarget().getToken().location);
                                 if(distance <= attackRange && token.direction.isDirection(token.location, token.getTarget().getToken().location)){
-                                        inAttackRangeOfContinousMoveToken = true;
+
+                                        if(token.getMove() != null && token.getMove().moveU <= .75f){
+                                                // dont do ranged attacks when moveU < .75 .. this should prevent ranged
+                                                // heroes from becoming unattackable while they have a lock.
+                                        }else{
+                                                inAttackRangeOfContinousMoveToken = true;
+                                        }
+
+
                                 }
                         }
                 }

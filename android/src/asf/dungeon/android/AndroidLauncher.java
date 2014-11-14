@@ -24,7 +24,7 @@ import com.google.android.gms.ads.InterstitialAd;
  */
 public class AndroidLauncher extends AndroidApplication implements DungeonApp.Resolver{
         private final String bannerAdUnitId = null;//"ca-app-pub-3542905976626572/7731680641";
-        private final String interstitalAdUnitId = "ca-app-pub-3542905976626572/7731680641";
+        private final String interstitalAdUnitId = null; // "ca-app-pub-3542905976626572/7731680641";
         private final String[] testDeviceIds = new String[]{"90BB3531E9DE22C6EE2CFFD0FBD8CD0E", "EC11ABF15B7CD200ED08B48C56C2A5BA"};
         private InterstitialAd interstitialAd;
         private AdView bannerAdView;
@@ -37,6 +37,8 @@ public class AndroidLauncher extends AndroidApplication implements DungeonApp.Re
                 config.useAccelerometer = false;
                 config.useCompass = false;
                 config.numSamples = 2;
+                config.useImmersiveMode = true;
+
 
                 DungeonApp dungeonGame = new DungeonApp();
                 dungeonGame.setPlatformActionResolver(this);
@@ -46,6 +48,8 @@ public class AndroidLauncher extends AndroidApplication implements DungeonApp.Re
                 } else {
                         initWithBannerAd(dungeonGame, config);
                 }
+
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
                 makeInterstitalAd();
 

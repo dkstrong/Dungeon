@@ -10,36 +10,44 @@ import asf.dungeon.model.token.Move;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Target;
 import asf.dungeon.model.token.Token;
-import com.badlogic.gdx.Gdx;
 import asf.dungeon.model.token.logic.LocalPlayerLogicProvider;
 import asf.dungeon.model.token.logic.LogicProvider;
+import com.badlogic.gdx.Gdx;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by danny on 10/22/14.
  */
-public class Dungeon  {
+public class Dungeon {
         private final MasterJournal masterJournal;
         private final FloorMapGenerator floorMapFactory;
         private final Map<Integer, FloorMap> floorMaps = new HashMap<Integer, FloorMap>(16);
         private FloorMap currentFloorMap;
         private int nextTokenId = 0;
 
-        private transient  Listener listener;
+        private transient Listener listener;
 
-        public Dungeon(Listener listener, MasterJournal masterJournal,FloorMapGenerator floorMapFactory) {
-                this.listener = listener;
+        public Dungeon(MasterJournal masterJournal, FloorMapGenerator floorMapFactory) {
                 this.masterJournal = masterJournal;
                 this.floorMapFactory = floorMapFactory;
         }
 
 
-
-        public MasterJournal getMasterJournal(){
+        public MasterJournal getMasterJournal() {
                 return masterJournal;
+        }
+
+        public Token getLocalPlayerToken() {
+                for (FloorMap floorMap : floorMaps.values()) {
+                        for (Token token : floorMap.tokens) {
+                                if (token.get(LocalPlayerLogicProvider.class) != null) {
+                                        return token;
+                                }
+                        }
+                }
+                return null;
         }
 
         public void update(float delta) {
@@ -48,11 +56,11 @@ public class Dungeon  {
 
         }
 
-        public FloorMap generateFloor(int floorIndex){
+        public FloorMap generateFloor(int floorIndex) {
 
                 FloorMap floorMap = floorMaps.get(floorIndex);
-                if(floorMap == null){
-                        Gdx.app.log("Dungeon","generateFloor: "+floorIndex);
+                if (floorMap == null) {
+                        Gdx.app.log("Dungeon", "generateFloor: " + floorIndex);
 
                         floorMap = floorMapFactory.generate(this, floorIndex);
 
@@ -64,14 +72,18 @@ public class Dungeon  {
 
         public void setCurrentFloor(int floorIndex) {
                 FloorMap newFloor = generateFloor(floorIndex);
-                if(newFloor == currentFloorMap){
+                if (newFloor == currentFloorMap) {
                         return;
                 }
-                Gdx.app.log("Dungeon","setCurrentFloor: "+newFloor.index);
+                Gdx.app.log("Dungeon", "setCurrentFloor: " + newFloor.index);
                 FloorMap oldFloorMap = currentFloorMap;
                 currentFloorMap = newFloor;
 
-                if(oldFloorMap != null){
+                if (listener == null)
+                        return;
+                listener.onFloorMapChanged(currentFloorMap);
+
+                if (oldFloorMap != null) {
                         for (int i = 0; i < oldFloorMap.tokens.size; i++) {
                                 listener.onTokenRemoved(oldFloorMap.tokens.items[i]);
                         }
@@ -83,8 +95,13 @@ public class Dungeon  {
 
         }
 
-        public void setListener(Listener listener){
+        public void setListener(Listener listener) {
                 this.listener = listener;
+                if (listener == null || currentFloorMap == null)
+                        return;
+
+                listener.onFloorMapChanged(currentFloorMap);
+
                 for (int i = 0; i < currentFloorMap.tokens.size; i++) {
                         listener.onTokenAdded(currentFloorMap.tokens.items[i]);
                 }
@@ -99,7 +116,7 @@ public class Dungeon  {
         }
 
         public Token newCharacterToken(FloorMap fm, String name, ModelId modelId, LogicProvider logicProvider) {
-                Token t = new Token(this,fm, nextTokenId++, name, modelId);
+                Token t = new Token(this, fm, nextTokenId++, name, modelId);
                 t.add(logicProvider);
                 t.add(new Experience(t));
                 t.add(new Inventory(t));
@@ -112,7 +129,7 @@ public class Dungeon  {
                 t.getDamage().setDeathDuration(3f);
                 t.getDamage().setDeathRemovalCountdown(10f);
                 fm.tokens.add(t);
-                if(currentFloorMap == fm)
+                if (currentFloorMap == fm && listener != null)
                         listener.onTokenAdded(t);
                 return t;
         }
@@ -124,7 +141,7 @@ public class Dungeon  {
                 t.getDamage().setDeathDuration(2.5f);
                 t.getDamage().setDeathRemovalCountdown(.25f);
                 fm.tokens.add(t);
-                if(currentFloorMap == fm)
+                if (currentFloorMap == fm && listener != null)
                         listener.onTokenAdded(t);
                 return t;
         }
@@ -133,8 +150,8 @@ public class Dungeon  {
                 Token t = new Token(this, fm, nextTokenId++, item.getName(), item.getModelId());
                 t.add(new Loot(t, item));
                 fm.tokens.add(t);
-                t.teleportToLocation( x, y);
-                if(currentFloorMap == fm)
+                t.teleportToLocation(x, y);
+                if (currentFloorMap == fm && listener != null)
                         listener.onTokenAdded(t);
                 return t;
         }
@@ -143,7 +160,7 @@ public class Dungeon  {
                 for (FloorMap floorMap : floorMaps.values()) {
                         boolean b = floorMap.tokens.removeValue(token, true);
                         if (b) {
-                                if(token.getFloorMap() == currentFloorMap)
+                                if (token.getFloorMap() == currentFloorMap && listener != null)
                                         listener.onTokenRemoved(token);
                                 return token;
                         }
@@ -155,6 +172,7 @@ public class Dungeon  {
 
         /**
          * should only be called by Token
+         *
          * @param token
          * @param newFloorMap
          */
@@ -163,11 +181,12 @@ public class Dungeon  {
                         boolean b = oldFloorMap.tokens.removeValue(token, true);
                         if (b) {
                                 newFloorMap.tokens.add(token);
-                                if(oldFloorMap == currentFloorMap){
-                                        listener.onTokenRemoved(token);
-                                }else if(newFloorMap == currentFloorMap){
-                                        listener.onTokenAdded(token);
-                                }
+                                if (listener != null)
+                                        if (oldFloorMap == currentFloorMap) {
+                                                listener.onTokenRemoved(token);
+                                        } else if (newFloorMap == currentFloorMap) {
+                                                listener.onTokenAdded(token);
+                                        }
                                 return;
                         }
                 }
@@ -176,6 +195,8 @@ public class Dungeon  {
 
 
         public interface Listener {
+                public void onFloorMapChanged(FloorMap newFloorMap);
+
                 public void onTokenAdded(Token token);
 
                 public void onTokenRemoved(Token token);

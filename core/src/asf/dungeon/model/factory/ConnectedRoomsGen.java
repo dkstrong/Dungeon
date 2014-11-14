@@ -91,18 +91,16 @@ public class ConnectedRoomsGen implements FloorMapGenerator{
                         }
                 }while(!done);
 
-                if(floorIndex >0){
-                        room = rooms.get(rooms.size-1);
-                        done = false;
-                        do{
-                                int x = MathUtils.random(room.x1+2, room.x2-2);
-                                int y = MathUtils.random(room.y1+2, room.y2-2);
-                                if(tiles[x][y].isFloor()){
-                                        tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
-                                        done = true;
-                                }
-                        }while(!done);
-                }
+                room = rooms.get(rooms.size-1);
+                done = false;
+                do{
+                        int x = MathUtils.random(room.x1+2, room.x2-2);
+                        int y = MathUtils.random(room.y1+2, room.y2-2);
+                        if(tiles[x][y].isFloor()){
+                                tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
+                                done = true;
+                        }
+                }while(!done);
 
 
 

@@ -1,8 +1,6 @@
 package asf.dungeon.model;
 
 
-import java.io.Serializable;
-
 /**
  * Created by danny on 10/26/14.
  */
@@ -19,7 +17,7 @@ public class Tile  {
         private Tile(boolean blockMovement, boolean blockVision) {
                 this.blockMovement = blockMovement;
                 this.blockVision = blockVision;
-                this.stairsTo = -1;
+                this.stairsTo = -2;
         }
 
         private Tile(boolean blockVision, int stairsTo) {
@@ -35,7 +33,7 @@ public class Tile  {
                 this.locked = doorLocked;
                 this.blockMovement = locked;
                 this.keyId = keyId;
-                this.stairsTo = -1;
+                this.stairsTo = -2;
         }
 
 
@@ -78,7 +76,7 @@ public class Tile  {
         }
 
         public boolean isStairs() {
-                return stairsTo >= 0;
+                return stairsTo >= -1;
         }
 
         public int getStairsTo() {

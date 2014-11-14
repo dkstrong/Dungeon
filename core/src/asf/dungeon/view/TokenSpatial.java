@@ -1,14 +1,16 @@
 package asf.dungeon.view;
 
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.ModelId;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.Item;
 import asf.dungeon.model.PotionItem;
-import asf.dungeon.model.token.Effect;
+import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.Loot;
-import asf.dungeon.utility.MoreMath;
+import asf.dungeon.utility.GdxInfo;
+import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
@@ -17,6 +19,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
@@ -115,6 +118,16 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         scale.set(s, s, s);
                         translationBase.set(0, (shape.getDimensions().y / 2f) + 1.45f, 0);
                         translation.set(0, 0, 0);
+
+
+
+                }
+
+                if(token.getModelId() == ModelId.Diablous || token.getModelId() == ModelId.Berzerker){
+                        for (Material mat : modelInstance.materials) {
+                                GdxInfo.material(mat);
+                                mat.set(new IntAttribute(IntAttribute.CullFace, 0));
+                        }
                 }
 
                 for (Animation animation : modelInstance.model.animations) {
@@ -146,7 +159,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
                 // this token is only visible if on the same floor
                 // as the local player, and if fog mapping is enabled
-                if(token.getFloorMap() == world.getLocalPlayerToken().getFloorMap() && world.getLocalPlayerToken().getFogMapping() != null){
+                if( world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null){
 
                         FogMap fogMap = world.getLocalPlayerToken().getFogMapping().getFogMap(world.getLocalPlayerToken().getFloorMap());
                         if(fogMap != null){
@@ -188,6 +201,12 @@ public class TokenSpatial implements Spatial, Token.Listener {
                                 current = die;
                         }
 
+                } else if (token.getAttack() != null && token.getAttack().isAttacking()) {
+                        if (current != attack) {
+                                animController.animate(attack.id, 1, attack.duration / token.getAttack().getAttackDuration(), null, .2f);
+
+                                current = attack;
+                        }
                 } else if (token.getDamage() != null && token.getDamage().isHit()) {
                         if(current != hit){
                                 if (world.getHud().localPlayerToken == token)
@@ -199,15 +218,9 @@ public class TokenSpatial implements Spatial, Token.Listener {
                                 animController.animate(hit.id, 1, hit.duration / token.getDamage().getHitDuration(), null, .2f);
                                 current = hit;
                         }
-                } else if (token.getAttack() != null && token.getAttack().isAttacking()) {
-                        if (current != attack) {
-                                animController.animate(attack.id, 1, attack.duration / token.getAttack().getAttackDuration(), null, .2f);
-
-                                current = attack;
-                        }
                 } else if (token.getMove() != null && token.getMove().isMoving()  && !(token.getAttack() != null && token.getAttack().isInRangeOfAttackTarget())) {
                         if(current != walk){
-                                float v = MoreMath.scalarLimitsInterpolation(token.getMove().getMoveSpeed(), 1, 10, 0.25f, 1f);
+                                float v = UtMath.scalarLimitsInterpolation(token.getMove().getMoveSpeed(), 1, 10, 0.25f, 1f);
                                 animController.animate(walk.id, -1, v, null, .2f);
                                 current = walk;
                         }
@@ -232,7 +245,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         }
 
                         rotDir.sub(translation);
-                        MoreMath.normalize(rotDir);
+                        UtMath.normalize(rotDir);
                         if(rotDir.z != -1){
                                 tempTargetRot.setFromCross(Vector3.Z, rotDir);
                         }else{
@@ -240,13 +253,13 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         }
 
 
-                        float rotSpeed = delta * (MoreMath.largest(token.getMove().getMoveSpeed(), 7) + 0.5f);
+                        float rotSpeed = delta * (UtMath.largest(token.getMove().getMoveSpeed(), 7) + 0.5f);
                         rotation.slerp(tempTargetRot, rotSpeed);
                 } else if(token.getAttack() != null && token.getAttack().hasProjectile()){
-                        float rotSpeed = delta * (MoreMath.largest(token.getMove().getMoveSpeed(), 7) + 0.5f)*.05f;
+                        float rotSpeed = delta * (UtMath.largest(token.getMove().getMoveSpeed(), 7) + 0.5f)*.05f;
                         rotation.slerp(token.getDirection().quaternion, rotSpeed);
                 } else{
-                        int rotMoveSpped = token.getMove() == null ? 7 : MoreMath.largest(token.getMove().getMoveSpeed(), 7);
+                        int rotMoveSpped = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7);
                         float rotSpeed = delta * (rotMoveSpped + 0.5f);
                         rotation.slerp(token.getDirection().quaternion, rotSpeed);
                 }
@@ -294,7 +307,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         @Override
-        public void onStatusEffectChange(Effect effect, float duration) {
+        public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
                 if (world.getHud().localPlayerToken == token)
                         world.getHud().onStatusEffectChange(effect, duration);
         }
@@ -313,7 +326,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         private boolean isVisible(Camera cam) {
-                if(world.getLocalPlayerToken().getFogMapping() != null){
+                if(world.getLocalPlayerToken()!=null && world.getLocalPlayerToken().getFogMapping() != null){
                         return visU >0;
                 }else{
                         return shape.isVisible(modelInstance.transform, cam);

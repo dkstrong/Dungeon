@@ -1,7 +1,6 @@
 package asf.dungeon.model;
 
 
-import asf.dungeon.model.token.Effect;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
@@ -62,31 +61,31 @@ public class PotionItem implements Item.Consumable {
                         return;
                 switch(type){
                         case Health:
-                                statusEffects.addStatusEffect(Effect.Heal, 3, 3);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Heal, 3, 3);
                                 break;
                         case Experience:
                                 break;
                         case Invisibility:
-                                statusEffects.addStatusEffect(Effect.Invisibility, 10,1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Invisibility, 10,1);
                                 break;
                         case Purity:
                                 statusEffects.removeNegativeStatusEffects();
                                 break;
                         case Poison:
-                                statusEffects.addStatusEffect(Effect.Poison, 10, 5);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Poison, 10, 5);
                                 break;
                         case Paralyze:
-                                statusEffects.addStatusEffect(Effect.Paralyze, 5,1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Paralyze, 5,1);
                                 break;
                         case MindVision:
-                                statusEffects.addStatusEffect(Effect.MindVision, 5,1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.MindVision, 5,1);
                                 break;
                         case Strength:
                                 break;
                         case Might:
                                 break;
                         case Speed:
-                                statusEffects.addStatusEffect(Effect.Speed, 10,1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Speed, 10,1);
                                 break;
                 }
                 Journal journal = token.get(Journal.class);

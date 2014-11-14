@@ -4,7 +4,7 @@ import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.utility.MoreMath;
+import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -91,7 +91,7 @@ public class ProjectileSpatial implements Spatial {
                 world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
 
                 worldMoveDir.set(worldDestLoc).sub(worldStartLoc);
-                MoreMath.normalize(worldMoveDir);
+                UtMath.normalize(worldMoveDir);
                 rotation.setFromCross(Vector3.Z, worldMoveDir);
 
                 translation.set(worldStartLoc);
@@ -110,7 +110,7 @@ public class ProjectileSpatial implements Spatial {
 
 
                 worldMoveDir.set(worldDestLoc).sub(worldStartLoc);
-                MoreMath.normalize(worldMoveDir);
+                UtMath.normalize(worldMoveDir);
                 rotation.setFromCross(Vector3.Z, worldMoveDir);
 
                 translation.set(worldStartLoc);
@@ -162,7 +162,7 @@ public class ProjectileSpatial implements Spatial {
                 //MoreMath.normalize(worldMoveDir);
                 //rotation.setFromCross(Vector3.Z, worldMoveDir);
 
-                MoreMath.interpolate(
+                UtMath.interpolate(
                         Interpolation.pow3,
                         attackerToken.getAttack().getEffectiveProjectileU(),
                         worldStartLoc,

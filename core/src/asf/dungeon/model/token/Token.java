@@ -11,8 +11,6 @@ import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.logic.LogicProvider;
 import com.badlogic.gdx.utils.Array;
 
-import java.io.Serializable;
-
 /**
  * Created by danny on 10/22/14.
  */
@@ -255,7 +253,7 @@ public class Token  {
 
                 public void onConsumeItem(Item.Consumable item);
 
-                public void onStatusEffectChange(Effect effect, float duration);
+                public void onStatusEffectChange(StatusEffects.Effect effect, float duration);
 
 
         }

@@ -127,10 +127,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator{
                                 } else if(charAt == '+'){ // Door
                                         tiles[x][y] = Tile.makeDoor();
                                 } else if(charAt == '^'){ // Stairs Up
-                                        if(floorIndex >0)
-                                                tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
-                                        else
-                                                tiles[x][y] = Tile.makeFloor();
+                                        tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
                                 } else if(charAt == '&'){ // Stairs Down
                                         tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex + 1);
                                 } else{ // Floor

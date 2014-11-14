@@ -3,12 +3,12 @@ package asf.dungeon.view;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Item;
 import asf.dungeon.model.Pair;
-import asf.dungeon.model.token.Effect;
-import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
+import asf.dungeon.model.token.QuickSlot;
+import asf.dungeon.model.token.StatusEffects;
+import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
@@ -79,6 +79,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         @Override
         public void init(AssetManager assetManager) {
                 initialized = true;
+                if(localPlayerToken == null){
+                        return;
+                }
 
                 avatarButton = new Button(skin);
                 world.stage.addActor(avatarButton);
@@ -102,7 +105,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 avatarStatusEffectsGroup.align(Align.bottomLeft);
 
 
-                statusEffectImage = new Image[Effect.values.length];
+                statusEffectImage = new Image[StatusEffects.Effect.values.length];
                 for (int i = 0; i < statusEffectImage.length; i++) {
                         statusEffectImage[i] = new Image(new Texture(Gdx.files.internal("Interface/Hud/health.png")));
                         //statusEffectImage[i].setScaling(Scaling.fit);
@@ -280,6 +283,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
+                refreshInventoryElements();
+
         }
 
         protected void resize(int width, int height) {
@@ -384,33 +389,36 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         protected void setToken(Token token) {
                 localPlayerToken = token;
+                if(this.isInitialized()){
+                        this.init(world.assetManager);
+                }
         }
 
 
         @Override
         public void update(float delta) {
 
-
-                healthProgressBar.setRange(0, localPlayerToken.getDamage().getMaxHealth());
-                healthProgressBar.setValue(localPlayerToken.getDamage().getHealth());
-                healthProgressBar.act(delta);
-
-                String s = String.format("%s / %s\n%s , %s",localPlayerToken.getDamage().getHealth(),localPlayerToken.getDamage().getMaxHealth(),localPlayerToken.getLocation().x,localPlayerToken.getLocation().y);
-                avatarLabel.setText(s);
-
-
-
-                Token targetToken = localPlayerToken.getTarget().getToken();
-                if (targetToken == null)
-                        targetInfoLabel.setText(null);
-                else {
-                        targetInfoLabel.setText("Target: " + targetToken.getName());
-                }
-
-
                 if (renderingStats != null) {
                         renderingStats.setText("FPS : " + Gdx.graphics.getFramesPerSecond());
                 }
+
+                if(localPlayerToken != null){
+                        healthProgressBar.setRange(0, localPlayerToken.getDamage().getMaxHealth());
+                        healthProgressBar.setValue(localPlayerToken.getDamage().getHealth());
+                        healthProgressBar.act(delta);
+
+                        String s = String.format("%s / %s\n%s , %s",localPlayerToken.getDamage().getHealth(),localPlayerToken.getDamage().getMaxHealth(),localPlayerToken.getLocation().x,localPlayerToken.getLocation().y);
+                        avatarLabel.setText(s);
+
+                        Token targetToken = localPlayerToken.getTarget().getToken();
+                        if (targetToken == null)
+                                targetInfoLabel.setText(null);
+                        else {
+                                targetInfoLabel.setText("Target: " + targetToken.getName());
+                        }
+                }
+
+
 
                 centerLabelCountdown -= delta;
                 if (centerLabelCountdown < 0) {
@@ -495,9 +503,15 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         private void refreshInventoryElements() {
                 Gdx.app.log("HudSpatial", "refresh quick button");
-                Item quickItem = getItem(quickSlotButton);
-                setButtonContents(quickSlotButton, quickItem); // refresh the display
+                // refresh the display of the quickslot
+                QuickSlot quickSlot = localPlayerToken.get(QuickSlot.class);
+                Item quickItem = null;
+                if(quickSlot != null){
+                        setButtonContents(quickSlotButton, quickSlot.getItem());
+                        quickItem = quickSlot.getItem();
+                }
 
+                // if the inventory window is open, then refresh the inventory window
                 if (inventoryWindow.getParent() != null) {
                         Gdx.app.log("HudSpatial", "refresh inventory window");
                         int buttonI = 0;
@@ -694,28 +708,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         @Override
         public void onInventoryAdd(Item item) {
-                if (getItem(quickSlotButton) == null)
-                        setButtonContents(quickSlotButton, item);
-
                 refreshInventoryElements();
         }
 
         @Override
         public void onInventoryRemove(Item item) {
-                if (getItem(quickSlotButton) == item) {
-                        // change the quick slot to another item that .equals it (eg to another health potion) otherwise set to null
-                        Item setItem = null;
-                        for (Item i : localPlayerToken.getInventory().getInventory()) {
-                                if (i.equals(item)) {
-                                        setItem = i;
-                                        break;
-                                }
-                        }
-                        ;
-
-                        setButtonContents(quickSlotButton, setItem);
-                }
-
                 refreshInventoryElements();
         }
 
@@ -726,7 +723,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         @Override
-        public void onStatusEffectChange(Effect effect, float duration) {
+        public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
                 Image statusImage = statusEffectImage[effect.ordinal()];
                 if (duration == 0) {
                         statusImage.remove();
@@ -827,22 +824,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         @Override
         public boolean keyDown(int keycode) {
-                if (keycode == Input.Keys.ESCAPE) {
-                        if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
-                                world.dungeonApp.exitApp();
-                                return true;
-                        }
-                }
                 return false;
         }
 
         @Override
         public boolean keyUp(int keycode) {
-                if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACK) {
-                        world.dungeonApp.setWorldPaused(true);
-                        return true;
-                }
-
                 return false;
         }
 

@@ -2,12 +2,11 @@ package asf.dungeon.model.factory;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.ModelId;
 import asf.dungeon.model.PotionItem;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.ModelId;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.LocalPlayerLogicProvider;
 import asf.dungeon.model.token.logic.SimpleLogicProvider;
 import com.badlogic.gdx.math.MathUtils;
 
@@ -17,7 +16,7 @@ import com.badlogic.gdx.math.MathUtils;
  */
 public class UtFloorGen {
 
-        protected static void printFloorTile(Tile[][] tiles){
+        public static void printFloorTile(Tile[][] tiles){
 
                 for (int y = tiles[0].length - 1; y >= 0; y--) {
                         for (int x = 0; x < tiles.length; x++) {
@@ -36,23 +35,6 @@ public class UtFloorGen {
         }
 
         protected static void spawnCharacters(Dungeon dungeon, FloorMap floorMap){
-                if(floorMap.index == 0){
-                        boolean rangedHero = true;//MathUtils.random.nextBoolean();
-
-                        Token knightToken = dungeon.newCharacterToken(floorMap,"Player 1", rangedHero ? ModelId.Archer : ModelId.Knight, new LocalPlayerLogicProvider(0,"Player 1"));
-
-                        while(!knightToken.teleportToLocation( MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight()))){
-                        }
-                        knightToken.get(Experience.class).setStats(1, 10, 6, 10);
-
-                        knightToken.getAttack().setAbleRangedAttack(rangedHero);
-                        knightToken.getDamage().setDeathRemovalCountdown(Float.NaN);
-                        knightToken.getInventory().addItem(new PotionItem(dungeon, PotionItem.Type.Health));
-                        knightToken.getInventory().addItem(new PotionItem(dungeon, PotionItem.Type.Health));
-
-                        //knightToken.setMoveSpeed(50);
-                }
-
                 ModelId[] characters;
                 if(floorMap.index == 0)
                         characters = new ModelId[]{ModelId.Knight}; //destLoc
@@ -155,9 +137,6 @@ public class UtFloorGen {
          * @param floorIndex
          */
         protected static void placeUpStairs(Tile[][] tiles, int floorIndex){
-                if(floorIndex <= 0)
-                        return;
-
                 do{
                         int x = MathUtils.random(0, tiles.length-1);
                         int y = MathUtils.random(0, tiles[0].length-1);
@@ -194,7 +173,7 @@ public class UtFloorGen {
                 }while(true);
         }
 
-        public static void fillRoom(Tile[][] tiles, Room room){
+        protected static void fillRoom(Tile[][] tiles, Room room){
                 for(int x=room.x1; x<= room.x2; x++){
                         for(int y=room.y1; y<=room.y2; y++){
                                 if(x == room.x1 || x== room.x2 || y==room.y1 || y==room.y2){

@@ -2,6 +2,7 @@ package asf.dungeon.view;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Tile;
+import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
@@ -26,7 +27,6 @@ import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.Pair;
 import asf.dungeon.view.shape.CustomBox;
-import asf.dungeon.utility.MoreMath;
 
 import java.util.Iterator;
 
@@ -66,7 +66,7 @@ public class FloorSpatial implements Spatial {
                 if(!isInitialized())
                         return;
 
-                if( world.getLocalPlayerToken().getFogMapping() != null){
+                if( world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null){
                         fogMap = world.getLocalPlayerToken().getFogMapping().getFogMap(floorMap);
                         if(fogMap == null){
                                 throw new AssertionError("should not be null");
@@ -92,7 +92,7 @@ public class FloorSpatial implements Spatial {
 
         public Pair getMapCoords(Vector3 worldCoords, Pair storeMapCoords) {
                 storeMapCoords.x = (int)((worldCoords.x ) / tileDimensions.x);
-                storeMapCoords.y = (int)((MoreMath.abs(worldCoords.z )) / tileDimensions.z);
+                storeMapCoords.y = (int)((UtMath.abs(worldCoords.z)) / tileDimensions.z);
                 return storeMapCoords;
         }
 
@@ -120,7 +120,9 @@ public class FloorSpatial implements Spatial {
         public void render(float delta) {
                 for (int i = 0; i < decalNodes.size; i++) {
                         DecalNode decalNode = decalNodes.get(i);
-                        if(world.getLocalPlayerToken().getLocation().distance(decalNode.x, decalNode.y) > 20){
+                        // TODO: if there is no local player token, then all decals will be rendered
+                        //  should maybe have a back up test using distance to camera
+                        if(world.getLocalPlayerToken()!= null && world.getLocalPlayerToken().getLocation().distance(decalNode.x, decalNode.y) > 20){
                                 continue;
                         }
                         Decal decal = decalNode.decal;

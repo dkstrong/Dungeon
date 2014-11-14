@@ -141,7 +141,7 @@ public class Move implements TokenComponent{
                                 path.clear();
                                 pathedTarget.set(location);
                                 Tile tile = floorMap.getTile(location);
-                                if (tile.isStairs()) {
+                                if (tile.isStairs() && tile.getStairsTo() >=0) {
                                         token.teleportToFloor(tile.getStairsTo());
                                         return true;
                                 }

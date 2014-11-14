@@ -27,14 +27,12 @@ public class MazeGen implements FloorMapGenerator{
         public FloorMap generate(Dungeon dungeon, int floorIndex){
                 Tile[][] tiles = MazeGen.generateTiles(width, height);
                 // upper stairs is on bottom left
-                if(floorIndex >0){
-                        outerloop:
-                        for(int x=0; x<tiles.length; x++){
-                                for(int y=0; y<tiles[x].length; y++){
-                                        if(!tiles[x][y].isBlockMovement() && !tiles[x][y].isBlockVision()){
-                                                tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
-                                                break outerloop;
-                                        }
+                outerloop:
+                for(int x=0; x<tiles.length; x++){
+                        for(int y=0; y<tiles[x].length; y++){
+                                if(!tiles[x][y].isBlockMovement() && !tiles[x][y].isBlockVision()){
+                                        tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
+                                        break outerloop;
                                 }
                         }
                 }

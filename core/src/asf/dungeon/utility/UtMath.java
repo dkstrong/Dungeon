@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 /**
  * Created by danny on 10/20/14.
  */
-public class MoreMath {
+public class UtMath {
 
         public static Vector3 quaternionToEuler(Quaternion quaternion, Vector3 store) {
                 float sqw = quaternion.w * quaternion.w;
@@ -19,7 +19,7 @@ public class MoreMath {
                 float sqz = quaternion.z * quaternion.z;
                 store.z = (MathUtils.atan2(2.0f * (quaternion.x * quaternion.y + quaternion.z * quaternion.w), (sqx - sqy - sqz + sqw)) * (MathUtils.radDeg));
                 store.x = (MathUtils.atan2(2.0f * (quaternion.y * quaternion.z + quaternion.x * quaternion.w), (-sqx - sqy + sqz + sqw)) * (MathUtils.radDeg));
-                store.y = (MoreMath.asin(-2.0f * (quaternion.x * quaternion.z - quaternion.y * quaternion.w)) * MathUtils.radDeg);
+                store.y = (UtMath.asin(-2.0f * (quaternion.x * quaternion.z - quaternion.y * quaternion.w)) * MathUtils.radDeg);
                 return store;
 
         }
@@ -222,7 +222,7 @@ public class MoreMath {
          * @param val2
          * @return
          */
-        public static float range(float val1, float val2) {return MoreMath.abs(val1 - val2);}
+        public static float range(float val1, float val2) {return UtMath.abs(val1 - val2);}
 
         public static float range(Vector3 val1, Vector3 val2){
                 float x = val2.x - val1.x;
@@ -241,33 +241,33 @@ public class MoreMath {
         }
 
         public static float scalarLimitsInterpolation(float input, float oldMin, float oldMax, float newMin, float newMax) {
-                float percent = MoreMath.percentOfScalar(MoreMath.clamp(input, oldMin, oldMax), oldMin, oldMax);
-                return MoreMath.scalarOfPercent(percent, newMin, newMax);
+                float percent = UtMath.percentOfScalar(UtMath.clamp(input, oldMin, oldMax), oldMin, oldMax);
+                return UtMath.scalarOfPercent(percent, newMin, newMax);
         }
 
         public static int scalarLimitsInterpolation(float input, float oldMin, float oldMax, int newMin, int newMax) {
-                float percent = MoreMath.percentOfScalar(MoreMath.clamp(input, oldMin, oldMax), oldMin, oldMax);
-                return MoreMath.scalarOfPercent(percent, newMin, newMax);
+                float percent = UtMath.percentOfScalar(UtMath.clamp(input, oldMin, oldMax), oldMin, oldMax);
+                return UtMath.scalarOfPercent(percent, newMin, newMax);
         }
 
         public static int scalarLimitsInterpolation(int input, int oldMin, int oldMax, int newMin, int newMax) {
-                float percent = MoreMath.percentOfScalar(MoreMath.clamp(input, oldMin, oldMax), oldMin, oldMax);
-                return MoreMath.scalarOfPercent(percent, newMin, newMax);
+                float percent = UtMath.percentOfScalar(UtMath.clamp(input, oldMin, oldMax), oldMin, oldMax);
+                return UtMath.scalarOfPercent(percent, newMin, newMax);
         }
 
         public static float scalarLimitsExtrapolation(float input, float oldMin, float oldMax, float newMin, float newMax) {
-                float percent = MoreMath.percentOfScalar(input, oldMin, oldMax);
-                return MoreMath.scalarOfPercent(percent, newMin, newMax);
+                float percent = UtMath.percentOfScalar(input, oldMin, oldMax);
+                return UtMath.scalarOfPercent(percent, newMin, newMax);
         }
 
         public static int scalarLimitsExtrapolation(float input, float oldMin, float oldMax, int newMin, int newMax) {
-                float percent = MoreMath.percentOfScalar(input, oldMin, oldMax);
-                return MoreMath.scalarOfPercent(percent, newMin, newMax);
+                float percent = UtMath.percentOfScalar(input, oldMin, oldMax);
+                return UtMath.scalarOfPercent(percent, newMin, newMax);
         }
 
         public static int scalarLimitsExtrapolation(int input, int oldMin, int oldMax, int newMin, int newMax) {
-                float percent = MoreMath.percentOfScalar(input, oldMin, oldMax);
-                return MoreMath.scalarOfPercent(percent, newMin, newMax);
+                float percent = UtMath.percentOfScalar(input, oldMin, oldMax);
+                return UtMath.scalarOfPercent(percent, newMin, newMax);
         }
 
         /**
@@ -297,7 +297,7 @@ public class MoreMath {
         }
 
         public static int scalarOfPercent(float input, int newMin, int newMax) {
-                return (int) (Math.round((newMin + (MoreMath.abs(input) * (newMax - newMin)))) * MoreMath.sign(input));
+                return (int) (Math.round((newMin + (UtMath.abs(input) * (newMax - newMin)))) * UtMath.sign(input));
         }
 
         /**
@@ -336,6 +336,6 @@ public class MoreMath {
         }
 
 
-        private MoreMath() {
+        private UtMath() {
         }
 }
