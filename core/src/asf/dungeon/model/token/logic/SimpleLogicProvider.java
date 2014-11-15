@@ -5,7 +5,6 @@ package asf.dungeon.model.token.logic;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.Pair;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.math.MathUtils;
 
@@ -33,12 +32,12 @@ public class SimpleLogicProvider implements LogicProvider {
         @Override
         public boolean update(float delta) {
 
-                if (token.isLocatedAt(token.getTarget().getLocation())) {
+                if (token.isLocatedAt(token.getCommand().getLocation())) {
                         int x = MathUtils.random.nextInt(token.getFloorMap().getWidth());
                         int y = MathUtils.random.nextInt(token.getFloorMap().getHeight());
                         Tile tile = token.getFloorMap().getTile(x, y);
                         if (tile != null && !tile.isBlockMovement() && !tile.isStairs()) {
-                                token.getTarget().setLocation(x,y);
+                                token.getCommand().setLocation(x,y);
 
                         }
                 }

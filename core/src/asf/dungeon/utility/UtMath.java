@@ -224,6 +224,8 @@ public class UtMath {
          */
         public static float range(float val1, float val2) {return UtMath.abs(val1 - val2);}
 
+        public static int range(int val1, int val2) {return Math.abs(val1 - val2);}
+
         public static float range(Vector3 val1, Vector3 val2){
                 float x = val2.x - val1.x;
                 float y = val2.y - val1.y;

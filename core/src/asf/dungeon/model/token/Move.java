@@ -5,6 +5,7 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
+import asf.dungeon.model.item.KeyItem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
@@ -22,7 +23,6 @@ public class Move implements TokenComponent{
         private float continuousMoveTokenLostVisionCountdown = 0;
         protected float moveU = 1;                                // 1 = fully on the location, less then 1 means moving on to the location still even though it occupies it, use direction variable to determine which way token is walking towards the location
 
-
         public Move(Token token) {
                 this.token = token;
         }
@@ -39,14 +39,12 @@ public class Move implements TokenComponent{
 
         @Override
         public boolean update(float delta) {
-                if (token.getTarget().getToken() != null) {
+                if (token.getCommand().getTargetToken() != null) {
                         // set the move targt location to the target tokens location
                         // if the target token is in the fog, then set target location to their last known location
                         // if target token is lost in the fog for over the second, then continue to its last known location but give up pursuit
-                        Pair targetLocation = token.getTarget().getLocation();
-                        Token targetToken = token.getTarget().getToken();
-
-
+                        Pair targetLocation = token.getCommand().getLocation();
+                        Token targetToken = token.getCommand().getTargetToken();
 
                         FogMap fogMap;
                         if (token.getFogMapping() != null)
@@ -62,7 +60,7 @@ public class Move implements TokenComponent{
                                 targetLocation.set(continuousMoveTokenLastLoc);
                                 continuousMoveTokenLostVisionCountdown -= delta;
                                 if (continuousMoveTokenLostVisionCountdown < 0){
-                                        token.getTarget().setToken(null); // lost sight for over a second, no longer chasing
+                                        token.getCommand().setTargetToken(null); // lost sight for over a second, no longer chasing
                                         targetToken = null;
                                 }
 
@@ -72,7 +70,7 @@ public class Move implements TokenComponent{
                                 Damage moveTokenDamage = targetToken.get(Damage.class);
                                 if(moveTokenDamage!= null){
                                         if(moveTokenDamage.isDead()){
-                                                token.getTarget().setToken(null); // target died, well keep moving to its last location but we wont target it anymore
+                                                token.getCommand().setTargetToken(null); // target died, well keep moving to its last location but we wont target it anymore
                                                 targetToken = null;
                                         }
                                 }
@@ -82,10 +80,7 @@ public class Move implements TokenComponent{
                 }
 
 
-                calcPathToLocation(token.getTarget().getLocation());
-
-
-
+                calcPathToLocation(token.getCommand().getLocation());
 
                 moveU += delta * moveSpeed * 0.25f;
 
@@ -131,7 +126,9 @@ public class Move implements TokenComponent{
                                                         token.direction = newDirection;
                                         //}
 
-                                        token.getAttack().attack(delta, true, false); // auto attack anything in front of me, do not do ranged attack
+                                        boolean action = useKey(nextLocation);
+                                        if(!action)
+                                                token.getAttack().attack(delta, true, false); // auto attack anything in front of me, do not do ranged attack
 
                                 }
 
@@ -167,21 +164,12 @@ public class Move implements TokenComponent{
                         return;
                 }
 
-
-                Tile targetTile = token.floorMap.getTile(targetLocation);
-                if (targetTile == null || targetTile.isBlockMovement()) {
-                        // trying to path into an illegal location, stop moving
-                        path.clear();
-                        path.add(token.location);
-                        pathedTarget.set(targetLocation);
-                        return;
-                }
-
-
                 boolean foundPath = token.floorMap.computePath(new Pair(token.location), new Pair(targetLocation), path);
                 if (!foundPath) {
                         //Gdx.app.error("Token", "No path found");
-                        // TODO: perhaps i should "cancel" out movement ag path.clear() path.addLocation() pathedTarget.set(targetLocation);
+                        path.clear();
+                        path.add(token.location);
+                        pathedTarget.set(targetLocation);
                         return; // no path was found
                 }
 
@@ -218,6 +206,43 @@ public class Move implements TokenComponent{
 
 
                 }
+        }
+
+
+        private boolean useKey(Pair nextLocation){
+                Tile nextTile = token.floorMap.getTile(nextLocation);
+                if(nextTile.isDoor() && nextTile.isDoorLocked()){
+                        KeyItem key = token.getInventory().getKeyItem(nextTile.getKeyType());
+                        if(token.getCommand().isUseKey() && nextTile == token.getCommand().getUseKeyOnTile()){
+                                //token.getTarget().setUseKey(false);
+                                if(key == null){
+                                        //Gdx.app.log("Move","Try to use key but do not have a key");
+                                        token.getCommand().setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
+                                        if(token.listener != null)
+                                                token.listener.onPathBlocked(nextLocation, nextTile);
+                                        return true;
+
+                                }else{
+                                        //Gdx.app.log("Move","Unlocking door");
+                                        nextTile.setDoorLocked(false);
+                                        if(token.listener != null)
+                                                token.listener.onUseItem(key);
+                                        token.getInventory().discardItem(key);
+                                        //token.getCommand().setLocation(token.location);
+                                        return true;
+
+                                }
+                        }else{
+                                //Gdx.app.log("Move","Ran in to locked door, but does not have open command");
+                                token.getCommand().setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
+                                token.getCommand().canUseKeyOnTile = key != null ? nextTile : null;
+                                if(token.listener != null)
+                                        token.listener.onPathBlocked(nextLocation, nextTile);
+                                return true;
+
+                        }
+                }
+                return false;
         }
 
         private void pickUpLoot() {

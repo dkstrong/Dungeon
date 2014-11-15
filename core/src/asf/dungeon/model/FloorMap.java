@@ -1,6 +1,7 @@
 package asf.dungeon.model;
 
 import asf.dungeon.model.token.Token;
+import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.List;
@@ -37,18 +38,60 @@ public class FloorMap  {
                 }
         }
 
+        private Pair getClosestLegalLocation(Pair start, Pair goal){
+                Tile goalTile = getTile(goal);
+                if(goalTile != null && !goalTile.isBlockMovement()) return goal;
+                // check each adjacent tile and pick the closest tile to the start location that is not blocking movement.
+                // if there are no legal adjcant tiles then return null
+                // returning null means no legal pathing can be made so dont try to do pathfinding
+                int xRange = start.x - goal.x;
+                int yRange = start.y - goal.y;
+                if(Math.abs(xRange) > Math.abs(yRange)){
+                        int xSign = UtMath.sign(xRange);
+                        goalTile = getTile(goal.x+xSign, goal.y);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x+xSign, goal.y);
+                        int ySign = UtMath.sign(yRange);
+                        goalTile = getTile(goal.x, goal.y+ySign);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x, goal.y+ySign);
+                        goalTile = getTile(goal.x, goal.y-ySign);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x, goal.y-ySign);
+                        goalTile = getTile(goal.x-xSign, goal.y);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x-xSign, goal.y);
+                }else{
+                        int ySign = UtMath.sign(yRange);
+                        goalTile = getTile(goal.x, goal.y+ySign);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x, goal.y+ySign);
+                        int xSign = UtMath.sign(xRange);
+                        goalTile = getTile(goal.x+xSign, goal.y);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x+xSign, goal.y);
+                        goalTile = getTile(goal.x-xSign, goal.y);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x-xSign, goal.y);
+                        goalTile = getTile(goal.x, goal.y-ySign);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x, goal.y-ySign);
+                }
+
+                return null;
+        }
 
         public boolean computePath(Pair start, Pair goal, Array<Pair> store) {
-                List<Pair> path = pathfinder.generate(start, goal);
 
-                if(path == null){
+                Pair pathingGoal = getClosestLegalLocation(start, goal);
+
+                if(pathingGoal == null)
                         return false;
-                }
+
+                List<Pair> path = pathfinder.generate(start, pathingGoal);
+
+                if(path == null)
+                        return false;
 
                 store.clear();
                 for (Pair pair : path) {
                         store.add(pair);
                 }
+
+                if(goal != pathingGoal)
+                        store.add(goal); // an alternate pathing goal was used, re-add the real goal to the pathfinding list
 
                 return true;
         }

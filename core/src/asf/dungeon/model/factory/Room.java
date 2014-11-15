@@ -27,6 +27,13 @@ public class Room {
                 this.y2 = y2;
         }
 
+        public int getWidth(){
+                return x2-x1;
+        }
+
+        public int getHeight(){
+                return y2-y1;
+        }
         public int getCenterX(){
                 return (x1+x2)/2;
         }
@@ -53,14 +60,64 @@ public class Room {
 
         }
 
-        static void fillTunnel(Tile[][] tiles, Room room, Room prevRoom, boolean randomLDirection, boolean makeDoors){
+        /**
+         * to be called after fillRoom(), and usually also after fillTunnel()
+         * goes over the room coordinates and places a door
+         * where wall tiles should be that got replaced with a floor tile
+         *
+         * @param tiles
+         * @param room
+         */
+        static void fillRoomWithDoors(Tile[][] tiles, Room room){
+                // This is a lot of code for a seemingly simple thing. but it checks to ensure
+                // that these scenarios do not happen
+                // 1 - two doors placed next to eachother
+                // 2- prevent the scenario of a tunnel going through a wall "long ways" causing the entire wall becoming a string of doors
+                // 3 - prevent a door to be placed at the ends of double wide halls
+
+
+                // top and bottom of room
+                for(int y = room.y1; y<= room.y2; y+=room.getHeight()){
+                        for (int x = room.x1; x <= room.x2; x++){
+                                if(tiles[x][y] != null && tiles[x][y].isFloor()){
+                                        if(UtFloorGen.countDoors(tiles, x, y) == 0 && UtFloorGen.isWall(tiles, x+1, y) && UtFloorGen.isWall(tiles, x-1, y)){
+                                                tiles[x][y] = Tile.makeDoor();
+                                        }
+                                }
+                        }
+                }
+                // left and right of room
+                for(int x = room.x1; x<= room.x2; x+=room.getWidth()){
+                        for (int y = room.y1; y <= room.y2; y++){
+                                if(tiles[x][y] != null && tiles[x][y].isFloor()){
+                                        if(UtFloorGen.countDoors(tiles, x, y) == 0 && UtFloorGen.isWall(tiles, x, y-1) && UtFloorGen.isWall(tiles, x, y+1)){
+                                                tiles[x][y] = Tile.makeDoor();
+                                        }
+
+
+                                }
+                        }
+                }
+
+
+
+        }
+
+        /**
+         *
+         * @param tiles
+         * @param room
+         * @param prevRoom
+         * @param randomLDirection if true the L shape direction will be randoml chosen, if false then the L shape will be chosen to try and make the smallest hallway
+         */
+        static void fillTunnel(Tile[][] tiles, Room room, Room prevRoom, boolean randomLDirection){
                 int startX = room.getCenterX();
                 int startY = room.getCenterY();
                 int endX = prevRoom.getCenterX();
                 int endY = prevRoom.getCenterY();
 
                 if(startX == endX || startY == endY){
-                        fillTunnel(tiles, startX, startY,endX, endY,makeDoors);
+                        fillTunnel(tiles, startX, startY,endX, endY);
                 }else{
                         // diagonal (convert in to a horizontal and vertical)
                         if(randomLDirection){
@@ -72,18 +129,18 @@ public class Room {
                         }
 
                         if(randomLDirection){ // horizontal then vertical
-                                fillTunnel(tiles, startX, startY,endX, startY,makeDoors);
-                                fillTunnel(tiles, endX, startY,endX, endY,makeDoors);
+                                fillTunnel(tiles, startX, startY,endX, startY);
+                                fillTunnel(tiles, endX, startY,endX, endY);
                         }else{ // vertical then horizontal
-                                fillTunnel(tiles, startX, startY, startX, endY,makeDoors);
-                                fillTunnel(tiles, startX, endY,endX, endY,makeDoors);
+                                fillTunnel(tiles, startX, startY, startX, endY);
+                                fillTunnel(tiles, startX, endY,endX, endY);
 
                         }
                 }
 
         }
 
-        static void fillTunnel(Tile[][] tiles, int startX, int startY, int endX, int endY, boolean makeDoors){
+        static void fillTunnel(Tile[][] tiles, int startX, int startY, int endX, int endY){
                 if(startY==endY){
                         // horizontal
                         if(endX < startX){
@@ -97,18 +154,7 @@ public class Room {
                                         tiles[x][y+1] = Tile.makeWall();
                                 if(tiles[x][y-1] == null)
                                         tiles[x][y-1] = Tile.makeWall();
-
-                                if(tiles[x][y] == null || !makeDoors) {
-                                        tiles[x][y] = Tile.makeFloor(); // make a floor for the hallway
-                                }else if(tiles[x][y].isWall()){
-                                        int countWall = 0;
-                                        if(tiles[x][y+1].isWall()) countWall++;
-                                        if(tiles[x][y-1].isWall()) countWall++;
-                                        if(countWall == 2)
-                                                tiles[x][y] = Tile.makeDoor(); // if the hall goes through a wall, convert wall in to a door
-                                        else
-                                                tiles[x][y] = Tile.makeFloor(); // the hall is going through the broadside of a wall, so were really just extending the room
-                                }
+                                tiles[x][y] = Tile.makeFloor(); // make a floor for the hallway
 
                         }
                 }else if(startX == endX){
@@ -124,18 +170,7 @@ public class Room {
                                         tiles[x+1][y] = Tile.makeWall();
                                 if(tiles[x-1][y] == null)
                                         tiles[x-1][y] = Tile.makeWall();
-
-                                if(tiles[x][y] == null || !makeDoors) {
-                                        tiles[x][y] = Tile.makeFloor(); // make a floor for the hallway
-                                }else if(tiles[x][y].isWall()){
-                                        int countWall = 0;
-                                        if(tiles[x+1][y].isWall()) countWall++;
-                                        if(tiles[x-1][y].isWall()) countWall++;
-                                        if(countWall == 2)
-                                                tiles[x][y] = Tile.makeDoor(); // if the hall goes through a wall, convert wall in to a door
-                                        else
-                                                tiles[x][y] = Tile.makeFloor(); // the hall is going through the broadside of a wall, so were really just extending the room
-                                }
+                                tiles[x][y] = Tile.makeFloor(); // make a floor for the hallway
                         }
                 }else{
                         throw new IllegalArgumentException("must provide horizontal or vertical only coordinates");

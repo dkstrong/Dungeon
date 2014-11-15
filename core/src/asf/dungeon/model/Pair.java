@@ -1,8 +1,6 @@
 package asf.dungeon.model;
 
 
-import java.io.Serializable;
-
 /**
  * Created by danny on 10/21/14.
  */
@@ -75,6 +73,9 @@ public class Pair  {
                 return this;
         }
 
+        public boolean equals(int x, int y){
+                return this.x == x && this.y==y;
+        }
 
         @Override
         public boolean equals(Object o) {

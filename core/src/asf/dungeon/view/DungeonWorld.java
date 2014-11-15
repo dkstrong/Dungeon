@@ -5,7 +5,7 @@ import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
-import asf.dungeon.model.PotionItem;
+import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.factory.BinarySpaceGen;
 import asf.dungeon.model.factory.CellularAutomataGen;
 import asf.dungeon.model.factory.ConnectedRoomsGen;
@@ -120,7 +120,7 @@ public class DungeonWorld implements Disposable {
                         dungeon.setListener(internalInput);
                 }else {
                         FloorMapGenMultiplexer floorMapGenMultiplexer = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new BinarySpaceGen(), new PreBuiltFloorGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
+                                new PreBuiltFloorGen(), new PreBuiltFloorGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
@@ -133,7 +133,7 @@ public class DungeonWorld implements Disposable {
                         dungeon.setCurrentFloor(0);
                         spawnLocalPlayer();
                         dungeon.setListener(internalInput);
-                        //saveDungeon();
+                        saveDungeon();
                 }
 
         }
@@ -226,7 +226,7 @@ public class DungeonWorld implements Disposable {
                 for (Spatial spatial : spatials) {
                         if(spatial instanceof TokenSpatial){
                                 TokenSpatial ts = (TokenSpatial ) spatial;
-                                if(ts.token == token){
+                                if(ts.getToken() == token){
                                         return ts;
                                 }
                         }
@@ -244,18 +244,18 @@ public class DungeonWorld implements Disposable {
                         if (spatial instanceof TokenSpatial) {
                                 TokenSpatial tokenSpatial = (TokenSpatial) spatial;
 
-                                if (tokenSpatial.token == ignoreToken) {
+                                if (tokenSpatial.getToken() == ignoreToken) {
                                         continue;
                                 }
 
-                                Damage damage = tokenSpatial.token.get(Damage.class);
+                                Damage damage = tokenSpatial.getToken().getDamage();
                                 if (damage != null) {
                                         if(damage.isDead())
                                                 continue;
 
                                         final float dist2 = tokenSpatial.intersects(ray);
                                         if (dist2 >= 0f && (distance < 0f || dist2 <= distance)) {
-                                                result = tokenSpatial.token;
+                                                result = tokenSpatial.getToken();
                                                 distance = dist2;
                                         }
                                 }

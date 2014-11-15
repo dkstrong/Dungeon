@@ -19,7 +19,7 @@ public class DesktopLauncher implements DungeonApp.Resolver{
                 }
 
                 config.foregroundFPS = 30;
-                config.backgroundFPS = 15;
+                config.backgroundFPS = 30;
                 config.vSyncEnabled = false;
                 config.samples = 2;
                 config.r = 5;

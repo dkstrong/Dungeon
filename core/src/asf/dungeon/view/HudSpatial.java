@@ -1,8 +1,12 @@
 package asf.dungeon.view;
 
 import asf.dungeon.model.Direction;
-import asf.dungeon.model.Item;
 import asf.dungeon.model.Pair;
+import asf.dungeon.model.Tile;
+import asf.dungeon.model.item.Consumable;
+import asf.dungeon.model.item.Item;
+import asf.dungeon.model.item.KeyItem;
+import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.QuickSlot;
@@ -68,6 +72,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private final Array<DamageLabel> damageInfoLabels = new Array<DamageLabel>(false, 8, DamageLabel.class);
 
         private final Vector3 tempVec = new Vector3();
+
 
         @Override
         public void preload(DungeonWorld world) {
@@ -407,18 +412,20 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         healthProgressBar.setValue(localPlayerToken.getDamage().getHealth());
                         healthProgressBar.act(delta);
 
-                        String s = String.format("%s / %s\n%s , %s",localPlayerToken.getDamage().getHealth(),localPlayerToken.getDamage().getMaxHealth(),localPlayerToken.getLocation().x,localPlayerToken.getLocation().y);
+                        String s = String.format("%s / %s\n %s, %s  useKey: %s",
+                                localPlayerToken.getDamage().getHealth(),
+                                localPlayerToken.getDamage().getMaxHealth(),
+                                localPlayerToken.getLocation().x, localPlayerToken.getLocation().y,
+                                localPlayerToken.getCommand().isUseKey());
                         avatarLabel.setText(s);
 
-                        Token targetToken = localPlayerToken.getTarget().getToken();
+                        Token targetToken = localPlayerToken.getCommand().getTargetToken();
                         if (targetToken == null)
                                 targetInfoLabel.setText(null);
                         else {
                                 targetInfoLabel.setText("Target: " + targetToken.getName());
                         }
                 }
-
-
 
                 centerLabelCountdown -= delta;
                 if (centerLabelCountdown < 0) {
@@ -437,8 +444,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 }
 
                                 world.getScreenCoords(
-                                        label.tokenSpatial.token.getMove().getLocationFloatX(),
-                                        label.tokenSpatial.token.getMove().getLocationFloatY(),
+                                        label.tokenSpatial.getToken().getMove().getLocationFloatX(),
+                                        label.tokenSpatial.getToken().getMove().getLocationFloatY(),
                                         tempVec);
 
 
@@ -502,7 +509,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         private void refreshInventoryElements() {
-                Gdx.app.log("HudSpatial", "refresh quick button");
+                //Gdx.app.log("HudSpatial", "refresh quick button");
                 // refresh the display of the quickslot
                 QuickSlot quickSlot = localPlayerToken.get(QuickSlot.class);
                 Item quickItem = null;
@@ -513,7 +520,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 // if the inventory window is open, then refresh the inventory window
                 if (inventoryWindow.getParent() != null) {
-                        Gdx.app.log("HudSpatial", "refresh inventory window");
+                        //Gdx.app.log("HudSpatial", "refresh inventory window");
                         int buttonI = 0;
                         for (int i = 0; i < localPlayerToken.getInventory().size(); i++) {
                                 Item item = localPlayerToken.getInventory().getItem(i);
@@ -615,7 +622,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         }
 
-        private void setCenterLabelText(String text) {
+        private void showCenterLabelText(String text) {
+                if(characterActionInfoLabel.getParent() != null && String.valueOf(characterActionInfoLabel.getText()).equals(text)){
+                        // dont double send the same text
+                        return;
+                }
                 characterActionInfoLabel.setText(text);
                 centerLabelCountdown = 5;
                 world.stage.addActor(characterActionInfoLabel);
@@ -663,6 +674,26 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         itemWindow.remove();
                         inventoryWindow.setModal(true);
                 }
+        }
+
+        @Override
+        public void onPathBlocked(Pair nextLocation, Tile nextTile) {
+                if(nextTile.isDoor() && nextTile.isDoorLocked()){
+                        KeyItem key = localPlayerToken.getInventory().getKeyItem(nextTile.getKeyType());
+                        if(key != null){
+                                this.showCenterLabelText("Tap on door again to unlock door.");
+                        }else{
+                                this.showCenterLabelText("You do not have the key to unlock this door.");
+                        }
+                }
+        }
+
+        @Override
+        public void onUseItem(Item item) {
+                if(item instanceof PotionItem){
+                        this.showCenterLabelText("You just drank " + item.getNameFromJournal(localPlayerToken));
+                }
+
         }
 
         @Override
@@ -716,11 +747,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 refreshInventoryElements();
         }
 
-        @Override
-        public void onConsumeItem(Item.Consumable item) {
-                // refreshInventoryElements();  // onInventoryRemove will be called right after, no point in doing this twice
-                this.setCenterLabelText("You just drank " + item.getNameFromJournal(localPlayerToken));
-        }
+
 
         @Override
         public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
@@ -797,12 +824,21 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 Token targetToken = world.getToken(ray, localPlayerToken);
                 // attempt to target specificaly clicked token
                 if (targetToken != null) {
-                        localPlayerToken.getTarget().setToken(targetToken);
-                        if (localPlayerToken.getTarget().getToken() != null) {
+                        localPlayerToken.getCommand().setTargetToken(targetToken);
+                        if (localPlayerToken.getCommand().getTargetToken() != null) {
                                 world.selectionMark.mark(targetToken.getLocation());
                                 return true;
                         }
 
+                }
+
+                final float distance = -ray.origin.y / ray.direction.y;
+                tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
+                world.getMapCoords(tempWorldCoords, tempMapCoords);
+                localPlayerToken.getCommand().setUseKeyOnTile(tempMapCoords);
+                if(localPlayerToken.getCommand().isUseKey()){
+                        world.selectionMark.mark(tempMapCoords);
+                        return true;
                 }
 
                 // if no token was clicked then go to the tile that was clicked
@@ -814,8 +850,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
                 world.getMapCoords(tempWorldCoords, tempMapCoords);
                 if (localPlayerToken.getFloorMap().getTile(tempMapCoords) != null) {
-                        localPlayerToken.getTarget().setLocation(tempMapCoords);
-                        localPlayerToken.getTarget().setToken(null);
+                        localPlayerToken.getCommand().setLocation(tempMapCoords);
                         world.selectionMark.mark(tempMapCoords);
                         return true;
                 }
@@ -912,7 +947,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         setInventoryWindowVisible(true);
                 } else if (event.getListenerActor() == itemWindowUseButton) {
                         Item item = (Item) itemWindow.getUserObject();
-                        boolean valid = localPlayerToken.getInventory().useItem(item);
+                        boolean valid = localPlayerToken.getCommand().consumeItem(item);
                         if (valid)
                                 setInventoryWindowVisible(false);
                 } else if (event.getListenerActor() == itemWindowDiscardButton) {
@@ -941,8 +976,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 if (item == null) {
                                         // TODO: show screen to set quick slot
                                 } else {
-                                        if (item instanceof Item.Consumable) {
-                                                localPlayerToken.getInventory().useItem(item);
+                                        if (item instanceof Consumable) {
+                                                localPlayerToken.getCommand().consumeItem(item);
                                         } else {
                                                 throw new AssertionError("TODO: need to handle item of type " + item.getClass());
                                         }

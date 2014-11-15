@@ -1,14 +1,18 @@
 package asf.dungeon.model;
 
 import asf.dungeon.model.factory.FloorMapGenerator;
+import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.Attack;
+import asf.dungeon.model.token.Command;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
+import asf.dungeon.model.token.FogMapping;
 import asf.dungeon.model.token.Inventory;
+import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.Move;
+import asf.dungeon.model.token.QuickSlot;
 import asf.dungeon.model.token.StatusEffects;
-import asf.dungeon.model.token.Target;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.LocalPlayerLogicProvider;
 import asf.dungeon.model.token.logic.LogicProvider;
@@ -118,10 +122,15 @@ public class Dungeon {
         public Token newCharacterToken(FloorMap fm, String name, ModelId modelId, LogicProvider logicProvider) {
                 Token t = new Token(this, fm, nextTokenId++, name, modelId);
                 t.add(logicProvider);
+                t.add(new Command(t));
+                if(logicProvider instanceof LocalPlayerLogicProvider){
+                        t.add(new QuickSlot());
+                        t.add(new FogMapping(t));
+                        t.add(new Journal());
+                }
                 t.add(new Experience(t));
                 t.add(new Inventory(t));
                 t.add(new StatusEffects(t));
-                t.add(new Target(t));
                 t.add(new Attack(t));
                 t.add(new Damage(t, 10));
                 t.add(new Move(t));

@@ -16,14 +16,14 @@ import com.badlogic.gdx.math.MathUtils;
 public class BinarySpaceGen implements FloorMapGenerator{
 
 
-        private int minFloorWidth = 45;
-        private int maxFloorWidth = 65;
-        private int minFloorHeight = 35;
-        private int maxFloorHeight = 55;
+        private int minFloorWidth = 30;
+        private int maxFloorWidth = 45;
+        private int minFloorHeight = 30;
+        private int maxFloorHeight = 45;
 
 
-        private int numberOfSubdivisions = 3;
-        private boolean makeDoors = false;
+        private int numberOfSubdivisions = 4;
+        private boolean makeDoors = true;
 
 
         @Override
@@ -37,6 +37,7 @@ public class BinarySpaceGen implements FloorMapGenerator{
 
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
+
                 return floorMap;
         }
 
@@ -49,7 +50,7 @@ public class BinarySpaceGen implements FloorMapGenerator{
 
                 for (int x = 0; x < tiles.length; x++){
                         for (int y = 0; y < tiles[0].length; y++){
-                                tiles[x][y] = Tile.makeWall();
+                                //tiles[x][y] = Tile.makeWall();
                         }
                 }
 
@@ -61,8 +62,10 @@ public class BinarySpaceGen implements FloorMapGenerator{
                 }
 
                 fillRooms(tiles, baseRoomCell);
-                //fillTunnels(tiles, baseRoomCell);
-                fillTunnelsTopDown(tiles, baseRoomCell.childCell1, baseRoomCell.childCell2);
+                fillTunnels(tiles, baseRoomCell.childCell1, baseRoomCell.childCell2);
+
+                if (makeDoors)
+                        fillRoomsWithDoors(tiles, baseRoomCell);
 
                 //UtFloorGen.ensureEdgesAreWalls(tiles);
                 UtFloorGen.placeUpStairs(tiles, floorIndex);
@@ -119,7 +122,8 @@ public class BinarySpaceGen implements FloorMapGenerator{
                 private void split(){
                         // look at how the parent was split to encourage its chldren to split in the other direction
                         // this should create layouts with less "squished" rooms that represent closets more than rooms
-                        vertSplit = MathUtils.randomBoolean(parentCell != null && parentCell.vertSplit ? .25f :.75f); //false; // MathUtils.randomBoolean()
+                        //vertSplit = MathUtils.randomBoolean(parentCell != null && parentCell.vertSplit ? .05f :.95f); //false; // MathUtils.randomBoolean()
+                        vertSplit  = parentCell!= null && parentCell.vertSplit ? false : true;
                         float splitRatio = MathUtils.random(.35f, .65f);
                         if(vertSplit){
                                 int newX2 = Math.round(MathUtils.lerp(x1,x2,splitRatio));
@@ -167,14 +171,24 @@ public class BinarySpaceGen implements FloorMapGenerator{
 
         }
 
-        private void fillTunnelsTopDown(Tile[][] tiles, RoomCell cell1, RoomCell cell2){
+        private void fillTunnels(Tile[][] tiles, RoomCell cell1, RoomCell cell2){
 
                 Room.fillTunnel(tiles, cell1.getEndLeaf().getInnerRoom(), cell2.getEndLeaf().getInnerRoom(), false);
                 if(cell1.childCell1 != null)
-                        fillTunnelsTopDown(tiles, cell1.childCell1, cell1.childCell2);
+                        fillTunnels(tiles, cell1.childCell1, cell1.childCell2);
                 if(cell2.childCell1 != null)
-                        fillTunnelsTopDown(tiles, cell2.childCell1, cell2.childCell2);
+                        fillTunnels(tiles, cell2.childCell1, cell2.childCell2);
 
+
+        }
+
+        private void fillRoomsWithDoors(Tile[][] tiles,RoomCell roomCell){
+                if(roomCell.isLeaf()){
+                        Room.fillRoomWithDoors(tiles, roomCell.getInnerRoom());
+                }else{
+                        fillRoomsWithDoors(tiles, roomCell.childCell1);
+                        fillRoomsWithDoors(tiles, roomCell.childCell2);
+                }
 
         }
 

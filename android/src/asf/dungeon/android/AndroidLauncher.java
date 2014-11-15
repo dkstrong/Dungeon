@@ -38,6 +38,7 @@ public class AndroidLauncher extends AndroidApplication implements DungeonApp.Re
                 config.useCompass = false;
                 config.numSamples = 2;
                 config.useImmersiveMode = true;
+                config.depth = 1;
 
 
                 DungeonApp dungeonGame = new DungeonApp();

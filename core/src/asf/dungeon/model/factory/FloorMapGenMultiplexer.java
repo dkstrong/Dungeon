@@ -3,16 +3,7 @@ package asf.dungeon.model.factory;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.MasterJournal;
-import asf.dungeon.model.PotionItem;
 import com.badlogic.gdx.math.MathUtils;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by danny on 10/26/14.

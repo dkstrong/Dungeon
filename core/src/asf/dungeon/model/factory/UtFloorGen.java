@@ -2,8 +2,9 @@ package asf.dungeon.model.factory;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.ModelId;
-import asf.dungeon.model.PotionItem;
+import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
@@ -37,7 +38,7 @@ public class UtFloorGen {
         protected static void spawnCharacters(Dungeon dungeon, FloorMap floorMap){
                 ModelId[] characters;
                 if(floorMap.index == 0)
-                        characters = new ModelId[]{ModelId.Knight}; //destLoc
+                        characters = new ModelId[]{};
                 else{
                         characters = new ModelId[]{ModelId.Archer,ModelId.Berzerker,ModelId.Diablous,ModelId.FemaleMage,ModelId.Mage,ModelId.Priest}; // "cerberus"
                 }
@@ -59,7 +60,10 @@ public class UtFloorGen {
                 ModelId[] crates = new ModelId[]{ModelId.CeramicPitcher,ModelId.CeramicPitcher,ModelId.CeramicPitcher,ModelId.CeramicPitcher,ModelId.CeramicPitcher};
 
                 for(ModelId modelId : crates){
-                        Token crateToken = dungeon.newCrateToken(floorMap,modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health));
+
+                        // new PotionItem(dungeon, PotionItem.Type.Health)
+                        Token crateToken = dungeon.newCrateToken(floorMap,modelId.name(), modelId, new KeyItem(dungeon, KeyItem.Type.Silver));
+
                         while(!crateToken.teleportToLocation(MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight())) || floorMap.getTile(crateToken.getLocation()).isStairs() ){
                         }
 
@@ -102,6 +106,25 @@ public class UtFloorGen {
                 return tiles[x][y]==null || tiles[x][y].isWall();
         }
 
+        protected static boolean isDoor(Tile[][] tiles, int x, int y){
+                if(x <0 || x>= tiles.length || y < 0 || y>=tiles[0].length)
+                        return false;
+                return tiles[x][y]!=null && tiles[x][y].isDoor();
+        }
+
+        protected static boolean isFloor(Tile[][] tiles, int x, int y){
+                if(x <0 || x>= tiles.length || y < 0 || y>=tiles[0].length)
+                        return false;
+                return tiles[x][y]!=null && tiles[x][y].isFloor();
+        }
+
+        /**
+         * counts how many walls surround this tile (not counting this tile)
+         * @param tiles
+         * @param x
+         * @param y
+         * @return
+         */
         protected static int countWalls(Tile[][] tiles, int x, int y){
                 int numWalls = 0;
                 if(isWall(tiles,x-1,y)) numWalls++;
@@ -114,6 +137,21 @@ public class UtFloorGen {
                 if(isWall(tiles,x+1,y-1)) numWalls++;
                 return numWalls;
         }
+
+        protected static int countDoors(Tile[][] tiles, int x, int y){
+                int numDoors = 0;
+                if(isDoor(tiles,x-1,y)) numDoors++;
+                if(isDoor(tiles,x+1,y)) numDoors++;
+                if(isDoor(tiles,x,y+1)) numDoors++;
+                if(isDoor(tiles,x,y-1)) numDoors++;
+                if(isDoor(tiles,x-1,y+1)) numDoors++;
+                if(isDoor(tiles,x+1,y+1)) numDoors++;
+                if(isDoor(tiles,x-1,y-1)) numDoors++;
+                if(isDoor(tiles,x+1,y-1)) numDoors++;
+                return numDoors;
+        }
+
+
 
         protected static void ensureEdgesAreWalls(Tile[][] tiles){
                 for (int x = 0; x < tiles.length; x++){
@@ -140,7 +178,8 @@ public class UtFloorGen {
                 do{
                         int x = MathUtils.random(0, tiles.length-1);
                         int y = MathUtils.random(0, tiles[0].length-1);
-                        if(!tiles[x][y].isFloor())
+
+                        if(!UtFloorGen.isFloor(tiles, x,y))
                                 continue;
 
                         int numWalls = countWalls(tiles, x, y);
@@ -161,7 +200,7 @@ public class UtFloorGen {
                 do{
                         int x = MathUtils.random(0, tiles.length-1);
                         int y = MathUtils.random(0, tiles[0].length-1);
-                        if(!tiles[x][y].isFloor())
+                        if(!UtFloorGen.isFloor(tiles, x,y))
                                 continue;
 
                         int numWalls = countWalls(tiles, x, y);

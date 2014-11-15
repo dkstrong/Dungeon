@@ -1,8 +1,7 @@
-package asf.dungeon.model;
+package asf.dungeon.model.item;
 
+import asf.dungeon.model.ModelId;
 import asf.dungeon.model.token.Token;
-
-import java.io.Serializable;
 
 /**
  * Created by Danny on 11/5/2014.
@@ -24,9 +23,5 @@ public interface Item  {
 
         public String getDescriptionFromJournal(Token token);
 
-
-        public interface Consumable extends Item{
-                public void consume(Token token);
-        }
 
 }

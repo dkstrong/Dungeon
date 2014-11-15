@@ -53,12 +53,12 @@ public class Attack implements TokenComponent{
                 inAttackRangeOfContinousMoveToken = false;
                 if(ableRangedAttack && !token.getDamage().isHit() && (token.getMove() == null || token.getMove().moveU > .75f)){
                 // cant initiate attack if being hit, also must have moveU > .75f to ensure near center of tile and can be hit by melee
-                        Token targetToken = token.getTarget().getToken();
+                        Token targetToken = token.getCommand().getTargetToken();
                         if (targetToken!= null && targetToken.getDamage() != null && targetToken.getDamage().isAttackable()) {
                                 // has target, and target is attackable
-                                int distance = token.location.distance(token.getTarget().getToken().location);
+                                int distance = token.location.distance(token.getCommand().getTargetToken().location);
                                 if(distance <= attackRange &&
-                                        token.direction.isDirection(token.location, token.getTarget().getToken().location)){
+                                        token.direction.isDirection(token.location, token.getCommand().getTargetToken().location)){
                                         // within attack range, and is facing towards target  // TODO: may want to remove the facing check unless i add a turn time for doing uTurns.
                                         inAttackRangeOfContinousMoveToken = true;
                                 }
@@ -86,7 +86,7 @@ public class Attack implements TokenComponent{
 
                         if(initiateRanged && !this.hasProjectile() && rangedAttack == false){
                                 attackU = 0;
-                                meleeAttackTarget = token.getTarget().getToken();
+                                meleeAttackTarget = token.getCommand().getTargetToken();
                                 rangedAttack = true;
                                 return true;
                         }

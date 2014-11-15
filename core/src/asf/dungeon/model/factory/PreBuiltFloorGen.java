@@ -3,6 +3,7 @@ package asf.dungeon.model.factory;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.item.KeyItem;
 
 /**
  * Created by Danny on 11/4/2014.
@@ -57,12 +58,12 @@ public class PreBuiltFloorGen implements FloorMapGenerator{
                         "|.................|",
                         "|.^...............|",
                         "|.................|",
-                        "|.................|",
-                        "|.................|",
-                        "|.................|",
-                        "|.................|",
-                        "|.................|",
-                        "|.................|",
+                        "|.....---/---.....|",
+                        "|.....|.....|.....|",
+                        "|.....|.....|.....|",
+                        "|...../...../.....|",
+                        "|.....|.....|.....|",
+                        "|.....|--/--|.....|",
                         "|.................|",
                         "|...............&.|",
                         "|.................|",
@@ -126,6 +127,8 @@ public class PreBuiltFloorGen implements FloorMapGenerator{
                                         tiles[x][y] = Tile.makeWall();
                                 } else if(charAt == '+'){ // Door
                                         tiles[x][y] = Tile.makeDoor();
+                                } else if(charAt == '/'){ // Locked Door
+                                        tiles[x][y] = Tile.makeDoor(KeyItem.Type.Silver);
                                 } else if(charAt == '^'){ // Stairs Up
                                         tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
                                 } else if(charAt == '&'){ // Stairs Down

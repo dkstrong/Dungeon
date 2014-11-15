@@ -7,7 +7,6 @@ Self-explanatory. Comes with 2 methods you can use, one for integer positions an
 
 import com.badlogic.gdx.utils.Array;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -166,6 +165,7 @@ public class Pathfinder {
                 if(x <0 || x >= map.length || y<0 || y >= map[0].length){
                         return false;
                 }
+
                 Tile tile = map[x][y];
                 return tile!= null && !tile.isBlockMovement();
         }

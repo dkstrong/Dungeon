@@ -3,12 +3,10 @@ package asf.dungeon.utility;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.Item;
 import asf.dungeon.model.MasterJournal;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Pathfinder;
-import asf.dungeon.model.PotionItem;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.factory.BinarySpaceGen;
 import asf.dungeon.model.factory.CellularAutomataGen;
@@ -22,7 +20,11 @@ import asf.dungeon.model.factory.RandomWalkGen;
 import asf.dungeon.model.factory.Room;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
+import asf.dungeon.model.item.Item;
+import asf.dungeon.model.item.KeyItem;
+import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.token.Attack;
+import asf.dungeon.model.token.Command;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.FogMapping;
@@ -31,7 +33,6 @@ import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.Move;
 import asf.dungeon.model.token.StatusEffects;
-import asf.dungeon.model.token.Target;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.TokenComponent;
 import asf.dungeon.model.token.logic.LogicProvider;
@@ -163,8 +164,7 @@ public class DungeonLoader {
                 kryo.register(Direction.class);
                 kryo.register(Dungeon.class);
                 kryo.register(FloorMap.class);
-                kryo.register(Item.class);
-                kryo.register(asf.dungeon.model.Item[].class);
+
                 kryo.register(MasterJournal.class);
                 kryo.register(ModelId.class);
                 kryo.register(Pair.class);
@@ -172,10 +172,6 @@ public class DungeonLoader {
                 kryo.register(Pair[][].class);
                 kryo.register(Pathfinder.class);
                 kryo.register(Pathfinder.PathingPolicy.class);
-                kryo.register(PotionItem.class);
-                kryo.register(PotionItem.Color.class);
-                kryo.register(PotionItem.Type.class);
-                kryo.register(PotionItem.Type[].class);
                 kryo.register(Tile.class);
                 kryo.register(asf.dungeon.model.Tile[].class);
                 kryo.register(asf.dungeon.model.Tile[][].class);
@@ -197,6 +193,15 @@ public class DungeonLoader {
                 kryo.register(asf.dungeon.model.fogmap.FogState[].class);
                 kryo.register(asf.dungeon.model.fogmap.FogState[][].class);
 
+                kryo.register(Item.class);
+                kryo.register(Item[].class);
+                kryo.register(KeyItem.class);
+                kryo.register(KeyItem.Type.class);
+                kryo.register(PotionItem.class);
+                kryo.register(PotionItem.Color.class);
+                kryo.register(PotionItem.Type.class);
+                kryo.register(PotionItem.Type[].class);
+
                 kryo.register(Attack.class);
                 kryo.register(Damage.class);
                 kryo.register(Experience.class);
@@ -208,7 +213,7 @@ public class DungeonLoader {
                 kryo.register(StatusEffects.class);
                 kryo.register(StatusEffects.Effect.class);
                 kryo.register(asf.dungeon.model.token.QuickSlot.class);
-                kryo.register(Target.class);
+                kryo.register(Command.class);
                 kryo.register(Token.class);
                 kryo.register(asf.dungeon.model.token.Token[].class);
                 kryo.register(TokenComponent.class);

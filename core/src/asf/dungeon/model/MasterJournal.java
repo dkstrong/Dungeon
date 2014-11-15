@@ -1,8 +1,6 @@
 package asf.dungeon.model;
 
-import java.io.Serializable;
-import java.util.EnumMap;
-import java.util.Map;
+import asf.dungeon.model.item.PotionItem;
 
 /**
  * Created by Danny on 11/5/2014.

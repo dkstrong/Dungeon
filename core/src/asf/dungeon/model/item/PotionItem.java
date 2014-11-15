@@ -1,6 +1,8 @@
-package asf.dungeon.model;
+package asf.dungeon.model.item;
 
 
+import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.ModelId;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
@@ -8,7 +10,7 @@ import asf.dungeon.model.token.Token;
 /**
  * Created by Danny on 11/5/2014.
  */
-public class PotionItem implements Item.Consumable {
+public class PotionItem implements Consumable {
         private final Color color;
         private final Type type;
 
@@ -24,7 +26,7 @@ public class PotionItem implements Item.Consumable {
 
         @Override
         public String getName() {
-                return type.name();
+                return type.name()+" Potion";
         }
 
         @Override
@@ -50,7 +52,7 @@ public class PotionItem implements Item.Consumable {
         public String getDescriptionFromJournal(Token token){
                 Journal journal = token.get(Journal.class);
                 if(journal != null && journal.knows(type))
-                        return "This is a "+getName();
+                        return getDescription();
                 return "A mysterious "+color.name()+" potion. The effects of drinking this are not known.";
         }
 
@@ -129,8 +131,8 @@ public class PotionItem implements Item.Consumable {
                 Silver(com.badlogic.gdx.graphics.Color.GRAY,"Models/Loot/Potion/potion_silver_blue.png"),
                 Purple(com.badlogic.gdx.graphics.Color.PURPLE,"Models/Loot/Potion/potion_silver_blue.png");
 
-                public final com.badlogic.gdx.graphics.Color color;
-                public final String textureAssetLocation;
+                public transient final com.badlogic.gdx.graphics.Color color;
+                public transient final String textureAssetLocation;
 
                 Color(com.badlogic.gdx.graphics.Color color, String textureAssetLocation) {
                         this.color = color;

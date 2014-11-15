@@ -2,9 +2,6 @@ package asf.dungeon.model.token.logic;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
-import asf.dungeon.model.token.FogMapping;
-import asf.dungeon.model.token.Journal;
-import asf.dungeon.model.token.QuickSlot;
 import asf.dungeon.model.token.Token;
 
 /**
@@ -33,9 +30,7 @@ public class LocalPlayerLogicProvider implements LogicProvider {
         public void setToken(Token token) {
                 this.token = token;
                 this.dungeon = token.dungeon;
-                token.add(new QuickSlot());
-                token.add(new FogMapping(token));
-                token.add(new Journal());
+
         }
 
 

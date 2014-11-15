@@ -2,6 +2,7 @@ package asf.dungeon;
 
 import asf.dungeon.model.ModelId;
 import asf.dungeon.view.DungeonWorld;
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -10,10 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 /**
- *
- *
  * the skin used for the stages is loaded and stored and dungeon app for effecient reuse as its also used by the in game hud.
- *
  */
 public class DungeonApp implements ApplicationListener {
 
@@ -32,27 +30,27 @@ public class DungeonApp implements ApplicationListener {
                 //this.setScreen(new MainMenuScreen(this));
 
                 DungeonWorld.Settings settings = new DungeonWorld.Settings();
-                settings.playerModel=ModelId.Archer;
+                settings.playerModel = ModelId.Archer;
 
                 loadWorld(settings);
         }
 
         @Override
         public void resize(int width, int height) {
-                if(worldManager != null)
+                if (worldManager != null)
                         worldManager.resize(width, height);
-                if(stage != null)
+                if (stage != null)
                         stage.getViewport().update(width, height, true);
-                if(screen != null)
-                        screen.resize(width,height);
+                if (screen != null)
+                        screen.resize(width, height);
         }
 
         @Override
         public void render() {
                 float delta = Gdx.graphics.getDeltaTime();
-                if(worldManager != null)
+                if (worldManager != null)
                         worldManager.render(delta);
-                if(screen != null)
+                if (screen != null)
                         screen.render(delta);
 
 
@@ -60,41 +58,45 @@ public class DungeonApp implements ApplicationListener {
 
         @Override
         public void pause() {
-                if(worldManager != null)
-                        worldManager.saveDungeon();
-                setWorldPaused(true);
-                if(screen != null)
+                if (Gdx.app.getType() != Application.ApplicationType.Desktop) {
+                        // only autopause for android/ios/html
+                        if (worldManager != null)
+                                worldManager.saveDungeon();
+                        setWorldPaused(true);
+                }
+                if (screen != null)
                         screen.pause();
         }
 
         @Override
         public void resume() {
-                if(screen != null)
+                // we dont resume the world, instead the user should resume
+                // at their own convenience
+
+                if (screen != null)
                         screen.resume();
-                // we dont resume the worldRenderManager because we only want it to be
-                // resume by the user input on the menu screen
         }
 
         @Override
         public void dispose() {
                 unloadWorld();
-                if(screen != null)
+                if (screen != null)
                         screen.hide();
         }
 
-        public void setScreen(Screen screen){
-                if(this.screen != null)
+        public void setScreen(Screen screen) {
+                if (this.screen != null)
                         this.screen.hide();
                 this.screen = screen;
-                if(this.screen != null){
-                        if(stage == null){
+                if (this.screen != null) {
+                        if (stage == null) {
                                 stage = new Stage(new ScreenViewport());
                                 skin = new Skin(Gdx.files.internal("Skins/BasicSkin/uiskin.json"));
                         }
                         this.screen.show();
                         this.screen.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-                }else{
-                        if(stage != null){
+                } else {
+                        if (stage != null) {
                                 stage.dispose();
                                 stage = null;
                                 skin.dispose();
@@ -103,8 +105,8 @@ public class DungeonApp implements ApplicationListener {
                 }
         }
 
-        public void loadWorld(DungeonWorld.Settings settings){
-                if(worldManager != null)
+        public void loadWorld(DungeonWorld.Settings settings) {
+                if (worldManager != null)
                         throw new IllegalStateException("world is already loaded");
 
                 Gdx.graphics.setContinuousRendering(true);
@@ -119,43 +121,43 @@ public class DungeonApp implements ApplicationListener {
                 setScreen(null);
         }
 
-        protected Screen createLoadingScreen(){
+        protected Screen createLoadingScreen() {
                 return new LoadingScreen(this);
         }
 
-        protected Screen createPauseScreen(){
+        protected Screen createPauseScreen() {
                 return new PauseScreen(this);
         }
 
-        public void unloadWorld(){
-                if(worldManager != null)
+        public void unloadWorld() {
+                if (worldManager != null)
                         worldManager.dispose();
                 worldManager = null;
         }
 
-        public void setWorldPaused(boolean paused){
-                if(worldManager == null || worldManager.isPaused() == paused)
+        public void setWorldPaused(boolean paused) {
+                if (worldManager == null || worldManager.isPaused() == paused)
                         return;
 
                 worldManager.setPaused(paused);
 
-                if(paused){
+                if (paused) {
                         setScreen(createPauseScreen());
-                }else{
+                } else {
                         Gdx.graphics.setContinuousRendering(true);
                         setScreen(null);
                 }
         }
 
-        public boolean isWorldPaused(){
-                if(worldManager == null)
+        public boolean isWorldPaused() {
+                if (worldManager == null)
                         return false;
 
                 return worldManager.isPaused();
 
         }
 
-        public void exitApp(){
+        public void exitApp() {
                 // TODO: are you sure you want to quit etc
                 Gdx.app.exit();
         }
@@ -172,7 +174,7 @@ public class DungeonApp implements ApplicationListener {
                 this.platformActionResolver = platformActionResolver;
         }
 
-        public interface Resolver{
+        public interface Resolver {
                 public int getInterstitialAdState();
 
                 public void loadInterstitialAd();

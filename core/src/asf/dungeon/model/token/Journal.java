@@ -1,10 +1,8 @@
 package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
-import asf.dungeon.model.PotionItem;
+import asf.dungeon.model.item.PotionItem;
 import com.badlogic.gdx.utils.Array;
-
-import java.util.List;
 
 /**
  * Created by Danny on 11/5/2014.

@@ -4,10 +4,10 @@ package asf.dungeon.model.token;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.Item;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.logic.LogicProvider;
 import com.badlogic.gdx.utils.Array;
 
@@ -34,7 +34,7 @@ public class Token  {
         private Array<TokenComponent> components = new Array<TokenComponent>(true, 8, TokenComponent.class);
         protected transient Listener listener;
         // Common Components
-        private Target target;
+        private Command command;
         private Move move;
         private Damage damage;
         private Attack attack;
@@ -67,8 +67,8 @@ public class Token  {
                         this.damage = (Damage) component;
                 } else if (component instanceof FogMapping) {
                         this.fogMapping = (FogMapping) component;
-                } else if (component instanceof Target) {
-                        this.target = (Target) component;
+                } else if (component instanceof Command) {
+                        this.command = (Command) component;
                 } else if (component instanceof Inventory) {
                         this.inventory = (Inventory) component;
                 } else if (component instanceof Attack) {
@@ -191,8 +191,8 @@ public class Token  {
                 return modelId;
         }
 
-        public Target getTarget() {
-                return target;
+        public Command getCommand() {
+                return command;
         }
 
 
@@ -243,6 +243,8 @@ public class Token  {
 
         public static interface Listener {
 
+                public void onPathBlocked(Pair nextLocation, Tile nextTile);
+
                 public void onAttack(Token target, boolean ranged);
 
                 public void onAttacked(Token attacker, Token target, int damage, boolean dodge);
@@ -251,7 +253,9 @@ public class Token  {
 
                 public void onInventoryRemove(Item item);
 
-                public void onConsumeItem(Item.Consumable item);
+
+
+                public void onUseItem(Item item);
 
                 public void onStatusEffectChange(StatusEffects.Effect effect, float duration);
 

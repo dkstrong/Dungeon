@@ -1,7 +1,7 @@
 package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
-import asf.dungeon.model.Item;
+import asf.dungeon.model.item.Item;
 
 /**
  * Created by Danny on 11/13/2014.
