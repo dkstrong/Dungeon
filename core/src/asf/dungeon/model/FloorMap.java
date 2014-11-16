@@ -1,5 +1,6 @@
 package asf.dungeon.model;
 
+import asf.dungeon.model.factory.UtFloorGen;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.utils.Array;
@@ -17,6 +18,7 @@ public class FloorMap  {
         protected Array<Token> tokens = new Array<Token>(true, 16, Token.class);
 
         public FloorMap(int index, Tile[][] tiles) {
+                UtFloorGen.printFloorTile(tiles);
                 this.index = index;
                 this.tiles = tiles;
                 pathfinder = new Pathfinder(tiles);

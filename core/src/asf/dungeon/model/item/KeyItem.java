@@ -60,10 +60,15 @@ public class KeyItem implements Item {
         }
 
         public static enum Type{
-                Silver,
-                Gold,
-                Red;
-                private transient final ModelId modelId = ModelId.Key;
+                Silver(ModelId.Key),
+                Gold(ModelId.Key2),
+                Red(ModelId.Key3);
+                // TODO: transient?
+                private final ModelId modelId;
+
+                Type(ModelId modelId) {
+                        this.modelId = modelId;
+                }
         }
 
 }

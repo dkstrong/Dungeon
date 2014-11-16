@@ -119,7 +119,7 @@ public class Dungeon {
                 return floorMaps.get(floorIndex);
         }
 
-        public Token newCharacterToken(FloorMap fm, String name, ModelId modelId, LogicProvider logicProvider) {
+        public Token newCharacterToken(FloorMap fm, String name, ModelId modelId, LogicProvider logicProvider, int x, int y) {
                 Token t = new Token(this, fm, nextTokenId++, name, modelId);
                 t.add(logicProvider);
                 t.add(new Command(t));
@@ -138,18 +138,22 @@ public class Dungeon {
                 t.getDamage().setDeathDuration(3f);
                 t.getDamage().setDeathRemovalCountdown(10f);
                 fm.tokens.add(t);
+                boolean valid = t.teleportToLocation(x, y);
+                if(!valid) throw new IllegalStateException("can not spawn here!");
                 if (currentFloorMap == fm && listener != null)
                         listener.onTokenAdded(t);
                 return t;
         }
 
-        public Token newCrateToken(FloorMap fm, String name, ModelId modelId, Item item) {
+        public Token newCrateToken(FloorMap fm, String name, ModelId modelId, Item item, int x, int y) {
                 Token t = new Token(this, fm, nextTokenId++, name, modelId);
                 t.add(new Inventory(t, item));
                 t.add(new Damage(t, 1));
                 t.getDamage().setDeathDuration(2.5f);
                 t.getDamage().setDeathRemovalCountdown(.25f);
                 fm.tokens.add(t);
+                boolean valid = t.teleportToLocation(x, y);
+                if(!valid) throw new IllegalStateException("can not spawn here!");
                 if (currentFloorMap == fm && listener != null)
                         listener.onTokenAdded(t);
                 return t;
@@ -159,7 +163,8 @@ public class Dungeon {
                 Token t = new Token(this, fm, nextTokenId++, item.getName(), item.getModelId());
                 t.add(new Loot(t, item));
                 fm.tokens.add(t);
-                t.teleportToLocation(x, y);
+                boolean valid = t.teleportToLocation(x, y);
+                if(!valid) throw new IllegalStateException("can not spawn here!");
                 if (currentFloorMap == fm && listener != null)
                         listener.onTokenAdded(t);
                 return t;

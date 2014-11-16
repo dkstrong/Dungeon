@@ -2,10 +2,9 @@ package asf.dungeon.model.factory;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.ModelId;
-import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.SimpleLogicProvider;
@@ -43,11 +42,14 @@ public class UtFloorGen {
                         characters = new ModelId[]{ModelId.Archer,ModelId.Berzerker,ModelId.Diablous,ModelId.FemaleMage,ModelId.Mage,ModelId.Priest}; // "cerberus"
                 }
                 //characters = new String[]{};
-
+                int x,y;
                 for(ModelId modelId : characters){
-                        Token characterToken = dungeon.newCharacterToken(floorMap,modelId.name(),modelId, new SimpleLogicProvider());
-                        while(!characterToken.teleportToLocation(MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight())) || floorMap.getTile(characterToken.getLocation()).isStairs() ){
-                        }
+                        do{
+                                x = MathUtils.random.nextInt(floorMap.getWidth());
+                                y = MathUtils.random.nextInt(floorMap.getHeight());
+                        }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
+
+                        Token characterToken = dungeon.newCharacterToken(floorMap,modelId.name(),modelId, new SimpleLogicProvider(),x,y);
                         characterToken.get(Experience.class).setStats(1, 7, 6, 7);
                 }
 
@@ -57,16 +59,20 @@ public class UtFloorGen {
         }
 
         protected static void spawnRandomCrates(Dungeon dungeon, FloorMap floorMap){
-                ModelId[] crates = new ModelId[]{ModelId.CeramicPitcher,ModelId.CeramicPitcher,ModelId.CeramicPitcher,ModelId.CeramicPitcher,ModelId.CeramicPitcher};
-
+                int x,y;
+                ModelId[] crates = new ModelId[]{
+                        ModelId.CeramicPitcher,
+                        ModelId.CeramicPitcher,
+                        ModelId.CeramicPitcher,
+                        ModelId.CeramicPitcher,
+                        ModelId.CeramicPitcher};
                 for(ModelId modelId : crates){
 
-                        // new PotionItem(dungeon, PotionItem.Type.Health)
-                        Token crateToken = dungeon.newCrateToken(floorMap,modelId.name(), modelId, new KeyItem(dungeon, KeyItem.Type.Silver));
-
-                        while(!crateToken.teleportToLocation(MathUtils.random.nextInt(floorMap.getWidth()),MathUtils.random.nextInt(floorMap.getHeight())) || floorMap.getTile(crateToken.getLocation()).isStairs() ){
-                        }
-
+                        do{
+                                x = MathUtils.random.nextInt(floorMap.getWidth());
+                                y = MathUtils.random.nextInt(floorMap.getHeight());
+                        }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
+                        dungeon.newCrateToken(floorMap,modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health),x,y);
                 }
         }
 
@@ -82,13 +88,13 @@ public class UtFloorGen {
                 int countSpawn = 0;
                 for (int x = 0; x < floorMap.getWidth(); x++){
                         for (int y = 0; y < floorMap.getHeight(); y++){
-                                if(!floorMap.getTile(x,y).isFloor())
+                                if(!floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y))
                                         continue;
 
                                 int numWalls = countWalls(floorMap.getTiles(), x, y);
                                 if(treasurePlacementLimt <=numWalls){
-                                        Token crateToken = dungeon.newCrateToken(floorMap,modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health));
-                                        crateToken.teleportToLocation(x,y);
+                                        dungeon.newCrateToken(floorMap,modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health),x,y);
+
                                         countSpawn++;
                                         if(countSpawn >= maxTreasures)
                                                 return;

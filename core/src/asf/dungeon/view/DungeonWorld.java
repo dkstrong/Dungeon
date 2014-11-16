@@ -80,8 +80,8 @@ public class DungeonWorld implements Disposable {
                 this.dungeonApp = dungeonApp;
                 this.settings = settings;
                 cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-                cam.position.set(0f, 35f, 10f);   // 0.5f
-                cam.lookAt(0, 0, 0);   //  -2.5f
+                cam.position.set(0f, 35f, 15f);
+                cam.lookAt(0, 0, 0);
                 cam.near = .1f;
                 cam.far = 300f;
                 cam.update();
@@ -120,7 +120,7 @@ public class DungeonWorld implements Disposable {
                         dungeon.setListener(internalInput);
                 }else {
                         FloorMapGenMultiplexer floorMapGenMultiplexer = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new PreBuiltFloorGen(), new PreBuiltFloorGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
+                                new ConnectedRoomsGen(), new PreBuiltFloorGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
@@ -145,10 +145,8 @@ public class DungeonWorld implements Disposable {
 
                 FloorMap floorMap = dungeon.getCurrentFloopMap();
 
-                Token knightToken = dungeon.newCharacterToken(floorMap,"Player 1", settings.playerModel, new LocalPlayerLogicProvider(0,"Player 1"));
-
                 Pair locationOfUpStairs = floorMap.getLocationOfUpStairs();
-                knightToken.teleportToLocation(locationOfUpStairs.x, locationOfUpStairs.y);
+                Token knightToken = dungeon.newCharacterToken(floorMap,"Player 1", settings.playerModel, new LocalPlayerLogicProvider(0,"Player 1"),locationOfUpStairs.x, locationOfUpStairs.y);
 
                 knightToken.get(Experience.class).setStats(1, 10, 6, 6);
                 knightToken.getAttack().setAbleRangedAttack(rangedHero);
@@ -392,7 +390,7 @@ public class DungeonWorld implements Disposable {
 
                 @Override
                 public void onTokenAdded(Token token) {
-
+                        System.out.println("onTokenAdded()");
                         if (token == hudSpatial.localPlayerToken) {
                                 //Gdx.app.log("DungeonWorld", "moving view to move with the player token");
                                 //floorDecals.setFloorMap(hudSpatial.localPlayerToken.getFloorMap());

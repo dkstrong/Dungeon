@@ -26,32 +26,15 @@ public class ConnectedRoomsGen implements FloorMapGenerator {
 
         @Override
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
-
-
-                Tile[][] tiles = generateTiles(floorIndex);
-                UtFloorGen.printFloorTile(tiles);
-
-                FloorMap floorMap = new FloorMap(floorIndex, tiles);
-
-                UtFloorGen.spawnCharacters(dungeon, floorMap);
-                UtFloorGen.spawnRandomCrates(dungeon, floorMap);
-                return floorMap;
-        }
-
-        public Tile[][] generateTiles(int floorIndex) {
                 int floorWidth = MathUtils.random(minFloorWidth, maxFloorWidth);
                 int floorHeight = MathUtils.random(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
                 int numRooms = Math.round(floorWidth / maxRoomSize * floorHeight / maxRoomSize * .5f);
-                if (numRooms > maxRooms)
-                        numRooms = maxRooms;
-
+                if (numRooms > maxRooms) numRooms = maxRooms;
                 numRooms -= MathUtils.random.nextInt(Math.round(numRooms * .25f));
 
-
                 Array<Room> rooms = new Array<Room>(true, numRooms, Room.class);
-
                 // make rooms
                 while (rooms.size < numRooms) {
                         Room newRoom = new Room(0, 0, maxRoomSize, maxRoomSize);
@@ -65,48 +48,19 @@ public class ConnectedRoomsGen implements FloorMapGenerator {
 
                         } while (!isValidLocation(tiles, newRoom, rooms));
                         rooms.add(newRoom);
-                        Room.fillRoom(tiles, newRoom);
                 }
 
-                // fill tunnels and doors
-                for (int i = 1; i < rooms.size; i++) {
-                        Room prevRoom = rooms.get(i - 1);
-                        Room room = rooms.get(i);
-                        Room.fillTunnel(tiles, room, prevRoom, true);
-                }
+                Room.fillRooms(tiles, rooms);
+                Room.fillTunnels(tiles, rooms);
+                boolean valid = Room.carveDoorsKeysStairs(floorIndex, tiles, rooms, true, true);
+                if(!valid) throw new Error("could not generate valid stairs locations, need to regenrate");
 
-
-                if (makeDoors)
-                        for (int i = 0; i < rooms.size; i++)
-                                Room.fillRoomWithDoors(tiles, rooms.get(i));
-
-
-                // fill stairways
-
-                Room room = rooms.get(0);
-                boolean done = false;
-                do {
-                        int x = MathUtils.random(room.x1 + 2, room.x2 - 2);
-                        int y = MathUtils.random(room.y1 + 2, room.y2 - 2);
-                        if (tiles[x][y].isFloor()) {
-                                tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex + 1);
-                                done = true;
-                        }
-                } while (!done);
-
-                room = rooms.get(rooms.size - 1);
-                done = false;
-                do {
-                        int x = MathUtils.random(room.x1 + 2, room.x2 - 2);
-                        int y = MathUtils.random(room.y1 + 2, room.y2 - 2);
-                        if (tiles[x][y].isFloor()) {
-                                tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
-                                done = true;
-                        }
-                } while (!done);
-
-
-                return tiles;
+                FloorMap floorMap = new FloorMap(floorIndex, tiles);
+                UtFloorGen.spawnCharacters(dungeon, floorMap);
+                UtFloorGen.spawnRandomCrates(dungeon, floorMap);
+                valid = Room.spawnKeys(dungeon, floorMap, rooms);
+                if(!valid) throw new Error("could not generate valid key locations, need to regenrate");
+                return floorMap;
         }
 
         private static boolean isValidLocation(Tile[][] tiles, Room testRoom, Array<Room> rooms) {

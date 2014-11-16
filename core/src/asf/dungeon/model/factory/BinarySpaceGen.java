@@ -3,13 +3,18 @@ package asf.dungeon.model.factory;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
+import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Array;
 
 /**
  *
  * floor is made by repeatidaly dividing the floor into 2 smaller parts
  *
  * http://www.roguebasin.com/index.php?title=Basic_BSP_Dungeon_generation
+ *
+ * TODO: when splitting and creating inner rooms, need to make sure that a minimum size can be
+ * maintained to support fitting in stairs and other items.
  *
  * Created by Danny on 11/4/2014.
  */
@@ -23,67 +28,57 @@ public class BinarySpaceGen implements FloorMapGenerator{
 
 
         private int numberOfSubdivisions = 4;
-        private boolean makeDoors = true;
 
 
         @Override
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
-
-
-                Tile[][] tiles = generateTiles(floorIndex);
-                UtFloorGen.printFloorTile(tiles);
-
-                FloorMap floorMap = new FloorMap(floorIndex, tiles);
-
-                UtFloorGen.spawnCharacters(dungeon, floorMap);
-                UtFloorGen.spawnRandomCrates(dungeon, floorMap);
-
-                return floorMap;
-        }
-
-
-        public Tile[][] generateTiles(int floorIndex){
                 int floorWidth = MathUtils.random(minFloorWidth, maxFloorWidth);
                 int floorHeight = MathUtils.random(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
-
-                for (int x = 0; x < tiles.length; x++){
-                        for (int y = 0; y < tiles[0].length; y++){
-                                //tiles[x][y] = Tile.makeWall();
-                        }
-                }
-
-
                 RoomCell baseRoomCell = new RoomCell(0,0,floorWidth-1, floorHeight-1);
+                for(int k=0;k< numberOfSubdivisions; k++) baseRoomCell.split();
 
-                for(int k=0;k< numberOfSubdivisions; k++){
-                        subdivide(baseRoomCell);
-                }
+                Array<Room> rooms = new Array<Room>(true, UtMath.pow(2, numberOfSubdivisions), Room.class);
+                addToArray(baseRoomCell, rooms);
 
-                fillRooms(tiles, baseRoomCell);
+                Room.fillRooms(tiles, rooms);
                 fillTunnels(tiles, baseRoomCell.childCell1, baseRoomCell.childCell2);
+                boolean valid = Room.carveDoorsKeysStairs(floorIndex, tiles, rooms, true, true);
+                if(!valid) throw new Error("could not generate valid stairs locations, need to regenrate");
 
-                if (makeDoors)
-                        fillRoomsWithDoors(tiles, baseRoomCell);
-
-                //UtFloorGen.ensureEdgesAreWalls(tiles);
-                UtFloorGen.placeUpStairs(tiles, floorIndex);
-                UtFloorGen.placeDownStairs(tiles, floorIndex);
-                return tiles;
+                FloorMap floorMap = new FloorMap(floorIndex, tiles);
+                UtFloorGen.spawnCharacters(dungeon, floorMap);
+                UtFloorGen.spawnRandomCrates(dungeon, floorMap);
+                valid = Room.spawnKeys(dungeon, floorMap, rooms);
+                if(!valid) throw new Error("could not generate valid key locations, need to regenrate");
+                return floorMap;
         }
 
-        private void subdivide(RoomCell baseCell){
-                if(baseCell.isLeaf()){
-                        baseCell.split();
+        private void addToArray(RoomCell roomCell, Array<Room> rooms){
+                if(roomCell.isLeaf()){
+                        rooms.add(roomCell.getInnerRoom());
                 }else{
-                        subdivide(baseCell.childCell1);
-                        subdivide(baseCell.childCell2);
+                        addToArray(roomCell.childCell1, rooms);
+                        addToArray(roomCell.childCell2, rooms);
                 }
         }
+
+        private void fillTunnels(Tile[][] tiles, RoomCell cell1, RoomCell cell2){
+
+                Room.fillTunnel(tiles, cell1.getEndLeaf().getInnerRoom(), cell2.getEndLeaf().getInnerRoom(), false);
+                if(cell1.childCell1 != null)
+                        fillTunnels(tiles, cell1.childCell1, cell1.childCell2);
+                if(cell2.childCell1 != null)
+                        fillTunnels(tiles, cell2.childCell1, cell2.childCell2);
+
+
+        }
+
 
 
         private static class RoomCell {
+
                 private RoomCell parentCell;
                 private RoomCell childCell1;
                 private RoomCell childCell2;
@@ -103,16 +98,6 @@ public class BinarySpaceGen implements FloorMapGenerator{
                         return childCell1 == null && childCell2 == null;
                 }
 
-                private boolean hasLeafs(){
-                        return childCell1.isLeaf() && childCell2.isLeaf();
-                }
-
-                private RoomCell getSisterCell(){
-                        if(parentCell.childCell1 == this)
-                                return parentCell.childCell2;
-                        return parentCell.childCell1;
-                }
-
                 private RoomCell getEndLeaf(){
                         if(isLeaf())
                                 return this;
@@ -120,6 +105,11 @@ public class BinarySpaceGen implements FloorMapGenerator{
                 }
 
                 private void split(){
+                        if(!isLeaf()){
+                                childCell1.split();
+                                childCell2.split();
+                                return;
+                        }
                         // look at how the parent was split to encourage its chldren to split in the other direction
                         // this should create layouts with less "squished" rooms that represent closets more than rooms
                         //vertSplit = MathUtils.randomBoolean(parentCell != null && parentCell.vertSplit ? .05f :.95f); //false; // MathUtils.randomBoolean()
@@ -159,43 +149,5 @@ public class BinarySpaceGen implements FloorMapGenerator{
                         return innerRoom;
                 }
         }
-
-
-        private void fillRooms(Tile[][] tiles,RoomCell roomCell){
-                if(roomCell.isLeaf()){
-                        Room.fillRoom(tiles, roomCell.getInnerRoom());
-                }else{
-                        fillRooms(tiles, roomCell.childCell1);
-                        fillRooms(tiles, roomCell.childCell2);
-                }
-
-        }
-
-        private void fillTunnels(Tile[][] tiles, RoomCell cell1, RoomCell cell2){
-
-                Room.fillTunnel(tiles, cell1.getEndLeaf().getInnerRoom(), cell2.getEndLeaf().getInnerRoom(), false);
-                if(cell1.childCell1 != null)
-                        fillTunnels(tiles, cell1.childCell1, cell1.childCell2);
-                if(cell2.childCell1 != null)
-                        fillTunnels(tiles, cell2.childCell1, cell2.childCell2);
-
-
-        }
-
-        private void fillRoomsWithDoors(Tile[][] tiles,RoomCell roomCell){
-                if(roomCell.isLeaf()){
-                        Room.fillRoomWithDoors(tiles, roomCell.getInnerRoom());
-                }else{
-                        fillRoomsWithDoors(tiles, roomCell.childCell1);
-                        fillRoomsWithDoors(tiles, roomCell.childCell2);
-                }
-
-        }
-
-
-
-
-
-
 
 }

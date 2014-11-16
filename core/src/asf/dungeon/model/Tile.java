@@ -7,8 +7,9 @@ import asf.dungeon.model.item.KeyItem;
  * Created by danny on 10/26/14.
  */
 public class Tile {
-        private static transient final Tile floorTile = new Tile(false, false);
-        private static transient final Tile wallTile = new Tile(true, true);
+        // TODO: should these be transients?
+        private static final Tile floorTile = new Tile(false, false);
+        private static final Tile wallTile = new Tile(true, true);
 
         private int movementCost;
         private boolean blockMovement;
@@ -69,6 +70,8 @@ public class Tile {
         public void setDoorOpened(boolean opened) { blockVision = !opened; }
 
         public void setDoorLocked(boolean locked) { blockMovement = locked; }
+
+        public void setDoorLocked(boolean locked, KeyItem.Type keyType) { blockMovement = locked; this.keyType = keyType; }
 
         public boolean isStairs() {
                 return stairsTo >= -1;

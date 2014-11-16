@@ -131,8 +131,8 @@ public class PotionItem implements Consumable {
                 Silver(com.badlogic.gdx.graphics.Color.GRAY,"Models/Loot/Potion/potion_silver_blue.png"),
                 Purple(com.badlogic.gdx.graphics.Color.PURPLE,"Models/Loot/Potion/potion_silver_blue.png");
 
-                public transient final com.badlogic.gdx.graphics.Color color;
-                public transient final String textureAssetLocation;
+                public final com.badlogic.gdx.graphics.Color color; // TODO: transient?
+                public final String textureAssetLocation; // TODO: transient?
 
                 Color(com.badlogic.gdx.graphics.Color color, String textureAssetLocation) {
                         this.color = color;

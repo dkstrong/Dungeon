@@ -16,10 +16,12 @@ public enum ModelId {
         Priest("Models/Characters/priest.g3db"),
         CeramicPitcher("Models/Crates/CeramicPitcher.g3db"),
         Potion("Models/Loot/Potion/PotionSmall.g3db"),
-        Key("Models/Loot/Key/Key.g3db");
+        Key("Models/Loot/Key/Key.g3db"),
+        Key2("Models/Loot/Key/Key2.g3db"),
+        Key3("Models/Loot/Key/Key3.g3db");
         //HealthPotion("Models/Loot/loot_health_potion.g3db");
 
-        public transient final String assetLocation;
+        public final String assetLocation; // TODO: should this be transient?
 
         ModelId(String assetLocation) {
                 this.assetLocation = assetLocation;
