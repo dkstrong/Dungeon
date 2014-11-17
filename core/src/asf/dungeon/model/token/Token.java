@@ -8,7 +8,7 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.Item;
-import asf.dungeon.model.token.logic.LogicProvider;
+import asf.dungeon.model.token.logic.Logic;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -34,6 +34,8 @@ public class Token  {
         private Array<TokenComponent> components = new Array<TokenComponent>(true, 8, TokenComponent.class);
         protected transient Listener listener;
         // Common Components
+        private Logic logic;
+        private Experience experience;
         private Command command;
         private Move move;
         private Damage damage;
@@ -60,9 +62,8 @@ public class Token  {
 
         public void add(TokenComponent component) {
                 components.add(component);
-                if (component instanceof LogicProvider) {
-                        LogicProvider lp = (LogicProvider)component;
-                        lp.setToken(this);
+                if (component instanceof Logic) {
+                        logic = (Logic)component;
                 } else if (component instanceof Damage) {
                         this.damage = (Damage) component;
                 } else if (component instanceof FogMapping) {
@@ -75,6 +76,8 @@ public class Token  {
                         this.attack = (Attack) component;
                 } else if (component instanceof Move) {
                         this.move = (Move) component;
+                }else if(component instanceof  Experience){
+                        this.experience = (Experience) component;
                 }
         }
 
@@ -191,10 +194,11 @@ public class Token  {
                 return modelId;
         }
 
+        public Logic getLogic() {return logic;}
+
         public Command getCommand() {
                 return command;
         }
-
 
         public Move getMove() {
                 return move;
@@ -214,6 +218,10 @@ public class Token  {
 
         public FogMapping getFogMapping() {
                 return fogMapping;
+        }
+
+        public Experience getExperience() {
+                return experience;
         }
 
         /**
@@ -245,7 +253,7 @@ public class Token  {
 
                 public void onPathBlocked(Pair nextLocation, Tile nextTile);
 
-                public void onAttack(Token target, boolean ranged);
+                public void onAttack(Token target, Pair targetLocation, boolean ranged);
 
                 public void onAttacked(Token attacker, Token target, int damage, boolean dodge);
 

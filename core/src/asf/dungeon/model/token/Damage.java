@@ -2,7 +2,6 @@ package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.item.Item;
-import com.badlogic.gdx.math.MathUtils;
 
 /**
  * Created by Danny on 11/11/2014.
@@ -65,24 +64,20 @@ public class Damage implements TokenComponent{
          *
          * @param value
          */
-        public void addHealth(int value) {
+        protected void addHealth(int value) {
                 if (value > 0) {
                         boolean wasDead = isDead();
                         this.health += value;
-                        if (health > maxHealth)
-                                health = maxHealth;
+                        if (health > maxHealth) health = maxHealth;
 
                         if (wasDead && !isDead()) {
                                 deathCountdown = 0;
                                 onRevive();
                         }
                 } else if (value < 0) {
-                        if (isDead()) {
-                                return;
-                        }
+                        if (isDead()) return;
                         health += value;
-                        if (health < 0)
-                                health = 0;
+                        if (health < 0) health = 0;
 
                         if (isDead()) {
                                 deathCountdown = deathDuration;
@@ -91,6 +86,21 @@ public class Damage implements TokenComponent{
                 }
 
 
+        }
+
+        protected void setMaxHealth(int value){
+                if(value <=0) throw new IllegalArgumentException("max health must be greater than 0");
+                // ensure that if health =0  that it stays zero.
+                if(health == 0){
+                        maxHealth = value;
+                        return;
+                }
+                // scale health to be the same percentage of maxHealth with the new max health value
+                float ratio = health / maxHealth;
+                maxHealth = value;
+                health = Math.round(ratio * maxHealth);
+                if (health > maxHealth) health = maxHealth;
+                else if(health < 1 ) health = 1;
         }
 
         protected void onRevive() {
@@ -191,37 +201,4 @@ public class Damage implements TokenComponent{
                 this.deathRemovalCountdown = deathRemovalCountdown;
         }
 
-        protected void receiveDamageFrom(Token attacker) {
-                Experience attackerExperience = attacker.get(Experience.class);
-                Experience experience = token.get(Experience.class);
-                if(experience == null){
-                        addHealth(-attackerExperience.getStrengthRating());
-                        // dont notify listener, not a major thing happening here..
-                        return;
-                }
-
-                int speedDifference = experience.getSpeedRating() - attackerExperience.getSpeedRating();
-                // if negative, im slower than my attacker
-                boolean dodge;
-                if(speedDifference >=0){
-                        dodge = MathUtils.randomBoolean(.5f);
-                }else{
-                        dodge = MathUtils.randomBoolean(.15f);
-                }
-
-                int damage;
-                if(!dodge){
-                        damage = attackerExperience.getStrengthRating() - experience.getStrengthRating();
-                        if(damage  >0){
-                                addHealth(-damage);
-                        }else{
-                                damage = 0;
-                        }
-                }else{
-                        damage = 0;
-                }
-
-                if(token.listener != null)
-                        token.listener.onAttacked(attacker, token, damage, dodge);
-        }
 }

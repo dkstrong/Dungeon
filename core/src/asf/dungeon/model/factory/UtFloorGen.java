@@ -7,7 +7,7 @@ import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.SimpleLogicProvider;
+import asf.dungeon.model.token.logic.FullAgroLogic;
 import com.badlogic.gdx.math.MathUtils;
 
 
@@ -37,7 +37,7 @@ public class UtFloorGen {
         protected static void spawnCharacters(Dungeon dungeon, FloorMap floorMap){
                 ModelId[] characters;
                 if(floorMap.index == 0)
-                        characters = new ModelId[]{};
+                        characters = new ModelId[]{ModelId.Berzerker};
                 else{
                         characters = new ModelId[]{ModelId.Archer,ModelId.Berzerker,ModelId.Diablous,ModelId.FemaleMage,ModelId.Mage,ModelId.Priest}; // "cerberus"
                 }
@@ -49,8 +49,11 @@ public class UtFloorGen {
                                 y = MathUtils.random.nextInt(floorMap.getHeight());
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
-                        Token characterToken = dungeon.newCharacterToken(floorMap,modelId.name(),modelId, new SimpleLogicProvider(),x,y);
-                        characterToken.get(Experience.class).setStats(1, 7, 6, 7);
+                        Token characterToken = dungeon.newCharacterToken(floorMap,modelId.name(),modelId,
+                                new FullAgroLogic(1),
+                                new Experience(1, 4, 10, 7),
+                                x,y);
+
                 }
 
 

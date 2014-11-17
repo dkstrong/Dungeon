@@ -288,13 +288,13 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         @Override
-        public void onAttack(Token target, boolean ranged) {
+        public void onAttack(Token target, Pair targetLocation, boolean ranged) {
                 if(ranged){
-                        world.shootProjectile(token, target);
+                        world.shootProjectile(token, target, targetLocation);
                 }
 
                 if (world.getHud().localPlayerToken == token)
-                        world.getHud().onAttack(target, ranged);
+                        world.getHud().onAttack(target, targetLocation, ranged);
         }
 
         @Override

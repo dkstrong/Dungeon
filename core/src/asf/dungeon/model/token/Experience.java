@@ -6,15 +6,26 @@ import asf.dungeon.model.Direction;
  * Created by Danny on 11/11/2014.
  */
 public class Experience implements TokenComponent{
-        private final Token token;
+        private Token token;
         private int xp;
-        private int levelRating = 1;
-        private int strengthRating = 1;
-        private int speedRating = 1;
-        private int defenseRating = 1;
+        private int level = 1;
+        private int vitality = 1; // each point of vitality adds two hp, vitality also determines effeciency when using scrolls
+        private int strength = 1; // determines damage sent/received by melee and ranged attscks.
+        private int agility = 1; // determins how fast token moves, chance of dodging
 
-        public Experience(Token token) {
+        public Experience(int level, int vitality, int strength, int agility) {
+                this.level = level;
+                this.vitality = vitality;
+                this.strength = strength;
+                this.agility = agility;
+        }
+
+        public void setToken(Token token) {
                 this.token = token;
+                this.setLevel(level);
+                this.setVitality(vitality);
+                this.setStrength(strength);
+                this.setAgility(agility);
         }
 
         @Override
@@ -27,63 +38,83 @@ public class Experience implements TokenComponent{
                 return false;
         }
 
-        public void setStats(int levelRating, int strengthRating, int speedRating, int defenseRating){
-                this.setLevelRating(levelRating);
-                this.setStrengthRating(strengthRating);
-                this.setSpeedRating(speedRating);
-                this.setDefenseRating(defenseRating);
+        public void setStats(int level, int vitality, int strength, int agility){
+                this.setLevel(level);
+                this.setVitality(vitality);
+                this.setStrength(strength);
+                this.setAgility(agility);
         }
 
-        public void setLevelRating(int levelRating) {
-                this.levelRating = levelRating;
+        public int getXpAtStartOfLevel(){
+                if(level <=1 ) return 0;
+                return 10 + ((level - 2)*15);
         }
 
-        public int getLevelRating() {
-                return levelRating;
+        public int getRequiredXpToLevelUp(){
+                return 10 + ((level - 1)*15);
         }
 
-        public void setStrengthRating(int strengthRating) {
-
-                this.strengthRating = strengthRating;
-
-                // TODO: changing experience ratings should effect derrived stats
-                //if (this.isAttacking())
-                //        throw new IllegalStateException("can not change this value while attacking");
-                //this.attackDuration = 2;
-
-
-        }
-
-        public int getStrengthRating() {
-                return strengthRating;
-        }
-
-        public void setSpeedRating(int speedRating) {
-                this.speedRating = speedRating;
-                // TODO: changing experience ratings should effect derrived stats
-                //moveSpeed = speedRating;
-                //attackRange = Math.round(moveSpeed/2f);
-                //attackCooldownDuration = moveSpeed/6f;
-
-        }
-
-        public int getSpeedRating() {
-                return speedRating;
-        }
-
-        public void setDefenseRating(int defenseRating) {
-                this.defenseRating = defenseRating;
-        }
-
-        public int getDefenseRating() {
-                return defenseRating;
+        public void addXpFrom(Experience otherExperience){
+                if(otherExperience == null)
+                        return; // killed something with no experience, so no experience to gain
+                xp += 1;
+                if(xp >= getRequiredXpToLevelUp()){
+                        level +=1;
+                        setVitality(vitality+1);
+                        setStrength(strength+1);
+                        setAgility(agility+1);
+                }
         }
 
         public int getXp() {
                 return xp;
         }
 
-        public void setXp(int xp) {
-                this.xp = xp;
+        public void setLevel(int level) {
+                this.level = level;
+                xp = getXpAtStartOfLevel();
         }
+
+        public int getLevel() {
+                return level;
+        }
+
+        public int getVitality() {
+                return vitality;
+        }
+
+        public void setVitality(int vitality) {
+                this.vitality = vitality;
+                token.getDamage().setMaxHealth(vitality*2);
+        }
+
+        public void setStrength(int strength) {
+
+                this.strength = strength;
+
+                token.getAttack().setAttackDuration(2); // should get slightly shorter with each level
+                token.getAttack().setAttackRange(3); // should get slightly longer with each level
+
+        }
+
+        public int getStrength() {
+                return strength;
+        }
+
+        public void setAgility(int agility) {
+                this.agility = agility;
+                // TODO: changing experience ratings should effect derrived stats
+                token.getMove().setMoveSpeed(agility+1);
+                token.getAttack().setAttackCooldownDuration(agility / 6f);
+                token.getAttack().setProjectileSpeed(2); // should get slighlty higher with each level
+
+        }
+
+        public int getAgility() {
+                return agility;
+        }
+
+
+
+
 }

@@ -1,6 +1,8 @@
 package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.Pair;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -8,12 +10,14 @@ import com.badlogic.gdx.utils.Array;
  */
 public class Attack implements TokenComponent{
         private final Token token;
+        // derrived stats
         private int attackRange = 3; // how far away this character can attack using ranged attacks
         private float attackDuration = 2; // how long the "is attacking" phase lasts.
         private float attackCooldownDuration = 1; // how long since the last attack ended until a new attack can begin.
+        private float projectileSpeed = 2;
 
-        private boolean ableRangedAttack = true;
-        private boolean rangedKeepDistance = true;             // if true the character will hold position while in range of targeted token and it is alive, if false character will persue and get close inbetween shots
+        private boolean ableRangedAttack = false;
+        private static final transient boolean rangedKeepDistance = true;             // if true the character will hold position while in range of targeted token and it is alive, if false character will persue and get close inbetween shots
 
         //state variables
 
@@ -23,6 +27,7 @@ public class Attack implements TokenComponent{
         private float attackProjectileU =Float.NaN;
         private float attackProjectileMaxU = Float.NaN;
         private Token projectileAttackTarget;
+        private final Pair projectileAttackCoord = new Pair();
         private boolean rangedAttack = false;
         private float attackCoolDown = 0;                       // time until this token can send another attack, after attacking this value is reset to attackCooldownDuration
         private boolean sentAttackResult = false;
@@ -152,40 +157,65 @@ public class Attack implements TokenComponent{
         private void sendAttackResult(){
 
                 if(rangedAttack){
-                        // TODO: check to make sure the shot can still be lined up, if it cant then dont launch
-                        // the projectile
+                        if(inAttackRangeOfContinousMoveToken){ // target is still in range, were going to hit him
+                                projectileAttackCoord.set(meleeAttackTarget.getLocation());
+                                projectileAttackTarget = meleeAttackTarget;
+                                meleeAttackTarget.getDamage().setHitDuration(attackProjectileMaxU, token);
+                        }else{ // target got out of range, were going to gurantee miss
+                                token.getFloorMap().getNextClosestLegalLocation(token.getLocation(), meleeAttackTarget.getLocation(), projectileAttackCoord);
+                                projectileAttackTarget = null;
+                        }
                         attackProjectileU = 0;
-                        attackProjectileMaxU = token.getLocation().distance(meleeAttackTarget.getLocation()) / 2f;
-                        projectileAttackTarget = meleeAttackTarget;
-                        meleeAttackTarget.getDamage().setHitDuration(attackProjectileMaxU, token);
+                        attackProjectileMaxU = token.getLocation().distance(projectileAttackCoord) / projectileSpeed;
                         if(token.listener != null)
-                                token.listener.onAttack(projectileAttackTarget, true);
+                                token.listener.onAttack(projectileAttackTarget,projectileAttackCoord, true);
                         rangedAttack = false;
                 }else{
                         sendDamageToAttackTarget(meleeAttackTarget, false);
                         if(token.listener != null)
-                                token.listener.onAttack(meleeAttackTarget, false);
+                                token.listener.onAttack(meleeAttackTarget,meleeAttackTarget.getLocation() ,false);
                 }
 
 
 
 
         }
-        private void sendDamageToAttackTarget(Token targetToken, boolean ranged) {
 
-                targetToken.getDamage().receiveDamageFrom(token);
+        private void sendDamageToAttackTarget(Token targetToken, boolean ranged) {
+                if(targetToken == null) return;
+
+                boolean dodge;
+                int damage;
+
+                if(targetToken.getExperience() == null){
+                        dodge = false;
+                        damage = token.getExperience().getStrength();
+                }else{
+                        int speedDifference = token.getExperience().getAgility() - targetToken.getExperience().getStrength();
+                        if(speedDifference >0)
+                                dodge = MathUtils.randomBoolean(.95f);
+                        else
+                                dodge = MathUtils.randomBoolean(.15f);
+                        if(dodge){
+                                damage = 0;
+                        }else{
+                                damage = token.getExperience().getStrength() - targetToken.getExperience().getStrength();
+                                if(damage == 0) damage = 1;
+                                damage += MathUtils.random(1,3);
+                        }
+                }
+
+
+                if(damage  >0)
+                        targetToken.getDamage().addHealth(-damage);
+                else
+                        damage = 0;
+
+                if(targetToken.getExperience() != null && token.listener != null)
+                        token.listener.onAttacked(token, targetToken, damage, dodge);
 
                 if(targetToken.getDamage().isDead()){
-                        Experience targetTokenExperience = targetToken.get(Experience.class);
-                        if(targetTokenExperience != null){
-                                Experience experience = token.get(Experience.class);
-
-
-                                int gainXp = targetTokenExperience.getLevelRating() - experience.getLevelRating() +1 ;
-                                if(gainXp <0)
-                                        gainXp = 0;
-                                experience.setXp(experience.getXp()+gainXp);
-                        }
+                        token.getExperience().addXpFrom(targetToken.getExperience());
                 }
         }
 
@@ -203,6 +233,23 @@ public class Attack implements TokenComponent{
                 return attackDuration;
         }
 
+        /**
+         * how long it takes for the attack animaiton to happen
+         * also affects how long the being hit animation lasts for target.
+         *
+         * TODO: i may want the "being hit" duration to be its own stat.
+         *
+         * TODO:
+         * changing this value in the middle of an attack animaiton might cause
+         * the player being able to move before animation is over and other weirdnesses.
+         * will need to expirement
+         *
+         * @param attackDuration
+         */
+        protected void setAttackDuration(float attackDuration){
+                this.attackDuration = attackDuration;
+        }
+
         public boolean isAttackingRanged(){
                 return isAttacking() && rangedAttack;
         }
@@ -213,6 +260,32 @@ public class Attack implements TokenComponent{
 
         public float getAttackCooldownDuration() {
                 return attackCooldownDuration;
+        }
+
+        /**
+         * the time from finishing one attack animation until the next one can begin
+         * for ranged attacks the timer starts at time of releasing the projectile
+         *
+         * however you can not send another projectile until the current one has landed
+         *
+         * // TODO: need derrived stat to control how fast projectiles move
+         *
+         * @param attackCooldownDuration
+         */
+        protected void setAttackCooldownDuration(float attackCooldownDuration){
+                this.attackCooldownDuration = attackCooldownDuration;
+        }
+
+        public float getProjectileSpeed() {
+                return projectileSpeed;
+        }
+
+        /**
+         * how quickly the projectile reaches its target.
+         * @param projectileSpeed
+         */
+        protected void setProjectileSpeed(float projectileSpeed) {
+                this.projectileSpeed = projectileSpeed;
         }
 
         public float getAttackCoolDown() {
@@ -230,5 +303,17 @@ public class Attack implements TokenComponent{
 
         public boolean isInRangeOfAttackTarget(){
                 return inAttackRangeOfContinousMoveToken;
+        }
+
+        /**
+         * how far (manhattan distance) can be when doing ranged attacks
+         * @param attackRange
+         */
+        protected void setAttackRange(int attackRange) {
+                this.attackRange = attackRange;
+        }
+
+        public int getAttackRange() {
+                return attackRange;
         }
 }

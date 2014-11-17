@@ -5,20 +5,9 @@ import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
-import asf.dungeon.model.item.PotionItem;
-import asf.dungeon.model.factory.BinarySpaceGen;
-import asf.dungeon.model.factory.CellularAutomataGen;
-import asf.dungeon.model.factory.ConnectedRoomsGen;
-import asf.dungeon.model.factory.DirectionalCaveHallGen;
-import asf.dungeon.model.factory.FloorMapGenMultiplexer;
-import asf.dungeon.model.factory.FloorMapGenerator;
-import asf.dungeon.model.factory.MazeGen;
-import asf.dungeon.model.factory.PreBuiltFloorGen;
-import asf.dungeon.model.factory.RandomWalkGen;
 import asf.dungeon.model.token.Damage;
-import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.LocalPlayerLogicProvider;
+import asf.dungeon.model.token.logic.LocalPlayerLogic;
 import asf.dungeon.utility.DungeonLoader;
 import asf.dungeon.utility.ModelFactory;
 import asf.dungeon.view.shape.Box;
@@ -113,49 +102,18 @@ public class DungeonWorld implements Disposable {
                 selectionMark = addSpatial(new GenericSpatial(new ModelInstance(ModelFactory.box(5, 1, 5, Color.RED)), new Box(), environment)).setControl(new SelectionMark(this));
                 addSpatial(new ProjectileSpatial(this, environment));
 
-
-
                 if(settings.loadedDungeon != null){
                         dungeon = settings.loadedDungeon;
                         dungeon.setListener(internalInput);
                 }else {
-                        FloorMapGenMultiplexer floorMapGenMultiplexer = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new ConnectedRoomsGen(), new PreBuiltFloorGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
-                                new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
-                                new PreBuiltFloorGen(),
-                                new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
-                        },new FloorMapGenerator[]{
-                                new ConnectedRoomsGen(), new MazeGen(10,10)
-                        });
-
-                        dungeon = DungeonLoader.createDungeon(floorMapGenMultiplexer);  // this triggers the creation of various TokenSpatials...
-
-                        dungeon.setCurrentFloor(0);
-                        spawnLocalPlayer();
+                        dungeon = DungeonLoader.createDungeon(settings);
                         dungeon.setListener(internalInput);
-                        saveDungeon();
+                        //saveDungeon();
                 }
 
         }
 
 
-        private void spawnLocalPlayer(){
-
-                boolean rangedHero = settings.playerModel == ModelId.Archer || settings.playerModel == ModelId.Mage;
-
-                FloorMap floorMap = dungeon.getCurrentFloopMap();
-
-                Pair locationOfUpStairs = floorMap.getLocationOfUpStairs();
-                Token knightToken = dungeon.newCharacterToken(floorMap,"Player 1", settings.playerModel, new LocalPlayerLogicProvider(0,"Player 1"),locationOfUpStairs.x, locationOfUpStairs.y);
-
-                knightToken.get(Experience.class).setStats(1, 10, 6, 6);
-                knightToken.getAttack().setAbleRangedAttack(rangedHero);
-                knightToken.getDamage().setDeathRemovalCountdown(Float.NaN);
-                knightToken.getInventory().addItem(new PotionItem(dungeon, PotionItem.Type.Health));
-                knightToken.getInventory().addItem(new PotionItem(dungeon, PotionItem.Type.Health));
-
-                //knightToken.setMoveSpeed(50);
-        }
 
 
         private <T extends Spatial> T addSpatial(T spatial) {
@@ -176,31 +134,19 @@ public class DungeonWorld implements Disposable {
                 spatial.dispose();
         }
 
-        protected void shootProjectile(Token source, Token target){
+        protected void shootProjectile(Token source, Token target, Pair destLoc){
                 for (ProjectileSpatial projectileSpatial : projectileSpatialPool) {
                         if(!projectileSpatial.isActive()){
-                                projectileSpatial.shootProjectile(source, target);
+                                projectileSpatial.shootProjectile(source, target,destLoc);
                                 return;
                         }
                 }
 
                 ProjectileSpatial projectileSpatial = new ProjectileSpatial(this, environment);
                 addSpatial(projectileSpatial);
-                projectileSpatial.shootProjectile(source, target);
+                projectileSpatial.shootProjectile(source, target, destLoc);
         }
 
-        protected void shootProjectile(Token source, Pair destLoc){
-                for (ProjectileSpatial projectileSpatial : projectileSpatialPool) {
-                        if(!projectileSpatial.isActive()){
-                                projectileSpatial.shootProjectile(source, destLoc);
-                                return;
-                        }
-                }
-
-                ProjectileSpatial projectileSpatial = new ProjectileSpatial(this, environment);
-                addSpatial(projectileSpatial);
-                projectileSpatial.shootProjectile(source, destLoc);
-        }
 
         public Pair getMapCoords(Vector3 worldCoords, Pair storeMapCoords) {
                 return floorDecals.getMapCoords(worldCoords, storeMapCoords);
@@ -282,6 +228,7 @@ public class DungeonWorld implements Disposable {
                                         spatial.init(assetManager);
                         }
                 }
+
 
                 if (simulationStarted) {
                         if (!paused) {
@@ -390,16 +337,13 @@ public class DungeonWorld implements Disposable {
 
                 @Override
                 public void onTokenAdded(Token token) {
-                        System.out.println("onTokenAdded()");
                         if (token == hudSpatial.localPlayerToken) {
-                                //Gdx.app.log("DungeonWorld", "moving view to move with the player token");
-                                //floorDecals.setFloorMap(hudSpatial.localPlayerToken.getFloorMap());
-                                // do nothing. player TokenSpatial still exists.. TODO: may want to set visU = 0 to have it fade in though
+                                // dont re add the token, he already has a token spatial.
                         } else  {
                                 TokenSpatial tokenSpatial = addSpatial(new TokenSpatial(DungeonWorld.this, token, floorDecals.tokenCustomBox, environment));
-                                LocalPlayerLogicProvider logicProvider = token.get(LocalPlayerLogicProvider.class);
+                                LocalPlayerLogic logicProvider = token.get(LocalPlayerLogic.class);
                                 //Gdx.app.log("DungeonWorld", "Local character token is added");
-                                if(logicProvider != null && logicProvider.getId() == 0){
+                                if(token.getName().equals("Player 1") || (logicProvider != null && logicProvider.getTeam()== 0)){
                                         inputMultiplexer.addProcessor(hudSpatial);
                                         hudSpatial.setToken(token);
                                         cameraChaseTarget = tokenSpatial;
@@ -439,6 +383,7 @@ public class DungeonWorld implements Disposable {
         }
 
         public static class Settings{
+                public boolean balanceTest = false;
                 public Dungeon loadedDungeon;
                 public ModelId playerModel;
 

@@ -1,6 +1,5 @@
 package asf.dungeon.model;
 
-import asf.dungeon.model.factory.UtFloorGen;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.utils.Array;
@@ -15,19 +14,24 @@ public class FloorMap  {
         public final int index;
         public final Tile[][] tiles;
         private final Pathfinder pathfinder;
+        private final MonsterSpawner monsterSpawner;
         protected Array<Token> tokens = new Array<Token>(true, 16, Token.class);
 
         public FloorMap(int index, Tile[][] tiles) {
-                UtFloorGen.printFloorTile(tiles);
+                this(index, tiles, null);
+        }
+        public FloorMap(int index, Tile[][] tiles,MonsterSpawner monsterSpawner) {
+                //UtFloorGen.printFloorTile(tiles);
                 this.index = index;
                 this.tiles = tiles;
                 pathfinder = new Pathfinder(tiles);
                 pathfinder.pathingPolicy = Pathfinder.PathingPolicy.Manhattan;
                 pathfinder.avoidZigZagging = false;
                 //pathfinder.dynamicMovementCostProvider = this;
+                this.monsterSpawner = monsterSpawner;
         }
 
-        protected void update(float delta){
+        protected void update(Dungeon dungeon, float delta){
                 // TODO: if teleporting, i think it could cause the token list to shift, and a token would miss an update.
                 // I need to find a way to make sure all tokens are still updated
                 // This same sort of issue would also happen when removing a token in general
@@ -35,44 +39,55 @@ public class FloorMap  {
                 // Or maybe somehow enque the tokens to be removed?
                 // or something with an iterator?
 
+                if(monsterSpawner != null) monsterSpawner.spawnMonsters(dungeon, this);
+
                 for (int i = 0; i < tokens.size; i++) {
                         tokens.items[i].incremenetU(delta);
                 }
         }
 
-        private Pair getClosestLegalLocation(Pair start, Pair goal){
-                Tile goalTile = getTile(goal);
-                if(goalTile != null && !goalTile.isBlockMovement()) return goal;
+
+
+        public Pair getNextClosestLegalLocation(Pair start, Pair goal, Pair store){
                 // check each adjacent tile and pick the closest tile to the start location that is not blocking movement.
                 // if there are no legal adjcant tiles then return null
                 // returning null means no legal pathing can be made so dont try to do pathfinding
+                Tile goalTile;
                 int xRange = start.x - goal.x;
                 int yRange = start.y - goal.y;
                 if(Math.abs(xRange) > Math.abs(yRange)){
                         int xSign = UtMath.sign(xRange);
                         goalTile = getTile(goal.x+xSign, goal.y);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x+xSign, goal.y);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x + xSign, goal.y);
                         int ySign = UtMath.sign(yRange);
                         goalTile = getTile(goal.x, goal.y+ySign);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x, goal.y+ySign);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y+ySign);
                         goalTile = getTile(goal.x, goal.y-ySign);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x, goal.y-ySign);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y-ySign);
                         goalTile = getTile(goal.x-xSign, goal.y);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x-xSign, goal.y);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x-xSign, goal.y);
                 }else{
                         int ySign = UtMath.sign(yRange);
                         goalTile = getTile(goal.x, goal.y+ySign);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x, goal.y+ySign);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y+ySign);
                         int xSign = UtMath.sign(xRange);
                         goalTile = getTile(goal.x+xSign, goal.y);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x+xSign, goal.y);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x+xSign, goal.y);
                         goalTile = getTile(goal.x-xSign, goal.y);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x-xSign, goal.y);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x-xSign, goal.y);
                         goalTile = getTile(goal.x, goal.y-ySign);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return new Pair(goal.x, goal.y-ySign);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y-ySign);
                 }
-
                 return null;
+        }
+
+        public Pair getClosestLegalLocation(Pair start, Pair goal){
+                // TODO: slightly wasteful creation of new Pair
+                Tile goalTile = getTile(goal);
+                if(goalTile != null && !goalTile.isBlockMovement()) return goal;
+
+
+                return getNextClosestLegalLocation(start, goal, new Pair());
         }
 
         public boolean computePath(Pair start, Pair goal, Array<Pair> store) {
@@ -185,7 +200,20 @@ public class FloorMap  {
                 return false;
         }
 
-        private Array<Token> tokensAt = new Array<Token>(8);
+        private final Array<Token> tokensAt = new Array<Token>(8); // TODO: transient?
+
+        /**
+         * all tokens on this floor, the returned array should not be stored as it will be reused next time this method is called
+         * @return
+         */
+        public Array<Token> getTokensOnTeam(int team) {
+                tokensAt.clear();
+                for (Token token : tokens) {
+                        if(token.getLogic() != null && token.getLogic().getTeam() == team)
+                                tokensAt.add(token);
+                }
+                return tokensAt;
+        }
 
         /**
          * list of tokens at the supplied location, note that the Array that is returned
@@ -353,5 +381,8 @@ public class FloorMap  {
                 }
         }
 
+        public interface MonsterSpawner{
+                public void spawnMonsters(Dungeon dungeon, FloorMap floorMap);
+        }
 
 }

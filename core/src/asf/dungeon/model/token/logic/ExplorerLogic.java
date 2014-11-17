@@ -3,7 +3,6 @@ package asf.dungeon.model.token.logic;
 
 
 import asf.dungeon.model.Direction;
-import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.math.MathUtils;
@@ -11,17 +10,23 @@ import com.badlogic.gdx.math.MathUtils;
 /**
  * Created by danny on 10/23/14.
  */
-public class SimpleLogicProvider implements LogicProvider {
+public class ExplorerLogic implements Logic {
 
         private Token token;
-        private Dungeon dungeon;
+        private int team;
 
+        public ExplorerLogic( int team) {
+                this.team = team;
+        }
 
         @Override
         public void setToken(Token token) {
                 this.token = token;
-                dungeon = token.dungeon;
+        }
 
+        @Override
+        public int getTeam() {
+                return team;
         }
 
         @Override

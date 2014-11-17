@@ -8,6 +8,7 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Pathfinder;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.factory.BalanceTestFloorGen;
 import asf.dungeon.model.factory.BinarySpaceGen;
 import asf.dungeon.model.factory.CellularAutomataGen;
 import asf.dungeon.model.factory.ConnectedRoomsGen;
@@ -35,7 +36,11 @@ import asf.dungeon.model.token.Move;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.TokenComponent;
-import asf.dungeon.model.token.logic.LogicProvider;
+import asf.dungeon.model.token.logic.ExplorerLogic;
+import asf.dungeon.model.token.logic.FullAgroLogic;
+import asf.dungeon.model.token.logic.LocalPlayerLogic;
+import asf.dungeon.model.token.logic.Logic;
+import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.MathUtils;
@@ -63,7 +68,25 @@ public class DungeonLoader {
 
         }
 
-        public static Dungeon createDungeon( FloorMapGenerator floorMapGenerator){
+        public static Dungeon createDungeon(DungeonWorld.Settings settings){
+
+                FloorMapGenerator floorMapGenerator;
+                Logic playerLogic;
+                if(settings.balanceTest){
+                        floorMapGenerator = new BalanceTestFloorGen();
+                        playerLogic = new FullAgroLogic(0);
+                }else{
+                        floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
+                                new BalanceTestFloorGen(), new PreBuiltFloorGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
+                                new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
+                                new PreBuiltFloorGen(),
+                                new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
+                        },new FloorMapGenerator[]{
+                                new ConnectedRoomsGen(), new MazeGen(10,10)
+                        });
+                        playerLogic = new LocalPlayerLogic(0);
+                }
+
 
                 List<PotionItem.Type> colors= Arrays.asList(PotionItem.Type.values());
                 Collections.shuffle(colors, MathUtils.random);
@@ -71,7 +94,26 @@ public class DungeonLoader {
 
                 MasterJournal masterMasterJournal = new MasterJournal(potions);
 
+
                 Dungeon dungeon = new Dungeon(masterMasterJournal, floorMapGenerator);
+                dungeon.setCurrentFloor(0);
+
+                // spawn player
+                boolean rangedHero = settings.playerModel == ModelId.Archer || settings.playerModel == ModelId.Mage;
+
+                FloorMap floorMap = dungeon.getCurrentFloopMap();
+
+                Pair locationOfUpStairs = floorMap.getLocationOfUpStairs();
+                Token knightToken = dungeon.newCharacterToken(floorMap,"Player 1", settings.playerModel,
+                        playerLogic,
+                        new Experience(1, 5, 10, 6),
+                        locationOfUpStairs.x, locationOfUpStairs.y);
+
+                knightToken.getAttack().setAbleRangedAttack(rangedHero);
+                knightToken.getDamage().setDeathRemovalCountdown(Float.NaN);
+                knightToken.getInventory().addItem(new PotionItem(dungeon, PotionItem.Type.Health));
+                knightToken.getInventory().addItem(new PotionItem(dungeon, PotionItem.Type.Health));
+
 
                 return dungeon;
 
@@ -219,9 +261,10 @@ public class DungeonLoader {
                 kryo.register(TokenComponent.class);
                 kryo.register(asf.dungeon.model.token.TokenComponent[].class);
 
-                kryo.register(LogicProvider.class);
-                kryo.register(asf.dungeon.model.token.logic.LocalPlayerLogicProvider.class);
-                kryo.register(asf.dungeon.model.token.logic.SimpleLogicProvider.class);
+                kryo.register(Logic.class);
+                kryo.register(LocalPlayerLogic.class);
+                kryo.register(ExplorerLogic.class);
+                kryo.register(asf.dungeon.model.token.logic.FullAgroLogic.class);
 
 
                 return kryo;

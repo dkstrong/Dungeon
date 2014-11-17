@@ -58,12 +58,12 @@ public class PreBuiltFloorGen implements FloorMapGenerator{
                         "|.................|",
                         "|.^...............|",
                         "|.................|",
-                        "|.....---/---.....|",
+                        "|.....---+---.....|",
                         "|.....|.....|.....|",
                         "|.....|.....|.....|",
-                        "|...../...../.....|",
                         "|.....|.....|.....|",
-                        "|.....|--/--|.....|",
+                        "|.....|.....|.....|",
+                        "|.....|-----|.....|",
                         "|.................|",
                         "|...............&.|",
                         "|.................|",
@@ -116,7 +116,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator{
                 return floorMap;
         }
 
-        private static Tile[][] convertTileData(int floorIndex, String[] tileData){
+        protected static Tile[][] convertTileData(int floorIndex, String[] tileData){
                 Tile[][] tiles;
                 tiles = new Tile[tileData[0].length()][tileData.length];
                 for (int y = 0; y < tileData.length; y++) {

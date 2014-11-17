@@ -287,4 +287,8 @@ public class Move implements TokenComponent{
         public int getMoveSpeed() {
                 return moveSpeed;
         }
+
+        protected void setMoveSpeed(int moveSpeed){
+                this.moveSpeed = moveSpeed;
+        }
 }

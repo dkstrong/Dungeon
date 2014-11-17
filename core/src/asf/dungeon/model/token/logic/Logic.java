@@ -7,8 +7,10 @@ import asf.dungeon.model.token.TokenComponent;
 /**
  * Created by danny on 10/23/14.
  */
-public interface LogicProvider extends TokenComponent{
+public interface Logic extends TokenComponent{
 
         public void setToken(Token token);
+
+        public int getTeam();
 
 }

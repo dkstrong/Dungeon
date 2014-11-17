@@ -14,9 +14,8 @@ import asf.dungeon.model.token.Move;
 import asf.dungeon.model.token.QuickSlot;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.LocalPlayerLogicProvider;
-import asf.dungeon.model.token.logic.LogicProvider;
-import com.badlogic.gdx.Gdx;
+import asf.dungeon.model.token.logic.LocalPlayerLogic;
+import asf.dungeon.model.token.logic.Logic;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +45,7 @@ public class Dungeon {
         public Token getLocalPlayerToken() {
                 for (FloorMap floorMap : floorMaps.values()) {
                         for (Token token : floorMap.tokens) {
-                                if (token.get(LocalPlayerLogicProvider.class) != null) {
+                                if (token.get(LocalPlayerLogic.class) != null) {
                                         return token;
                                 }
                         }
@@ -56,7 +55,7 @@ public class Dungeon {
 
         public void update(float delta) {
 
-                currentFloorMap.update(delta);
+                currentFloorMap.update(this, delta);
 
         }
 
@@ -64,7 +63,7 @@ public class Dungeon {
 
                 FloorMap floorMap = floorMaps.get(floorIndex);
                 if (floorMap == null) {
-                        Gdx.app.log("Dungeon", "generateFloor: " + floorIndex);
+                        //Gdx.app.log("Dungeon", "generateFloor: " + floorIndex);
 
                         floorMap = floorMapFactory.generate(this, floorIndex);
 
@@ -79,7 +78,7 @@ public class Dungeon {
                 if (newFloor == currentFloorMap) {
                         return;
                 }
-                Gdx.app.log("Dungeon", "setCurrentFloor: " + newFloor.index);
+                //Gdx.app.log("Dungeon", "setCurrentFloor: " + newFloor.index);
                 FloorMap oldFloorMap = currentFloorMap;
                 currentFloorMap = newFloor;
 
@@ -119,16 +118,16 @@ public class Dungeon {
                 return floorMaps.get(floorIndex);
         }
 
-        public Token newCharacterToken(FloorMap fm, String name, ModelId modelId, LogicProvider logicProvider, int x, int y) {
+        public Token newCharacterToken(FloorMap fm, String name, ModelId modelId, Logic logic, Experience experience, int x, int y) {
                 Token t = new Token(this, fm, nextTokenId++, name, modelId);
-                t.add(logicProvider);
+                t.add(logic);
                 t.add(new Command(t));
-                if(logicProvider instanceof LocalPlayerLogicProvider){
+                if(logic instanceof LocalPlayerLogic){
                         t.add(new QuickSlot());
                         t.add(new FogMapping(t));
                         t.add(new Journal());
                 }
-                t.add(new Experience(t));
+                t.add(experience);
                 t.add(new Inventory(t));
                 t.add(new StatusEffects(t));
                 t.add(new Attack(t));
@@ -137,6 +136,8 @@ public class Dungeon {
 
                 t.getDamage().setDeathDuration(3f);
                 t.getDamage().setDeathRemovalCountdown(10f);
+                t.getExperience().setToken(t);
+                t.getLogic().setToken(t);
                 fm.tokens.add(t);
                 boolean valid = t.teleportToLocation(x, y);
                 if(!valid) throw new IllegalStateException("can not spawn here!");

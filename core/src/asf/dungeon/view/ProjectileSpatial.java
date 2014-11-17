@@ -1,8 +1,8 @@
 package asf.dungeon.view;
 
+import asf.dungeon.model.Pair;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
-import asf.dungeon.model.Pair;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.assets.AssetManager;
@@ -83,7 +83,15 @@ public class ProjectileSpatial implements Spatial {
 
         }
 
-        public void shootProjectile(Token attacker, Pair destLoc){
+        public void shootProjectile(Token attacker, Token targetToken, Pair destLoc) {
+                if (targetToken != null)
+                        shootProjectile(attacker, targetToken);
+                else
+                        shootProjectile(attacker, destLoc);
+
+        }
+
+        public void shootProjectile(Token attacker, Pair destLoc) {
                 this.attackerToken = attacker;
                 targetTokenSpatial = null;
                 this.destLoc.set(destLoc);
@@ -102,9 +110,9 @@ public class ProjectileSpatial implements Spatial {
                 targetTokenSpatial = world.getTokenSpatial(targetToken);
 
                 world.getWorldCoords(attacker.getMove().getLocationFloatX(), attacker.getMove().getLocationFloatY(), worldStartLoc);
-                if(targetToken.getMove() == null){
+                if (targetToken.getMove() == null) {
                         world.getWorldCoords(targetToken.getLocation().x, targetToken.getLocation().y, worldDestLoc);
-                }else{
+                } else {
                         world.getWorldCoords(targetToken.getMove().getLocationFloatX(), targetToken.getMove().getLocationFloatY(), worldDestLoc);
                 }
 
@@ -128,22 +136,22 @@ public class ProjectileSpatial implements Spatial {
                         return;
                 }
 
-                if(targetTokenSpatial != null)
+                if (targetTokenSpatial != null)
                         visU = targetTokenSpatial.visU;
-                else{
-                        if(attackerToken.getFloorMap() == world.getLocalPlayerToken().getFloorMap() && world.getLocalPlayerToken().getFogMapping() != null){
+                else {
+                        if (attackerToken.getFloorMap() == world.getLocalPlayerToken().getFloorMap() && world.getLocalPlayerToken().getFogMapping() != null) {
                                 FogMap fogMap = world.getLocalPlayerToken().getFogMapping().getFogMap(world.getLocalPlayerToken().getFloorMap());
 
-                                if(fogMap != null){
+                                if (fogMap != null) {
                                         FogState fogState = fogMap.getFogState(destLoc.x, destLoc.y);
-                                        if(fogState == FogState.Visible){
-                                                visU+=delta*.5f;
-                                        }else{
-                                                visU-=delta*.75f;
+                                        if (fogState == FogState.Visible) {
+                                                visU += delta * .5f;
+                                        } else {
+                                                visU -= delta * .75f;
                                         }
                                         visU = MathUtils.clamp(visU, 0, 1);
                                 }
-                        }else{
+                        } else {
                                 visU = 1;
                         }
                 }

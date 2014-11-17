@@ -412,11 +412,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         healthProgressBar.setValue(localPlayerToken.getDamage().getHealth());
                         healthProgressBar.act(delta);
 
-                        String s = String.format("%s / %s\n %s, %s  useKey: %s",
+                        String s = String.format("%s / %s\n Level %s (XP: %s / %s)",
                                 localPlayerToken.getDamage().getHealth(),
                                 localPlayerToken.getDamage().getMaxHealth(),
-                                localPlayerToken.getLocation().x, localPlayerToken.getLocation().y,
-                                localPlayerToken.getCommand().isUseKey());
+                                localPlayerToken.getExperience().getLevel(),
+                                localPlayerToken.getExperience().getXp(),
+                                localPlayerToken.getExperience().getRequiredXpToLevelUp());
                         avatarLabel.setText(s);
 
                         Token targetToken = localPlayerToken.getCommand().getTargetToken();
@@ -493,9 +494,10 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         Damage damage = localPlayerToken.get(Damage.class);
                                         Experience experience = localPlayerToken.get(Experience.class);
                                         sb.append(String.format("HP: %s / %s\n", damage.getHealth(), damage.getMaxHealth()));
-                                        sb.append(String.format("Strength: %s \n", experience.getStrengthRating()));
-                                        sb.append(String.format("Speed: %s \n", experience.getSpeedRating()));
-                                        sb.append(String.format("Defense: %s \n", experience.getDefenseRating()));
+                                        sb.append(String.format("Vitality: %s \n", experience.getVitality()));
+                                        sb.append(String.format("Strength: %s \n", experience.getStrength()));
+                                        sb.append(String.format("Speed: %s \n", experience.getAgility()));
+
 
 
                                         label.setText(sb);
@@ -697,17 +699,17 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         @Override
-        public void onAttack(Token target, boolean ranged) {
+        public void onAttack(Token target, Pair targetLocation, boolean ranged) {
 
         }
 
         @Override
         public void onAttacked(Token attacker, Token target, int damage, boolean dodge) {
                 if (dodge) {
-                        System.out.println(String.format("%s dodged attack from %s", target.getName(), attacker.getName()));
+                        //System.out.println(String.format("%s dodged attack from %s", target.getName(), attacker.getName()));
                         spawnDamageInfoLabel("dodge", target, Color.YELLOW);
                 } else {
-                        System.out.println(String.format("%s received %s damage from %s", target.getName(), damage, attacker.getName()));
+                        //System.out.println(String.format("%s received %s damage from %s", target.getName(), damage, attacker.getName()));
                         spawnDamageInfoLabel(String.valueOf(damage), target, Color.RED);
                 }
 
