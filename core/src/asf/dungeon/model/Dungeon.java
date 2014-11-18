@@ -1,6 +1,6 @@
 package asf.dungeon.model;
 
-import asf.dungeon.model.factory.FloorMapGenerator;
+import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.Command;
@@ -11,7 +11,6 @@ import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.Move;
-import asf.dungeon.model.token.QuickSlot;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.LocalPlayerLogic;
@@ -24,15 +23,18 @@ import java.util.Map;
  * Created by danny on 10/22/14.
  */
 public class Dungeon {
+        public final DungeonRand rand;
         private final MasterJournal masterJournal;
         private final FloorMapGenerator floorMapFactory;
         private final Map<Integer, FloorMap> floorMaps = new HashMap<Integer, FloorMap>(16);
+        private Token localPlayerToken;
         private FloorMap currentFloorMap;
         private int nextTokenId = 0;
 
         private transient Listener listener;
 
-        public Dungeon(MasterJournal masterJournal, FloorMapGenerator floorMapFactory) {
+        public Dungeon(DungeonRand rand, MasterJournal masterJournal, FloorMapGenerator floorMapFactory) {
+                this.rand = rand;
                 this.masterJournal = masterJournal;
                 this.floorMapFactory = floorMapFactory;
         }
@@ -43,20 +45,11 @@ public class Dungeon {
         }
 
         public Token getLocalPlayerToken() {
-                for (FloorMap floorMap : floorMaps.values()) {
-                        for (Token token : floorMap.tokens) {
-                                if (token.get(LocalPlayerLogic.class) != null) {
-                                        return token;
-                                }
-                        }
-                }
-                return null;
+                return localPlayerToken;
         }
 
         public void update(float delta) {
-
                 currentFloorMap.update(this, delta);
-
         }
 
         public FloorMap generateFloor(int floorIndex) {
@@ -108,6 +101,10 @@ public class Dungeon {
                 for (int i = 0; i < currentFloorMap.tokens.size; i++) {
                         listener.onTokenAdded(currentFloorMap.tokens.items[i]);
                 }
+
+                listener.onNewPlayerToken(localPlayerToken);
+
+
         }
 
         public FloorMap getCurrentFloopMap() {
@@ -118,17 +115,26 @@ public class Dungeon {
                 return floorMaps.get(floorIndex);
         }
 
+        public Token newPlayerCharacterToken(FloorMap fm, String name, ModelId modelId, Logic logic, Experience experience, int x, int y){
+                localPlayerToken = newCharacterToken(fm, name, modelId, logic, experience, x, y);
+                if(listener != null)
+                        listener.onNewPlayerToken(localPlayerToken);
+
+                setCurrentFloor(localPlayerToken.getFloorMap().index);
+
+                return localPlayerToken;
+        }
+
         public Token newCharacterToken(FloorMap fm, String name, ModelId modelId, Logic logic, Experience experience, int x, int y) {
                 Token t = new Token(this, fm, nextTokenId++, name, modelId);
                 t.add(logic);
                 t.add(new Command(t));
                 if(logic instanceof LocalPlayerLogic){
-                        t.add(new QuickSlot());
                         t.add(new FogMapping(t));
                         t.add(new Journal());
                 }
                 t.add(experience);
-                t.add(new Inventory(t));
+                t.add(new Inventory.Character(t));
                 t.add(new StatusEffects(t));
                 t.add(new Attack(t));
                 t.add(new Damage(t, 10));
@@ -138,6 +144,7 @@ public class Dungeon {
                 t.getDamage().setDeathRemovalCountdown(10f);
                 t.getExperience().setToken(t);
                 t.getLogic().setToken(t);
+
                 fm.tokens.add(t);
                 boolean valid = t.teleportToLocation(x, y);
                 if(!valid) throw new IllegalStateException("can not spawn here!");
@@ -148,7 +155,7 @@ public class Dungeon {
 
         public Token newCrateToken(FloorMap fm, String name, ModelId modelId, Item item, int x, int y) {
                 Token t = new Token(this, fm, nextTokenId++, name, modelId);
-                t.add(new Inventory(t, item));
+                t.add(new Inventory.Simple(t, item));
                 t.add(new Damage(t, 1));
                 t.getDamage().setDeathDuration(2.5f);
                 t.getDamage().setDeathRemovalCountdown(.25f);
@@ -177,6 +184,12 @@ public class Dungeon {
                         if (b) {
                                 if (token.getFloorMap() == currentFloorMap && listener != null)
                                         listener.onTokenRemoved(token);
+
+                                if(token == localPlayerToken){
+                                        localPlayerToken = null;
+                                        if(listener != null)
+                                                listener.onNewPlayerToken(null);
+                                }
                                 return token;
                         }
                 }
@@ -196,12 +209,17 @@ public class Dungeon {
                         boolean b = oldFloorMap.tokens.removeValue(token, true);
                         if (b) {
                                 newFloorMap.tokens.add(token);
-                                if (listener != null)
+                                if (listener != null){
                                         if (oldFloorMap == currentFloorMap) {
                                                 listener.onTokenRemoved(token);
                                         } else if (newFloorMap == currentFloorMap) {
                                                 listener.onTokenAdded(token);
                                         }
+                                }
+                                if(token == localPlayerToken){
+                                        setCurrentFloor(token.getFloorMap().index);
+                                }
+
                                 return;
                         }
                 }
@@ -210,6 +228,9 @@ public class Dungeon {
 
 
         public interface Listener {
+
+                public void onNewPlayerToken(Token playerToken);
+
                 public void onFloorMapChanged(FloorMap newFloorMap);
 
                 public void onTokenAdded(Token token);

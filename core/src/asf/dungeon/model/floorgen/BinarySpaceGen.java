@@ -1,4 +1,4 @@
-package asf.dungeon.model.factory;
+package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
@@ -28,12 +28,14 @@ public class BinarySpaceGen implements FloorMapGenerator{
 
 
         private int numberOfSubdivisions = 4;
+        private Dungeon dungeon;
 
 
         @Override
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
-                int floorWidth = MathUtils.random(minFloorWidth, maxFloorWidth);
-                int floorHeight = MathUtils.random(minFloorHeight, maxFloorHeight);
+                this.dungeon = dungeon;
+                int floorWidth = dungeon.rand.intRange(minFloorWidth, maxFloorWidth);
+                int floorHeight = dungeon.rand.intRange(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
                 RoomCell baseRoomCell = new RoomCell(0,0,floorWidth-1, floorHeight-1);
@@ -44,7 +46,7 @@ public class BinarySpaceGen implements FloorMapGenerator{
 
                 Room.fillRooms(tiles, rooms);
                 fillTunnels(tiles, baseRoomCell.childCell1, baseRoomCell.childCell2);
-                boolean valid = Room.carveDoorsKeysStairs(floorIndex, tiles, rooms, true, true);
+                boolean valid = Room.carveDoorsKeysStairs(dungeon, floorIndex, tiles, rooms, true, true);
                 if(!valid) throw new Error("could not generate valid stairs locations, need to regenrate");
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles);
@@ -66,7 +68,7 @@ public class BinarySpaceGen implements FloorMapGenerator{
 
         private void fillTunnels(Tile[][] tiles, RoomCell cell1, RoomCell cell2){
 
-                Room.fillTunnel(tiles, cell1.getEndLeaf().getInnerRoom(), cell2.getEndLeaf().getInnerRoom(), false);
+                Room.fillTunnel(dungeon, tiles, cell1.getEndLeaf().getInnerRoom(), cell2.getEndLeaf().getInnerRoom(), false);
                 if(cell1.childCell1 != null)
                         fillTunnels(tiles, cell1.childCell1, cell1.childCell2);
                 if(cell2.childCell1 != null)
@@ -77,7 +79,7 @@ public class BinarySpaceGen implements FloorMapGenerator{
 
 
 
-        private static class RoomCell {
+        private class RoomCell {
 
                 private RoomCell parentCell;
                 private RoomCell childCell1;
@@ -114,9 +116,9 @@ public class BinarySpaceGen implements FloorMapGenerator{
                         // this should create layouts with less "squished" rooms that represent closets more than rooms
                         //vertSplit = MathUtils.randomBoolean(parentCell != null && parentCell.vertSplit ? .05f :.95f); //false; // MathUtils.randomBoolean()
                         vertSplit  = parentCell!= null && parentCell.vertSplit ? false : true;
-                        float splitRatio = MathUtils.random(.35f, .65f);
+                        float splitRatio = dungeon.rand.floatRange(.35f, .65f);
                         if(vertSplit){
-                                int newX2 = Math.round(MathUtils.lerp(x1,x2,splitRatio));
+                                int newX2 = Math.round(MathUtils.lerp(x1, x2, splitRatio));
                                 childCell1= new RoomCell(x1, y1, newX2, y2);
                                 childCell1.parentCell =this;
 
@@ -139,11 +141,11 @@ public class BinarySpaceGen implements FloorMapGenerator{
                         if(innerRoom != null)
                                 return innerRoom;
 
-                        int innerX1= MathUtils.random(x1,Math.round(MathUtils.lerp(x1,x2, 0.2f)));
-                        int innerX2 = MathUtils.random(Math.round(MathUtils.lerp(x1,x2, .75f)), x2);
+                        int innerX1= dungeon.rand.intRange(x1, Math.round(MathUtils.lerp(x1, x2, 0.2f)));
+                        int innerX2 = dungeon.rand.intRange(Math.round(MathUtils.lerp(x1, x2, .75f)), x2);
 
-                        int innerY1= MathUtils.random(y1,Math.round(MathUtils.lerp(y1,y2, 0.25f)));
-                        int innerY2 = MathUtils.random(Math.round(MathUtils.lerp(y1,y2, .75f)), y2);
+                        int innerY1= dungeon.rand.intRange(y1, Math.round(MathUtils.lerp(y1, y2, 0.25f)));
+                        int innerY2 = dungeon.rand.intRange(Math.round(MathUtils.lerp(y1, y2, .75f)), y2);
 
                         innerRoom = new Room(innerX1, innerY1, innerX2, innerY2);
                         return innerRoom;

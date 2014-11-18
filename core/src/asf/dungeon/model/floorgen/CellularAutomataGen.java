@@ -1,14 +1,13 @@
-package asf.dungeon.model.factory;
+package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
-import com.badlogic.gdx.math.MathUtils;
 
 /**
  *
  * makes a floor that is similiar to the classic "Rouge" maps where
- * there are random rooms connected by hallways
+ * there are intRange rooms connected by hallways
  *
  * Created by Danny on 11/4/2014.
  */
@@ -34,25 +33,14 @@ public class CellularAutomataGen implements FloorMapGenerator{
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
 
 
-                Tile[][] tiles = generateTiles(floorIndex);
-                UtFloorGen.printFloorTile(tiles);
-
-                FloorMap floorMap = new FloorMap(floorIndex, tiles);
-
-                UtFloorGen.spawnCharacters(dungeon, floorMap);
-                UtFloorGen.spawnTreasuresNearWalls(dungeon, floorMap, maxCrates, cratePlacementLimit);
-                return floorMap;
-        }
-
-        public Tile[][] generateTiles(int floorIndex){
-                int floorWidth = MathUtils.random(minFloorWidth, maxFloorWidth);
-                int floorHeight = MathUtils.random(minFloorHeight, maxFloorHeight);
+                int floorWidth = dungeon.rand.intRange(minFloorWidth, maxFloorWidth);
+                int floorHeight = dungeon.rand.intRange(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
 
                 for (int x = 0; x < tiles.length; x++){
                         for (int y = 0; y < tiles[0].length; y++){
-                                if (MathUtils.randomBoolean(chanceToStartAlive)){
+                                if (dungeon.rand.bool(chanceToStartAlive)){
                                         tiles[x][y] = Tile.makeWall();
                                 }else{
                                         tiles[x][y] = Tile.makeFloor();
@@ -68,13 +56,16 @@ public class CellularAutomataGen implements FloorMapGenerator{
 
                 UtFloorGen.floodFillSmallerAreas(tiles);
 
-                UtFloorGen.placeUpStairs(tiles, floorIndex);
-                UtFloorGen.placeDownStairs(tiles, floorIndex);
+                UtFloorGen.placeUpStairs(dungeon, tiles, floorIndex);
+                UtFloorGen.placeDownStairs(dungeon, tiles, floorIndex);
+                UtFloorGen.printFloorTile(tiles);
 
+                FloorMap floorMap = new FloorMap(floorIndex, tiles);
 
-                return tiles;
+                UtFloorGen.spawnCharacters(dungeon, floorMap);
+                UtFloorGen.spawnTreasuresNearWalls(dungeon, floorMap, maxCrates, cratePlacementLimit);
+                return floorMap;
         }
-
 
 
         private void generate(Tile[][] tiles){

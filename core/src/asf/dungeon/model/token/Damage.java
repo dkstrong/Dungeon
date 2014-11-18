@@ -111,9 +111,12 @@ public class Damage implements TokenComponent{
 
                 Inventory inventory = token.get(Inventory.class);
                 if(inventory != null){
-                        Item item = inventory.getItem();
-                        if(item != null)
+                        Item item = inventory.get();
+                        if(item != null){
+                                inventory.discard(item);
                                 token.dungeon.newLootToken(token.getFloorMap(), item, token.getLocation().x, token.getLocation().y);
+                        }
+
                 }
         }
 

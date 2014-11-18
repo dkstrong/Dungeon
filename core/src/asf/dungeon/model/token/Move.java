@@ -227,7 +227,7 @@ public class Move implements TokenComponent{
                                         nextTile.setDoorLocked(false);
                                         if(token.listener != null)
                                                 token.listener.onUseItem(key);
-                                        token.getInventory().discardItem(key);
+                                        token.getInventory().discard(key);
                                         //token.getCommand().setLocation(token.location);
                                         return true;
 
@@ -253,7 +253,7 @@ public class Move implements TokenComponent{
                         Loot loot = t.get(Loot.class);
                         if(loot != null){
                                 loot.becomeRemoved();
-                                token.getInventory().addItem(loot.getItem());
+                                token.getInventory().add(loot.getItem());
                         }
                 }
         }

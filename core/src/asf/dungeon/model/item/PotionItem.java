@@ -10,7 +10,34 @@ import asf.dungeon.model.token.Token;
 /**
  * Created by Danny on 11/5/2014.
  */
-public class PotionItem implements Consumable {
+public class PotionItem extends AbstractItem implements Consumable {
+        public static enum Type{
+                Health, Experience, Invisibility, Purity, Poison, Paralyze, MindVision, Strength, Might, Speed;
+        }
+
+        public static enum Color{
+                LightBlue(com.badlogic.gdx.graphics.Color.TEAL,"Models/Loot/Potion/potion_silver_blue.png"),
+                Red(com.badlogic.gdx.graphics.Color.RED,"Models/Loot/Potion/potion_silver_red.png"),
+                Blue(com.badlogic.gdx.graphics.Color.BLUE,"Models/Loot/Potion/potion_silver_blue.png"),
+                Green(com.badlogic.gdx.graphics.Color.GREEN,"Models/Loot/Potion/potion_silver_green.png"),
+                Yellow(com.badlogic.gdx.graphics.Color.YELLOW,"Models/Loot/Potion/potion_silver_blue.png"),
+                Magenta(com.badlogic.gdx.graphics.Color.MAGENTA,"Models/Loot/Potion/potion_silver_blue.png"),
+                Black(com.badlogic.gdx.graphics.Color.BLACK,"Models/Loot/Potion/potion_silver_blue.png"),
+                Brown(com.badlogic.gdx.graphics.Color.OLIVE,"Models/Loot/Potion/potion_silver_blue.png"),
+                Amber(com.badlogic.gdx.graphics.Color.ORANGE,"Models/Loot/Potion/potion_silver_blue.png"),
+                White(com.badlogic.gdx.graphics.Color.WHITE,"Models/Loot/Potion/potion_silver_blue.png"),
+                Silver(com.badlogic.gdx.graphics.Color.GRAY,"Models/Loot/Potion/potion_silver_blue.png"),
+                Purple(com.badlogic.gdx.graphics.Color.PURPLE,"Models/Loot/Potion/potion_silver_blue.png");
+
+                public final com.badlogic.gdx.graphics.Color color; // TODO: transient?
+                public final String textureAssetLocation; // TODO: transient?
+
+                Color(com.badlogic.gdx.graphics.Color color, String textureAssetLocation) {
+                        this.color = color;
+                        this.textureAssetLocation = textureAssetLocation;
+                }
+        }
+
         private final Color color;
         private final Type type;
 
@@ -20,9 +47,7 @@ public class PotionItem implements Consumable {
         }
 
         @Override
-        public ModelId getModelId() {
-                return ModelId.Potion;
-        }
+        public ModelId getModelId() { return ModelId.Potion; }
 
         @Override
         public String getName() {
@@ -34,26 +59,19 @@ public class PotionItem implements Consumable {
                 return "This is a "+getName()+". Go ahead. Drink it.";
         }
 
-        public Type getType() {
-                return type;
-        }
+        @Override
+        public String getVagueName() { return color.name()+" Potion"; }
+
+        @Override
+        public String getVagueDescription() { return "A mysterious "+color.name()+" potion. The effects of drinking this are not known.";}
+
+        @Override
+        public boolean isIdentified(Token token) { Journal journal = token.get(Journal.class); return journal == null || journal.knows(type); }
+
+        public Type getType() { return type; }
 
         public Color getColor(){
                 return color;
-        }
-
-        @Override
-        public String getNameFromJournal(Token token){
-                Journal journal = token.get(Journal.class);
-                if(journal != null && journal.knows(type))
-                        return getName();
-                return color.name()+" Potion";
-        }
-        public String getDescriptionFromJournal(Token token){
-                Journal journal = token.get(Journal.class);
-                if(journal != null && journal.knows(type))
-                        return getDescription();
-                return "A mysterious "+color.name()+" potion. The effects of drinking this are not known.";
         }
 
         @Override
@@ -113,30 +131,5 @@ public class PotionItem implements Consumable {
                 return type != null ? type.hashCode() : 0;
         }
 
-        public static enum Type{
-                Health, Experience, Invisibility, Purity, Poison, Paralyze, MindVision, Strength, Might, Speed;
-        }
 
-        public static enum Color{
-                LightBlue(com.badlogic.gdx.graphics.Color.TEAL,"Models/Loot/Potion/potion_silver_blue.png"),
-                Red(com.badlogic.gdx.graphics.Color.RED,"Models/Loot/Potion/potion_silver_red.png"),
-                Blue(com.badlogic.gdx.graphics.Color.BLUE,"Models/Loot/Potion/potion_silver_blue.png"),
-                Green(com.badlogic.gdx.graphics.Color.GREEN,"Models/Loot/Potion/potion_silver_green.png"),
-                Yellow(com.badlogic.gdx.graphics.Color.YELLOW,"Models/Loot/Potion/potion_silver_blue.png"),
-                Magenta(com.badlogic.gdx.graphics.Color.MAGENTA,"Models/Loot/Potion/potion_silver_blue.png"),
-                Black(com.badlogic.gdx.graphics.Color.BLACK,"Models/Loot/Potion/potion_silver_blue.png"),
-                Brown(com.badlogic.gdx.graphics.Color.OLIVE,"Models/Loot/Potion/potion_silver_blue.png"),
-                Amber(com.badlogic.gdx.graphics.Color.ORANGE,"Models/Loot/Potion/potion_silver_blue.png"),
-                White(com.badlogic.gdx.graphics.Color.WHITE,"Models/Loot/Potion/potion_silver_blue.png"),
-                Silver(com.badlogic.gdx.graphics.Color.GRAY,"Models/Loot/Potion/potion_silver_blue.png"),
-                Purple(com.badlogic.gdx.graphics.Color.PURPLE,"Models/Loot/Potion/potion_silver_blue.png");
-
-                public final com.badlogic.gdx.graphics.Color color; // TODO: transient?
-                public final String textureAssetLocation; // TODO: transient?
-
-                Color(com.badlogic.gdx.graphics.Color color, String textureAssetLocation) {
-                        this.color = color;
-                        this.textureAssetLocation = textureAssetLocation;
-                }
-        }
 }

@@ -8,7 +8,19 @@ import asf.dungeon.model.token.Token;
 /**
  * Created by Danny on 11/5/2014.
  */
-public class KeyItem implements Item {
+public class KeyItem extends AbstractItem implements Item {
+        public static enum Type{
+                Silver(ModelId.Key),
+                Gold(ModelId.Key2),
+                Red(ModelId.Key3);
+                // TODO: transient?
+                private final ModelId modelId;
+
+                Type(ModelId modelId) {
+                        this.modelId = modelId;
+                }
+        }
+
         private final Type type;
 
         public KeyItem(Dungeon dungeon, Type type) {
@@ -30,16 +42,17 @@ public class KeyItem implements Item {
                 return "This key can be used to open a locked "+ type.name()+" door.";
         }
 
-        public Type getType() {
-                return type;
-        }
+        @Override
+        public String getVagueName() { return getName();}
 
         @Override
-        public String getNameFromJournal(Token token){
-                return getName();
-        }
-        public String getDescriptionFromJournal(Token token){
-                return getDescription();
+        public String getVagueDescription() { return getDescription();}
+
+        @Override
+        public boolean isIdentified(Token token) { return true; }
+
+        public Type getType() {
+                return type;
         }
 
         @Override
@@ -57,18 +70,6 @@ public class KeyItem implements Item {
         @Override
         public int hashCode() {
                 return type != null ? type.hashCode() : 0;
-        }
-
-        public static enum Type{
-                Silver(ModelId.Key),
-                Gold(ModelId.Key2),
-                Red(ModelId.Key3);
-                // TODO: transient?
-                private final ModelId modelId;
-
-                Type(ModelId modelId) {
-                        this.modelId = modelId;
-                }
         }
 
 }

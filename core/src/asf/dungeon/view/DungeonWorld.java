@@ -7,7 +7,6 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.LocalPlayerLogic;
 import asf.dungeon.utility.DungeonLoader;
 import asf.dungeon.utility.ModelFactory;
 import asf.dungeon.view.shape.Box;
@@ -34,6 +33,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.io.IOException;
+import java.util.Random;
 
 /**
  * Created by danny on 10/20/14.
@@ -329,9 +329,21 @@ public class DungeonWorld implements Disposable {
                         return false;
                 }
 
+                public void onNewPlayerToken(Token playerToken){
+                        if(playerToken != null){
+                                inputMultiplexer.addProcessor(hudSpatial);
+                                hudSpatial.setToken(playerToken);
+                                cameraChaseTarget = getTokenSpatial(playerToken);
+                        }else{
+                                inputMultiplexer.removeProcessor(hudSpatial);
+                                hudSpatial.setToken(null); // player died, remove him from the hud
+                                cameraChaseTarget = null;
+                        }
+
+                }
+
                 @Override
                 public void onFloorMapChanged(FloorMap newFloorMap){
-
                         floorDecals.setFloorMap(newFloorMap);
                 }
 
@@ -340,31 +352,16 @@ public class DungeonWorld implements Disposable {
                         if (token == hudSpatial.localPlayerToken) {
                                 // dont re add the token, he already has a token spatial.
                         } else  {
-                                TokenSpatial tokenSpatial = addSpatial(new TokenSpatial(DungeonWorld.this, token, floorDecals.tokenCustomBox, environment));
-                                LocalPlayerLogic logicProvider = token.get(LocalPlayerLogic.class);
-                                //Gdx.app.log("DungeonWorld", "Local character token is added");
-                                if(token.getName().equals("Player 1") || (logicProvider != null && logicProvider.getTeam()== 0)){
-                                        inputMultiplexer.addProcessor(hudSpatial);
-                                        hudSpatial.setToken(token);
-                                        cameraChaseTarget = tokenSpatial;
-                                }
+                                addSpatial(new TokenSpatial(DungeonWorld.this, token, floorDecals.tokenCustomBox, environment));
                         }
 
                 }
 
                 @Override
                 public void onTokenRemoved(Token token) {
-                        //Gdx.app.log("DungeonWorld", "tokenRemoved: " + token);
-                        if (token == hudSpatial.localPlayerToken) {
-                                if(token.getDamage().isFullyDead()){
-                                        inputMultiplexer.removeProcessor(hudSpatial);
-                                        hudSpatial.setToken(null); // player died, remove him from the hud
-                                        cameraChaseTarget = null;
-                                }else{
-                                        dungeon.setCurrentFloor(hudSpatial.localPlayerToken.getFloorMap().index);  // tell the dungeon to move with this player token,
-                                        cameraChaseTarget.visU = 0; // this forces the player spatial to turn black and then fade back in
-                                        return;         // do not remove its spatial, wed just have to wastefully recreate it
-                                }
+                        if (token == hudSpatial.localPlayerToken && !token.getDamage().isFullyDead()) {
+                                cameraChaseTarget.visU = 0; // this forces the player spatial to turn black and fade back in
+                                return;
                         }
 
                         TokenSpatial removeSpatial = getTokenSpatial(token);
@@ -384,6 +381,7 @@ public class DungeonWorld implements Disposable {
 
         public static class Settings{
                 public boolean balanceTest = false;
+                public Random random;
                 public Dungeon loadedDungeon;
                 public ModelId playerModel;
 

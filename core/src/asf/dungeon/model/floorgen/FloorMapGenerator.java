@@ -1,4 +1,4 @@
-package asf.dungeon.model.factory;
+package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;

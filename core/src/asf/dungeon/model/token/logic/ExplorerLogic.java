@@ -5,7 +5,6 @@ package asf.dungeon.model.token.logic;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.Token;
-import com.badlogic.gdx.math.MathUtils;
 
 /**
  * Created by danny on 10/23/14.
@@ -38,8 +37,8 @@ public class ExplorerLogic implements Logic {
         public boolean update(float delta) {
 
                 if (token.isLocatedAt(token.getCommand().getLocation())) {
-                        int x = MathUtils.random.nextInt(token.getFloorMap().getWidth());
-                        int y = MathUtils.random.nextInt(token.getFloorMap().getHeight());
+                        int x = token.dungeon.rand.random.nextInt(token.getFloorMap().getWidth());
+                        int y = token.dungeon.rand.random.nextInt(token.getFloorMap().getHeight());
                         Tile tile = token.getFloorMap().getTile(x, y);
                         if (tile != null && !tile.isBlockMovement() && !tile.isStairs()) {
                                 token.getCommand().setLocation(x,y);

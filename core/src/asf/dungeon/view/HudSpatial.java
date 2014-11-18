@@ -7,9 +7,9 @@ import asf.dungeon.model.item.Consumable;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.PotionItem;
+import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
-import asf.dungeon.model.token.QuickSlot;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.Gdx;
@@ -494,9 +494,16 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         Damage damage = localPlayerToken.get(Damage.class);
                                         Experience experience = localPlayerToken.get(Experience.class);
                                         sb.append(String.format("HP: %s / %s\n", damage.getHealth(), damage.getMaxHealth()));
-                                        sb.append(String.format("Vitality: %s \n", experience.getVitality()));
-                                        sb.append(String.format("Strength: %s \n", experience.getStrength()));
-                                        sb.append(String.format("Speed: %s \n", experience.getAgility()));
+                                        // TODO: show if this stat is modified by equipment
+                                        String vit = experience.getVitalityBase()+(experience.getVitalityMod() > 0 ? " + "+experience.getVitalityMod() : "");
+                                                String str = experience.getStrengthBase()+(experience.getStrengthMod() > 0 ? " + "+experience.getStrengthMod() : "");
+                                        String agi = experience.getAgilityBase()+(experience.getAgilityMod() > 0 ? " + "+experience.getAgilityMod() : "");
+                                        String lck = experience.getLuckBase()+(experience.getLuckMod() > 0 ? " + "+experience.getLuckMod() : "");
+
+                                        sb.append(String.format("Vitality: %s \n",vit));
+                                        sb.append(String.format("Strength: %s \n", str));
+                                        sb.append(String.format("Agility: %s \n", agi));
+                                        sb.append(String.format("Luck: %s \n", lck));
 
 
 
@@ -513,20 +520,19 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private void refreshInventoryElements() {
                 //Gdx.app.log("HudSpatial", "refresh quick button");
                 // refresh the display of the quickslot
-                QuickSlot quickSlot = localPlayerToken.get(QuickSlot.class);
-                Item quickItem = null;
-                if(quickSlot != null){
-                        setButtonContents(quickSlotButton, quickSlot.getItem());
-                        quickItem = quickSlot.getItem();
-                }
+
+
+
+                Item quickSlot = localPlayerToken.getInventory().getQuickSlot();
+                setButtonContents(quickSlotButton, quickSlot);
 
                 // if the inventory window is open, then refresh the inventory window
                 if (inventoryWindow.getParent() != null) {
                         //Gdx.app.log("HudSpatial", "refresh inventory window");
                         int buttonI = 0;
                         for (int i = 0; i < localPlayerToken.getInventory().size(); i++) {
-                                Item item = localPlayerToken.getInventory().getItem(i);
-                                if (item.equals(quickItem))
+                                Item item = localPlayerToken.getInventory().get(i);
+                                if (item.equals(quickSlot))
                                         continue;
                                 boolean hasItem = false;
                                 for (int j = buttonI - 1; j >= 0; j--) {
@@ -704,13 +710,13 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         @Override
-        public void onAttacked(Token attacker, Token target, int damage, boolean dodge) {
-                if (dodge) {
+        public void onAttacked(Token attacker, Token target, Attack.AttackOutcome attackOutcome) {
+                if (attackOutcome.dodge) {
                         //System.out.println(String.format("%s dodged attack from %s", target.getName(), attacker.getName()));
-                        spawnDamageInfoLabel("dodge", target, Color.YELLOW);
+                        spawnDamageInfoLabel("MISS", target, Color.YELLOW);
                 } else {
                         //System.out.println(String.format("%s received %s damage from %s", target.getName(), damage, attacker.getName()));
-                        spawnDamageInfoLabel(String.valueOf(damage), target, Color.RED);
+                        spawnDamageInfoLabel(String.valueOf(attackOutcome.damage), target, Color.RED);
                 }
 
         }
@@ -954,7 +960,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 setInventoryWindowVisible(false);
                 } else if (event.getListenerActor() == itemWindowDiscardButton) {
                         Item item = (Item) itemWindow.getUserObject();
-                        boolean valid = localPlayerToken.getInventory().discardItem(item);
+                        boolean valid = localPlayerToken.getInventory().discard(item);
                         if (valid)
                                 setItemDialogVisible(false);
                 } else if (event.getListenerActor() == itemWindowBackButton) {
@@ -989,7 +995,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 @Override
                 public boolean longPress(Actor actor, float x, float y) {
-                        System.out.println("long");
+
                         return false;
                 }
         };

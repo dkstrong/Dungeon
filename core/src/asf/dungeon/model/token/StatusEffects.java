@@ -74,8 +74,6 @@ public class StatusEffects implements TokenComponent{
                         durations.add(duration);
                 }
 
-                System.out.println(durations);
-
                 statusEffect.begin(token);
                 if(token.listener != null)
                         token.listener.onStatusEffectChange(statusEffect, duration);

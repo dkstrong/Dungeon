@@ -1,4 +1,4 @@
-package asf.dungeon.model.factory;
+package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
@@ -6,7 +6,6 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.FullAgroLogic;
-import com.badlogic.gdx.math.MathUtils;
 
 /**
  * Created by Danny on 11/4/2014.
@@ -45,14 +44,19 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
                 if(countTeam1 == 0){
                         int x, y;
                         do{
-                                x = MathUtils.random.nextInt(floorMap.getWidth());
-                                y = MathUtils.random.nextInt(floorMap.getHeight());
+                                x = dungeon.rand.random.nextInt(floorMap.getWidth());
+                                y = dungeon.rand.random.nextInt(floorMap.getHeight());
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
+
                         Token token = dungeon.newCharacterToken(floorMap, "Monster",
                                 ModelId.Berzerker,
                                 new FullAgroLogic(1),
-                                new Experience(1, 4, 9, 6),
+                                new Experience(1, 4, 9, 6,1),
                                 x,y);
+
+                        //EquipmentItem sword = EquipmentItem.makeWeapon("Sword", 1);
+                        //token.getInventory().add(sword);
+                        //token.getInventory().equip(sword);
 
                 }
         }

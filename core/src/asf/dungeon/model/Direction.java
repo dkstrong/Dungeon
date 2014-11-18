@@ -1,7 +1,6 @@
 package asf.dungeon.model;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 
 /**
@@ -81,18 +80,6 @@ public enum Direction {
                         return Direction.East;
                 }
                 return null;
-        }
-
-        public static Direction random() {
-                int i = MathUtils.random.nextInt(4);
-                if (i == 0)
-                        return Direction.North;
-                else if (i == 1)
-                        return Direction.South;
-                else if (i == 2)
-                        return Direction.East;
-                else
-                        return Direction.West;
         }
 
 

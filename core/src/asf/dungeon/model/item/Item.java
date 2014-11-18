@@ -12,6 +12,10 @@ public interface Item  {
 
         public String getDescription();
 
+        public String getVagueName();
+
+        public String getVagueDescription();
+
         public ModelId getModelId();
 
         /**
@@ -22,6 +26,10 @@ public interface Item  {
         public String getNameFromJournal(Token token);
 
         public String getDescriptionFromJournal(Token token);
+
+        public boolean isIdentified(Token token);
+
+
 
 
 }

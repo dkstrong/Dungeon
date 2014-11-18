@@ -1,14 +1,15 @@
 package asf.dungeon.view;
 
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.Consumable;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
-import asf.dungeon.model.ModelId;
 import asf.dungeon.model.item.PotionItem;
-import asf.dungeon.model.fogmap.FogMap;
+import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
@@ -108,7 +109,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                                 //ColorAttribute colorAttribute = (ColorAttribute)mat.get(ColorAttribute.Diffuse);
                                 //colorAttribute.color.set(potion.getColor().color);
                         }else if(loot.getItem() instanceof KeyItem){
-                                //KeyItem key = (KeyItem) loot.getItem();
+                                //KeyItem key = (KeyItem) loot.get();
 
                         }
                 }
@@ -200,7 +201,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         private void updateIfNotFogBlocked(float delta){
                 if (currentItemUse != null) {
                         if(currentItemUse instanceof Consumable){
-                                Gdx.app.log("CharacterTokenControl", "bloob bloob bloob " + currentItemUse + "!");
+                                Gdx.app.log("CharacterTokenControl", "bloob bloob bloob " + currentItemUse.getNameFromJournal(token) + "!");
                         }else if(currentItemUse instanceof KeyItem){
 
                         }
@@ -298,9 +299,9 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         @Override
-        public void onAttacked(Token attacker, Token target, int damage, boolean dodge) {
+        public void onAttacked(Token attacker, Token target, Attack.AttackOutcome attackOutcome) {
                 // always foward this, let the Hud decide if the information is worth showing
-                world.getHud().onAttacked(attacker, target,damage, dodge);
+                world.getHud().onAttacked(attacker, target,attackOutcome);
         }
 
         @Override

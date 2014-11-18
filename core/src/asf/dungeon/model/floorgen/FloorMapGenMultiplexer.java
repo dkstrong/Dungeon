@@ -1,9 +1,8 @@
-package asf.dungeon.model.factory;
+package asf.dungeon.model.floorgen;
 
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
-import com.badlogic.gdx.math.MathUtils;
 
 /**
  * Created by danny on 10/26/14.
@@ -24,7 +23,7 @@ public class FloorMapGenMultiplexer implements FloorMapGenerator{
                 if(floorIndex < factories.length){
                         floorMap = factories[floorIndex].generate(dungeon, floorIndex);
                 }else{
-                        floorMap = randomFactories[MathUtils.random.nextInt(randomFactories.length)].generate(dungeon, floorIndex);
+                        floorMap = randomFactories[dungeon.rand.random.nextInt(randomFactories.length)].generate(dungeon, floorIndex);
                 }
 
 

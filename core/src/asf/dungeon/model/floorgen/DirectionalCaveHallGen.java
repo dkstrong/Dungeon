@@ -1,11 +1,8 @@
-package asf.dungeon.model.factory;
+package asf.dungeon.model.floorgen;
 
-import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
-import com.badlogic.gdx.math.MathUtils;
 
 /**
  *
@@ -33,19 +30,8 @@ public class DirectionalCaveHallGen implements FloorMapGenerator{
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
 
 
-                Tile[][] tiles = generateTiles(floorIndex);
-                UtFloorGen.printFloorTile(tiles);
-
-                FloorMap floorMap = new FloorMap(floorIndex, tiles);
-
-                UtFloorGen.spawnCharacters(dungeon, floorMap);
-                UtFloorGen.spawnRandomCrates(dungeon, floorMap);
-                return floorMap;
-        }
-
-        public Tile[][] generateTiles(int floorIndex){
-                int floorWidth = MathUtils.random(minFloorWidth, maxFloorWidth);
-                int floorHeight = MathUtils.random(minFloorHeight, maxFloorHeight);
+                int floorWidth = dungeon.rand.intRange(minFloorWidth, maxFloorWidth);
+                int floorHeight = dungeon.rand.intRange(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
 
@@ -56,33 +42,41 @@ public class DirectionalCaveHallGen implements FloorMapGenerator{
                 }
 
                 for(int k=0;k< numberOfGenerations; k++){
-                        generate(tiles);
+                        generate(dungeon, tiles);
                 }
 
 
 
                 UtFloorGen.ensureEdgesAreWalls(tiles);
                 UtFloorGen.floodFillSmallerAreas(tiles);
-                UtFloorGen.placeUpStairs(tiles, floorIndex);
-                UtFloorGen.placeDownStairs(tiles, floorIndex);
-                return tiles;
+                UtFloorGen.placeUpStairs(dungeon, tiles, floorIndex);
+                UtFloorGen.placeDownStairs(dungeon, tiles, floorIndex);
+
+
+
+                FloorMap floorMap = new FloorMap(floorIndex, tiles);
+
+                UtFloorGen.spawnCharacters(dungeon, floorMap);
+                UtFloorGen.spawnRandomCrates(dungeon, floorMap);
+                return floorMap;
         }
 
-        private void generate(Tile[][] tiles){
+
+        private void generate(Dungeon dungeon, Tile[][] tiles){
                 int currentWidth = 3;
                 int x = Math.round(tiles.length/2f);
                 for(int y= 1; y < tiles[0].length; y++){
                         tiles[x][y] = Tile.makeFloor();
-                        if(MathUtils.randomBoolean(roughness)){
-                                int val = MathUtils.random(1,2) * MathUtils.randomSign();
+                        if(dungeon.rand.bool(roughness)){
+                                int val = dungeon.rand.intRange(1, 2) * dungeon.rand.sign();
                                 currentWidth += val;
                                 if(currentWidth <3) currentWidth =3;
                                 else if(currentWidth >= tiles.length) currentWidth = tiles.length -1;
 
                         }
 
-                        if(MathUtils.randomBoolean(windyness)){
-                                int val = MathUtils.random(1,2) * MathUtils.randomSign();
+                        if(dungeon.rand.bool(windyness)){
+                                int val = dungeon.rand.intRange(1, 2) * dungeon.rand.sign();
                                 x+= val;
                                 if(x <0) x= 0;
                                 else if(x >= tiles.length-currentWidth) x = tiles.length-currentWidth-1;

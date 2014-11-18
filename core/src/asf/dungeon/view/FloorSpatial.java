@@ -306,7 +306,7 @@ public class FloorSpatial implements Spatial {
                                 prop = makeDecalNodeProp("Models/Dungeon/Stairs/StairsDown.g3db");
                                 visibleY = -3.753f;
                         }
-                        Quaternion rot = Direction.random().quaternion;
+                        Quaternion rot = Direction.East.quaternion; // do not use intRange here because this is a view object
                         prop.modelInstance.transform.set(
                                 worldCoordsTemp.x,worldCoordsTemp.y,worldCoordsTemp.z,
                                 rot.x,rot.y,rot.z,rot.w,

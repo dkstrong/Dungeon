@@ -2,7 +2,7 @@ package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Pair;
-import com.badlogic.gdx.math.MathUtils;
+import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -176,43 +176,70 @@ public class Attack implements TokenComponent{
                                 token.listener.onAttack(meleeAttackTarget,meleeAttackTarget.getLocation() ,false);
                 }
 
-
-
-
         }
+
+        public static class AttackOutcome{
+                public int damage;
+                public boolean dodge;
+                public boolean critical;
+        }
+        private static final transient AttackOutcome out = new AttackOutcome();
 
         private void sendDamageToAttackTarget(Token targetToken, boolean ranged) {
                 if(targetToken == null) return;
 
-                boolean dodge;
-                int damage;
+                out.damage = 0;
+                out.dodge = false;
+                out.critical = false;
 
                 if(targetToken.getExperience() == null){
-                        dodge = false;
-                        damage = token.getExperience().getStrength();
+                        out.dodge = false;
+                        out.damage = token.getExperience().getStrength();
                 }else{
-                        int speedDifference = token.getExperience().getAgility() - targetToken.getExperience().getStrength();
-                        if(speedDifference >0)
-                                dodge = MathUtils.randomBoolean(.95f);
-                        else
-                                dodge = MathUtils.randomBoolean(.15f);
-                        if(dodge){
-                                damage = 0;
+                        float speedDifference = targetToken.getExperience().getAgility() - token.getExperience().getAgility();
+
+                        if(speedDifference >0) {// target is faster,
+                                float chance = UtMath.scalarLimitsInterpolation(speedDifference, 0f, 100f, .15f, .75f);
+                                out.dodge = token.dungeon.rand.bool(chance);
                         }else{
-                                damage = token.getExperience().getStrength() - targetToken.getExperience().getStrength();
-                                if(damage == 0) damage = 1;
-                                damage += MathUtils.random(1,3);
+                                out.dodge = token.dungeon.rand.bool(.025f + targetToken.getExperience().getLuck() / 100f);
+                        }
+
+                        if(out.dodge){
+                                out.damage = 0;
+                        }else{
+                                int attackVal = token.getExperience().getStrength();
+                                int weaponDmg = token.getInventory().getWeaponSlot() == null ? 0 : token.getInventory().getWeaponSlot().getDamageRating();
+                                attackVal = token.dungeon.rand.intRange(0, attackVal)+weaponDmg;
+
+                                int defenseVal = targetToken.getExperience().getStrength();
+                                int armorAbsorb = targetToken.getInventory().getArmorSlot() == null ? 0 : targetToken.getInventory().getArmorSlot().getArmorRating();
+                                defenseVal = token.dungeon.rand.intRange(0, defenseVal) + armorAbsorb;
+
+                                out.damage = attackVal - defenseVal;
+                                if(out.damage <=0){
+                                        // if did no damage, then theres a chance of doing 1 dmg instead if your attack value is close to the defense value
+                                        float ratio = attackVal / (float)defenseVal;
+                                        if(token.dungeon.rand.bool(ratio)) out.damage = 1;
+                                }
+
+                                if(token.dungeon.rand.bool(getCriticalHitChance())){
+                                        // If you are lucky, will do critical damage causing x2 output damage
+                                        out.critical = true;
+                                        if(out.damage <=0) out.damage = 1;
+                                        out.damage *=2;
+                                }
                         }
                 }
 
 
-                if(damage  >0)
-                        targetToken.getDamage().addHealth(-damage);
+                if(out.damage  >0)
+                        targetToken.getDamage().addHealth(-out.damage);
                 else
-                        damage = 0;
+                        out.damage = 0;
 
                 if(targetToken.getExperience() != null && token.listener != null)
-                        token.listener.onAttacked(token, targetToken, damage, dodge);
+                        token.listener.onAttacked(token, targetToken, out);
 
                 if(targetToken.getDamage().isDead()){
                         token.getExperience().addXpFrom(targetToken.getExperience());
@@ -315,5 +342,9 @@ public class Attack implements TokenComponent{
 
         public int getAttackRange() {
                 return attackRange;
+        }
+
+        public float getCriticalHitChance(){
+                return token.getExperience().getLuck() / 100f;
         }
 }

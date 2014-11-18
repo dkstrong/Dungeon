@@ -2,25 +2,27 @@ package asf.dungeon.utility;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.DungeonRand;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.MasterJournal;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Pathfinder;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.factory.BalanceTestFloorGen;
-import asf.dungeon.model.factory.BinarySpaceGen;
-import asf.dungeon.model.factory.CellularAutomataGen;
-import asf.dungeon.model.factory.ConnectedRoomsGen;
-import asf.dungeon.model.factory.DirectionalCaveHallGen;
-import asf.dungeon.model.factory.FloorMapGenMultiplexer;
-import asf.dungeon.model.factory.FloorMapGenerator;
-import asf.dungeon.model.factory.MazeGen;
-import asf.dungeon.model.factory.PreBuiltFloorGen;
-import asf.dungeon.model.factory.RandomWalkGen;
-import asf.dungeon.model.factory.Room;
+import asf.dungeon.model.floorgen.BalanceTestFloorGen;
+import asf.dungeon.model.floorgen.BinarySpaceGen;
+import asf.dungeon.model.floorgen.CellularAutomataGen;
+import asf.dungeon.model.floorgen.ConnectedRoomsGen;
+import asf.dungeon.model.floorgen.DirectionalCaveHallGen;
+import asf.dungeon.model.floorgen.FloorMapGenMultiplexer;
+import asf.dungeon.model.floorgen.FloorMapGenerator;
+import asf.dungeon.model.floorgen.MazeGen;
+import asf.dungeon.model.floorgen.PreBuiltFloorGen;
+import asf.dungeon.model.floorgen.RandomWalkGen;
+import asf.dungeon.model.floorgen.Room;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
+import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.PotionItem;
@@ -43,7 +45,6 @@ import asf.dungeon.model.token.logic.Logic;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
@@ -72,6 +73,14 @@ public class DungeonLoader {
 
                 FloorMapGenerator floorMapGenerator;
                 Logic playerLogic;
+                DungeonRand dungeonRand = new DungeonRand(settings.random);
+
+                List<PotionItem.Type> colors= Arrays.asList(PotionItem.Type.values());
+                Collections.shuffle(colors, dungeonRand.random);
+                PotionItem.Type[] potions = colors.toArray(new PotionItem.Type[colors.size()]);
+
+                MasterJournal masterMasterJournal = new MasterJournal(potions);
+
                 if(settings.balanceTest){
                         floorMapGenerator = new BalanceTestFloorGen();
                         playerLogic = new FullAgroLogic(0);
@@ -88,14 +97,10 @@ public class DungeonLoader {
                 }
 
 
-                List<PotionItem.Type> colors= Arrays.asList(PotionItem.Type.values());
-                Collections.shuffle(colors, MathUtils.random);
-                PotionItem.Type[] potions = colors.toArray(new PotionItem.Type[colors.size()]);
-
-                MasterJournal masterMasterJournal = new MasterJournal(potions);
 
 
-                Dungeon dungeon = new Dungeon(masterMasterJournal, floorMapGenerator);
+
+                Dungeon dungeon = new Dungeon(dungeonRand, masterMasterJournal, floorMapGenerator);
                 dungeon.setCurrentFloor(0);
 
                 // spawn player
@@ -104,15 +109,18 @@ public class DungeonLoader {
                 FloorMap floorMap = dungeon.getCurrentFloopMap();
 
                 Pair locationOfUpStairs = floorMap.getLocationOfUpStairs();
-                Token knightToken = dungeon.newCharacterToken(floorMap,"Player 1", settings.playerModel,
+                Token token = dungeon.newPlayerCharacterToken(floorMap, "Player 1", settings.playerModel,
                         playerLogic,
-                        new Experience(1, 5, 10, 6),
+                        new Experience(1, 10, 10, 6, 3),
                         locationOfUpStairs.x, locationOfUpStairs.y);
 
-                knightToken.getAttack().setAbleRangedAttack(rangedHero);
-                knightToken.getDamage().setDeathRemovalCountdown(Float.NaN);
-                knightToken.getInventory().addItem(new PotionItem(dungeon, PotionItem.Type.Health));
-                knightToken.getInventory().addItem(new PotionItem(dungeon, PotionItem.Type.Health));
+                token.getAttack().setAbleRangedAttack(rangedHero);
+                token.getDamage().setDeathRemovalCountdown(Float.NaN);
+                token.getInventory().add(new PotionItem(dungeon, PotionItem.Type.Health));
+                token.getInventory().add(new PotionItem(dungeon, PotionItem.Type.Health));
+                EquipmentItem sword = EquipmentItem.makeWeapon("Sword", 1);
+                token.getInventory().add(sword);
+                token.getInventory().equip(sword);
 
 
                 return dungeon;
@@ -219,8 +227,9 @@ public class DungeonLoader {
                 kryo.register(asf.dungeon.model.Tile[][].class);
 
                 kryo.register(FloorMapGenerator.class);
-                kryo.register(asf.dungeon.model.factory.FloorMapGenerator[].class);
+                kryo.register(asf.dungeon.model.floorgen.FloorMapGenerator[].class);
                 kryo.register(FloorMapGenMultiplexer.class);
+                kryo.register(asf.dungeon.model.floorgen.BalanceTestFloorGen.class);
                 kryo.register(BinarySpaceGen.class);
                 kryo.register(CellularAutomataGen.class);
                 kryo.register(ConnectedRoomsGen.class);
@@ -237,6 +246,8 @@ public class DungeonLoader {
 
                 kryo.register(Item.class);
                 kryo.register(Item[].class);
+                kryo.register(EquipmentItem.class);
+                kryo.register(EquipmentItem[].class);
                 kryo.register(KeyItem.class);
                 kryo.register(KeyItem.Type.class);
                 kryo.register(PotionItem.class);
@@ -249,12 +260,13 @@ public class DungeonLoader {
                 kryo.register(Experience.class);
                 kryo.register(FogMapping.class);
                 kryo.register(Inventory.class);
+                kryo.register(Inventory.Character.class);
+                kryo.register(Inventory.Simple.class);
                 kryo.register(Journal.class);
                 kryo.register(Loot.class);
                 kryo.register(Move.class);
                 kryo.register(StatusEffects.class);
                 kryo.register(StatusEffects.Effect.class);
-                kryo.register(asf.dungeon.model.token.QuickSlot.class);
                 kryo.register(Command.class);
                 kryo.register(Token.class);
                 kryo.register(asf.dungeon.model.token.Token[].class);

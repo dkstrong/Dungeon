@@ -40,7 +40,7 @@ public class Token  {
         private Move move;
         private Damage damage;
         private Attack attack;
-        private Inventory inventory;
+        private Inventory.Character inventory;
         private FogMapping fogMapping;
 
         public Token(Dungeon dungeon, FloorMap floorMap, int id, String name, ModelId modelId) {
@@ -70,8 +70,8 @@ public class Token  {
                         this.fogMapping = (FogMapping) component;
                 } else if (component instanceof Command) {
                         this.command = (Command) component;
-                } else if (component instanceof Inventory) {
-                        this.inventory = (Inventory) component;
+                } else if (component instanceof Inventory.Character) {
+                        this.inventory = (Inventory.Character) component;
                 } else if (component instanceof Attack) {
                         this.attack = (Attack) component;
                 } else if (component instanceof Move) {
@@ -212,7 +212,7 @@ public class Token  {
                 return attack;
         }
 
-        public Inventory getInventory() {
+        public Inventory.Character getInventory() {
                 return inventory;
         }
 
@@ -255,7 +255,7 @@ public class Token  {
 
                 public void onAttack(Token target, Pair targetLocation, boolean ranged);
 
-                public void onAttacked(Token attacker, Token target, int damage, boolean dodge);
+                public void onAttacked(Token attacker, Token target, Attack.AttackOutcome attackOutcome);
 
                 public void onInventoryAdd(Item item);
 

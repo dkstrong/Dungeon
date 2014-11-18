@@ -1,10 +1,9 @@
-package asf.dungeon.model.factory;
+package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
 
-import java.util.Random;
 
 /**
  * Created by Danny on 11/4/2014.
@@ -14,18 +13,29 @@ public class MazeGen implements FloorMapGenerator{
         private int width;
         private int height;
 
+        private Dungeon dungeon;
+        private boolean[][] blocks;
+        private boolean[][] visited;
+
         public MazeGen(int width, int height) {
                 this.width = width;
                 this.height = height;
         }
 
-        public void setSize(int width, int height){
-                this.width = width;
-                this.height = height;
-        }
-
         public FloorMap generate(Dungeon dungeon, int floorIndex){
-                Tile[][] tiles = MazeGen.generateTiles(width, height);
+                this.dungeon = dungeon;
+                boolean[][] boolVals = generate(width, height);
+                Tile[][] tiles = new Tile[boolVals.length][boolVals[0].length];
+                for (int i = 0; i < boolVals.length; i++) {
+                        for (int i1 = 0; i1 < boolVals[i].length; i1++) {
+                                if(boolVals[i][i1]){
+                                        tiles[i][i1] = Tile.makeWall();
+                                }else{
+                                        tiles[i][i1] = Tile.makeFloor();
+                                }
+                        }
+                }
+
                 // upper stairs is on bottom left
                 outerloop:
                 for(int x=0; x<tiles.length; x++){
@@ -54,28 +64,7 @@ public class MazeGen implements FloorMapGenerator{
                 return floorMap;
         }
 
-        private static boolean[][] blocks;
-        private static boolean[][] visited;
-        private static Random rand = new Random();
-
-        public static Tile[][] generateTiles(int w, int h){
-
-                boolean[][] generate = generate(w, h);
-                Tile[][] tiles = new Tile[generate.length][generate[0].length];
-                for (int i = 0; i < generate.length; i++) {
-                        for (int i1 = 0; i1 < generate[i].length; i1++) {
-                                if(generate[i][i1]){
-                                        tiles[i][i1] = Tile.makeWall();
-                                }else{
-                                        tiles[i][i1] = Tile.makeFloor();
-                                }
-                        }
-                }
-                return tiles;
-        }
-
-
-        public static boolean[][] generate(int w, int h) {
+        private boolean[][] generate(int w, int h) {
                 int bw = w * 2 + 1;
                 int bh = h * 2 + 1;
                 blocks = new boolean[bw][bh];
@@ -91,13 +80,13 @@ public class MazeGen implements FloorMapGenerator{
                 return blocks;
         }
 
-        private static void gen(int xPos, int yPos) {
+        private void gen(int xPos, int yPos) {
                 int x = xPos * 2 + 1;
                 int y = yPos * 2 + 1;
                 blocks[x][y] = false;
                 visited[xPos + 1][yPos + 1] = true;
                 while(!visited[xPos][yPos + 1] || !visited[xPos + 2][yPos + 1] || !visited[xPos + 1][yPos + 2] || !visited[xPos + 1][yPos]) {
-                        float num = rand.nextFloat();
+                        float num = dungeon.rand.random.nextFloat();
                         if(num < 0.25F && !visited[xPos][yPos + 1]) {
                                 blocks[x - 1][y] = false;
                                 gen(xPos - 1, yPos);

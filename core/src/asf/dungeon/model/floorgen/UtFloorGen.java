@@ -1,4 +1,4 @@
-package asf.dungeon.model.factory;
+package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
@@ -8,7 +8,6 @@ import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.FullAgroLogic;
-import com.badlogic.gdx.math.MathUtils;
 
 
 /**
@@ -45,13 +44,13 @@ public class UtFloorGen {
                 int x,y;
                 for(ModelId modelId : characters){
                         do{
-                                x = MathUtils.random.nextInt(floorMap.getWidth());
-                                y = MathUtils.random.nextInt(floorMap.getHeight());
+                                x = dungeon.rand.random.nextInt(floorMap.getWidth());
+                                y = dungeon.rand.random.nextInt(floorMap.getHeight());
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
                         Token characterToken = dungeon.newCharacterToken(floorMap,modelId.name(),modelId,
                                 new FullAgroLogic(1),
-                                new Experience(1, 4, 10, 7),
+                                new Experience(1, 4, 10, 7,1),
                                 x,y);
 
                 }
@@ -72,8 +71,8 @@ public class UtFloorGen {
                 for(ModelId modelId : crates){
 
                         do{
-                                x = MathUtils.random.nextInt(floorMap.getWidth());
-                                y = MathUtils.random.nextInt(floorMap.getHeight());
+                                x = dungeon.rand.random.nextInt(floorMap.getWidth());
+                                y = dungeon.rand.random.nextInt(floorMap.getHeight());
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
                         dungeon.newCrateToken(floorMap,modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health),x,y);
                 }
@@ -179,14 +178,14 @@ public class UtFloorGen {
         }
 
         /**
-         * places "up" stairs in a random location, ensures that it will have atleast 1 buffer square from walls on all sides
+         * places "up" stairs in a intRange location, ensures that it will have atleast 1 buffer square from walls on all sides
          * @param tiles
          * @param floorIndex
          */
-        protected static void placeUpStairs(Tile[][] tiles, int floorIndex){
+        protected static void placeUpStairs(Dungeon dungeon, Tile[][] tiles, int floorIndex){
                 do{
-                        int x = MathUtils.random(0, tiles.length-1);
-                        int y = MathUtils.random(0, tiles[0].length-1);
+                        int x = dungeon.rand.intRange(0, tiles.length - 1);
+                        int y = dungeon.rand.intRange(0, tiles[0].length - 1);
 
                         if(!UtFloorGen.isFloor(tiles, x,y))
                                 continue;
@@ -201,14 +200,14 @@ public class UtFloorGen {
         }
 
         /**
-         * places "down" stairs in a random location, ensures that it will have atleast 1 buffer square from walls on all sides
+         * places "down" stairs in a intRange location, ensures that it will have atleast 1 buffer square from walls on all sides
          * @param tiles
          * @param floorIndex
          */
-        protected static void placeDownStairs(Tile[][] tiles, int floorIndex){
+        protected static void placeDownStairs(Dungeon dungeon, Tile[][] tiles, int floorIndex){
                 do{
-                        int x = MathUtils.random(0, tiles.length-1);
-                        int y = MathUtils.random(0, tiles[0].length-1);
+                        int x = dungeon.rand.intRange(0, tiles.length - 1);
+                        int y = dungeon.rand.intRange(0, tiles[0].length - 1);
                         if(!UtFloorGen.isFloor(tiles, x,y))
                                 continue;
 

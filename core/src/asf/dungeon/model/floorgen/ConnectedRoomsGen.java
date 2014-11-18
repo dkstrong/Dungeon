@@ -1,14 +1,13 @@
-package asf.dungeon.model.factory;
+package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
 /**
  * makes a floor that is similiar to the classic "Rouge" maps where
- * there are random rooms connected by hallways
+ * there are intRange rooms connected by hallways
  * <p/>
  * Created by Danny on 11/4/2014.
  */
@@ -26,23 +25,23 @@ public class ConnectedRoomsGen implements FloorMapGenerator {
 
         @Override
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
-                int floorWidth = MathUtils.random(minFloorWidth, maxFloorWidth);
-                int floorHeight = MathUtils.random(minFloorHeight, maxFloorHeight);
+                int floorWidth = dungeon.rand.intRange(minFloorWidth, maxFloorWidth);
+                int floorHeight = dungeon.rand.intRange(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
                 int numRooms = Math.round(floorWidth / maxRoomSize * floorHeight / maxRoomSize * .5f);
                 if (numRooms > maxRooms) numRooms = maxRooms;
-                numRooms -= MathUtils.random.nextInt(Math.round(numRooms * .25f));
+                numRooms -= dungeon.rand.random.nextInt(Math.round(numRooms * .25f));
 
                 Array<Room> rooms = new Array<Room>(true, numRooms, Room.class);
                 // make rooms
                 while (rooms.size < numRooms) {
                         Room newRoom = new Room(0, 0, maxRoomSize, maxRoomSize);
                         do {
-                                int roomWidth = MathUtils.random(minRoomSize, maxRoomSize);
-                                int roomHeight = MathUtils.random(minRoomSize, maxRoomSize);
-                                int x = MathUtils.random.nextInt(tiles.length);
-                                int y = MathUtils.random.nextInt(tiles[0].length);
+                                int roomWidth = dungeon.rand.intRange(minRoomSize, maxRoomSize);
+                                int roomHeight = dungeon.rand.intRange(minRoomSize, maxRoomSize);
+                                int x = dungeon.rand.random.nextInt(tiles.length);
+                                int y = dungeon.rand.random.nextInt(tiles[0].length);
 
                                 newRoom.set(x, y, x + roomWidth, y + roomHeight);
 
@@ -51,8 +50,8 @@ public class ConnectedRoomsGen implements FloorMapGenerator {
                 }
 
                 Room.fillRooms(tiles, rooms);
-                Room.fillTunnels(tiles, rooms);
-                boolean valid = Room.carveDoorsKeysStairs(floorIndex, tiles, rooms, true, true);
+                Room.fillTunnels(dungeon, tiles, rooms);
+                boolean valid = Room.carveDoorsKeysStairs(dungeon, floorIndex, tiles, rooms, true, true);
                 if(!valid) throw new Error("could not generate valid stairs locations, need to regenrate");
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles);

@@ -1,4 +1,4 @@
-package asf.dungeon.model.factory;
+package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
@@ -7,7 +7,6 @@ import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.utility.UtMath;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -75,11 +74,11 @@ public class Room {
 
         }
 
-        static void fillTunnels(Tile[][] tiles, Array<Room> rooms){
+        static void fillTunnels(Dungeon dungeon, Tile[][] tiles, Array<Room> rooms){
                 for (int i = 1; i < rooms.size; i++) {
                         Room prevRoom = rooms.get(i - 1);
                         Room room = rooms.get(i);
-                        Room.fillTunnel(tiles, room, prevRoom, true);
+                        Room.fillTunnel(dungeon, tiles, room, prevRoom, true);
                 }
         }
 
@@ -89,7 +88,7 @@ public class Room {
          * @param prevRoom
          * @param randomLDirection if true the L shape direction will be randoml chosen, if false then the L shape will be chosen to try and make the smallest hallway
          */
-        static void fillTunnel(Tile[][] tiles, Room room, Room prevRoom, boolean randomLDirection) {
+        static void fillTunnel(Dungeon dungeon, Tile[][] tiles, Room room, Room prevRoom, boolean randomLDirection) {
                 int startX = room.getCenterX();
                 int startY = room.getCenterY();
                 int endX = prevRoom.getCenterX();
@@ -100,7 +99,7 @@ public class Room {
                 } else {
                         // diagonal (convert in to a horizontal and vertical)
                         if (randomLDirection) {
-                                randomLDirection = MathUtils.randomBoolean();
+                                randomLDirection = dungeon.rand.random.nextBoolean();
                         } else {
                                 float xRange = UtMath.range(room.getCenterX(), prevRoom.getCenterX());
                                 float yRange = UtMath.range(room.getCenterY(), prevRoom.getCenterY());
@@ -165,7 +164,7 @@ public class Room {
                 if (tiles[endX - 1][endY - 1] == null) tiles[endX - 1][endY - 1] = Tile.makeWall();
         }
 
-        static boolean carveDoorsKeysStairs(int floorIndex, Tile[][] tiles, Array<Room> rooms, boolean makeDoors, boolean includeLockedDoors) {
+        static boolean carveDoorsKeysStairs(Dungeon dungeon, int floorIndex, Tile[][] tiles, Array<Room> rooms, boolean makeDoors, boolean includeLockedDoors) {
                 if (makeDoors){
                         // will create 2 silver rooms, 2 gold rooms, 1 red room, then the rest silver.
                         // actual amount of locked rooms depends on how the floor was generated
@@ -175,7 +174,7 @@ public class Room {
                         for (int i = 0; i < rooms.size; i++) {
                                 Room room = rooms.get(i);
                                 float chance = includeLockedDoors ? .45f : 0;
-                                Room.fillRoomWithDoors(tiles, room, chance,type);
+                                Room.fillRoomWithDoors(dungeon, tiles, room, chance,type);
                                 if(room.requiresKey != null){
                                         ++count[room.requiresKey.ordinal()];
                                         if(type == KeyItem.Type.Red && room.requiresKey == KeyItem.Type.Red){
@@ -192,13 +191,13 @@ public class Room {
 
                 }
 
-                boolean valid = Room.fillRoomsWithStairs(tiles, rooms, floorIndex);
+                boolean valid = Room.fillRoomsWithStairs(dungeon, tiles, rooms, floorIndex);
 
                 return valid;
 
         }
 
-        static void fillRoomWithDoors(Tile[][] tiles, Room room, float chanceToBeLockedRoom, KeyItem.Type keyType) {
+        static void fillRoomWithDoors(Dungeon dungeon, Tile[][] tiles, Room room, float chanceToBeLockedRoom, KeyItem.Type keyType) {
                 // should be called after fillRoom() and fillTunnel()
                 // This is a lot of code for a seemingly simple thing. but it checks to ensure
                 // that these scenarios do not happen
@@ -241,7 +240,7 @@ public class Room {
                 }
 
                 if(doorCount ==1 && chanceToBeLockedRoom >0){
-                        boolean lockedRoom = MathUtils.randomBoolean(chanceToBeLockedRoom);
+                        boolean lockedRoom = dungeon.rand.bool(chanceToBeLockedRoom);
                         if(lockedRoom){
                                 room.requiresKey  = keyType;
                                 door.setDoorLocked(true, keyType);
@@ -250,23 +249,23 @@ public class Room {
 
         }
 
-        static boolean fillRoomsWithStairs(Tile[][] tiles, Array<Room> rooms, int floorIndex) {
+        static boolean fillRoomsWithStairs(Dungeon dungeon, Tile[][] tiles, Array<Room> rooms, int floorIndex) {
                 int i = 0;
                 boolean valid = false;
                 while (i < rooms.size && !valid) {
-                        valid = fillRoomWithStairs(tiles, rooms.get(i++), floorIndex, floorIndex + 1);
+                        valid = fillRoomWithStairs(dungeon, tiles, rooms.get(i++), floorIndex, floorIndex + 1);
                 }
 
                 if (!valid) return false;
                 valid = false;
                 int j = rooms.size - 1;
                 while (j > i && !valid) {
-                        valid = fillRoomWithStairs(tiles, rooms.get(j--), floorIndex, floorIndex - 1);
+                        valid = fillRoomWithStairs(dungeon,tiles, rooms.get(j--), floorIndex, floorIndex - 1);
                 }
                 return valid;
         }
 
-        private static boolean fillRoomWithStairs(Tile[][] tiles, Room room, int floorIndex, int floorIndexTo) {
+        private static boolean fillRoomWithStairs(Dungeon dungeon, Tile[][] tiles, Room room, int floorIndex, int floorIndexTo) {
                 if(room.requiresKey != null && floorIndexTo < floorIndex){
                         return false; // we dont want to lock the player in on the first room.
                 }
@@ -274,8 +273,8 @@ public class Room {
                         return false;
                 }
                 for (int i = 0; i < 10; i++) {
-                        int x = MathUtils.random(room.x1 + 2, room.x2 - 2);
-                        int y = MathUtils.random(room.y1 + 2, room.y2 - 2);
+                        int x = dungeon.rand.intRange(room.x1 + 2, room.x2 - 2);
+                        int y = dungeon.rand.intRange(room.y1 + 2, room.y2 - 2);
                         if (tiles[x][y].isFloor()) {
                                 tiles[x][y] = Tile.makeStairs(floorIndex, floorIndexTo);
                                 return true;
@@ -301,7 +300,7 @@ public class Room {
                         int spawned =0;
                         int tries = 0;
                         while(spawned<numKeysToSpawn){
-                                Room randomRoom = rooms.get(MathUtils.random.nextInt(rooms.size));
+                                Room randomRoom = rooms.get(dungeon.rand.random.nextInt(rooms.size));
                                 if(randomRoom.containsKey != null)
                                         continue; // can only have one key per room
                                 if(keyType == KeyItem.Type.Silver){
@@ -317,7 +316,7 @@ public class Room {
                                                 continue; // red keys can only spawn in gold rooms
                                 }
 
-                                boolean spawnInsideCrate = MathUtils.randomBoolean();
+                                boolean spawnInsideCrate = dungeon.rand.random.nextBoolean();
                                 boolean valid = spawnLootInRoom(dungeon, floorMap, randomRoom, spawnInsideCrate ? ModelId.CeramicPitcher: null,new KeyItem(dungeon, keyType) );
                                 if(valid){
                                         randomRoom.containsKey = keyType;
@@ -336,8 +335,8 @@ public class Room {
 
         private static boolean spawnLootInRoom(Dungeon dungeon, FloorMap floorMap, Room room, ModelId spawnInCrate, Item item) {
                 for (int i = 0; i < 20; i++) {
-                        int x = MathUtils.random(room.x1 + 1, room.x2 - 1);
-                        int y = MathUtils.random(room.y1 + 1, room.y2 - 1);
+                        int x = dungeon.rand.intRange(room.x1 + 1, room.x2 - 1);
+                        int y = dungeon.rand.intRange(room.y1 + 1, room.y2 - 1);
                         Tile tile = floorMap.getTile(x,y);
                         if(!tile.isFloor()){
                             continue;
