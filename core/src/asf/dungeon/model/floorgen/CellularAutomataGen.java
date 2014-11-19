@@ -7,7 +7,7 @@ import asf.dungeon.model.Tile;
 /**
  *
  * makes a floor that is similiar to the classic "Rouge" maps where
- * there are intRange rooms connected by hallways
+ * there are range rooms connected by hallways
  *
  * Created by Danny on 11/4/2014.
  */
@@ -33,8 +33,8 @@ public class CellularAutomataGen implements FloorMapGenerator{
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
 
 
-                int floorWidth = dungeon.rand.intRange(minFloorWidth, maxFloorWidth);
-                int floorHeight = dungeon.rand.intRange(minFloorHeight, maxFloorHeight);
+                int floorWidth = dungeon.rand.range(minFloorWidth, maxFloorWidth);
+                int floorHeight = dungeon.rand.range(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
 

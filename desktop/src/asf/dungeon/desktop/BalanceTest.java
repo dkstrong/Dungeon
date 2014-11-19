@@ -323,14 +323,10 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
 
 
         @Override
-        public void onInventoryAdd(Item item) {
+        public void onInventoryChanged() {
 
         }
 
-        @Override
-        public void onInventoryRemove(Item item) {
-
-        }
 
         @Override
         public void onUseItem(Item item) {

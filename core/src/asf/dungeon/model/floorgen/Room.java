@@ -273,8 +273,8 @@ public class Room {
                         return false;
                 }
                 for (int i = 0; i < 10; i++) {
-                        int x = dungeon.rand.intRange(room.x1 + 2, room.x2 - 2);
-                        int y = dungeon.rand.intRange(room.y1 + 2, room.y2 - 2);
+                        int x = dungeon.rand.range(room.x1 + 2, room.x2 - 2);
+                        int y = dungeon.rand.range(room.y1 + 2, room.y2 - 2);
                         if (tiles[x][y].isFloor()) {
                                 tiles[x][y] = Tile.makeStairs(floorIndex, floorIndexTo);
                                 return true;
@@ -335,8 +335,8 @@ public class Room {
 
         private static boolean spawnLootInRoom(Dungeon dungeon, FloorMap floorMap, Room room, ModelId spawnInCrate, Item item) {
                 for (int i = 0; i < 20; i++) {
-                        int x = dungeon.rand.intRange(room.x1 + 1, room.x2 - 1);
-                        int y = dungeon.rand.intRange(room.y1 + 1, room.y2 - 1);
+                        int x = dungeon.rand.range(room.x1 + 1, room.x2 - 1);
+                        int y = dungeon.rand.range(room.y1 + 1, room.y2 - 1);
                         Tile tile = floorMap.getTile(x,y);
                         if(!tile.isFloor()){
                             continue;

@@ -7,25 +7,20 @@ import asf.dungeon.model.token.Token;
 /**
  * Created by Danny on 11/17/2014.
  */
-public class EquipmentItem extends AbstractItem {
+public class EquipmentItem implements Item {
 
-        public static enum Type{
-                Weapon, Armor, Ring;
-        }
-
-        private Type type;
         private ModelId modelId;
         private String name;
         private String description;
         private String vagueName;
         private String vagueDescription;
-        private int damage;
-        private int armor;
+
         private int vitalityMod, strengthMod, agilityMod, luckMod;
 
+        private boolean cursed;
 
-        public EquipmentItem(Type type, ModelId modelId, String name, String description, String vagueName, String vagueDescription) {
-                this.type = type;
+
+        public EquipmentItem(ModelId modelId, String name, String description, String vagueName, String vagueDescription) {
                 this.modelId = modelId;
                 this.name = name;
                 this.description = description;
@@ -33,17 +28,16 @@ public class EquipmentItem extends AbstractItem {
                 this.vagueDescription = vagueDescription;
         }
 
-        public Type getType() {
-                return type;
+        public void setCursed(boolean cursed) {
+                this.cursed = cursed;
         }
 
-        public int getDamageRating() {
-                return damage;
-        }
-
-
-        public int getArmorRating() {
-                return armor;
+        /**
+         * cursed equipment can not be unequipped
+         * @return
+         */
+        public boolean isCursed() {
+                return cursed;
         }
 
         public int getVitalityMod() {
@@ -88,35 +82,23 @@ public class EquipmentItem extends AbstractItem {
         }
 
         @Override
-        public boolean isIdentified(Token token) {Journal journal = token.get(Journal.class); return journal == null || journal.knows(this);}
+        public String getNameFromJournal(Token token) {
+                if (isIdentified(token)) return getName();
+                return getVagueName();
+        }
 
         @Override
-        public String toString() {
-                if(type == Type.Weapon){
-                        return String.format("%s (%s)", name, damage);
-                }else if(type == Type.Armor){
-                        return String.format("%s (%s)", name, armor);
-                }else if(type == Type.Ring){
-                        return String.format("%s (%s,%s)", name, damage, armor);
+        public String getDescriptionFromJournal(Token token) {
+                String cursedMessage;
+                if(isCursed() && token.getInventory().isEquipped(this)){
+                        cursedMessage = "\n\nThis item is cursed and you are powerless to remove it.";
+                }else{
+                        cursedMessage="";
                 }
-                return String.format("%s (%s)", name, type);
+                if (isIdentified(token)) return getDescription()+cursedMessage;
+                return getVagueDescription()+cursedMessage;
         }
 
-        public static EquipmentItem makeWeapon(String name, int damageRating){
-                EquipmentItem equipmentItem = new EquipmentItem(Type.Weapon,ModelId.Potion,name, "A weapon", "Unidentified Weapon","A mysterious weapon, who knows what it will do once equipped?");
-                equipmentItem.damage = damageRating;
-                return equipmentItem;
-        }
-
-        public static EquipmentItem makeArmor(String name, int armorRating){
-                EquipmentItem equipmentItem = new EquipmentItem(Type.Armor,ModelId.Potion,name, "Sturdy Armor", "Unidentified Armor","Mysterious armor, who knows what it will do once equipped?");
-                equipmentItem.armor = armorRating;
-                return equipmentItem;
-        }
-
-        public static EquipmentItem makeRing(String name){
-                EquipmentItem equipmentItem = new EquipmentItem(Type.Ring,ModelId.Potion,name, "Shiny Ring", "Unidentified Ring","A Mysterious ring, who knows what it will do once equipped?");
-
-                return equipmentItem;
-        }
+        @Override
+        public boolean isIdentified(Token token) {Journal journal = token.get(Journal.class); return journal == null || journal.knows(this);}
 }

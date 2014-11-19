@@ -4,7 +4,7 @@ import asf.dungeon.model.Direction;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
-import asf.dungeon.model.item.Consumable;
+import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.item.Item;
 
 /**
@@ -20,7 +20,7 @@ public class Command implements TokenComponent{
         protected Tile canUseKeyOnTile;
         private Tile useKeyOnTile;
 
-        protected Consumable consumeItem;
+        protected ConsumableItem consumeItem;
 
         public Command(Token token) {
                 this.token = token;
@@ -72,10 +72,10 @@ public class Command implements TokenComponent{
         }
 
         public boolean consumeItem(Item item){
-                if(item instanceof Consumable){
+                if(item instanceof ConsumableItem){
                         if (consumeItem != null || token.getDamage().isDead())
                                 return false; // already consuming an item, or dead
-                        consumeItem = (Consumable) item;
+                        consumeItem = (ConsumableItem) item;
                         return true;
                 }
                 return false;

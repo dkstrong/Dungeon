@@ -30,8 +30,8 @@ public class DirectionalCaveHallGen implements FloorMapGenerator{
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
 
 
-                int floorWidth = dungeon.rand.intRange(minFloorWidth, maxFloorWidth);
-                int floorHeight = dungeon.rand.intRange(minFloorHeight, maxFloorHeight);
+                int floorWidth = dungeon.rand.range(minFloorWidth, maxFloorWidth);
+                int floorHeight = dungeon.rand.range(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
 
@@ -68,7 +68,7 @@ public class DirectionalCaveHallGen implements FloorMapGenerator{
                 for(int y= 1; y < tiles[0].length; y++){
                         tiles[x][y] = Tile.makeFloor();
                         if(dungeon.rand.bool(roughness)){
-                                int val = dungeon.rand.intRange(1, 2) * dungeon.rand.sign();
+                                int val = dungeon.rand.range(1, 2) * dungeon.rand.sign();
                                 currentWidth += val;
                                 if(currentWidth <3) currentWidth =3;
                                 else if(currentWidth >= tiles.length) currentWidth = tiles.length -1;
@@ -76,7 +76,7 @@ public class DirectionalCaveHallGen implements FloorMapGenerator{
                         }
 
                         if(dungeon.rand.bool(windyness)){
-                                int val = dungeon.rand.intRange(1, 2) * dungeon.rand.sign();
+                                int val = dungeon.rand.range(1, 2) * dungeon.rand.sign();
                                 x+= val;
                                 if(x <0) x= 0;
                                 else if(x >= tiles.length-currentWidth) x = tiles.length-currentWidth-1;

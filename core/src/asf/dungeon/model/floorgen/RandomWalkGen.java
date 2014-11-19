@@ -8,7 +8,7 @@ import asf.dungeon.model.Tile;
 /**
  *
  * makes a floor that is similiar to the classic "Rouge" maps where
- * there are intRange rooms connected by hallways
+ * there are range rooms connected by hallways
  *
  * Created by Danny on 11/4/2014.
  */
@@ -28,8 +28,8 @@ public class RandomWalkGen implements FloorMapGenerator{
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
 
 
-                int floorWidth = dungeon.rand.intRange(minFloorWidth, maxFloorWidth);
-                int floorHeight = dungeon.rand.intRange(minFloorHeight, maxFloorHeight);
+                int floorWidth = dungeon.rand.range(minFloorWidth, maxFloorWidth);
+                int floorHeight = dungeon.rand.range(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
 
@@ -41,7 +41,7 @@ public class RandomWalkGen implements FloorMapGenerator{
                 int maxFloorTiles = Math.round(floorWidth*floorHeight*.5f);
                 int countFlooTiles = 0;
 
-                Pair loc = new Pair(dungeon.rand.intRange(0, tiles.length - 1),dungeon.rand.intRange(0, tiles[0].length - 1));
+                Pair loc = new Pair(dungeon.rand.range(0, tiles.length - 1),dungeon.rand.range(0, tiles[0].length - 1));
                 while(countFlooTiles < maxFloorTiles){
                         if(tiles[loc.x][loc.y].isWall()){
                                 tiles[loc.x][loc.y] = Tile.makeFloor();

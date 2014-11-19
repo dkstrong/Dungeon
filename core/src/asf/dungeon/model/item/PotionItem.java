@@ -10,7 +10,9 @@ import asf.dungeon.model.token.Token;
 /**
  * Created by Danny on 11/5/2014.
  */
-public class PotionItem extends AbstractItem implements Consumable {
+public class PotionItem extends AbstractItem implements ConsumableItem, StackableItem {
+
+
         public static enum Type{
                 Health, Experience, Invisibility, Purity, Poison, Paralyze, MindVision, Strength, Might, Speed;
         }
@@ -40,10 +42,12 @@ public class PotionItem extends AbstractItem implements Consumable {
 
         private final Color color;
         private final Type type;
+        private int charges;
 
-        public PotionItem(Dungeon dungeon, Type type) {
+        public PotionItem(Dungeon dungeon, Type type, int charges) {
                 this.color = dungeon.getMasterJournal().getPotionColor(type);
                 this.type = type;
+                this.charges= charges;
         }
 
         @Override
@@ -74,8 +78,19 @@ public class PotionItem extends AbstractItem implements Consumable {
                 return color;
         }
 
+        public void addChargesFrom(StackableItem otherItem){
+                PotionItem otherPotion = (PotionItem) otherItem;
+                this.charges+=otherPotion.charges;
+                otherPotion.charges = 0;
+        }
+        @Override
+        public int getCharges() {
+                return charges;
+        }
+
         @Override
         public void consume(Token token) {
+                charges--;
                 StatusEffects statusEffects = token.get(StatusEffects.class);
                 if(statusEffects == null)
                         return;

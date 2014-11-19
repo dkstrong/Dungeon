@@ -341,7 +341,7 @@ public class UtMath {
         }
 
         public static float randomFloat(float min, float max) {
-                return MathUtils.random(min, max); //return (min + (FastMath.intRange.nextFloat() * (max - min)));
+                return MathUtils.random(min, max); //return (min + (FastMath.range.nextFloat() * (max - min)));
         }
 
 

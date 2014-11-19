@@ -257,11 +257,7 @@ public class Token  {
 
                 public void onAttacked(Token attacker, Token target, Attack.AttackOutcome attackOutcome);
 
-                public void onInventoryAdd(Item item);
-
-                public void onInventoryRemove(Item item);
-
-
+                public void onInventoryChanged();
 
                 public void onUseItem(Item item);
 

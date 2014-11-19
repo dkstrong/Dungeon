@@ -276,8 +276,13 @@ public class DungeonWorld implements Disposable {
          */
         public void setPaused(boolean paused) {
                 this.paused = paused;
+
                 if(!paused){
                         Gdx.input.setInputProcessor(inputMultiplexer);
+                }
+
+                if(!paused &&  hudSpatial != null && hudSpatial.isWindowVisible()){
+                       this.paused = true; // this shouldnt ever happen, but in the event it does i have a back up check here to make sure the game isnt unpaused while window is up
                 }
         }
 
@@ -323,7 +328,7 @@ public class DungeonWorld implements Disposable {
                 @Override
                 public boolean keyUp(int keycode) {
                         if (keycode == Input.Keys.ESCAPE || keycode ==  Input.Keys.BACK) {
-                                dungeonApp.setWorldPaused(true);
+                                dungeonApp.setAppPaused(true);
                                 return true;
                         }
                         return false;

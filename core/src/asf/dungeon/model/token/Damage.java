@@ -85,6 +85,8 @@ public class Damage implements TokenComponent{
                         }
                 }
 
+                //Gdx.app.log("Damage",token.getName()+", health is now "+health+" / "+maxHealth);
+
 
         }
 
@@ -96,11 +98,13 @@ public class Damage implements TokenComponent{
                         return;
                 }
                 // scale health to be the same percentage of maxHealth with the new max health value
-                float ratio = health / maxHealth;
+                float ratio = health / (float)maxHealth;
                 maxHealth = value;
                 health = Math.round(ratio * maxHealth);
                 if (health > maxHealth) health = maxHealth;
                 else if(health < 1 ) health = 1;
+
+                //Gdx.app.log("Damage",token.getName()+", health is now "+health+" / "+maxHealth);
         }
 
         protected void onRevive() {

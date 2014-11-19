@@ -38,12 +38,12 @@ public class DungeonRand {
         }
 
         /** Returns a rand number between start (inclusive) and end (inclusive). */
-        public int intRange(int start, int end) {
+        public int range(int start, int end) {
                 return start + random.nextInt(end - start + 1);
         }
 
         /** Returns a rand number between start (inclusive) and end (exclusive). */
-        public float floatRange(float start, float end){
+        public float range(float start, float end){
                 return start + random.nextFloat() * (end - start);
         }
 

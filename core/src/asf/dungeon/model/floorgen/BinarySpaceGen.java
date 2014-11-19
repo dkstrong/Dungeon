@@ -34,8 +34,8 @@ public class BinarySpaceGen implements FloorMapGenerator{
         @Override
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
                 this.dungeon = dungeon;
-                int floorWidth = dungeon.rand.intRange(minFloorWidth, maxFloorWidth);
-                int floorHeight = dungeon.rand.intRange(minFloorHeight, maxFloorHeight);
+                int floorWidth = dungeon.rand.range(minFloorWidth, maxFloorWidth);
+                int floorHeight = dungeon.rand.range(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
                 RoomCell baseRoomCell = new RoomCell(0,0,floorWidth-1, floorHeight-1);
@@ -116,7 +116,7 @@ public class BinarySpaceGen implements FloorMapGenerator{
                         // this should create layouts with less "squished" rooms that represent closets more than rooms
                         //vertSplit = MathUtils.randomBoolean(parentCell != null && parentCell.vertSplit ? .05f :.95f); //false; // MathUtils.randomBoolean()
                         vertSplit  = parentCell!= null && parentCell.vertSplit ? false : true;
-                        float splitRatio = dungeon.rand.floatRange(.35f, .65f);
+                        float splitRatio = dungeon.rand.range(.35f, .65f);
                         if(vertSplit){
                                 int newX2 = Math.round(MathUtils.lerp(x1, x2, splitRatio));
                                 childCell1= new RoomCell(x1, y1, newX2, y2);
@@ -141,11 +141,11 @@ public class BinarySpaceGen implements FloorMapGenerator{
                         if(innerRoom != null)
                                 return innerRoom;
 
-                        int innerX1= dungeon.rand.intRange(x1, Math.round(MathUtils.lerp(x1, x2, 0.2f)));
-                        int innerX2 = dungeon.rand.intRange(Math.round(MathUtils.lerp(x1, x2, .75f)), x2);
+                        int innerX1= dungeon.rand.range(x1, Math.round(MathUtils.lerp(x1, x2, 0.2f)));
+                        int innerX2 = dungeon.rand.range(Math.round(MathUtils.lerp(x1, x2, .75f)), x2);
 
-                        int innerY1= dungeon.rand.intRange(y1, Math.round(MathUtils.lerp(y1, y2, 0.25f)));
-                        int innerY2 = dungeon.rand.intRange(Math.round(MathUtils.lerp(y1, y2, .75f)), y2);
+                        int innerY1= dungeon.rand.range(y1, Math.round(MathUtils.lerp(y1, y2, 0.25f)));
+                        int innerY2 = dungeon.rand.range(Math.round(MathUtils.lerp(y1, y2, .75f)), y2);
 
                         innerRoom = new Room(innerX1, innerY1, innerX2, innerY2);
                         return innerRoom;

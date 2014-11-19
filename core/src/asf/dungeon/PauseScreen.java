@@ -105,7 +105,7 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
                                         float clickX = inputEvent.getStageX();
                                         float clickY = inputEvent.getStageY();
                                         if (clickX < window.getX() || clickY < window.getY() || clickX > window.getX() + window.getWidth() || clickY > window.getY() + window.getHeight()) {
-                                                app.setWorldPaused(false);
+                                                app.setAppPaused(false);
                                                 return true;
                                         }
                                 }
@@ -118,7 +118,7 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
                 }
 
                 if (event.getListenerActor() == resumeButton) {
-                        app.setWorldPaused(false);
+                        app.setAppPaused(false);
                         return true;
                 }
 
@@ -139,7 +139,7 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
         @Override
         public boolean keyUp(int keycode) {
                 if(keycode == Input.Keys.ESCAPE){
-                        app.setWorldPaused(false);
+                        app.setAppPaused(false);
                         return true;
                 }
                 return false;

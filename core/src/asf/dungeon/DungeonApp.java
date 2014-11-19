@@ -62,7 +62,7 @@ public class DungeonApp implements ApplicationListener {
                         // only autopause for android/ios/html
                         if (worldManager != null)
                                 worldManager.saveDungeon();
-                        setWorldPaused(true);
+                        setAppPaused(true);
                 }
                 if (screen != null)
                         screen.pause();
@@ -135,7 +135,12 @@ public class DungeonApp implements ApplicationListener {
                 worldManager = null;
         }
 
-        public void setWorldPaused(boolean paused) {
+        /**
+         * pauses the app and shows the generic pause menu screen
+         * mainly only used the app loses focus.
+         * @param paused
+         */
+        public void setAppPaused(boolean paused) {
                 if (worldManager == null || worldManager.isPaused() == paused)
                         return;
 
@@ -149,7 +154,7 @@ public class DungeonApp implements ApplicationListener {
                 }
         }
 
-        public boolean isWorldPaused() {
+        public boolean isAppPaused() {
                 if (worldManager == null)
                         return false;
 

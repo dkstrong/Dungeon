@@ -5,6 +5,6 @@ import asf.dungeon.model.token.Token;
 /**
 * Created by Danny on 11/15/2014.
 */
-public interface Consumable extends Item{
+public interface ConsumableItem extends Item{
         public void consume(Token token);
 }

@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.Array;
  */
 public class Move implements TokenComponent{
         private final Token token;
-        private int moveSpeed = 6; // how fast the character moves between tiles, generally a value between 1 and 10, could be higher i suppose.
+        private float moveSpeed = 1.5f; // how fast the character moves between tiles, generally a value between 1 and 10, could be higher i suppose.
         private boolean picksUpItems = true; // if this character will pick up items when standing on tiles with items
         private final Array<Pair> path = new Array<Pair>(true, 32, Pair.class);   // the current path that this token is trying to follow, it may be regularly refreshed with new paths
         private final Pair pathedTarget = new Pair();           // the last element of path. this is compared against continuesMoveTarget to prevent spamming the pathfinder coder
@@ -82,7 +82,7 @@ public class Move implements TokenComponent{
 
                 calcPathToLocation(token.getCommand().getLocation());
 
-                moveU += delta * moveSpeed * 0.25f;
+                moveU += delta * moveSpeed;
 
                 FloorMap floorMap = token.getFloorMap();
                 Pair location = token.getLocation();
@@ -252,8 +252,10 @@ public class Move implements TokenComponent{
                 for (Token t : tokensAt) {
                         Loot loot = t.get(Loot.class);
                         if(loot != null){
-                                loot.becomeRemoved();
-                                token.getInventory().add(loot.getItem());
+                                boolean valid = token.getInventory().add(loot.getItem());
+                                if(valid)
+                                        loot.becomeRemoved();
+                                // TODO: show message saying inventory is full
                         }
                 }
         }
@@ -284,11 +286,11 @@ public class Move implements TokenComponent{
                 return moveU != 1;
         }
 
-        public int getMoveSpeed() {
+        public float getMoveSpeed() {
                 return moveSpeed;
         }
 
-        protected void setMoveSpeed(int moveSpeed){
+        protected void setMoveSpeed(float moveSpeed){
                 this.moveSpeed = moveSpeed;
         }
 }

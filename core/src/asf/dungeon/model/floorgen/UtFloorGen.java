@@ -74,7 +74,7 @@ public class UtFloorGen {
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
-                        dungeon.newCrateToken(floorMap,modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health),x,y);
+                        dungeon.newCrateToken(floorMap,modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health, 1),x,y);
                 }
         }
 
@@ -95,7 +95,7 @@ public class UtFloorGen {
 
                                 int numWalls = countWalls(floorMap.getTiles(), x, y);
                                 if(treasurePlacementLimt <=numWalls){
-                                        dungeon.newCrateToken(floorMap,modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health),x,y);
+                                        dungeon.newCrateToken(floorMap,modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health, 1),x,y);
 
                                         countSpawn++;
                                         if(countSpawn >= maxTreasures)
@@ -178,14 +178,14 @@ public class UtFloorGen {
         }
 
         /**
-         * places "up" stairs in a intRange location, ensures that it will have atleast 1 buffer square from walls on all sides
+         * places "up" stairs in a range location, ensures that it will have atleast 1 buffer square from walls on all sides
          * @param tiles
          * @param floorIndex
          */
         protected static void placeUpStairs(Dungeon dungeon, Tile[][] tiles, int floorIndex){
                 do{
-                        int x = dungeon.rand.intRange(0, tiles.length - 1);
-                        int y = dungeon.rand.intRange(0, tiles[0].length - 1);
+                        int x = dungeon.rand.range(0, tiles.length - 1);
+                        int y = dungeon.rand.range(0, tiles[0].length - 1);
 
                         if(!UtFloorGen.isFloor(tiles, x,y))
                                 continue;
@@ -200,14 +200,14 @@ public class UtFloorGen {
         }
 
         /**
-         * places "down" stairs in a intRange location, ensures that it will have atleast 1 buffer square from walls on all sides
+         * places "down" stairs in a range location, ensures that it will have atleast 1 buffer square from walls on all sides
          * @param tiles
          * @param floorIndex
          */
         protected static void placeDownStairs(Dungeon dungeon, Tile[][] tiles, int floorIndex){
                 do{
-                        int x = dungeon.rand.intRange(0, tiles.length - 1);
-                        int y = dungeon.rand.intRange(0, tiles[0].length - 1);
+                        int x = dungeon.rand.range(0, tiles.length - 1);
+                        int y = dungeon.rand.range(0, tiles[0].length - 1);
                         if(!UtFloorGen.isFloor(tiles, x,y))
                                 continue;
 

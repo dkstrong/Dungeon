@@ -22,10 +22,12 @@ import asf.dungeon.model.floorgen.RandomWalkGen;
 import asf.dungeon.model.floorgen.Room;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
+import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.PotionItem;
+import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.Command;
 import asf.dungeon.model.token.Damage;
@@ -104,23 +106,42 @@ public class DungeonLoader {
                 dungeon.setCurrentFloor(0);
 
                 // spawn player
-                boolean rangedHero = settings.playerModel == ModelId.Archer || settings.playerModel == ModelId.Mage;
-
                 FloorMap floorMap = dungeon.getCurrentFloopMap();
-
                 Pair locationOfUpStairs = floorMap.getLocationOfUpStairs();
+
                 Token token = dungeon.newPlayerCharacterToken(floorMap, "Player 1", settings.playerModel,
                         playerLogic,
-                        new Experience(1, 10, 10, 6, 3),
+                        new Experience(1, 10, 6, 3, 1),
                         locationOfUpStairs.x, locationOfUpStairs.y);
 
-                token.getAttack().setAbleRangedAttack(rangedHero);
                 token.getDamage().setDeathRemovalCountdown(Float.NaN);
-                token.getInventory().add(new PotionItem(dungeon, PotionItem.Type.Health));
-                token.getInventory().add(new PotionItem(dungeon, PotionItem.Type.Health));
-                EquipmentItem sword = EquipmentItem.makeWeapon("Sword", 1);
-                token.getInventory().add(sword);
-                token.getInventory().equip(sword);
+                token.getInventory().add(new PotionItem(dungeon, PotionItem.Type.Health,2 ));
+
+                if(settings.playerModel == ModelId.Knight){
+                        WeaponItem sword = new WeaponItem(ModelId.Potion,"Sword", 3);
+                        sword.setCursed(true);
+                        token.getInventory().add(sword);
+                        //token.getInventory().equip(sword);
+                        //token.get(Journal.class).learn(sword);
+                }else if(settings.playerModel == ModelId.Archer){
+                        WeaponItem bow = new WeaponItem(ModelId.Potion,"Bow", 3);
+                        bow.setRanged(true);
+                        token.getInventory().add(bow);
+                        token.getInventory().equip(bow);
+                        token.get(Journal.class).learn(bow);
+                }else if(settings.playerModel == ModelId.Mage){
+                        WeaponItem staff = new WeaponItem(ModelId.Potion,"Staff", 3);
+                        token.getInventory().add(staff);
+                        token.getInventory().equip(staff);
+                        token.get(Journal.class).learn(staff);
+                }
+
+
+
+                ArmorItem armor = new ArmorItem(ModelId.Potion,"Armor",1);
+                token.getInventory().add(armor);
+                //token.getInventory().equip(armor);
+                //token.get(Journal.class).learn(armor);
 
 
                 return dungeon;

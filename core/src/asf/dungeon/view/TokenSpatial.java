@@ -5,7 +5,7 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
-import asf.dungeon.model.item.Consumable;
+import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.PotionItem;
@@ -200,7 +200,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
         private void updateIfNotFogBlocked(float delta){
                 if (currentItemUse != null) {
-                        if(currentItemUse instanceof Consumable){
+                        if(currentItemUse instanceof ConsumableItem){
                                 Gdx.app.log("CharacterTokenControl", "bloob bloob bloob " + currentItemUse.getNameFromJournal(token) + "!");
                         }else if(currentItemUse instanceof KeyItem){
 
@@ -274,8 +274,8 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         float rotSpeed = delta * (UtMath.largest(token.getMove().getMoveSpeed(), 7) + 0.5f)*.05f;
                         rotation.slerp(token.getDirection().quaternion, rotSpeed);
                 } else{
-                        int rotMoveSpped = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7);
-                        float rotSpeed = delta * (rotMoveSpped + 0.5f);
+                        float rotMoveSpeed = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7f);
+                        float rotSpeed = delta * (rotMoveSpeed + 0.5f);
                         rotation.slerp(token.getDirection().quaternion, rotSpeed);
                 }
         }
@@ -305,16 +305,10 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         @Override
-        public void onInventoryAdd(Item item) {
+        public void onInventoryChanged() {
                 if (world.getHud().localPlayerToken == token)
-                        world.getHud().onInventoryAdd(item);
+                        world.getHud().onInventoryChanged();
 
-        }
-
-        @Override
-        public void onInventoryRemove(Item item) {
-                if (world.getHud().localPlayerToken == token)
-                        world.getHud().onInventoryRemove(item);
         }
 
         @Override

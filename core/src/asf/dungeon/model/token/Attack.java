@@ -16,7 +16,6 @@ public class Attack implements TokenComponent{
         private float attackCooldownDuration = 1; // how long since the last attack ended until a new attack can begin.
         private float projectileSpeed = 2;
 
-        private boolean ableRangedAttack = false;
         private static final transient boolean rangedKeepDistance = true;             // if true the character will hold position while in range of targeted token and it is alive, if false character will persue and get close inbetween shots
 
         //state variables
@@ -56,6 +55,9 @@ public class Attack implements TokenComponent{
                 attackCoolDown -= delta; // the attack cooldown timer always decreases as long as not dead
 
                 inAttackRangeOfContinousMoveToken = false;
+
+                boolean ableRangedAttack = token.getInventory().getWeaponSlot() != null && token.getInventory().getWeaponSlot().isRanged();
+
                 if(ableRangedAttack && !token.getDamage().isHit() && (token.getMove() == null || token.getMove().moveU > .75f)){
                 // cant initiate attack if being hit, also must have moveU > .75f to ensure near center of tile and can be hit by melee
                         Token targetToken = token.getCommand().getTargetToken();
@@ -188,6 +190,9 @@ public class Attack implements TokenComponent{
         private void sendDamageToAttackTarget(Token targetToken, boolean ranged) {
                 if(targetToken == null) return;
 
+                token.getInventory().resetCombatTimer();
+                targetToken.getInventory().resetCombatTimer();
+
                 out.damage = 0;
                 out.dodge = false;
                 out.critical = false;
@@ -199,7 +204,7 @@ public class Attack implements TokenComponent{
                         float speedDifference = targetToken.getExperience().getAgility() - token.getExperience().getAgility();
 
                         if(speedDifference >0) {// target is faster,
-                                float chance = UtMath.scalarLimitsInterpolation(speedDifference, 0f, 100f, .15f, .75f);
+                                float chance = UtMath.scalarLimitsInterpolation(speedDifference, 0f, 100f, 0f, .5f);
                                 out.dodge = token.dungeon.rand.bool(chance);
                         }else{
                                 out.dodge = token.dungeon.rand.bool(.025f + targetToken.getExperience().getLuck() / 100f);
@@ -208,27 +213,26 @@ public class Attack implements TokenComponent{
                         if(out.dodge){
                                 out.damage = 0;
                         }else{
-                                int attackVal = token.getExperience().getStrength();
-                                int weaponDmg = token.getInventory().getWeaponSlot() == null ? 0 : token.getInventory().getWeaponSlot().getDamageRating();
-                                attackVal = token.dungeon.rand.intRange(0, attackVal)+weaponDmg;
+                                // damage done has a minimum of weapon damage and maximum of strength
+                                int strength = token.getExperience().getStrength();
+                                int weaponDmg = token.getInventory().getWeaponSlot() == null ? 0 : token.getInventory().getWeaponSlot().getDamage();
+                                if(weaponDmg <strength) out.damage = token.dungeon.rand.range(weaponDmg, strength);
+                                else out.damage = weaponDmg;
 
-                                int defenseVal = targetToken.getExperience().getStrength();
-                                int armorAbsorb = targetToken.getInventory().getArmorSlot() == null ? 0 : targetToken.getInventory().getArmorSlot().getArmorRating();
-                                defenseVal = token.dungeon.rand.intRange(0, defenseVal) + armorAbsorb;
-
-                                out.damage = attackVal - defenseVal;
-                                if(out.damage <=0){
-                                        // if did no damage, then theres a chance of doing 1 dmg instead if your attack value is close to the defense value
-                                        float ratio = attackVal / (float)defenseVal;
-                                        if(token.dungeon.rand.bool(ratio)) out.damage = 1;
-                                }
-
+                                // if lucky will do a critical strike
                                 if(token.dungeon.rand.bool(getCriticalHitChance())){
                                         // If you are lucky, will do critical damage causing x2 output damage
                                         out.critical = true;
                                         if(out.damage <=0) out.damage = 1;
                                         out.damage *=2;
                                 }
+
+                                // damage absorb is the armor rating of worn armor.
+                                int armorAbsorb = targetToken.getInventory().getArmorSlot() == null ? 0 : targetToken.getInventory().getArmorSlot().getArmorRating();
+
+                                out.damage-=armorAbsorb;
+
+
                         }
                 }
 
@@ -317,15 +321,6 @@ public class Attack implements TokenComponent{
 
         public float getAttackCoolDown() {
                 return attackCoolDown;
-        }
-
-        /**
-         * this is here for more temporary purposes, normally the token should know
-         * if it can do a ranged attack by what weapon he is holding
-         * @param ableRangedAttack
-         */
-        public void setAbleRangedAttack(boolean ableRangedAttack) {
-                this.ableRangedAttack = ableRangedAttack;
         }
 
         public boolean isInRangeOfAttackTarget(){

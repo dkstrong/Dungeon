@@ -32,6 +32,7 @@ public class Loot implements TokenComponent{
 
         protected void becomeRemoved(){
                 removed = true;
+                item = null;
         }
 
         public Item getItem(){

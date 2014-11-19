@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Array;
 
 /**
  * makes a floor that is similiar to the classic "Rouge" maps where
- * there are intRange rooms connected by hallways
+ * there are range rooms connected by hallways
  * <p/>
  * Created by Danny on 11/4/2014.
  */
@@ -25,8 +25,8 @@ public class ConnectedRoomsGen implements FloorMapGenerator {
 
         @Override
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
-                int floorWidth = dungeon.rand.intRange(minFloorWidth, maxFloorWidth);
-                int floorHeight = dungeon.rand.intRange(minFloorHeight, maxFloorHeight);
+                int floorWidth = dungeon.rand.range(minFloorWidth, maxFloorWidth);
+                int floorHeight = dungeon.rand.range(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
                 int numRooms = Math.round(floorWidth / maxRoomSize * floorHeight / maxRoomSize * .5f);
@@ -38,8 +38,8 @@ public class ConnectedRoomsGen implements FloorMapGenerator {
                 while (rooms.size < numRooms) {
                         Room newRoom = new Room(0, 0, maxRoomSize, maxRoomSize);
                         do {
-                                int roomWidth = dungeon.rand.intRange(minRoomSize, maxRoomSize);
-                                int roomHeight = dungeon.rand.intRange(minRoomSize, maxRoomSize);
+                                int roomWidth = dungeon.rand.range(minRoomSize, maxRoomSize);
+                                int roomHeight = dungeon.rand.range(minRoomSize, maxRoomSize);
                                 int x = dungeon.rand.random.nextInt(tiles.length);
                                 int y = dungeon.rand.random.nextInt(tiles[0].length);
 

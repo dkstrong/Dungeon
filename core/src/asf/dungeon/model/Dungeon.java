@@ -13,7 +13,6 @@ import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.Move;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.LocalPlayerLogic;
 import asf.dungeon.model.token.logic.Logic;
 
 import java.util.HashMap;
@@ -116,7 +115,29 @@ public class Dungeon {
         }
 
         public Token newPlayerCharacterToken(FloorMap fm, String name, ModelId modelId, Logic logic, Experience experience, int x, int y){
-                localPlayerToken = newCharacterToken(fm, name, modelId, logic, experience, x, y);
+                Token t = new Token(this, fm, nextTokenId++, name, modelId);
+                t.add(logic);
+                t.add(new Command(t));
+                t.add(new FogMapping(t));
+                t.add(new Journal());
+                t.add(experience);
+                t.add(new Inventory.Character(t));
+                t.add(new StatusEffects(t));
+                t.add(new Attack(t));
+                t.add(new Damage(t, 10));
+                t.add(new Move(t));
+
+                t.getDamage().setDeathDuration(3f);
+                t.getDamage().setDeathRemovalCountdown(10f);
+                t.getExperience().setToken(t);
+                t.getLogic().setToken(t);
+                localPlayerToken = t;
+                fm.tokens.add(t);
+                boolean valid = t.teleportToLocation(x, y);
+                if(!valid) throw new IllegalStateException("can not spawn here!");
+                if (currentFloorMap == fm && listener != null)
+                        listener.onTokenAdded(t);
+
                 if(listener != null)
                         listener.onNewPlayerToken(localPlayerToken);
 
@@ -129,10 +150,8 @@ public class Dungeon {
                 Token t = new Token(this, fm, nextTokenId++, name, modelId);
                 t.add(logic);
                 t.add(new Command(t));
-                if(logic instanceof LocalPlayerLogic){
-                        t.add(new FogMapping(t));
-                        t.add(new Journal());
-                }
+                //t.add(new FogMapping(t));
+                //t.add(new Journal());
                 t.add(experience);
                 t.add(new Inventory.Character(t));
                 t.add(new StatusEffects(t));

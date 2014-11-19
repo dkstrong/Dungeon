@@ -2,6 +2,8 @@ package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.item.EquipmentItem;
+import asf.dungeon.utility.UtMath;
+import com.badlogic.gdx.Gdx;
 
 /**
  * Created by Danny on 11/11/2014.
@@ -109,6 +111,7 @@ public class Experience implements TokenComponent{
                 luckMod = (weapon == null ? 0 : weapon.getLuckMod()) + (armor == null ? 0 : armor.getLuckMod())+ (ring == null ? 0 : ring.getLuckMod());
 
                 int vitality = getVitality();
+                Gdx.app.log("Experience","new vitality: "+vitality);
                 int strength = getStrength();
                 int agility = getAgility();
                 int luck = getLuck();
@@ -117,13 +120,17 @@ public class Experience implements TokenComponent{
                 token.getDamage().setMaxHealth(vitality*2);
 
                 // strength
-                token.getAttack().setAttackDuration(2); // should get slightly shorter with each level
-                token.getAttack().setAttackRange(3); // should get slightly longer with each level
+                token.getAttack().setAttackDuration(UtMath.scalarLimitsInterpolation(strength,1f,100f,2.25f,1.5f)); // default was 2
+                token.getAttack().setAttackRange(UtMath.scalarLimitsInterpolation(strength,1,100,2,6)); // default was 3
 
                 // agility
-                token.getMove().setMoveSpeed(agility+1);
-                token.getAttack().setAttackCooldownDuration(agility / 6f);
-                token.getAttack().setProjectileSpeed(2); // should get slighlty higher with each level
+                if(agility < 10) token.getMove().setMoveSpeed(1.5f);
+                else if(agility < 15) token.getMove().setMoveSpeed(1.6f);
+                else if(agility < 20) token.getMove().setMoveSpeed(1.7f);
+                else token.getMove().setMoveSpeed(UtMath.scalarLimitsInterpolation(agility,20f,100f,1.7f,3f));
+
+                token.getAttack().setAttackCooldownDuration(UtMath.scalarLimitsInterpolation(agility,1f,100f,1.5f,.75f)); // default was 1
+                token.getAttack().setProjectileSpeed(UtMath.scalarLimitsInterpolation(agility,1f,100f,1.5f,5f)); // default was 2
                 // luck
         }
 
