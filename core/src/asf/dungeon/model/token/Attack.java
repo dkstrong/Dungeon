@@ -191,7 +191,7 @@ public class Attack implements TokenComponent{
                 if(targetToken == null) return;
 
                 token.getInventory().resetCombatTimer();
-                targetToken.getInventory().resetCombatTimer();
+                if(targetToken.getInventory() != null) targetToken.getInventory().resetCombatTimer();
 
                 out.damage = 0;
                 out.dodge = false;

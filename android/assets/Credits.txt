@@ -29,6 +29,11 @@ Ceramic Pitcher
 Aare
 URL: http://opengameart.org/content/ceramic-bear-mug
 
+===Misc Dungeon Assets===
+Stairs
+CLint Bellanger
+URL: http://opengameart.org/content/low-poly-stairs
+
 ===Textures===
 Floor and Wall textures
 Spiney

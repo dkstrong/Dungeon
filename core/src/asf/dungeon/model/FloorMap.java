@@ -230,6 +230,21 @@ public class FloorMap  {
         }
 
         /**
+         * returns list of tokens within provided extent of the location. (not manhatten distance)
+         * The returned array should not be stored as it will be reused next time this method is called
+         */
+        public Array<Token> getTokensInExtent(Pair loc, int extent){
+                tokensAt.clear();
+                for (Token token : tokens) {
+                        Pair tLoc = token.getLocation();
+                        if(tLoc.x >= loc.x - extent && tLoc.x <= loc.x+extent && tLoc.y >= loc.y-extent && tLoc.y <= loc.y+extent){
+                                tokensAt.add(token);
+                        }
+                }
+                return tokensAt;
+        }
+
+        /**
          * list of tokens at the supplied location, note that the Array that is returned
          * shouldnt be stored as it will be reused next time this method is called
          *
@@ -253,19 +268,19 @@ public class FloorMap  {
          * @param loc
          * @return
          */
-        public Array<Token> getTokensAt(Pair loc, Direction dir) {
+        public Array<Token> getTokensAt(Pair loc, Direction lookDir) {
                 int x = loc.x;
                 int y = loc.y;
-                if (dir == Direction.North) {
+                if (lookDir == Direction.North) {
                         y = loc.y + 1;
-                } else if (dir == Direction.South) {
+                } else if (lookDir == Direction.South) {
                         y = loc.y - 1;
-                } else if (dir == Direction.East) {
+                } else if (lookDir == Direction.East) {
                         x = loc.x + 1;
-                } else if (dir == Direction.West) {
+                } else if (lookDir == Direction.West) {
                         x = loc.x - 1;
                 } else {
-                        throw new AssertionError(dir);
+                        throw new AssertionError(lookDir);
                 }
 
                 tokensAt.clear();

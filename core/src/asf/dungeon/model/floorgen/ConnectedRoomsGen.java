@@ -6,7 +6,8 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.AiLogic;
+import asf.dungeon.model.token.logic.fsm.FSMLogic;
+import asf.dungeon.model.token.logic.fsm.Monster;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -93,7 +94,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
 
                         Token token = dungeon.newCharacterToken(floorMap, "Monster",
                                 ModelId.Berzerker,
-                                new AiLogic(1),
+                                new FSMLogic(1, null, Monster.Sleep),
                                 new Experience(1, 8, 4, 6, 1,1),
                                 x,y);
 

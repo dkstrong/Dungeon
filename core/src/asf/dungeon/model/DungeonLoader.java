@@ -31,7 +31,6 @@ import asf.dungeon.model.token.Move;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.TokenComponent;
-import asf.dungeon.model.token.logic.ExplorerLogic;
 import asf.dungeon.model.token.logic.FullAgroLogic;
 import asf.dungeon.model.token.logic.LocalPlayerLogic;
 import asf.dungeon.model.token.logic.Logic;
@@ -289,7 +288,6 @@ public class DungeonLoader {
 
                 kryo.register(Logic.class);
                 kryo.register(LocalPlayerLogic.class);
-                kryo.register(ExplorerLogic.class);
                 kryo.register(asf.dungeon.model.token.logic.FullAgroLogic.class);
 
 

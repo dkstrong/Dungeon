@@ -29,7 +29,7 @@ public class LocalPlayerLogic implements Logic {
 
         @Override
         public void teleport(FloorMap fm, int x, int y, Direction direction) {
-                return true;
+
         }
 
         @Override

@@ -7,7 +7,8 @@ import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.AiLogic;
+import asf.dungeon.model.token.logic.fsm.FSMLogic;
+import asf.dungeon.model.token.logic.fsm.Monster;
 
 
 /**
@@ -49,7 +50,7 @@ public class UtFloorGen {
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
                         Token characterToken = dungeon.newCharacterToken(floorMap,modelId.name(),modelId,
-                                new AiLogic(1),
+                                new FSMLogic(1, null, Monster.Sleep),
                                 new Experience(1, 8, 10, 7,1,1),
                                 x,y);
 
