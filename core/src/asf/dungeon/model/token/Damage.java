@@ -1,6 +1,7 @@
 package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.item.Item;
 
 /**
@@ -29,10 +30,9 @@ public class Damage implements TokenComponent{
         }
 
         @Override
-        public boolean teleportToLocation(int x, int y, Direction direction) {
+        public void teleport(FloorMap fm, int x, int y, Direction direction) {
                 hitU = 0;
                 hitSource = null;
-                return true;
         }
 
         @Override

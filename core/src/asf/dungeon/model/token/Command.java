@@ -1,6 +1,7 @@
 package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
@@ -27,10 +28,9 @@ public class Command implements TokenComponent{
         }
 
         @Override
-        public boolean teleportToLocation(int x, int y, Direction direction) {
+        public void teleport(FloorMap fm, int x, int y, Direction direction) {
                 location.set(x,y);
                 targetToken = null;
-                return true;
         }
 
         @Override

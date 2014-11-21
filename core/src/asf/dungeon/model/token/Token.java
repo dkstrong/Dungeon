@@ -7,6 +7,7 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.logic.Logic;
 import com.badlogic.gdx.utils.Array;
@@ -43,9 +44,8 @@ public class Token  {
         private Inventory.Character inventory;
         private FogMapping fogMapping;
 
-        public Token(Dungeon dungeon, FloorMap floorMap, int id, String name, ModelId modelId) {
+        public Token(Dungeon dungeon, int id, String name, ModelId modelId) {
                 this.dungeon = dungeon;
-                this.floorMap = floorMap;
                 this.id = id;
                 this.name = name;
                 this.modelId = modelId;
@@ -81,61 +81,25 @@ public class Token  {
                 }
         }
 
-        public final boolean teleportToLocation(int x, int y) {
-                return teleportToLocation(x, y, Direction.South);
-        }
+        public boolean teleport(FloorMap fm, int x, int y, Direction dir){
 
-        /**
-         * teleports token to this new location, if the new location
-         * can not be moved to (normally because it is already occupied) then the move will not work.
-         * <p/>
-         * this generally is used for setting up the dungeon, could eventually be used for stairways to lead to other rooms.
-         *
-         * @param x
-         * @param y
-         * @param direction
-         * @return true if moved, false if did not move
-         */
-        public boolean teleportToLocation(int x, int y, Direction direction) {
+                // TODO: in dungeon.moveToken() checking for a valid teleport should be included
+                // to ensure tokens arent teleported to an invalid location
+                // additionally i might want create Token.IsValidTeleprotLocation() or something..
 
-                if (blocksPathing && floorMap.isLocationBlocked(x, y)) {
+                Tile tile = fm.tiles[x][y];
+                // TODO: also check for walls and null and stuff?
+                if(tile.isDoor()){
                         return false;
                 }
 
-                Tile tile = floorMap.tiles[x][y];
-                if (tile.isDoor()) {
-                        return false;
-                }
-                location.set(x, y);
-                this.direction = direction;
+                floorMap = fm;
+                location.set(x,y);
+                direction = dir;
 
                 for (TokenComponent c : components) {
-                        if (!c.teleportToLocation(x, y, direction))
-                                throw new AssertionError("could not teleport due to error in "+c.getClass());
+                        c.teleport(fm, x, y, direction);
                 }
-
-                return true;
-        }
-
-        public boolean teleportToFloor(int f) {
-                if (f == floorMap.index)
-                        return false;
-                boolean down = f > floorMap.index;
-                floorMap = dungeon.generateFloor(f);
-                Pair stairLoc;
-                if (down) {
-                        stairLoc = floorMap.getLocationOfUpStairs();
-                } else {
-                        stairLoc = floorMap.getLocationOfDownStairs();
-                }
-
-                boolean valid = teleportToLocation(stairLoc.x, stairLoc.y, Direction.North);
-                if (!valid) {
-                        // TODO: if there is something in the way of teleporting here (eg a character standing on the up stairs), then teleportToLocation()
-                        // i need a way to handle this
-                        throw new AssertionError("It seems I coudlnt teleport to the location of the stairs");
-                }
-                dungeon.moveTokenToFloor(this, floorMap);
 
                 return true;
         }
@@ -262,6 +226,8 @@ public class Token  {
                 public void onUseItem(Item item);
 
                 public void onStatusEffectChange(StatusEffects.Effect effect, float duration);
+
+                public void onLearnedThroughStudy(EquipmentItem item);
 
 
         }

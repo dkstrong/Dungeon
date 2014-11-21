@@ -114,13 +114,18 @@ public class Dungeon {
                 return floorMaps.get(floorIndex);
         }
 
+        /**
+         * unlike the other newXXX methods, fm MAY be null, this allows for creating the local player and using his stats on generating the first floor
+         *
+         * be sure to manually call moveToken() after his stats are set to properly add him to the game and put him on a floor
+         */
         public Token newPlayerCharacterToken(FloorMap fm, String name, ModelId modelId, Logic logic, Experience experience, int x, int y){
-                Token t = new Token(this, fm, nextTokenId++, name, modelId);
+                Token t = new Token(this,  nextTokenId++, name, modelId);
                 t.add(logic);
                 t.add(new Command(t));
                 t.add(new FogMapping(t));
-                t.add(new Journal());
                 t.add(experience);
+                t.add(new Journal(t));
                 t.add(new Inventory.Character(t));
                 t.add(new StatusEffects(t));
                 t.add(new Attack(t));
@@ -132,22 +137,15 @@ public class Dungeon {
                 t.getExperience().setToken(t);
                 t.getLogic().setToken(t);
                 localPlayerToken = t;
-                fm.tokens.add(t);
-                boolean valid = t.teleportToLocation(x, y);
-                if(!valid) throw new IllegalStateException("can not spawn here!");
-                if (currentFloorMap == fm && listener != null)
-                        listener.onTokenAdded(t);
-
-                if(listener != null)
-                        listener.onNewPlayerToken(localPlayerToken);
-
-                setCurrentFloor(localPlayerToken.getFloorMap().index);
-
+                if(fm != null){
+                        moveToken(t, fm, x, y, Direction.South);
+                }
                 return localPlayerToken;
         }
 
         public Token newCharacterToken(FloorMap fm, String name, ModelId modelId, Logic logic, Experience experience, int x, int y) {
-                Token t = new Token(this, fm, nextTokenId++, name, modelId);
+                if(fm == null) throw new IllegalArgumentException("fm can not be null");
+                Token t = new Token(this,  nextTokenId++, name, modelId);
                 t.add(logic);
                 t.add(new Command(t));
                 //t.add(new FogMapping(t));
@@ -164,69 +162,129 @@ public class Dungeon {
                 t.getExperience().setToken(t);
                 t.getLogic().setToken(t);
 
-                fm.tokens.add(t);
-                boolean valid = t.teleportToLocation(x, y);
-                if(!valid) throw new IllegalStateException("can not spawn here!");
-                if (currentFloorMap == fm && listener != null)
-                        listener.onTokenAdded(t);
+                moveToken(t, fm, x,y,Direction.South);
                 return t;
         }
 
         public Token newCrateToken(FloorMap fm, String name, ModelId modelId, Item item, int x, int y) {
-                Token t = new Token(this, fm, nextTokenId++, name, modelId);
+                if(fm == null) throw new IllegalArgumentException("fm can not be null");
+                Token t = new Token(this,  nextTokenId++, name, modelId);
                 t.add(new Inventory.Simple(t, item));
                 t.add(new Damage(t, 1));
                 t.getDamage().setDeathDuration(2.5f);
                 t.getDamage().setDeathRemovalCountdown(.25f);
-                fm.tokens.add(t);
-                boolean valid = t.teleportToLocation(x, y);
-                if(!valid) throw new IllegalStateException("can not spawn here!");
-                if (currentFloorMap == fm && listener != null)
-                        listener.onTokenAdded(t);
+                moveToken(t, fm, x,y,Direction.South);
                 return t;
         }
 
         public Token newLootToken(FloorMap fm, Item item, int x, int y) {
-                Token t = new Token(this, fm, nextTokenId++, item.getName(), item.getModelId());
+                if(fm == null) throw new IllegalArgumentException("fm can not be null");
+                Token t = new Token(this,  nextTokenId++, item.getName(), item.getModelId());
                 t.add(new Loot(t, item));
-                fm.tokens.add(t);
-                boolean valid = t.teleportToLocation(x, y);
-                if(!valid) throw new IllegalStateException("can not spawn here!");
-                if (currentFloorMap == fm && listener != null)
-                        listener.onTokenAdded(t);
+
+                moveToken(t, fm, x,y,Direction.South);
+
                 return t;
         }
 
-        public Token removeToken(Token token) {
-                for (FloorMap floorMap : floorMaps.values()) {
-                        boolean b = floorMap.tokens.removeValue(token, true);
-                        if (b) {
-                                if (token.getFloorMap() == currentFloorMap && listener != null)
-                                        listener.onTokenRemoved(token);
+        public void removeToken(Token token) {
+                FloorMap fm = token.getFloorMap();
+                if(fm == null){
+                        if(token == localPlayerToken)
+                                localPlayerToken = null;
+                        return;
+                }
+                boolean valid = fm.tokens.removeValue(token, true);
+                if(valid){
+                        if(fm == currentFloorMap && listener != null)
+                                listener.onTokenRemoved(token);
 
-                                if(token == localPlayerToken){
-                                        localPlayerToken = null;
-                                        if(listener != null)
-                                                listener.onNewPlayerToken(null);
-                                }
-                                return token;
+                        if(token == localPlayerToken){
+                                localPlayerToken = null;
+                                if(listener != null)
+                                        listener.onNewPlayerToken(null);
                         }
+                }else{
+                        throw new IllegalStateException("token was not on this floor");
                 }
 
-                return null;
         }
 
+        /**
+         * moves token to the specified floor, coordinates, and direction
+         * @param token
+         * @param newFloorMap
+         * @param x
+         * @param y
+         * @param direction
+         */
+        public void moveToken(Token token, FloorMap newFloorMap, int x, int y, Direction direction){
+                FloorMap oldFloorMap = token.getFloorMap();
+                if(oldFloorMap == null){
+                        token.teleport(newFloorMap ,x,y,direction);
+                        newFloorMap.tokens.add(token);
+                        if (listener != null && newFloorMap == currentFloorMap)
+                                listener.onTokenAdded(token);
+
+
+                        if(listener != null && token == localPlayerToken)
+                                listener.onNewPlayerToken(localPlayerToken);
+
+
+                        if(token == localPlayerToken)
+                                setCurrentFloor(token.getFloorMap().index);
+
+                }else{
+                        // TODO: if moving within the same floor, no point in needlessly removing and readding to the token list
+                        boolean valid = oldFloorMap.tokens.removeValue(token, true);
+                        if(valid){
+                                token.teleport(newFloorMap ,x,y,direction);
+                                newFloorMap.tokens.add(token);
+                                if (listener != null && oldFloorMap != newFloorMap){
+                                        if (oldFloorMap == currentFloorMap) {
+                                                listener.onTokenRemoved(token);
+                                        } else if (newFloorMap == currentFloorMap) {
+                                                listener.onTokenAdded(token);
+                                        }
+                                }
+                                if(token == localPlayerToken){
+                                        setCurrentFloor(token.getFloorMap().index);
+                                }
+                        }else{
+                                throw new IllegalStateException("token was not on a valid floor");
+                        }
+                }
+        }
 
         /**
-         * should only be called by Token
-         *
+         * moves token to this floor, uses the stairs location to determine coordinates
          * @param token
          * @param newFloorMap
          */
-        public void moveTokenToFloor(Token token, FloorMap newFloorMap) {
-                for (FloorMap oldFloorMap : floorMaps.values()) {
-                        boolean b = oldFloorMap.tokens.removeValue(token, true);
-                        if (b) {
+        public void moveToken(Token token, FloorMap newFloorMap) {
+
+                FloorMap oldFloorMap = token.getFloorMap();
+                if(oldFloorMap == null){
+                        Pair stairLoc = newFloorMap.getLocationOfUpStairs();
+                        token.teleport(newFloorMap ,stairLoc.x,stairLoc.y,Direction.South); // TODO: should be direction of stairs
+                        newFloorMap.tokens.add(token);
+                        if (listener != null && newFloorMap == currentFloorMap)
+                                listener.onTokenAdded(token);
+
+                        if(listener != null && token == localPlayerToken)
+                                listener.onNewPlayerToken(localPlayerToken);
+
+                        if(token == localPlayerToken)
+                                setCurrentFloor(token.getFloorMap().index);
+
+                }else{
+                        boolean valid = oldFloorMap.tokens.removeValue(token, true);
+                        if(valid){
+                                boolean down = newFloorMap.index > oldFloorMap.index;
+                                Pair stairLoc;
+                                if (down) stairLoc = newFloorMap.getLocationOfUpStairs();
+                                else stairLoc = newFloorMap.getLocationOfDownStairs();
+                                token.teleport(newFloorMap ,stairLoc.x,stairLoc.y,Direction.South); // TODO: should be direction of stairs
                                 newFloorMap.tokens.add(token);
                                 if (listener != null){
                                         if (oldFloorMap == currentFloorMap) {
@@ -238,11 +296,11 @@ public class Dungeon {
                                 if(token == localPlayerToken){
                                         setCurrentFloor(token.getFloorMap().index);
                                 }
-
-                                return;
+                        }else{
+                                throw new IllegalStateException("token was not on a valid floor");
                         }
                 }
-                throw new IllegalStateException("This token is not on any floor");
+
         }
 
 

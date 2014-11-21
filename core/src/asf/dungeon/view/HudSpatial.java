@@ -821,6 +821,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         @Override
+        public void onLearnedThroughStudy(EquipmentItem item) {
+                this.showCenterLabelText(String.format("You've used %s long enough that you now understand its secrets.",item.getName()));
+
+        }
+
+        @Override
         public boolean isInitialized() {
                 return initialized;
         }
@@ -1016,7 +1022,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 } else {
                                         boolean valid = localPlayerToken.getInventory().equip(item);
                                         if(valid && item.isCursed())
-                                                showCenterLabelText("You grip the Cursed "+item.getNameFromJournal(localPlayerToken)+" tightly. You are powerless to remove it.");
+                                                showCenterLabelText("You grip the "+item.getNameFromJournal(localPlayerToken)+" tightly. You are powerless to remove it.");
 
                                 }
                                 setItemDialogVisible(false);

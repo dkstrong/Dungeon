@@ -18,8 +18,8 @@ public enum ModelId {
         Potion("Models/Loot/Potion/PotionSmall.g3db"),
         Key("Models/Loot/Key/Key.g3db"),
         Key2("Models/Loot/Key/Key2.g3db"),
-        Key3("Models/Loot/Key/Key3.g3db");
-        //HealthPotion("Models/Loot/loot_health_potion.g3db");
+        Key3("Models/Loot/Key/Key3.g3db"),
+        Sword("Models/Loot/Sword/SwordLarge.g3db");
 
         public final String assetLocation; // TODO: should this be transient?
 

@@ -1,6 +1,7 @@
 package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.item.EquipmentItem;
@@ -164,7 +165,7 @@ public interface Inventory extends TokenComponent {
                 }
 
                 public boolean canChangeEquipment(){
-                        return timeSinceComabt > 10f;
+                        return timeSinceComabt > 5f;
                 }
 
                 public boolean add(Item item) {
@@ -206,8 +207,8 @@ public interface Inventory extends TokenComponent {
                 }
 
                 @Override
-                public boolean teleportToLocation(int x, int y, Direction direction) {
-                        return true;
+                public void teleport(FloorMap fm, int x, int y, Direction direction) {
+
                 }
 
                 @Override
@@ -230,6 +231,8 @@ public interface Inventory extends TokenComponent {
 
                                 token.getCommand().consumeItem = null;
                         }
+
+
                         return false;
                 }
         }
@@ -275,8 +278,8 @@ public interface Inventory extends TokenComponent {
                 }
 
                 @Override
-                public boolean teleportToLocation(int x, int y, Direction direction) {
-                        return true;
+                public void teleport(FloorMap fm, int x, int y, Direction direction) {
+
                 }
 
                 @Override

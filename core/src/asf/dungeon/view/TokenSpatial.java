@@ -6,6 +6,7 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.ConsumableItem;
+import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.PotionItem;
@@ -323,6 +324,12 @@ public class TokenSpatial implements Spatial, Token.Listener {
         public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
                 if (world.getHud().localPlayerToken == token)
                         world.getHud().onStatusEffectChange(effect, duration);
+        }
+
+        @Override
+        public void onLearnedThroughStudy(EquipmentItem item) {
+                if (world.getHud().localPlayerToken == token)
+                        world.getHud().onLearnedThroughStudy(item);
         }
 
         public void render(float delta) {

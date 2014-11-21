@@ -1,6 +1,7 @@
 package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.FloorMap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 
@@ -24,8 +25,8 @@ public class StatusEffects implements TokenComponent{
         }
 
         @Override
-        public boolean teleportToLocation(int x, int y, Direction direction) {
-                return true;
+        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+
         }
 
         @Override

@@ -1,0 +1,60 @@
+===Characters And Monsters===
+Animated Heroes (Knight, Archer, Mage, ...)
+Clement Wu, Nikolaus, Botanic
+URL: http://opengameart.org/users/botanic
+
+===Loot===
+Sword, Bow, Staff
+PantherOne
+URL: http://opengameart.org/users/pantherone
+
+Silver Key
+Renderwahn
+URL: http://opengameart.org/content/key-collection
+
+Gold Key
+Savino
+URL: http://opengameart.org/content/antique-key
+
+Red Key
+yd
+URL: http://opengameart.org/content/low-poly-key
+
+Potion
+sansdound
+URL: http://opengameart.org/content/potions-4
+
+===Crates===
+Ceramic Pitcher
+Aare
+URL: http://opengameart.org/content/ceramic-bear-mug
+
+===Textures===
+Floor and Wall textures
+Spiney
+URL: http://opengameart.org/users/spiney, http://opengameart.org/node/12116
+
+===Interface===
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- considering
+Stats Icons
+johndh
+URL: http://opengameart.org/content/simple-stat-icons
+
+
+
+
+Flying Loot (has 3d models of various types of loot)
+http://opengameart.org/content/flying-loot-animations

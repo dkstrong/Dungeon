@@ -1,6 +1,7 @@
 package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.utils.Array;
@@ -36,10 +37,9 @@ public class Attack implements TokenComponent{
         }
 
         @Override
-        public boolean teleportToLocation(int x, int y, Direction direction) {
+        public void teleport(FloorMap fm, int x, int y, Direction direction) {
                 attackU = 0;
                 meleeAttackTarget = null;
-                return true;
         }
 
         @Override

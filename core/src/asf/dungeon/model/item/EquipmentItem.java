@@ -14,8 +14,9 @@ public class EquipmentItem implements Item {
         private String description;
         private String vagueName;
         private String vagueDescription;
+        private int complexity = 5;
 
-        private int vitalityMod, strengthMod, agilityMod, luckMod;
+        private int vitalityMod, strengthMod, agilityMod, intelligenceMod, luckMod;
 
         private boolean cursed;
 
@@ -40,6 +41,18 @@ public class EquipmentItem implements Item {
                 return cursed;
         }
 
+        public void setComplexity(int complexity) {
+                this.complexity = complexity;
+        }
+
+        /**
+         *
+         * @return how complex the item is / how long it takes to manually identify it.
+         */
+        public int getComplexity() {
+                return complexity;
+        }
+
         public int getVitalityMod() {
                 return vitalityMod;
         }
@@ -51,6 +64,8 @@ public class EquipmentItem implements Item {
         public int getAgilityMod() {
                 return agilityMod;
         }
+
+        public int getIntelligenceMod() { return intelligenceMod; }
 
         public int getLuckMod() {
                 return luckMod;
@@ -83,18 +98,23 @@ public class EquipmentItem implements Item {
 
         @Override
         public String getNameFromJournal(Token token) {
-                if (isIdentified(token)) return getName();
-                return getVagueName();
+                boolean identified = isIdentified(token);
+                String cursedMessage;
+                if(isCursed() && (identified || token.getInventory().isEquipped(this))) cursedMessage = "Cursed ";
+                else cursedMessage="";
+
+                if (identified) return cursedMessage+getName();
+                return cursedMessage+getVagueName();
         }
 
         @Override
         public String getDescriptionFromJournal(Token token) {
+                boolean identified = isIdentified(token);
                 String cursedMessage;
-                if(isCursed() && token.getInventory().isEquipped(this)){
-                        cursedMessage = "\n\nThis item is cursed and you are powerless to remove it.";
-                }else{
-                        cursedMessage="";
-                }
+                if(isCursed() && token.getInventory().isEquipped(this)) cursedMessage = "\n\nThis item is cursed and you are powerless to remove it.";
+                else if(isCursed() && identified) cursedMessage = "\n\nThis item is cursed.";
+                else cursedMessage="";
+
                 if (isIdentified(token)) return getDescription()+cursedMessage;
                 return getVagueDescription()+cursedMessage;
         }

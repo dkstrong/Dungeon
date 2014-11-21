@@ -51,7 +51,7 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
                         Token token = dungeon.newCharacterToken(floorMap, "Monster",
                                 ModelId.Berzerker,
                                 new FullAgroLogic(1),
-                                new Experience(1, 4, 4, 6,1),
+                                new Experience(1, 8, 4, 6, 1,1),
                                 x,y);
 
                         //EquipmentItem sword = EquipmentItem.makeWeapon("Sword", 1);

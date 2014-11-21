@@ -2,7 +2,11 @@ package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.token.Experience;
+import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.logic.AiLogic;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -11,7 +15,7 @@ import com.badlogic.gdx.utils.Array;
  * <p/>
  * Created by Danny on 11/4/2014.
  */
-public class ConnectedRoomsGen implements FloorMapGenerator {
+public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
 
         private int minRoomSize = 6;
         private int maxRoomSize = 10;
@@ -54,7 +58,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator {
                 boolean valid = Room.carveDoorsKeysStairs(dungeon, floorIndex, tiles, rooms, true, true);
                 if(!valid) throw new Error("could not generate valid stairs locations, need to regenrate");
 
-                FloorMap floorMap = new FloorMap(floorIndex, tiles);
+                FloorMap floorMap = new FloorMap(floorIndex, tiles, this);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
                 valid = Room.spawnKeys(dungeon, floorMap, rooms);
@@ -77,4 +81,26 @@ public class ConnectedRoomsGen implements FloorMapGenerator {
         }
 
 
+        @Override
+        public void spawnMonsters(Dungeon dungeon, FloorMap floorMap) {
+                int countTeam1 = floorMap.getTokensOnTeam(1).size;
+                if(countTeam1 == 0){
+                        int x, y;
+                        do{
+                                x = dungeon.rand.random.nextInt(floorMap.getWidth());
+                                y = dungeon.rand.random.nextInt(floorMap.getHeight());
+                        }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
+
+                        Token token = dungeon.newCharacterToken(floorMap, "Monster",
+                                ModelId.Berzerker,
+                                new AiLogic(1),
+                                new Experience(1, 8, 4, 6, 1,1),
+                                x,y);
+
+                        //EquipmentItem sword = EquipmentItem.makeWeapon("Sword", 1);
+                        //token.getInventory().add(sword);
+                        //token.getInventory().equip(sword);
+
+                }
+        }
 }

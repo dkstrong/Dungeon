@@ -19,14 +19,13 @@ public class FogMapping implements TokenComponent {
         }
 
         @Override
-        public boolean teleportToLocation(int x, int y, Direction direction) {
-                FogMap fogMap = fogMaps.get(token.getFloorMap());
+        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+                FogMap fogMap = fogMaps.get(fm);
                 if (fogMap == null) {
-                        fogMap = new FogMap(token.getFloorMap(),token);
-                        fogMaps.put(token.getFloorMap(), fogMap);
+                        fogMap = new FogMap(fm,token);
+                        fogMaps.put(fm, fogMap);
                 }
                 fogMap.update();
-                return true;
         }
 
         @Override

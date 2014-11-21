@@ -5,11 +5,12 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.utility.DungeonLoader;
+import asf.dungeon.model.DungeonLoader;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.DungeonWorld;
 
@@ -335,6 +336,11 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
 
         @Override
         public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
+
+        }
+
+        @Override
+        public void onLearnedThroughStudy(EquipmentItem item) {
 
         }
 

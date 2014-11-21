@@ -28,13 +28,11 @@ public class Move implements TokenComponent{
         }
 
         @Override
-        public boolean teleportToLocation(int x, int y, Direction direction) {
+        public void teleport(FloorMap fm, int x, int y, Direction direction) {
                 moveU = 1;
                 path.clear();
                 pathedTarget.set(x,y);
 
-
-                return true;
         }
 
         @Override
@@ -138,7 +136,8 @@ public class Move implements TokenComponent{
                                 pathedTarget.set(location);
                                 Tile tile = floorMap.getTile(location);
                                 if (tile.isStairs() && tile.getStairsTo() >=0) {
-                                        token.teleportToFloor(tile.getStairsTo());
+                                        token.dungeon.moveToken(token, token.dungeon.generateFloor(tile.getStairsTo()));
+                                        //token.teleportToFloor(tile.getStairsTo());
                                         return true;
                                 }
                                 moveU = 1;

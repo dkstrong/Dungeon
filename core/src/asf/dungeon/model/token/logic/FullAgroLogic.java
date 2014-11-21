@@ -1,13 +1,16 @@
 package asf.dungeon.model.token.logic;
 
 
-
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
 
 /**
- * Created by danny on 10/23/14.
+ * chases and attacks any character tokens not on the same team.
+ *
+ * mainly used for balance testing
+ *
  */
 public class FullAgroLogic implements Logic {
 
@@ -28,7 +31,7 @@ public class FullAgroLogic implements Logic {
         }
 
         @Override
-        public boolean teleportToLocation(int x, int y, Direction direction) {
+        public void teleport(FloorMap fm, int x, int y, Direction direction) {
                 return true;
         }
 

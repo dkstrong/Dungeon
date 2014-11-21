@@ -216,6 +216,20 @@ public class FloorMap  {
         }
 
         /**
+         * all tokes contained within this sector.
+         * THe returned array should not be stored as it will be reused next time this method is called
+         * @return
+         */
+        public Array<Token> getTokensAt(Sector sector) {
+                tokensAt.clear();
+                for (Token token : tokens) {
+                        if(sector.contains(token.getLocation()))
+                                tokensAt.add(token);
+                }
+                return tokensAt;
+        }
+
+        /**
          * list of tokens at the supplied location, note that the Array that is returned
          * shouldnt be stored as it will be reused next time this method is called
          *
@@ -226,24 +240,6 @@ public class FloorMap  {
                 tokensAt.clear();
                 for (Token token : tokens) {
                         if (token.isLocatedAt(loc)) {
-                                tokensAt.add(token);
-                        }
-                }
-                return tokensAt;
-        }
-
-        /**
-         * list of tokens at the supplied location of the supplied class.
-         * note that the array that is returned shoudlnt be stored as it iwl lbe reused next time this method is called
-         *
-         * @param loc
-         * @param tokenClass
-         * @return
-         */
-        public Array<Token> getTokensAt(Pair loc, Class<? extends Token> tokenClass) {
-                tokensAt.clear();
-                for (Token token : tokens) {
-                        if (token.isLocatedAt(loc) && tokenClass.isAssignableFrom(token.getClass())) {
                                 tokensAt.add(token);
                         }
                 }

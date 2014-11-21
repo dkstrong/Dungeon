@@ -1,9 +1,9 @@
 package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.utility.UtMath;
-import com.badlogic.gdx.Gdx;
 
 /**
  * Created by Danny on 11/11/2014.
@@ -12,17 +12,19 @@ public class Experience implements TokenComponent{
         private Token token;
         private int xp;
         private int level;
-        private int vitality,vitalityMod; // each point of vitality adds two hp, vitality also determines effeciency when using scrolls
-        private int strength,strengthMod; // determines damage sent/received by melee and ranged attscks.
+        private int vitality,vitalityMod; // number of max hit points
+        private int strength,strengthMod; // determines damage sent/received by standard attacks
         private int agility,agilityMod; // determins how fast token moves, chance of dodging
+        private int intelligence, intelligenceMod; // effectiveness of scrolls, how long it takes to idenfify item throug using it
         private int luck, luckMod; // chance of doing critical hit, chance of better items spawning
 
 
-        public Experience(int level, int vitality, int strength, int agility, int luck) {
+        public Experience(int level, int vitality, int strength, int agility, int intelligence, int luck) {
                 this.level = level;
                 this.vitality = vitality;
                 this.strength = strength;
                 this.agility = agility;
+                this.intelligence = intelligence;
                 this.luck = luck;
         }
 
@@ -32,8 +34,8 @@ public class Experience implements TokenComponent{
         }
 
         @Override
-        public boolean teleportToLocation(int x, int y, Direction direction) {
-                return true;
+        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+
         }
 
         @Override
@@ -65,6 +67,9 @@ public class Experience implements TokenComponent{
         public int getAgility() {
                 return agility+agilityMod;
         }
+
+        public int getIntelligence() { return intelligence+intelligenceMod; }
+
         public int getLuck() {
                 return luck+luckMod;
         }
@@ -78,6 +83,7 @@ public class Experience implements TokenComponent{
         public int getAgilityBase() {
                 return agility;
         }
+        public int getIntelligenceBase() { return intelligence;}
         public int getLuckBase() {
                 return luck;
         }
@@ -85,6 +91,7 @@ public class Experience implements TokenComponent{
         public int getVitalityMod() { return vitalityMod; }
         public int getStrengthMod() { return strengthMod; }
         public int getAgilityMod() { return agilityMod; }
+        public int getIntelligenceMod() { return intelligenceMod; }
         public int getLuckMod() { return luckMod; }
 
         protected void addXpFrom(Experience otherExperience){
@@ -96,6 +103,7 @@ public class Experience implements TokenComponent{
                         vitality+= 1;
                         strength +=1;
                         agility+=1;
+                        intelligence+=1;
                         recalcStats();
                 }
         }
@@ -108,19 +116,19 @@ public class Experience implements TokenComponent{
                 vitalityMod = (weapon == null ? 0 : weapon.getVitalityMod()) + (armor == null ? 0 : armor.getVitalityMod())+ (ring == null ? 0 : ring.getVitalityMod());
                 strengthMod = (weapon == null ? 0 : weapon.getStrengthMod()) + (armor == null ? 0 : armor.getStrengthMod())+ (ring == null ? 0 : ring.getStrengthMod());
                 agilityMod = (weapon == null ? 0 : weapon.getAgilityMod()) + (armor == null ? 0 : armor.getAgilityMod())+ (ring == null ? 0 : ring.getAgilityMod());
+                intelligenceMod = (weapon == null ? 0 : weapon.getIntelligenceMod()) + (armor == null ? 0 : armor.getIntelligenceMod())+ (ring == null ? 0 : ring.getIntelligenceMod());
                 luckMod = (weapon == null ? 0 : weapon.getLuckMod()) + (armor == null ? 0 : armor.getLuckMod())+ (ring == null ? 0 : ring.getLuckMod());
 
                 int vitality = getVitality();
-                Gdx.app.log("Experience","new vitality: "+vitality);
                 int strength = getStrength();
                 int agility = getAgility();
+                int intelligence = getIntelligence();
                 int luck = getLuck();
 
                 // vitality
-                token.getDamage().setMaxHealth(vitality*2);
+                token.getDamage().setMaxHealth(vitality);
 
                 // strength
-                token.getAttack().setAttackDuration(UtMath.scalarLimitsInterpolation(strength,1f,100f,2.25f,1.5f)); // default was 2
                 token.getAttack().setAttackRange(UtMath.scalarLimitsInterpolation(strength,1,100,2,6)); // default was 3
 
                 // agility
@@ -129,8 +137,12 @@ public class Experience implements TokenComponent{
                 else if(agility < 20) token.getMove().setMoveSpeed(1.7f);
                 else token.getMove().setMoveSpeed(UtMath.scalarLimitsInterpolation(agility,20f,100f,1.7f,3f));
 
+                token.getAttack().setAttackDuration(UtMath.scalarLimitsInterpolation(agility,1f,100f,2.25f,1.5f)); // default was 2
                 token.getAttack().setAttackCooldownDuration(UtMath.scalarLimitsInterpolation(agility,1f,100f,1.5f,.75f)); // default was 1
                 token.getAttack().setProjectileSpeed(UtMath.scalarLimitsInterpolation(agility,1f,100f,1.5f,5f)); // default was 2
+
+                // intelligence
+
                 // luck
         }
 

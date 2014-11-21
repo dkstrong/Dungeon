@@ -1,14 +1,15 @@
 package asf.dungeon.model.token.logic;
 
 
-
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.Token;
 
 /**
  * Created by danny on 10/23/14.
  */
+@Deprecated
 public class ExplorerLogic implements Logic {
 
         private Token token;
@@ -29,7 +30,7 @@ public class ExplorerLogic implements Logic {
         }
 
         @Override
-        public boolean teleportToLocation(int x, int y, Direction direction) {
+        public void teleport(FloorMap fm, int x, int y, Direction direction) {
                 return true;
         }
 

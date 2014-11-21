@@ -7,7 +7,7 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.utility.DungeonLoader;
+import asf.dungeon.model.DungeonLoader;
 import asf.dungeon.utility.ModelFactory;
 import asf.dungeon.view.shape.Box;
 import com.badlogic.gdx.Gdx;
