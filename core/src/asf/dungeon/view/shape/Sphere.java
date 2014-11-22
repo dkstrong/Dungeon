@@ -10,12 +10,22 @@ import com.badlogic.gdx.math.collision.Ray;
 /**
  * Created by danny on 10/20/14.
  */
-public class Sphere  implements Shape{
+public final class Sphere  implements Shape{
 
         private static final Vector3 position = new Vector3();
         private final Vector3 center = new Vector3();
         private final Vector3 dimensions = new Vector3();
         private float radius;
+
+        public Sphere(float radius) {
+                set(radius);
+        }
+
+        public void set(float radius){
+                center.set(0,0,0);
+                dimensions.set(radius*2f,radius*2f, radius*2f);
+                this.radius = radius;
+        }
 
         @Override
         public void setFromModelInstance(ModelInstance modelInstance) {
@@ -26,9 +36,15 @@ public class Sphere  implements Shape{
                 radius = dimensions.len()/2f;
         }
 
+
         @Override
         public boolean isVisible(Matrix4 transform, Camera cam) {
                 return cam.frustum.sphereInFrustum(transform.getTranslation(position).add(center), radius);
+        }
+
+        @Override
+        public boolean isVisible(Vector3 translation, Camera cam) {
+                return cam.frustum.sphereInFrustum(position.set(translation).add(center), radius);
         }
 
         @Override
@@ -40,6 +56,7 @@ public class Sphere  implements Shape{
                 float dist2 = position.dst2(ray.origin.x+ray.direction.x*len, ray.origin.y+ray.direction.y*len, ray.origin.z+ray.direction.z*len);
                 return (dist2 <= radius * radius) ? dist2 : -1f;
         }
+
 
 
         public float getRadius(){

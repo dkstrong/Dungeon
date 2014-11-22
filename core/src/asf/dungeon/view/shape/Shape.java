@@ -19,6 +19,8 @@ public interface Shape {
          * object and the point on the ray closest to this object when there is intersection. */
         public float intersects(Matrix4 transform, Ray ray);
 
+        public boolean isVisible(Vector3 translation, Camera cam);
+
 
         public Vector3 getDimensions();
 }

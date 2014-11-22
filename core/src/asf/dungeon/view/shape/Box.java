@@ -16,8 +16,20 @@ public class Box implements Shape{
         private final Vector3 center = new Vector3();
         private final Vector3 dimensions = new Vector3();
 
+        public Box() {
+        }
+
+        public Box(Vector3 min, Vector3 max){
+                dimensions.set(max).sub(min);
+
+                center.x = (max.x + min.x) / 2f;
+                center.y = (max.y + min.y) / 2f;
+                center.z = (max.z + min.z) / 2f;
+        }
+
         @Override
         public void setFromModelInstance(ModelInstance modelInstance) {
+
                 BoundingBox bb = new BoundingBox();
                 modelInstance.calculateBoundingBox(bb);
                 bb.getCenter(center);
@@ -37,6 +49,11 @@ public class Box implements Shape{
                         return position.dst2(ray.origin.x+ray.direction.x*len, ray.origin.y+ray.direction.y*len, ray.origin.z+ray.direction.z*len);
                 }
                 return -1f;
+        }
+
+        @Override
+        public boolean isVisible(Vector3 translation, Camera cam) {
+                return cam.frustum.boundsInFrustum(position.set(translation).add(center), dimensions);
         }
 
         public Vector3 getCenter() {

@@ -16,6 +16,10 @@ public class Disc implements Shape{
         private final Vector3 dimensions = new Vector3();
         private float radius;
 
+        public Disc(float radius) {
+                this.radius = radius;
+        }
+
         @Override
         public void setFromModelInstance(ModelInstance modelInstance) {
                 BoundingBox bb = new BoundingBox();
@@ -29,6 +33,11 @@ public class Disc implements Shape{
         @Override
         public boolean isVisible (Matrix4 transform, Camera cam) {
                 return cam.frustum.sphereInFrustum(transform.getTranslation(position).add(center), radius);
+        }
+
+        @Override
+        public boolean isVisible(Vector3 translation, Camera cam) {
+                return cam.frustum.sphereInFrustum(position.set(translation).add(center), radius);
         }
 
         @Override

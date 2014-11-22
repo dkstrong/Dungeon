@@ -90,8 +90,8 @@ public class TokenSpatial implements Spatial, Token.Listener {
                 Model model = assetManager.get(token.getModelId().assetLocation);
                 modelInstance = new ModelInstance(model);
 
-                if (shape != null)
-                        shape.setFromModelInstance(modelInstance);
+                //if (shape != null)
+                //        shape.setFromModelInstance(modelInstance);
 
                 if (modelInstance.animations.size > 0)
                         animController = new AnimationController(modelInstance);
@@ -292,7 +292,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         @Override
         public void onAttack(Token target, Pair targetLocation, boolean ranged) {
                 if(ranged){
-                        world.shootProjectile(token, target, targetLocation);
+                        world.getFxManager().shootProjectile(token, target, targetLocation);
                 }
 
                 if (world.getHud().localPlayerToken == token)
@@ -322,6 +322,11 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
         @Override
         public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
+
+                //world.getFxManager().spawnAnimatedDecalEffect(FxManager.EffectType.Heal, this, duration);
+                world.getFxManager().spawnEffect(FxManager.EffectType.Heal, this, duration);
+
+
                 if (world.getHud().localPlayerToken == token)
                         world.getHud().onStatusEffectChange(effect, duration);
         }

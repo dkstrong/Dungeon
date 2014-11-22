@@ -96,49 +96,56 @@ public class DungeonLoader {
                 Dungeon dungeon = new Dungeon(dungeonRand, masterMasterJournal, floorMapGenerator);
 
                 // spawn player
-                //FloorMap floorMap = dungeon.getCurrentFloopMap();
-                //Pair locationOfUpStairs = floorMap.getLocationOfUpStairs();
+                boolean spawn = true;
 
-                Token token = dungeon.newPlayerCharacterToken(null, "Player 1", settings.playerModel,
-                        playerLogic,
-                        new Experience(1, 20, 6, 3, 1,1),
-                        0,0);
+                if(spawn){
+                        Token token = dungeon.newPlayerCharacterToken(null, "Player 1", settings.playerModel,
+                                playerLogic,
+                                new Experience(1, 20, 6, 3, 1,1),
+                                0,0);
 
-                token.getDamage().setDeathRemovalCountdown(Float.NaN);
-                token.getInventory().add(new PotionItem(dungeon, PotionItem.Type.Health,2 ));
+                        token.getDamage().setDeathRemovalCountdown(Float.NaN);
+                        token.getInventory().add(new PotionItem(dungeon, PotionItem.Type.Health,2 ));
 
-                if(settings.playerModel == ModelId.Knight){
-                        WeaponItem sword = new WeaponItem(ModelId.Sword,"Sword", 3);
-                        sword.setCursed(true);
-                        token.getInventory().add(sword);
-                        token.getInventory().equip(sword);
-                        token.get(Journal.class).learn(sword);
-                }else if(settings.playerModel == ModelId.Archer){
-                        WeaponItem bow = new WeaponItem(ModelId.Sword,"Bow", 3);
-                        bow.setRanged(true);
-                        token.getInventory().add(bow);
-                        token.getInventory().equip(bow);
-                        token.get(Journal.class).learn(bow);
-                }else if(settings.playerModel == ModelId.Mage){
-                        WeaponItem staff = new WeaponItem(ModelId.Sword,"Staff", 3);
-                        token.getInventory().add(staff);
-                        token.getInventory().equip(staff);
-                        token.get(Journal.class).learn(staff);
+                        if(settings.playerModel == ModelId.Knight){
+                                WeaponItem sword = new WeaponItem(ModelId.Sword,"Sword", 3);
+                                sword.setCursed(true);
+                                token.getInventory().add(sword);
+                                token.getInventory().equip(sword);
+                                token.get(Journal.class).learn(sword);
+                        }else if(settings.playerModel == ModelId.Archer){
+                                WeaponItem bow = new WeaponItem(ModelId.Sword,"Bow", 3);
+                                bow.setRanged(true);
+                                token.getInventory().add(bow);
+                                token.getInventory().equip(bow);
+                                token.get(Journal.class).learn(bow);
+                        }else if(settings.playerModel == ModelId.Mage){
+                                WeaponItem staff = new WeaponItem(ModelId.Sword,"Staff", 3);
+                                token.getInventory().add(staff);
+                                token.getInventory().equip(staff);
+                                token.get(Journal.class).learn(staff);
+                        }
+
+
+
+                        ArmorItem armor = new ArmorItem(ModelId.Potion,"Armor",1);
+                        token.getInventory().add(armor);
+                        //token.getInventory().equip(armor);
+                        //token.get(Journal.class).learn(armor);
+
+                        dungeon.moveToken(token, dungeon.generateFloor(0));
+                }else{
+                        dungeon.setCurrentFloor(0);
                 }
 
 
-
-                ArmorItem armor = new ArmorItem(ModelId.Potion,"Armor",1);
-                token.getInventory().add(armor);
-                //token.getInventory().equip(armor);
-                //token.get(Journal.class).learn(armor);
-
-                dungeon.moveToken(token, dungeon.generateFloor(0));
 
 
                 return dungeon;
 
         }
+
+
 
         // https://github.com/EsotericSoftware/kryo
 

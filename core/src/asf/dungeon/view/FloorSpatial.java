@@ -8,7 +8,7 @@ import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.utility.UtMath;
-import asf.dungeon.view.shape.CustomBox;
+import asf.dungeon.view.shape.Box;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -35,7 +35,7 @@ import java.util.Iterator;
  */
 public class FloorSpatial implements Spatial {
         public final Vector3 tileDimensions = new Vector3(5, 5.75f, 5);
-        public final CustomBox tokenCustomBox = new CustomBox(new Vector3(-tileDimensions.x / 2f, 0, -tileDimensions.z / 2f), new Vector3(tileDimensions.x / 2f, tileDimensions.y, tileDimensions.z / 2f));
+        public final Box tokenCustomBox = new Box(new Vector3(-tileDimensions.x / 2f, 0, -tileDimensions.z / 2f), new Vector3(tileDimensions.x / 2f, tileDimensions.y, tileDimensions.z / 2f));
         private DungeonWorld world;
         private FloorMap floorMap;
         private FogMap fogMap;

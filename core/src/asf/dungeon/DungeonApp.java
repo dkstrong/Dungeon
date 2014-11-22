@@ -30,7 +30,7 @@ public class DungeonApp implements ApplicationListener {
                 //this.setScreen(new MainMenuScreen(this));
 
                 DungeonWorld.Settings settings = new DungeonWorld.Settings();
-                settings.playerModel = ModelId.Knight;
+                settings.playerModel = ModelId.Mage;
 
                 loadWorld(settings);
         }

@@ -2,12 +2,12 @@ package asf.dungeon.view;
 
 import asf.dungeon.DungeonApp;
 import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.DungeonLoader;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.DungeonLoader;
 import asf.dungeon.utility.ModelFactory;
 import asf.dungeon.view.shape.Box;
 import com.badlogic.gdx.Gdx;
@@ -47,8 +47,9 @@ public class DungeonWorld implements Disposable {
         protected final Stage stage;
         protected final DecalBatch decalBatch;
         protected final ModelBatch modelBatch;
+
         protected final AssetManager assetManager;
-        private final Array<ProjectileSpatial> projectileSpatialPool;
+
         private final Array<Spatial> spatials;
         private final InternalInputAdapter internalInput;
         private boolean loading;
@@ -61,6 +62,7 @@ public class DungeonWorld implements Disposable {
         private FloorSpatial floorDecals;
         protected SelectionMark selectionMark;
         private HudSpatial hudSpatial;
+        private FxManager fxManager;
 
         private TokenSpatial cameraChaseTarget;
         private final Vector3 chaseCamOffset = new Vector3();
@@ -82,20 +84,20 @@ public class DungeonWorld implements Disposable {
                 decalBatch = new DecalBatch(1000, new CameraGroupStrategy(cam));
                 modelBatch = new ModelBatch();
                 assetManager = new AssetManager();
-                projectileSpatialPool = new Array<ProjectileSpatial>(false, 16, ProjectileSpatial.class);
                 spatials = new Array<Spatial>(true, 16, Spatial.class);
+                fxManager = new FxManager(this);
                 loading = true;
-
-                internalInput = new InternalInputAdapter();
 
                 hudSpatial = new HudSpatial();
                 addSpatial(hudSpatial);
 
+                internalInput = new InternalInputAdapter();
                 inputMultiplexer = new InputMultiplexer(internalInput, stage);
                 Gdx.input.setInputProcessor(internalInput);
 
                 floorDecals = new FloorSpatial();
                 addSpatial(floorDecals);
+
 
                 //addSpatial(new ActorSpatial("Models/skydome.g3db", null, null));
 
@@ -113,38 +115,16 @@ public class DungeonWorld implements Disposable {
 
         }
 
-
-
-
-        private <T extends Spatial> T addSpatial(T spatial) {
+        protected <T extends Spatial> T addSpatial(T spatial) {
                 spatial.preload(this);
                 spatials.add(spatial);
                 loading = true;
-                if(spatial instanceof ProjectileSpatial){
-                        projectileSpatialPool.add((ProjectileSpatial) spatial);
-                }
                 return spatial;
         }
 
-        private void removeSpatial(Spatial spatial) {
+        protected void removeSpatial(Spatial spatial) {
                 spatials.removeValue(spatial, true);
-                if(spatial instanceof ProjectileSpatial){
-                        projectileSpatialPool.removeValue((ProjectileSpatial)spatial, true);
-                }
                 spatial.dispose();
-        }
-
-        protected void shootProjectile(Token source, Token target, Pair destLoc){
-                for (ProjectileSpatial projectileSpatial : projectileSpatialPool) {
-                        if(!projectileSpatial.isActive()){
-                                projectileSpatial.shootProjectile(source, target,destLoc);
-                                return;
-                        }
-                }
-
-                ProjectileSpatial projectileSpatial = new ProjectileSpatial(this, environment);
-                addSpatial(projectileSpatial);
-                projectileSpatial.shootProjectile(source, target, destLoc);
         }
 
 
@@ -161,6 +141,10 @@ public class DungeonWorld implements Disposable {
         }
 
         public void getScreenCoords(float mapCoordsX, float mapCoordsY, Vector3 storeScreenCoords){ cam.project(getWorldCoords(mapCoordsX, mapCoordsY, storeScreenCoords)); }
+
+        protected FxManager getFxManager(){
+                return fxManager;
+        }
 
         protected Token getLocalPlayerToken(){
                 return hudSpatial.localPlayerToken;
@@ -216,6 +200,7 @@ public class DungeonWorld implements Disposable {
                         if (!simulationStarted) {
                                 Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
                                 //Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                                fxManager.init();
                                 simulationStarted = true;
 
                                 dungeonApp.onSimulationStarted(); // inform the dungeon app to close the loading screen
@@ -247,20 +232,26 @@ public class DungeonWorld implements Disposable {
                                         cam.update();
                                 }
 
+
+
                         }
 
                         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
                         modelBatch.begin(cam);
+                        fxManager.beginRender();
 
                         final float effectiveDelta = paused ? 0 : delta;
                         for (final Spatial spatial : spatials) {
                                 if (spatial.isInitialized())
                                         spatial.render(effectiveDelta);
-
                         }
+
+
                         modelBatch.end();
                         decalBatch.flush();
+                        fxManager.endRender();
+
                         stage.draw();
                 } else {
 
@@ -305,6 +296,7 @@ public class DungeonWorld implements Disposable {
                 }
                 decalBatch.dispose();
                 modelBatch.dispose();
+                fxManager.dispose();
                 assetManager.dispose();
                 stage.dispose();
                 Gdx.input.setInputProcessor(null);

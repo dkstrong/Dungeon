@@ -215,11 +215,6 @@ public class ProjectileSpatial implements Spatial {
 
         @Override
         public void dispose() {
-                // if modelIntance isnt loaded from the AssetManager
-                // then we need to dispose the model ourseleves
-                if (assetLocation == null)
-                        if (modelInstance != null)
-                                modelInstance.model.dispose();
 
                 initialized = false;
         }
