@@ -3,6 +3,7 @@ package asf.dungeon.model.token;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
+import asf.dungeon.model.fogmap.LOS;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.utils.Array;
 
@@ -21,7 +22,7 @@ public class Attack implements TokenComponent{
 
         //state variables
 
-        private boolean inAttackRangeOfContinousMoveToken = false;
+
         private float attackU = 0;                              // 0 = not attacking, >0 attacking, once attackU >=attackDuration then attackU is reset to 0
         private Token meleeAttackTarget;                             // the token that is being attacked, this also marks if this token is in the "attacking" state
         private float attackProjectileU =Float.NaN;
@@ -31,6 +32,10 @@ public class Attack implements TokenComponent{
         private boolean rangedAttack = false;
         private float attackCoolDown = 0;                       // time until this token can send another attack, after attacking this value is reset to attackCooldownDuration
         private boolean sentAttackResult = false;
+
+        private boolean canInitiateNewAttack;
+        private boolean inAttackRangeOfCommandTarget;
+        private boolean isHoldingRangedWeapon;
 
         public Attack(Token token) {
                 this.token = token;
@@ -44,38 +49,29 @@ public class Attack implements TokenComponent{
 
         @Override
         public boolean update(float delta) {
+                if(token.getDamage().isDead()) // to prevent being hit from interrupting an attack, Damage is lower on the stack than Attack, so i need to check for Death myself
+                        return false;
+
                 attackProjectileU+=delta;
                 if(attackProjectileU >= attackProjectileMaxU){
-                        //Gdx.app.log("Character Token","send ranged damage to: "+projectileAttackTarget.getName());
-                        sendDamageToAttackTarget(projectileAttackTarget, true);
+                        if(projectileAttackTarget != null)
+                                sendDamageToAttackTarget(projectileAttackTarget);
                         projectileAttackTarget = null;
                         attackProjectileU = Float.NaN;
+                        rangedAttack = false;
                 }
 
                 attackCoolDown -= delta; // the attack cooldown timer always decreases as long as not dead
 
-                inAttackRangeOfContinousMoveToken = false;
+                canInitiateNewAttack = calcCanInitiateNewAttack(token.getCommand().getTargetToken());
 
-                boolean ableRangedAttack = token.getInventory().getWeaponSlot() != null && token.getInventory().getWeaponSlot().isRanged();
+                isHoldingRangedWeapon = token.getInventory().getWeaponSlot() != null && token.getInventory().getWeaponSlot().isRanged();
 
-                if(ableRangedAttack && !token.getDamage().isHit() && (token.getMove() == null || token.getMove().moveU > .75f)){
-                // cant initiate attack if being hit, also must have moveU > .75f to ensure near center of tile and can be hit by melee
-                        Token targetToken = token.getCommand().getTargetToken();
-                        if (targetToken!= null && targetToken.getDamage() != null && targetToken.getDamage().isAttackable()) {
-                                // has target, and target is attackable
-                                int distance = token.location.distance(token.getCommand().getTargetToken().location);
-                                if(distance <= attackRange &&
-                                        token.direction.isDirection(token.location, token.getCommand().getTargetToken().location)){
-                                        // within attack range, and is facing towards target  // TODO: may want to remove the facing check unless i add a turn time for doing uTurns.
-                                        inAttackRangeOfContinousMoveToken = true;
-                                }
-                        }
-                }
+                inAttackRangeOfCommandTarget = calcCanRangedAttack(token.getCommand().getTargetToken());
 
-
-                if (attack(delta, false, inAttackRangeOfContinousMoveToken)) { // attempt to attack anything in range, but do not auto attack non targetted tokens
-                        return true; // can not moveor pick up loot while attacking, so just return out
-                }else if(rangedKeepDistance && inAttackRangeOfContinousMoveToken){
+                if(attackTarget(delta, token.getCommand().getTargetToken())){
+                        return true; // started or is currently doing attack animation
+                }else if(rangedKeepDistance && inAttackRangeOfCommandTarget){
                         return true; // still in range of target, dont move
                 }
 
@@ -84,60 +80,34 @@ public class Attack implements TokenComponent{
                 return false;
         }
 
-        protected boolean attack(float delta, boolean initiateMelee, boolean initiateRanged) {
-                if (attackCoolDown > 0) {
-                        // attack is on cooldown
+        /**
+         * used by Move to do auto melee attacks on tokens in the way of pathing.
+         *
+         * Only melee heroes will auto attack, ranged heroes will not.
+         * @param delta
+         * @return
+         */
+        protected boolean attackTargetInDirection(float delta){
+                if(isHoldingRangedWeapon)
                         return false;
+
+                Array<Token> tokensAt = token.floorMap.getTokensAt(token.location, token.direction);
+                if (tokensAt.size > 0) {
+                        for (Token t : tokensAt) {
+                                boolean valid = attackTarget(delta, t);
+                                if(valid)
+                                        return true;
+                        }
                 }
-                if (!isAttacking()) {
+                return false;
+        }
 
-                        if(initiateRanged && !this.hasProjectile() && rangedAttack == false){
-                                attackU = 0;
-                                meleeAttackTarget = token.getCommand().getTargetToken();
-                                rangedAttack = true;
-                                return true;
-                        }
-                        //
-                        if(initiateMelee){
-                                Array<Token> tokensAt = token.floorMap.getTokensAt(token.location, token.direction);
-                                if (tokensAt.size > 0) {
-                                        for (Token t : tokensAt) {
-                                                if (t.getDamage() != null) {
-                                                        meleeAttackTarget = t;
-                                                        if (meleeAttackTarget.getDamage().isAttackable()) {
-                                                                // TODO: this check makes melle attacks look more reasonable.
-                                                                // however it can create a scenario where a ranged character is standing still
-                                                                // and can never be attacked because they are targeting the melee character
-                                                                Move move = meleeAttackTarget.get(Move.class);
-                                                                if(move != null){
-                                                                        if(move.moveU < .75f){
-                                                                                meleeAttackTarget = null;
-                                                                                continue; // if the target moveU is less than .75 that means theyre not that far in to the square, need to wait some
-                                                                        }
-                                                                }
-                                                                break; // we can attack this target, no need to keep looping
-                                                        } else {
-                                                                meleeAttackTarget = null;
-                                                        }
-                                                }
-                                        }
-                                        if (meleeAttackTarget != null) {
-                                                attackU = 0;
-                                                meleeAttackTarget.getDamage().setHitDuration(attackDuration, token);
-                                                sentAttackResult = false;
-                                                return true;
-                                        } else {
-                                                //  no token in blocking tile that can be attacked
-                                                return false;
-                                        }
-                                } else {
-                                        // no tokens in blocking tile can be attacked
-                                        return false;
-                                }
-                        }
-                        return false;
+        private boolean attackTarget(float delta, Token targetToken){
+                if (attackCoolDown > 0) {
+                        return false; // attack is on cooldown
+                }
 
-                } else {
+                if(isAttacking()){
                         attackU += delta;
                         if (attackU >= attackDuration) {
                                 if(!sentAttackResult){
@@ -146,7 +116,6 @@ public class Attack implements TokenComponent{
                                 meleeAttackTarget = null;
                                 attackCoolDown = attackCooldownDuration;
                                 sentAttackResult = false;
-
                         }else if(attackU >= attackDuration/2f && !sentAttackResult){
                                 sendAttackResult();
                                 sentAttackResult = true;
@@ -154,12 +123,33 @@ public class Attack implements TokenComponent{
                         return true;
                 }
 
+
+                if(inAttackRangeOfCommandTarget &&  rangedAttack == false && token.getCommand().getTargetToken() == targetToken){
+                        attackU = 0;
+                        meleeAttackTarget = targetToken;
+                        rangedAttack = true;
+                        return true;
+                }
+
+                if(calcCanMeleeAttack(targetToken)){
+                        attackU = 0;
+                        meleeAttackTarget = targetToken;
+                        rangedAttack = false;
+                        attackU = 0;
+                        meleeAttackTarget.getDamage().setHitDuration(attackDuration, token);
+                        sentAttackResult = false;
+                        return true;
+                }
+                return false;
         }
 
+
         private void sendAttackResult(){
+                //  if ranged attack then launches projectile
+                // if melee attack then sends damage
 
                 if(rangedAttack){
-                        if(inAttackRangeOfContinousMoveToken){ // target is still in range, were going to hit him
+                        if(inAttackRangeOfCommandTarget){ // target is still in range, were going to hit him
                                 projectileAttackCoord.set(meleeAttackTarget.getLocation());
                                 projectileAttackTarget = meleeAttackTarget;
                                 meleeAttackTarget.getDamage().setHitDuration(attackProjectileMaxU, token);
@@ -171,14 +161,69 @@ public class Attack implements TokenComponent{
                         attackProjectileMaxU = token.getLocation().distance(projectileAttackCoord) / projectileSpeed;
                         if(token.listener != null)
                                 token.listener.onAttack(projectileAttackTarget,projectileAttackCoord, true);
-                        rangedAttack = false;
                 }else{
-                        sendDamageToAttackTarget(meleeAttackTarget, false);
+                        sendDamageToAttackTarget(meleeAttackTarget);
                         if(token.listener != null)
                                 token.listener.onAttack(meleeAttackTarget,meleeAttackTarget.getLocation() ,false);
                 }
 
         }
+
+
+        private boolean calcCanInitiateNewAttack(Token target){
+                if(token.getDamage().isHit())
+                        return false;
+
+                if(target == null || target.getDamage() == null || !target.getDamage().isAttackable())
+                        return false;
+
+                return true;
+        }
+
+        private boolean calcCanRangedAttack(Token target){
+                if(!isHoldingRangedWeapon)
+                        return false;
+
+                if(!canInitiateNewAttack)
+                        return false;
+
+                int distance = token.location.distance(token.getCommand().getTargetToken().location);
+                if(distance > attackRange)
+                        return false;
+
+                if(!token.direction.isDirection(token.location, target.location))  // within attack range, and is facing towards target
+                        return false;  // TODO: may want to remove the facing check unless i add a turn time for doing uTurns.
+
+
+                if(token.getFogMapping() != null){
+                        if(!token.getFogMapping().getCurrentFogMap().isVisible(target.location.x, target.location.y))
+                                return false;
+                }else{
+                        // no fogmapping, so we need to do a ray cast here
+                        if(!LOS.hasLineOfSight(token.getFloorMap(), token.location.x, token.location.y, target.location.x, target.location.y))
+                                return false;
+                }
+
+
+
+                return true;
+        }
+
+        private boolean calcCanMeleeAttack(Token target){
+                if(isHoldingRangedWeapon)
+                        return false;
+
+                if(!canInitiateNewAttack)
+                        return false;
+
+                int distance = token.location.distance(token.getCommand().getTargetToken().location);
+                if(distance > 1)
+                        return false;
+
+                return true;
+        }
+
+
 
         public static class AttackOutcome{
                 public int damage;
@@ -187,8 +232,7 @@ public class Attack implements TokenComponent{
         }
         private static final transient AttackOutcome out = new AttackOutcome();
 
-        private void sendDamageToAttackTarget(Token targetToken, boolean ranged) {
-                if(targetToken == null) return;
+        private void sendDamageToAttackTarget(Token targetToken) {
 
                 token.getInventory().resetCombatTimer();
                 if(targetToken.getInventory() != null) targetToken.getInventory().resetCombatTimer();
@@ -324,7 +368,7 @@ public class Attack implements TokenComponent{
         }
 
         public boolean isInRangeOfAttackTarget(){
-                return inAttackRangeOfContinousMoveToken;
+                return inAttackRangeOfCommandTarget;
         }
 
         /**

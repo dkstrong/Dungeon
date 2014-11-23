@@ -1,7 +1,6 @@
 package asf.dungeon.model.fogmap;
 
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
 
@@ -96,20 +95,6 @@ public class FogMap implements Serializable{
 
         }
 
-
-        protected boolean isSolid(int xMapCoord, int yMapCoord){
-                // TODO: i feel like this should fix it so stairs dont block vision while
-                // standing on them.. but it seems to cause fuckery
-
-                Tile tile = floorMap.getTile(xMapCoord, yMapCoord);
-                if(tile != null && tile.isStairs()){
-                        if(xMapCoord == xCenter && yMapCoord == yCenter){
-                                return false;
-                        }
-                }
-                return tile == null || tile.isBlockVision();
-        }
-
         private boolean isVisibleMapCoord(int xMapCoord, int yMapCoord) {
                 if (xMapCoord < xCenter - radius || xMapCoord > xCenter + radius)
                         return false;
@@ -141,7 +126,8 @@ public class FogMap implements Serializable{
                 if (isStepChecked(xLocal, yLocal))
                         return;  // already checked this tile on another step
 
-                if (isSolid(stepX, stepY)) {
+
+                if(floorMap.isLocationVisionBlocked(xCenter,yCenter, stepX, stepY)){
                         stepResult[xLocal][yLocal]= 1;
                         return; // this tile blocks sight, we reveal it so the wall can be seen, and then stop branching
                 } else if (stepDepth <= 2) {
@@ -151,7 +137,7 @@ public class FogMap implements Serializable{
                 } else if (yDelta == 0 && stepDepth == Math.abs(xDelta)) {
                         stepResult[xLocal][yLocal]= 1; // We are exactly east or west by depth so tile must be visible
                 } else {
-                        if (hasLineOfSight(stepX, stepY)) {
+                        if (LOS.hasLineOfSight(floorMap, xCenter, yCenter, stepX, stepY)) {
                                 stepResult[xLocal][yLocal]= 1; // raycast determined that this tile is visible
                         } else {
                                 stepResult[xLocal][yLocal]= -1;
@@ -176,76 +162,7 @@ public class FogMap implements Serializable{
                 }
         }
 
-        private boolean hasLineOfSight(int xMapCoord, int yMapCoord) {
-                float xDelta = xMapCoord - xCenter;
-                float yDelta = yMapCoord - yCenter;
-                if (xDelta == 0 || yDelta == 0) {
-                        // We would have found this a different way if we could see it.
-                        return false;
-                }
 
-                float xDist = Math.abs(xDelta);
-                float yDist = Math.abs(yDelta);
-                int count;
-                if (xDist == yDist) {
-                        // We can move one square at a time, no problem.
-                        count = (int) xDist;
-                        xDelta = xDelta / count;
-                        yDelta = yDelta / count;
-                } else {
-                        // We will make extra steps to make sure to always cross the adjacent borders.  Sometimes
-                        // we will hit the same cell more than once but that's a small price to pay for simpler math.
-                        count = (int) Math.max(xDist, yDist) * 3;
-                        xDelta = xDelta / count;
-                        yDelta = yDelta / count;
-                }
-
-                for (int i = 1; i < count; i++) {
-                        float x = xCenter + 0.5f + i * xDelta;
-                        float y = yCenter + 0.5f + i * yDelta;
-                        if (isSolid((int) x, (int) y)) {
-                                return false;
-                        }
-                }
-                return true;
-        }
-
-        private boolean hasLineOfSightAlternate(int xMapCoord, int yMapCoord) {
-                int sx, sy, xNext, yNext;
-                float denom, dist;
-                float xDelta = xMapCoord - xCenter;
-                float yDelta = yMapCoord - yCenter;
-                if (xCenter < xMapCoord) {
-                        sx = 1;
-                } else
-                        sx = -1;
-
-
-                if (yCenter < yMapCoord)
-                        sy = 1;
-                else
-                        sy = -1;
-
-                xNext = xCenter;
-                yNext = yCenter;
-                denom = (float) Math.sqrt(xDelta * xDelta + yDelta * yDelta);
-                while (xNext != xMapCoord && yNext != yMapCoord) {
-                        if (this.isSolid(xNext, yNext)) {
-                                return false;
-                        }
-                        // Line-to-point distance formula < 0.5
-                        if (Math.abs(yDelta * (xNext - xCenter + sx) - xDelta * (yNext - yCenter)) / denom < 0.5f)
-                                xNext += sx;
-                        else if (Math.abs(yDelta * (xNext - xCenter) - xDelta * (yNext - yCenter + sy)) / denom < 0.5f)
-                                yNext += sy;
-                        else {
-                                xNext += sx;
-                                yNext += sy;
-                        }
-                }
-
-                return true;
-        }
 
 
 }

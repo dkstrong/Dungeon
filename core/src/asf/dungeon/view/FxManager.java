@@ -198,7 +198,7 @@ public class FxManager implements Disposable {
         }
 
         protected void clearAll() {
-
+                        // TODO: need to implement
         }
 
         public void beginRender() {

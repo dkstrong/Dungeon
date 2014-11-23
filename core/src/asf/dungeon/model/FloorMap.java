@@ -320,14 +320,7 @@ public class FloorMap  {
          * @return
          */
         public boolean isLocationBlocked(Pair loc) {
-                Tile tile = getTile(loc);
-                if (tile == null || tile.isBlockMovement())
-                        return true;
-                for (Token token : tokens) {
-                        if (token.isBlocksPathing() && token.isLocatedAt(loc))
-                                return true;
-                }
-                return false;
+                return isLocationBlocked(loc.x, loc.y);
         }
 
         public boolean isLocationBlocked(int x, int y) {
@@ -339,6 +332,26 @@ public class FloorMap  {
                                 return true;
                 }
                 return false;
+        }
+
+        /**
+         * determines if this tile blocks vision, the location of the mover (vantage point) must also be provided
+         * because some tiles block vision if standing outside the tile, but once standing in the tile they do not
+         * @param vantageX
+         * @param vantageY
+         * @param x
+         * @param y
+         * @return
+         */
+        public boolean isLocationVisionBlocked(int vantageX, int vantageY, int x, int y){
+                Tile tile = getTile(x, y);
+                if(tile != null && tile.isStairs()){
+                        if(x == vantageX && y == vantageY){
+                                return false;
+                        }
+                }
+                return tile == null || tile.isBlockVision();
+
         }
 
         /**

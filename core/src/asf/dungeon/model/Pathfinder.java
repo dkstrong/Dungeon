@@ -42,11 +42,6 @@ public class Pathfinder {
          */
         public boolean avoidZigZagging = true;
 
-        /**
-         * if movement costs are dynamic, set this value so the dynamic movement cost will be calculated
-         * movement cost from the Tiles are already included in the overall movement cost calculation
-         */
-        public DynamicMovementCostProvider dynamicMovementCostProvider;
 
         private Pair end;
         private final int[][] gScore; // cost from start to current
@@ -208,9 +203,12 @@ public class Pathfinder {
                 // n2 = from
                 int distance =(int) Math.round(10 * Math.sqrt(Math.pow(n1.x - n2.x, 2) + Math.pow(n1.y - n2.y, 2)));
 
-                // TODO: currently only checks the dynamic movement costs for the first pairs in pathing (far away dynamic movement costs are bound go to change anyway)
-                // for further optimization i may want to save these costs in a 2d primitive array, but ill save that for when the time comes
-                int movementCost = map[n1.x][n1.y].getMovementCost() + (dynamicMovementCostProvider != null  && closedNodes.size < 5? dynamicMovementCostProvider.getMovementCost(n1): 0);
+
+                int movementCost = map[n1.x][n1.y].getMovementCost();
+                if(closedNodes.size < 5){
+                        // TODO: increase movement cost if n1 has blocking tokens on it
+                        // i might want to do something like +1 if character blocking path, +3 if crate blocking path
+                }
                 return distance + movementCost;
         }
 
@@ -247,14 +245,4 @@ public class Pathfinder {
                 return h;
         }
 
-        public static interface DynamicMovementCostProvider {
-
-                /**
-                 * return dynamic movement cost for this tile (movment cost caused by
-                 * moving characters etc)
-                 * @param loc
-                 * @return eg return 1 for character blocking path, return 0 for clear path
-                 */
-                public int getMovementCost(Pair loc);
-        }
 }
