@@ -123,7 +123,7 @@ public class DungeonLoader {
                         }else if(settings.playerModel == ModelId.Mage){
                                 WeaponItem staff = new WeaponItem(ModelId.Sword,"Staff", 3);
                                 staff.setRanged(true);
-                                staff.setProjectileFx(FxId.Lightning);
+                                staff.setProjectileFx(FxId.PlasmaBall);
                                 token.getInventory().add(staff);
                                 token.getInventory().equip(staff);
                                 token.get(Journal.class).learn(staff);

@@ -54,29 +54,10 @@ public class FxManager implements Disposable {
                         world.assetManager.setLoader(ParticleEffect.class, pfxLoader);
                 }
 
-                // Fx Pools
-
-                fxMappings = new FxMapping[3];
-                fxMappings[FxId.Arrow.ordinal()] = new FxMapping(Pooled3dModelSpatial.class, 0);
-                fxMappings[FxId.Lightning.ordinal()] = new FxMapping(PooledAnimatedDecalSpatial.class, 0);
-                fxMappings[FxId.HealAura.ordinal()] = new FxMapping(PooledParticleEffectSpatial.class, 0);
-
-                // all animated decal Fx can share the same pool, all other Fx need their own pools
-                Array<PooledFx> decalsPool = new Array<PooledFx>(false, 16, PooledFx.class);
-                for (FxMapping fxMapping : fxMappings) {
-                        if (fxMapping.fxClass == Pooled3dModelSpatial.class) {
-                                fxMapping.fxPool = new Array<PooledFx>(false, 8, PooledFx.class);
-                        } else if (fxMapping.fxClass == PooledAnimatedDecalSpatial.class) {
-                                fxMapping.fxPool = decalsPool;
-                        } else if (fxMapping.fxClass == PooledParticleEffectSpatial.class) {
-                                fxMapping.fxPool = new Array<PooledFx>(false, 8, PooledFx.class);
-                        } else {
-                                throw new AssertionError(fxMapping.fxClass);
-                        }
-                }
 
 
                 // Preload assets
+
 
                 // 3d models
                 loaded3dModels = new Model[1];
@@ -90,12 +71,16 @@ public class FxManager implements Disposable {
                 ParticleEffectLoader.ParticleEffectLoadParameter loadParam =
                         new ParticleEffectLoader.ParticleEffectLoadParameter(particleBatches);
 
-                loadedParticleEffects = new ParticleEffect[1];
+                loadedParticleEffects = new ParticleEffect[2];
                 world.assetManager.load("ParticleEffects/ConsumeHealth.pfx", ParticleEffect.class, loadParam);
+                world.assetManager.load("ParticleEffects/PlasmaBall.pfx", ParticleEffect.class, loadParam);
+
+                fxMappings = new FxMapping[loaded3dModels.length+loadedDecalAnimations.length+loadedParticleEffects.length];
         }
 
 
         public void init() {
+
 
                 // 3d models
                 loaded3dModels[0] = world.assetManager.get("Models/Projectiles/Arrow.g3db", Model.class);
@@ -114,6 +99,29 @@ public class FxManager implements Disposable {
 
                 // particle effects
                 loadedParticleEffects[0] = world.assetManager.get("ParticleEffects/ConsumeHealth.pfx", ParticleEffect.class);
+                loadedParticleEffects[1] = world.assetManager.get("ParticleEffects/PlasmaBall.pfx", ParticleEffect.class);
+
+                // Fx Pools
+
+
+                fxMappings[FxId.Arrow.ordinal()] = new FxMapping(Pooled3dModelSpatial.class, 0);
+                fxMappings[FxId.Lightning.ordinal()] = new FxMapping(PooledAnimatedDecalSpatial.class, 0);
+                fxMappings[FxId.HealAura.ordinal()] = new FxMapping(PooledParticleEffectSpatial.class, 0);
+                fxMappings[FxId.PlasmaBall.ordinal()] = new FxMapping(PooledParticleEffectSpatial.class, 1);
+
+                // all animated decal Fx can share the same pool, all other Fx need their own pools
+                Array<PooledFx> decalsPool = new Array<PooledFx>(false, 16, PooledFx.class);
+                for (FxMapping fxMapping : fxMappings) {
+                        if (fxMapping.fxClass == Pooled3dModelSpatial.class) {
+                                fxMapping.fxPool = new Array<PooledFx>(false, 8, PooledFx.class);
+                        } else if (fxMapping.fxClass == PooledAnimatedDecalSpatial.class) {
+                                fxMapping.fxPool = decalsPool;
+                        } else if (fxMapping.fxClass == PooledParticleEffectSpatial.class) {
+                                fxMapping.fxPool = new Array<PooledFx>(false, 8, PooledFx.class);
+                        } else {
+                                throw new AssertionError(fxMapping.fxClass);
+                        }
+                }
 
         }
 
