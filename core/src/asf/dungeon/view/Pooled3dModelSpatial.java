@@ -1,5 +1,6 @@
 package asf.dungeon.view;
 
+import asf.dungeon.model.FxId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
@@ -7,7 +8,6 @@ import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -22,11 +22,8 @@ import com.badlogic.gdx.math.Vector3;
 /**
  * Created by danny on 10/20/14.
  */
-public class ProjectileSpatial implements Spatial {
+public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
 
-        private boolean initialized = false;
-        public final String assetLocation;
-        public Environment environment;
         public ModelInstance modelInstance;
         public AnimationController animController;
         public final Vector3 translationBase = new Vector3();
@@ -37,37 +34,31 @@ public class ProjectileSpatial implements Spatial {
         protected float visU = 0; // how visible this object is, 0 = not drawn, 1 = fully visible, inbetween for partially visible
 
         // current active
+        private FxId fxId;
+        private int mode; // 1 = static location on worldDestLoc, 2 =  follow targetTokenSpatial, 3 = projectile
+
+        private float duration;
+
         private Token attackerToken;
         private TokenSpatial targetTokenSpatial;
         private final Pair destLoc = new Pair();
         private final Vector3 worldMoveDir = new Vector3(), worldStartLoc = new Vector3(), worldDestLoc = new Vector3();
 
-        public ProjectileSpatial(DungeonWorld world, Environment environment) {
-                this.world = world;
-                this.assetLocation = "Models/Projectiles/Arrow.g3db";
-                this.environment = environment;
-        }
 
         @Override
         public void preload(DungeonWorld world) {
-                if (assetLocation != null)
-                        world.assetManager.load(assetLocation, Model.class);
+                this.world = world;
         }
 
         @Override
         public void init(AssetManager assetManager) {
+        }
 
-                if (assetLocation != null) {
-                        if (!assetManager.isLoaded(assetLocation, Model.class))
-                                throw new Error("asset not loaded");
-
-                        Model model = assetManager.get(assetLocation);
-                        modelInstance = new ModelInstance(model);
-                }
-
-
-                initialized = true;
-
+        private void setModel(){
+                if(modelInstance != null)
+                         return;
+                Model model = world.getFxManager().getModel(fxId);
+                modelInstance = new ModelInstance(model);
                 if (modelInstance.animations.size > 0) {
                         animController = new AnimationController(modelInstance);
                         //GdxInfo.model(modelInstance.model);
@@ -79,62 +70,97 @@ public class ProjectileSpatial implements Spatial {
                 }
 
                 translationBase.set(0, 4, 0);
-
-
         }
 
-        public void shootProjectile(Token attacker, Token targetToken, Pair destLoc) {
-                if (targetToken != null)
-                        shootProjectile(attacker, targetToken);
-                else
-                        shootProjectile(attacker, destLoc);
-
-        }
-
-        public void shootProjectile(Token attacker, Pair destLoc) {
-                this.attackerToken = attacker;
+        @Override
+        public void set(FxId fxId, Pair location, float duration){
+                this.fxId = fxId;
+                setModel();
+                mode = 1;
+                destLoc.set(location);
                 targetTokenSpatial = null;
+                this.duration = duration;
+                world.getWorldCoords(location, worldDestLoc);
+                translation.set(worldDestLoc);
+                rotation.idt();
+        }
+
+        @Override
+        public void set(FxId fxId, TokenSpatial followTokenSpatial, float duration){
+                this.fxId = fxId;
+                setModel();
+                mode = 2;
+                this.targetTokenSpatial =followTokenSpatial;
+                this.duration = duration;
+        }
+
+
+        @Override
+        public void set(FxId fxId, Token attacker, Token target, Pair destLoc) {
+                this.fxId = fxId;
+                setModel();
+                this.mode = 3;
+                this.attackerToken = attacker;
                 this.destLoc.set(destLoc);
                 world.getWorldCoords(attacker.getMove().getLocationFloatX(), attacker.getMove().getLocationFloatY(), worldStartLoc);
-                world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
-
-                worldMoveDir.set(worldDestLoc).sub(worldStartLoc);
-                UtMath.normalize(worldMoveDir);
-                rotation.setFromCross(Vector3.Z, worldMoveDir);
-
-                translation.set(worldStartLoc);
-        }
-
-        public void shootProjectile(Token attacker, Token targetToken) {
-                this.attackerToken = attacker;
-                targetTokenSpatial = world.getTokenSpatial(targetToken);
-
-                world.getWorldCoords(attacker.getMove().getLocationFloatX(), attacker.getMove().getLocationFloatY(), worldStartLoc);
-                if (targetToken.getMove() == null) {
-                        world.getWorldCoords(targetToken.getLocation().x, targetToken.getLocation().y, worldDestLoc);
+                if (target == null) {
+                        targetTokenSpatial = null;
+                        world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
                 } else {
-                        world.getWorldCoords(targetToken.getMove().getLocationFloatX(), targetToken.getMove().getLocationFloatY(), worldDestLoc);
+                        targetTokenSpatial = world.getTokenSpatial(target);
+                        if (target.getMove() == null) world.getWorldCoords(target.getLocation().x, target.getLocation().y, worldDestLoc);
+                        else world.getWorldCoords(target.getMove().getLocationFloatX(), target.getMove().getLocationFloatY(), worldDestLoc);
+
                 }
-
-
                 worldMoveDir.set(worldDestLoc).sub(worldStartLoc);
                 UtMath.normalize(worldMoveDir);
                 rotation.setFromCross(Vector3.Z, worldMoveDir);
-
                 translation.set(worldStartLoc);
 
-                //Gdx.app.log("ProjectileSpatial", "shoot: " + destLoc + " start: " + translation + "end: " + worldDestLoc + " moveDir: " + worldMoveDir);
         }
 
 
         @Override
         public void update(final float delta) {
-                if (attackerToken == null || !attackerToken.getAttack().hasProjectile()) {
-                        reset();
-                        return;
-                } else if (attackerToken.getAttack().getEffectiveProjectileU() < 0) {
-                        return;
+
+                if(mode == 1 || mode == 2){
+                        duration -= delta;
+                        if(duration <=0){
+                                deactivate();
+                                return;
+                        }
+
+                        if(targetTokenSpatial != null){
+                                translation.set(targetTokenSpatial.translation);
+                                //rotation.set(targetTokenSpatial.rotation) // TODO: do i want to follow rotation too?
+                        }
+
+                }else if(mode == 3){
+                        if (attackerToken == null || !attackerToken.getAttack().hasProjectile()) {
+                                deactivate();
+                                return;
+                        } else if (attackerToken.getAttack().getEffectiveProjectileU() < 0) {
+                                return;
+                        }
+
+
+                        //world.getWorldCoords(targetToken.getLocationFloatX(), targetToken.getLocationFloatY(), worldDestLoc);
+                        //worldMoveDir.set(worldDestLoc).sub(worldStartLoc);
+                        //MoreMath.normalize(worldMoveDir);
+                        //rotation.setFromCross(Vector3.Z, worldMoveDir);
+
+                        UtMath.interpolate(
+                                Interpolation.pow3,
+                                attackerToken.getAttack().getEffectiveProjectileU(),
+                                worldStartLoc,
+                                worldDestLoc,
+                                translation);
+
+                        //Gdx.app.log("ProjectileSpatial", "update: " + translation);
                 }
+
+                //
+                // Common update code (visibility of material, animation update)
 
                 if (targetTokenSpatial != null)
                         visU = targetTokenSpatial.visU;
@@ -156,7 +182,6 @@ public class ProjectileSpatial implements Spatial {
                         }
                 }
 
-
                 for (Material material : modelInstance.materials) {
                         ColorAttribute colorAttribute = (ColorAttribute) material.get(ColorAttribute.Diffuse);
                         colorAttribute.color.a = visU;
@@ -165,31 +190,23 @@ public class ProjectileSpatial implements Spatial {
                 if (animController != null)
                         animController.update(delta);
 
-                //world.getWorldCoords(targetToken.getLocationFloatX(), targetToken.getLocationFloatY(), worldDestLoc);
-                //worldMoveDir.set(worldDestLoc).sub(worldStartLoc);
-                //MoreMath.normalize(worldMoveDir);
-                //rotation.setFromCross(Vector3.Z, worldMoveDir);
-
-                UtMath.interpolate(
-                        Interpolation.pow3,
-                        attackerToken.getAttack().getEffectiveProjectileU(),
-                        worldStartLoc,
-                        worldDestLoc,
-                        translation);
-
-                //Gdx.app.log("ProjectileSpatial", "update: " + translation);
-
 
         }
 
         @Override
         public void render(float delta) {
-                if (attackerToken == null || attackerToken.getAttack().getEffectiveProjectileU() < 0) {
+                if( visU <=0){
                         return;
                 }
 
-                if (visU <= 0) {
-                        return;
+                if(mode == 3){
+                        // the projectile actually spawns at the beginning of the attack animation leaving about
+                        // a half second of time between projectile spawna nd when it should show up
+                        // we check the effective projectile u to make sure it is positive to make sure that the
+                        // projectile should be visible
+                        if (attackerToken == null || attackerToken.getAttack().getEffectiveProjectileU() < 0) {
+                                return;
+                        }
                 }
 
                 modelInstance.transform.set(
@@ -200,28 +217,43 @@ public class ProjectileSpatial implements Spatial {
 
                 //Gdx.app.log("ProjectileSpatial", "render: " + translation);
 
-                world.modelBatch.render(modelInstance, environment);
+                world.modelBatch.render(modelInstance, world.environment);
 
         }
 
-        public void reset() {
+        public void deactivate() {
+                mode = 0;
                 attackerToken = null;
                 visU = 0;
+                duration =0;
         }
 
         public boolean isActive() {
-                return attackerToken != null;
+                return mode != 0;
+        }
+
+        @Override
+        public TokenSpatial getTokenSpatial() {
+                return targetTokenSpatial;
+        }
+
+        @Override
+        public FxId getFxId() {
+                return fxId;
+        }
+
+        @Override
+        public int getMode() {
+                return mode;
         }
 
         @Override
         public void dispose() {
-
-                initialized = false;
         }
 
         @Override
         public boolean isInitialized() {
-                return initialized;
+                return isActive();
         }
 
 }

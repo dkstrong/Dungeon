@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.I18NBundle;
 
 
 /**
@@ -34,13 +35,15 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
                 stage = app.stage;
                 Gdx.input.setInputProcessor(new InputMultiplexer(this, stage));
                 Skin skin = app.skin;
+                I18NBundle i18n = app.i18n;
                 stage.clear();
 
                 Table table = new Table(skin);
                 stage.addActor(table);
                 table.setFillParent(true);
 
-                window = new Window("Paused",skin);
+
+                window = new Window(i18n.get("paused"),skin);
                 table.add(window).minSize(Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.75f);
 
                 //window.setFillParent(true);
@@ -53,7 +56,7 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
 
                 window.row();
                 resumeButton = new Button(skin);
-                resumeButton.add("Resume");
+                resumeButton.add(i18n.get("resume"));
                 resumeButton.addCaptureListener(this);
                 window.add(resumeButton).minSize(150,100);
 

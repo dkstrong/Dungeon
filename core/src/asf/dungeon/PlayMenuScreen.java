@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.I18NBundle;
 
 
 /**
@@ -27,6 +28,7 @@ public class PlayMenuScreen implements Screen {
         final DungeonApp app;
         private Stage stage;
         private Skin skin;
+        private I18NBundle i18n;
         private InternalListener internalListener;
 
 
@@ -46,6 +48,7 @@ public class PlayMenuScreen implements Screen {
 
                 stage = app.stage;
                 skin = app.skin;
+                i18n = app.i18n;
                 Gdx.graphics.setContinuousRendering(false);
                 Gdx.graphics.requestRendering();
                 Gdx.input.setInputProcessor(stage);
@@ -57,7 +60,7 @@ public class PlayMenuScreen implements Screen {
 
                 backButton = new Button(skin);
                 stage.addActor(backButton);
-                backButton.add("Back");
+                backButton.add(i18n.get("back"));
                 backButton.addCaptureListener(internalListener);
 
                 table = new Table(skin);
@@ -70,22 +73,22 @@ public class PlayMenuScreen implements Screen {
 
                 knightButton = new Button(skin);
                 table.add(knightButton).minSize(100, 100);
-                knightButton.add("Knight");
+                knightButton.add(i18n.get("knight"));
                 knightButton.addListener(internalListener);
 
                 rogueButton = new Button(skin);
                 table.add(rogueButton).minSize(100,100);
-                rogueButton.add("Rogue");
+                rogueButton.add(i18n.get("rogue"));
                 rogueButton.addListener(internalListener);
 
                 mageButton = new Button(skin);
                 table.add(mageButton).minSize(100,100);
-                mageButton.add("Mage");
+                mageButton.add(i18n.get("mage"));
                 mageButton.addListener(internalListener);
 
                 monsterButton = new Button(skin);
                 table.add(monsterButton).minSize(100,100);
-                monsterButton.add("Monster");
+                monsterButton.add(i18n.get("monster"));
                 monsterButton.addListener(internalListener);
 
 
@@ -93,8 +96,9 @@ public class PlayMenuScreen implements Screen {
                 table.row();
 
                 descriptionLabel = new Label("Description", skin);
+                descriptionLabel.setWrap(true);
                 ScrollPane scrollPane = new ScrollPane(descriptionLabel, skin);
-                table.add(scrollPane).colspan(4).minSize(400,300);
+                table.add(scrollPane).colspan(4).minSize(400,300).maxSize(400,300);
 
 
                 table.row();
@@ -104,13 +108,13 @@ public class PlayMenuScreen implements Screen {
 
 
                 loadButton = new Button(skin);
-                loadButton.add("Load").minSize(150,100).align(Align.center).getActor().setAlignment(Align.center);
+                loadButton.add(i18n.get("load")).minSize(150,100).align(Align.center).getActor().setAlignment(Align.center);
                 loadButton.addCaptureListener(internalListener);
 
 
                 newGameButton = new Button(skin);
                 horizontalGroup.addActor(newGameButton);
-                newGameButton.add("New Game").minSize(150,100).align(Align.center).getActor().setAlignment(Align.center);
+                newGameButton.add(i18n.get("newGame")).minSize(150,100).align(Align.center).getActor().setAlignment(Align.center);
                 newGameButton.addCaptureListener(internalListener);
 
 
@@ -213,7 +217,16 @@ public class PlayMenuScreen implements Screen {
 
                         setShowLoadButton(token != null);
 
-                        descriptionLabel.setText(settings.playerModel.toString());
+                        if(settings.playerModel == ModelId.Knight){
+                                descriptionLabel.setText(i18n.get("knightDescription"));
+                        }else if(settings.playerModel == ModelId.Archer){
+                                descriptionLabel.setText(i18n.get("rogueDescription"));
+                        }else if(settings.playerModel == ModelId.Mage){
+                                descriptionLabel.setText(i18n.get("mageDescription"));
+                        }else if(settings.playerModel == ModelId.Diablous){
+                                descriptionLabel.setText(i18n.get("monsterDescription"));
+                        }
+
                 }
 
                 @Override

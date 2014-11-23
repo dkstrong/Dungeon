@@ -14,8 +14,9 @@ public class MazeGen implements FloorMapGenerator{
         private int height;
 
         private Dungeon dungeon;
-        private boolean[][] blocks;
-        private boolean[][] visited;
+        // TODO: instead of using boolean[][] lets try and turn this into Tile[][] for consistency
+        private transient boolean[][] blocks;
+        private transient boolean[][] visited;
 
         public MazeGen(int width, int height) {
                 this.width = width;

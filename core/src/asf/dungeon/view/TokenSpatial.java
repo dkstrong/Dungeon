@@ -5,7 +5,6 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
-import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
@@ -16,7 +15,6 @@ import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Shape;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
@@ -64,13 +62,14 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
         public void preload(DungeonWorld world){
 
-                world.assetManager.load(token.getModelId().assetLocation, Model.class);
+
+                world.assetManager.load(world.getAssetMappings().getAssetLocation(token.getModelId()), Model.class);
 
                 Loot loot = token.get(Loot.class);
                 if(loot != null){
                         if(loot.getItem() instanceof PotionItem){
                                 PotionItem potion = (PotionItem) loot.getItem();
-                                world.assetManager.load(potion.getColor().textureAssetLocation, Texture.class);
+                                world.assetManager.load(world.getAssetMappings().getPotionTextureAssetLocation(potion), Texture.class);
                         }else if(loot.getItem() instanceof  KeyItem){
 
                         }
@@ -84,10 +83,10 @@ public class TokenSpatial implements Spatial, Token.Listener {
         public void init(AssetManager assetManager) {
                 initialized = true;
 
-                if (!assetManager.isLoaded(token.getModelId().assetLocation, Model.class))
+                if (!assetManager.isLoaded(world.getAssetMappings().getAssetLocation(token.getModelId()), Model.class))
                         throw new Error("asset not loaded");
 
-                Model model = assetManager.get(token.getModelId().assetLocation);
+                Model model = assetManager.get(world.getAssetMappings().getAssetLocation(token.getModelId()));
                 modelInstance = new ModelInstance(model);
 
                 //if (shape != null)
@@ -104,7 +103,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                 if(loot != null){
                         if(loot.getItem() instanceof PotionItem){
                                 PotionItem potion = (PotionItem) loot.getItem();
-                                Texture potionTex = assetManager.get(potion.getColor().textureAssetLocation, Texture.class);
+                                Texture potionTex = assetManager.get(world.getAssetMappings().getPotionTextureAssetLocation(potion), Texture.class);
                                 Material mat = modelInstance.materials.get(0);
                                 mat.set(TextureAttribute.createDiffuse(potionTex));
                                 //ColorAttribute colorAttribute = (ColorAttribute)mat.get(ColorAttribute.Diffuse);
@@ -115,7 +114,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         }
                 }
 
-                if(token.getModelId().assetLocation.contains("Characters")){
+                if(world.getAssetMappings().getAssetLocation(token.getModelId()).contains("Characters")){
                         float s = .45f;
                         scale.set(s, s, s);
                         translationBase.set(0, (shape.getDimensions().y / 2f) + 1.45f, 0);
@@ -149,7 +148,6 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         private Animation current, idle, walk, attack, hit, die;
-        private Item currentItemUse;
         private static final Vector3 temp = new Vector3();
         private final Quaternion tempTargetRot = new Quaternion();
 
@@ -200,15 +198,6 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         private void updateIfNotFogBlocked(float delta){
-                if (currentItemUse != null) {
-                        if(currentItemUse instanceof ConsumableItem){
-                                Gdx.app.log("CharacterTokenControl", "bloob bloob bloob " + currentItemUse.getNameFromJournal(token) + "!");
-                        }else if(currentItemUse instanceof KeyItem){
-
-                        }
-
-                        currentItemUse = null;
-                }
 
 
                 if (token.getDamage() != null && token.getDamage().isDead()) {
@@ -292,7 +281,8 @@ public class TokenSpatial implements Spatial, Token.Listener {
         @Override
         public void onAttack(Token target, Pair targetLocation, boolean ranged) {
                 if(ranged){
-                        world.getFxManager().shootProjectile(token, target, targetLocation);
+
+                        world.getFxManager().shootProjectile(token.getInventory().getWeaponSlot().getProjectileFx(), token, target, targetLocation);
                 }
 
                 if (world.getHud().localPlayerToken == token)
@@ -314,7 +304,6 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
         @Override
         public void onUseItem(Item item) {
-                currentItemUse = item;
                 if (world.getHud().localPlayerToken == token)
                         world.getHud().onUseItem(item);
         }
@@ -323,9 +312,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         @Override
         public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
 
-                //world.getFxManager().spawnAnimatedDecalEffect(FxManager.EffectType.Heal, this, duration);
-                world.getFxManager().spawnEffect(FxManager.EffectType.Heal, this, duration);
-
+                world.getFxManager().spawnEffect(world.getAssetMappings().getStatusEffectFxId(effect), this, duration);
 
                 if (world.getHud().localPlayerToken == token)
                         world.getHud().onStatusEffectChange(effect, duration);

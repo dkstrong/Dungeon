@@ -6,9 +6,13 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+import java.util.Locale;
 
 /**
  * the skin used for the stages is loaded and stored and dungeon app for effecient reuse as its also used by the in game hud.
@@ -19,7 +23,8 @@ public class DungeonApp implements ApplicationListener {
         private DungeonWorld worldManager;
         private Resolver platformActionResolver;
         protected Stage stage;
-        public Skin skin;
+        protected Skin skin;
+        protected I18NBundle i18n;
 
         @Override
         public void create() {
@@ -27,12 +32,13 @@ public class DungeonApp implements ApplicationListener {
                 Gdx.input.setCatchBackKey(true);
 
 
-                //this.setScreen(new MainMenuScreen(this));
+
+                this.setScreen(new MainMenuScreen(this));
 
                 DungeonWorld.Settings settings = new DungeonWorld.Settings();
-                settings.playerModel = ModelId.Mage;
+                settings.playerModel = ModelId.Archer;
 
-                loadWorld(settings);
+                //loadWorld(settings);
         }
 
         @Override
@@ -92,6 +98,9 @@ public class DungeonApp implements ApplicationListener {
                         if (stage == null) {
                                 stage = new Stage(new ScreenViewport());
                                 skin = new Skin(Gdx.files.internal("Skins/BasicSkin/uiskin.json"));
+                                FileHandle baseFileHandle = Gdx.files.internal("i18n/Menu");
+                                Locale locale = new Locale("en");
+                                i18n = I18NBundle.createBundle(baseFileHandle, locale);
                         }
                         this.screen.show();
                         this.screen.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -101,6 +110,7 @@ public class DungeonApp implements ApplicationListener {
                                 stage = null;
                                 skin.dispose();
                                 skin = null;
+                                i18n = null; // does not need to be disposed
                         }
                 }
         }

@@ -1,5 +1,6 @@
 package asf.dungeon.model.item;
 
+import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Token;
@@ -7,13 +8,11 @@ import asf.dungeon.model.token.Token;
 /**
  * Created by Danny on 11/17/2014.
  */
-public class EquipmentItem implements Item {
+public abstract class EquipmentItem implements Item {
 
         private ModelId modelId;
         private String name;
         private String description;
-        private String vagueName;
-        private String vagueDescription;
         private int complexity = 5;
 
         private int vitalityMod, strengthMod, agilityMod, intelligenceMod, luckMod;
@@ -21,12 +20,10 @@ public class EquipmentItem implements Item {
         private boolean cursed;
 
 
-        public EquipmentItem(ModelId modelId, String name, String description, String vagueName, String vagueDescription) {
+        public EquipmentItem(ModelId modelId, String name, String description) {
                 this.modelId = modelId;
                 this.name = name;
                 this.description = description;
-                this.vagueName = vagueName;
-                this.vagueDescription = vagueDescription;
         }
 
         public void setCursed(boolean cursed) {
@@ -86,21 +83,19 @@ public class EquipmentItem implements Item {
                 return description;
         }
 
-        @Override
-        public String getVagueName() {
-                return vagueName;
+        public void setName(String name) {
+                this.name = name;
         }
 
-        @Override
-        public String getVagueDescription() {
-                return vagueDescription;
+        public void setDescription(String description) {
+                this.description = description;
         }
 
         @Override
         public String getNameFromJournal(Token token) {
                 boolean identified = isIdentified(token);
                 String cursedMessage;
-                if(isCursed() && (identified || token.getInventory().isEquipped(this))) cursedMessage = "Cursed ";
+                if(isCursed() && (identified || token.getInventory().isEquipped(this))) cursedMessage = M.Cursed+" ";
                 else cursedMessage="";
 
                 if (identified) return cursedMessage+getName();
@@ -111,8 +106,8 @@ public class EquipmentItem implements Item {
         public String getDescriptionFromJournal(Token token) {
                 boolean identified = isIdentified(token);
                 String cursedMessage;
-                if(isCursed() && token.getInventory().isEquipped(this)) cursedMessage = "\n\nThis item is cursed and you are powerless to remove it.";
-                else if(isCursed() && identified) cursedMessage = "\n\nThis item is cursed.";
+                if(isCursed() && token.getInventory().isEquipped(this)) cursedMessage = "\n\n"+M.CursedEquippedDesc;
+                else if(isCursed() && identified) cursedMessage = "\n\n"+M.CursedDesc;
                 else cursedMessage="";
 
                 if (isIdentified(token)) return getDescription()+cursedMessage;

@@ -13,31 +13,13 @@ import asf.dungeon.model.token.Token;
 public class PotionItem extends AbstractItem implements ConsumableItem, StackableItem {
 
 
-        public static enum Type{
+        public static enum Type {
                 Health, Experience, Invisibility, Purity, Poison, Paralyze, MindVision, Strength, Might, Speed;
         }
 
-        public static enum Color{
-                LightBlue(com.badlogic.gdx.graphics.Color.TEAL,"Models/Loot/Potion/potion_silver_blue.png"),
-                Red(com.badlogic.gdx.graphics.Color.RED,"Models/Loot/Potion/potion_silver_red.png"),
-                Blue(com.badlogic.gdx.graphics.Color.BLUE,"Models/Loot/Potion/potion_silver_blue.png"),
-                Green(com.badlogic.gdx.graphics.Color.GREEN,"Models/Loot/Potion/potion_silver_green.png"),
-                Yellow(com.badlogic.gdx.graphics.Color.YELLOW,"Models/Loot/Potion/potion_silver_blue.png"),
-                Magenta(com.badlogic.gdx.graphics.Color.MAGENTA,"Models/Loot/Potion/potion_silver_blue.png"),
-                Black(com.badlogic.gdx.graphics.Color.BLACK,"Models/Loot/Potion/potion_silver_blue.png"),
-                Brown(com.badlogic.gdx.graphics.Color.OLIVE,"Models/Loot/Potion/potion_silver_blue.png"),
-                Amber(com.badlogic.gdx.graphics.Color.ORANGE,"Models/Loot/Potion/potion_silver_blue.png"),
-                White(com.badlogic.gdx.graphics.Color.WHITE,"Models/Loot/Potion/potion_silver_blue.png"),
-                Silver(com.badlogic.gdx.graphics.Color.GRAY,"Models/Loot/Potion/potion_silver_blue.png"),
-                Purple(com.badlogic.gdx.graphics.Color.PURPLE,"Models/Loot/Potion/potion_silver_blue.png");
+        public static enum Color {
+                LightBlue, Red, Blue, Green, Yellow, Magenta, Black, Brown, Amber, White, Silver, Purple;
 
-                public final com.badlogic.gdx.graphics.Color color; // TODO: transient?
-                public final String textureAssetLocation; // TODO: transient?
-
-                Color(com.badlogic.gdx.graphics.Color color, String textureAssetLocation) {
-                        this.color = color;
-                        this.textureAssetLocation = textureAssetLocation;
-                }
         }
 
         private final Color color;
@@ -47,42 +29,54 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         public PotionItem(Dungeon dungeon, Type type, int charges) {
                 this.color = dungeon.getMasterJournal().getPotionColor(type);
                 this.type = type;
-                this.charges= charges;
+                this.charges = charges;
         }
 
         @Override
-        public ModelId getModelId() { return ModelId.Potion; }
+        public ModelId getModelId() {
+                return ModelId.Potion;
+        }
 
         @Override
         public String getName() {
-                return type.name()+" Potion";
+                return type.name() + " Potion";
         }
 
         @Override
         public String getDescription() {
-                return "This is a "+getName()+". Go ahead. Drink it.";
+                return "This is a " + getName() + ". Go ahead. Drink it.";
         }
 
         @Override
-        public String getVagueName() { return color.name()+" Potion"; }
+        public String getVagueName() {
+                return color.name() + " Potion";
+        }
 
         @Override
-        public String getVagueDescription() { return "A mysterious "+color.name()+" potion. The effects of drinking this are not known.";}
+        public String getVagueDescription() {
+                return "A mysterious " + color.name() + " potion. The effects of drinking this are not known.";
+        }
 
         @Override
-        public boolean isIdentified(Token token) { Journal journal = token.get(Journal.class); return journal == null || journal.knows(type); }
+        public boolean isIdentified(Token token) {
+                Journal journal = token.get(Journal.class);
+                return journal == null || journal.knows(type);
+        }
 
-        public Type getType() { return type; }
+        public Type getType() {
+                return type;
+        }
 
-        public Color getColor(){
+        public Color getColor() {
                 return color;
         }
 
-        public void addChargesFrom(StackableItem otherItem){
+        public void addChargesFrom(StackableItem otherItem) {
                 PotionItem otherPotion = (PotionItem) otherItem;
-                this.charges+=otherPotion.charges;
+                this.charges += otherPotion.charges;
                 otherPotion.charges = 0;
         }
+
         @Override
         public int getCharges() {
                 return charges;
@@ -92,16 +86,16 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         public void consume(Token token) {
                 charges--;
                 StatusEffects statusEffects = token.get(StatusEffects.class);
-                if(statusEffects == null)
+                if (statusEffects == null)
                         return;
-                switch(type){
+                switch (type) {
                         case Health:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Heal, 3, 3);
                                 break;
                         case Experience:
                                 break;
                         case Invisibility:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Invisibility, 10,1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Invisibility, 10, 1);
                                 break;
                         case Purity:
                                 statusEffects.removeNegativeStatusEffects();
@@ -110,21 +104,21 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Poison, 10, 5);
                                 break;
                         case Paralyze:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Paralyze, 5,1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Paralyze, 5, 1);
                                 break;
                         case MindVision:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.MindVision, 5,1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.MindVision, 5, 1);
                                 break;
                         case Strength:
                                 break;
                         case Might:
                                 break;
                         case Speed:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Speed, 10,1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Speed, 10, 1);
                                 break;
                 }
                 Journal journal = token.get(Journal.class);
-                if(journal != null)
+                if (journal != null)
                         journal.learn(type);
 
         }

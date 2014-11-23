@@ -200,7 +200,7 @@ public class FloorMap  {
                 return false;
         }
 
-        private final Array<Token> tokensAt = new Array<Token>(8); // TODO: transient?
+        private final Array<Token> tokensAt = new Array<Token>(8);
 
         /**
          * all tokens on this floor, the returned array should not be stored as it will be reused next time this method is called

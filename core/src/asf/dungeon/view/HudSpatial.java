@@ -10,6 +10,7 @@ import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.QuickItem;
+import asf.dungeon.model.item.RingItem;
 import asf.dungeon.model.item.StackableItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Attack;
@@ -81,7 +82,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         @Override
         public void preload(DungeonWorld world) {
                 this.world = world;
-                skin = new Skin(Gdx.files.internal("Skins/BasicSkin/uiskin.json"));
+                //skin = new Skin(Gdx.files.internal());
+
+                world.assetManager.load("Skins/BasicSkin/uiskin.json", Skin.class);
+
+                for (String statusEffectIconTextureAssetLocation : world.getAssetMappings().statusEffectIconTextureAssetLocations) {
+                        world.assetManager.load(statusEffectIconTextureAssetLocation, Texture.class);
+                }
+
         }
 
         @Override
@@ -90,6 +98,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 if (localPlayerToken == null) {
                         return;
                 }
+                skin = world.assetManager.get("Skins/BasicSkin/uiskin.json", Skin.class);
 
                 avatarButton = new Button(skin);
                 world.stage.addActor(avatarButton);
@@ -113,15 +122,15 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 avatarStatusEffectsGroup.align(Align.bottomLeft);
 
 
-                statusEffectImage = new Image[StatusEffects.Effect.values.length];
+                statusEffectImage = new Image[world.getAssetMappings().statusEffectIconTextureAssetLocations.length];
                 for (int i = 0; i < statusEffectImage.length; i++) {
-                        statusEffectImage[i] = new Image(new Texture(Gdx.files.internal("Interface/Hud/health.png")));
+                        statusEffectImage[i] = new Image(world.assetManager.get(world.getAssetMappings().statusEffectIconTextureAssetLocations[i], Texture.class));
                         //statusEffectImage[i].setScaling(Scaling.fit);
                         statusEffectImage[i].setScaling(Scaling.fillY);
                         statusEffectImage[i].setAlign(Align.bottomLeft);
                         //avatarStatusEffectsGroup.addActor(statusEffectImage[i]);
                 }
-                ;
+
 
 
                 if (showRenderingStasLabel) {
@@ -533,7 +542,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         setButtonContents(inventoryButtons.get(0), weaponSlot);
                         ArmorItem armorSlot = localPlayerToken.getInventory().getArmorSlot();
                         setButtonContents(inventoryButtons.get(1), armorSlot);
-                        EquipmentItem ringSlot = localPlayerToken.getInventory().getRingSlot();
+                        RingItem ringSlot = localPlayerToken.getInventory().getRingSlot();
                         setButtonContents(inventoryButtons.get(2), ringSlot);
                         setButtonContents(inventoryButtons.get(3), quickSlot);
 
@@ -834,8 +843,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         @Override
         public void dispose() {
                 initialized = false;
-                if (skin != null)
-                        skin.dispose();
 
         }
 

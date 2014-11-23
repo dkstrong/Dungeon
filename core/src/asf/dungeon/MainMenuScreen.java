@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.I18NBundle;
 
 
 /**
@@ -18,6 +19,7 @@ public class MainMenuScreen implements Screen {
         final DungeonApp app;
         private Stage stage;
         private InternalListener internalListener;
+        private I18NBundle i18n;
 
 
         public MainMenuScreen(DungeonApp dungeonApp) {
@@ -27,6 +29,7 @@ public class MainMenuScreen implements Screen {
         private Button playButton, leaderBoardsButton, settingsButton, aboutButton, quitButton;
         @Override
         public void show() {
+                i18n = app.i18n;
                 stage = app.stage;
                 Gdx.graphics.setContinuousRendering(false);
                 Gdx.graphics.requestRendering();
@@ -44,24 +47,24 @@ public class MainMenuScreen implements Screen {
 
                 playButton = new Button(skin);
                 table.add(playButton).minSize(100,100);
-                playButton.add("Play");
+                playButton.add(i18n.get("play"));
                 playButton.addCaptureListener(internalListener);
 
                 leaderBoardsButton = new Button(skin);
                 table.add(leaderBoardsButton).minSize(100,100);
-                leaderBoardsButton.add("Leaderboards");
+                leaderBoardsButton.add(i18n.get("leaderboards"));
 
                 settingsButton = new Button(skin);
                 table.add(settingsButton).minSize(100,100);
-                settingsButton.add("Settings");
+                settingsButton.add(i18n.get("settings"));
 
                 aboutButton = new Button(skin);
                 table.add(aboutButton).minSize(100,100);
-                aboutButton.add("About");
+                aboutButton.add(i18n.get("about"));
 
                 quitButton = new Button(skin);
                 stage.addActor(quitButton);
-                quitButton.add("Quit");
+                quitButton.add(i18n.get("quit"));
 
                 quitButton.addCaptureListener(internalListener);
 

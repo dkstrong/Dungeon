@@ -116,11 +116,14 @@ public class DungeonLoader {
                         }else if(settings.playerModel == ModelId.Archer){
                                 WeaponItem bow = new WeaponItem(ModelId.Sword,"Bow", 3);
                                 bow.setRanged(true);
+                                bow.setProjectileFx(FxId.Arrow);
                                 token.getInventory().add(bow);
                                 token.getInventory().equip(bow);
                                 token.get(Journal.class).learn(bow);
                         }else if(settings.playerModel == ModelId.Mage){
                                 WeaponItem staff = new WeaponItem(ModelId.Sword,"Staff", 3);
+                                staff.setRanged(true);
+                                staff.setProjectileFx(FxId.Lightning);
                                 token.getInventory().add(staff);
                                 token.getInventory().equip(staff);
                                 token.get(Journal.class).learn(staff);
@@ -176,7 +179,7 @@ public class DungeonLoader {
                         dungeon = kryo.readObject(input, Dungeon.class);
                 }catch(KryoException ex){
                         dungeon = null;
-                        ex.printStackTrace(); // this usually means the api was changed since the last file save. the file save is bassically useless
+                        //ex.printStackTrace(); // this usually means the api was changed since the last file save. the file save is bassically useless
                 }
                 input.close();
                 try {
@@ -219,6 +222,7 @@ public class DungeonLoader {
                 kryoSoftReference = new SoftReference<Kryo>(kryo);
                 kryo.setRegistrationRequired(true);
 
+                kryo.register(com.badlogic.gdx.utils.IdentityMap.class);
                 kryo.register(Array.class);
                 kryo.register(com.badlogic.gdx.utils.Array[].class);
                 kryo.register(Array.ArrayIterable.class);
@@ -230,13 +234,16 @@ public class DungeonLoader {
                 kryo.register(byte[][].class);
                 kryo.register(Float[].class);
                 kryo.register(java.util.HashMap.class);
+                kryo.register(java.util.Random.class);
+                kryo.register(java.util.concurrent.atomic.AtomicLong.class);
 
                 kryo.register(Direction.class);
                 kryo.register(Dungeon.class);
                 kryo.register(FloorMap.class);
-
+                kryo.register(asf.dungeon.model.DungeonRand.class);
                 kryo.register(MasterJournal.class);
                 kryo.register(ModelId.class);
+                kryo.register(asf.dungeon.model.FxId.class);
                 kryo.register(Pair.class);
                 kryo.register(Pair[].class);
                 kryo.register(Pair[][].class);
@@ -274,6 +281,8 @@ public class DungeonLoader {
                 kryo.register(PotionItem.Color.class);
                 kryo.register(PotionItem.Type.class);
                 kryo.register(PotionItem.Type[].class);
+                kryo.register(asf.dungeon.model.item.WeaponItem.class);
+                kryo.register(asf.dungeon.model.item.ArmorItem.class);
 
                 kryo.register(Attack.class);
                 kryo.register(Damage.class);
@@ -296,6 +305,8 @@ public class DungeonLoader {
                 kryo.register(Logic.class);
                 kryo.register(LocalPlayerLogic.class);
                 kryo.register(asf.dungeon.model.token.logic.FullAgroLogic.class);
+                kryo.register(asf.dungeon.model.token.logic.fsm.FSMLogic.class);
+                kryo.register(asf.dungeon.model.token.logic.fsm.Monster.class);
 
 
                 return kryo;

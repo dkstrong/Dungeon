@@ -1,5 +1,7 @@
 package asf.dungeon.model.item;
 
+import asf.dungeon.model.FxId;
+import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 
 /**
@@ -9,10 +11,21 @@ public class WeaponItem extends EquipmentItem{
 
         private int damage;
         private boolean ranged;
+        private FxId projectileFx;
 
         public WeaponItem(ModelId modelId, String name, int damage) {
-                super(modelId, name, "A weapon", "Unidentified Weapon", "A mysterious weapon, who knows what it will do once equipped?");
+                super(modelId, name, "A weapon");
                 this.damage = damage;
+        }
+
+        @Override
+        public String getVagueName() {
+                return M.Unidentified+" "+M.Weapon;
+        }
+
+        @Override
+        public String getVagueDescription() {
+                return M.UnidentifiedWeaponDesc;
         }
 
         public void setRanged(boolean ranged) {
@@ -29,6 +42,14 @@ public class WeaponItem extends EquipmentItem{
 
         public boolean isRanged() {
                 return ranged;
+        }
+
+        public FxId getProjectileFx() {
+                return projectileFx;
+        }
+
+        public void setProjectileFx(FxId projectileFx) {
+                this.projectileFx = projectileFx;
         }
 
         @Override

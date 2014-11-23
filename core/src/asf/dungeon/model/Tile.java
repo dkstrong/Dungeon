@@ -7,9 +7,8 @@ import asf.dungeon.model.item.KeyItem;
  * Created by danny on 10/26/14.
  */
 public class Tile {
-        // TODO: should these be transients?
-        private static final Tile floorTile = new Tile(false, false);
-        private static final Tile wallTile = new Tile(true, true);
+        private static transient final Tile floorTile = new Tile(false, false);
+        private static transient final Tile wallTile = new Tile(true, true);
 
         private int movementCost;
         private boolean blockMovement;

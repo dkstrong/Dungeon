@@ -1,5 +1,6 @@
 package asf.dungeon.model.item;
 
+import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 
 /**
@@ -10,8 +11,17 @@ public class ArmorItem extends EquipmentItem{
         private int armor;
 
         public ArmorItem(ModelId modelId, String name, int armor) {
-                super(modelId, name, "Some armor", "Unidentified Armor", "Mysterious armor, who knows what it will do once equipped?");
+                super(modelId, name, "Some armor");
                 this.armor = armor;
+        }
+        @Override
+        public String getVagueName() {
+                return M.Unidentified+" "+M.Armor;
+        }
+
+        @Override
+        public String getVagueDescription() {
+                return M.UnidentifiedArmorDesc;
         }
 
         public int getArmorRating() {

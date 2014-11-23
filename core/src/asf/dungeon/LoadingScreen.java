@@ -25,6 +25,7 @@ public class LoadingScreen implements Screen {
 
 
         private Label loadingLabel;
+        private String loadingText;
 
         @Override
         public void show() {
@@ -38,7 +39,9 @@ public class LoadingScreen implements Screen {
                 stage.addActor(table);
                 table.setFillParent(true);
 
-                loadingLabel = new Label("Loading ...", skin);
+                loadingText = app.i18n.get("loading");
+
+                loadingLabel = new Label(loadingText+" ...", skin);
                 loadingLabel.setFontScale(3);
                 table.add(loadingLabel).minSize(300,100).align(Align.left);
 
@@ -64,13 +67,13 @@ public class LoadingScreen implements Screen {
                 loadingCount += delta;
                 float n = UtMath.scalarLimitsInterpolation(loadingCount, 0f, .75f, 0f, 4f);
                 if(n < 1){
-                        loadingLabel.setText("Loading .");
+                        loadingLabel.setText(loadingText+" .");
                 }else if(n <2){
-                        loadingLabel.setText("Loading ..");
+                        loadingLabel.setText(loadingText+" ..");
                 }else if(n<3){
-                        loadingLabel.setText("Loading ...");
+                        loadingLabel.setText(loadingText+" ...");
                 }else if(n<4){
-                        loadingLabel.setText("Loading ..");
+                        loadingLabel.setText(loadingText+" ..");
                 }else{
                         loadingCount = 0;
                 }

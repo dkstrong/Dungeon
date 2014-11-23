@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.reflect.ArrayReflection;
  */
 public class StatusEffects implements TokenComponent{
         private final Token token;
+        private static transient final Effect[] effectValues = Effect.values();
         private final Array<Float>[] statusEffects;
 
         //private final Map<Effect, Array<Float>> statusEffects = new EnumMap<Effect, Array<Float>>(Effect.class);
@@ -17,9 +18,9 @@ public class StatusEffects implements TokenComponent{
         public StatusEffects(Token token) {
                 this.token = token;
 
-                statusEffects = (Array<Float>[]) ArrayReflection.newInstance(Array.class, Effect.values.length);
+                statusEffects = (Array<Float>[]) ArrayReflection.newInstance(Array.class, effectValues.length);
 
-                for (Effect statusEffect : Effect.values) {
+                for (Effect statusEffect : effectValues) {
                         statusEffects[statusEffect.ordinal()] = new Array<Float>(false, 8, Float.class);
                 }
         }
@@ -31,7 +32,7 @@ public class StatusEffects implements TokenComponent{
 
         @Override
         public boolean update(float delta) {
-                for (Effect statusEffect : Effect.values) {
+                for (Effect statusEffect : effectValues) {
                         Array<Float> durations = statusEffects[statusEffect.ordinal()];
                         if(durations.size ==0){
                                 continue;
@@ -94,7 +95,7 @@ public class StatusEffects implements TokenComponent{
         }
 
         public void removeAllStatusEffects(){
-                for (Effect statusEffect : Effect.values) {
+                for (Effect statusEffect : effectValues) {
                         removeStatusEffect(statusEffect);
                 }
         }
@@ -112,9 +113,6 @@ public class StatusEffects implements TokenComponent{
                 return duration;
         }
 
-        /**
-        * Created by Danny on 11/13/2014.
-        */
         public static enum Effect {
 
                 Heal(){
@@ -157,8 +155,6 @@ public class StatusEffects implements TokenComponent{
                 protected void end(Token token){
 
                 }
-
-                public static final Effect[] values = Effect.values();
 
         }
 }

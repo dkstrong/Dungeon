@@ -4,10 +4,10 @@ import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.ConsumableItem;
-import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.QuickItem;
+import asf.dungeon.model.item.RingItem;
 import asf.dungeon.model.item.StackableItem;
 import asf.dungeon.model.item.WeaponItem;
 import com.badlogic.gdx.utils.Array;
@@ -40,7 +40,7 @@ public interface Inventory extends TokenComponent {
                 private final Array<Item> items;
                 private WeaponItem weaponSlot;
                 private ArmorItem armorSlot;
-                private EquipmentItem ringSlot;
+                private RingItem ringSlot;
                 private QuickItem quickSlot;
                 private float timeSinceComabt = Float.MAX_VALUE;
 
@@ -84,7 +84,7 @@ public interface Inventory extends TokenComponent {
                         return armorSlot;
                 }
 
-                public EquipmentItem getRingSlot() {
+                public RingItem getRingSlot() {
                         return ringSlot;
                 }
 
@@ -100,19 +100,19 @@ public interface Inventory extends TokenComponent {
                         if (item == null || !canChangeEquipment())
                                 return false;
                         if (item instanceof WeaponItem) {
-                                if(weaponSlot != null && weaponSlot.isCursed()) return false;
+                                if (weaponSlot != null && weaponSlot.isCursed()) return false;
                                 weaponSlot = (WeaponItem) item;
                                 token.getExperience().recalcStats();
                         } else if (item instanceof ArmorItem) {
-                                if(armorSlot != null && armorSlot.isCursed()) return false;
+                                if (armorSlot != null && armorSlot.isCursed()) return false;
                                 armorSlot = (ArmorItem) item;
+                                token.getExperience().recalcStats();
+                        } else if (item instanceof RingItem) {
+                                if (ringSlot != null && ringSlot.isCursed()) return false;
+                                ringSlot = (RingItem) item;
                                 token.getExperience().recalcStats();
                         } else if (item instanceof QuickItem) {
                                 quickSlot = (QuickItem) item;
-                        } else if (item instanceof EquipmentItem) {
-                                if(ringSlot != null && ringSlot.isCursed()) return false;
-                                ringSlot = (EquipmentItem) item;
-                                token.getExperience().recalcStats();
                         }
 
                         if (token.listener != null)
@@ -122,18 +122,18 @@ public interface Inventory extends TokenComponent {
                 }
 
                 public boolean unequip(Item item) {
-                        if (item == null|| !canChangeEquipment())
+                        if (item == null || !canChangeEquipment())
                                 return false;
                         if (weaponSlot == item) {
-                                if(weaponSlot.isCursed()) return false;
+                                if (weaponSlot.isCursed()) return false;
                                 weaponSlot = null;
                                 token.getExperience().recalcStats();
                         } else if (armorSlot == item) {
-                                if(armorSlot.isCursed()) return false;
+                                if (armorSlot.isCursed()) return false;
                                 armorSlot = null;
                                 token.getExperience().recalcStats();
                         } else if (ringSlot == item) {
-                                if(ringSlot.isCursed()) return false;
+                                if (ringSlot.isCursed()) return false;
                                 ringSlot = null;
                                 token.getExperience().recalcStats();
                         } else if (quickSlot == item) {
@@ -160,11 +160,11 @@ public interface Inventory extends TokenComponent {
                         return items.size - subMax >= 16;
                 }
 
-                protected void resetCombatTimer(){
+                protected void resetCombatTimer() {
                         timeSinceComabt = 0;
                 }
 
-                public boolean canChangeEquipment(){
+                public boolean canChangeEquipment() {
                         return timeSinceComabt > 5f;
                 }
 
@@ -195,9 +195,9 @@ public interface Inventory extends TokenComponent {
                         if (token.getDamage().isDead()) {
                                 return false;
                         }
-                        if(isEquipped(item)){
+                        if (isEquipped(item)) {
                                 boolean valid = unequip(item); // TODO: if discarding an equipped item this will cause two calls in a row to onInventoryChanged(), the messy code to fix this would be messy so im just going to leave as is for now
-                                if(!valid) return false;
+                                if (!valid) return false;
                         }
 
                         boolean valid = items.removeValue(item, true);
@@ -213,7 +213,7 @@ public interface Inventory extends TokenComponent {
 
                 @Override
                 public boolean update(float delta) {
-                        timeSinceComabt+=delta;
+                        timeSinceComabt += delta;
                         if (token.getCommand() != null && token.getCommand().consumeItem != null) {
                                 ConsumableItem consumableItem = token.getCommand().consumeItem;
 

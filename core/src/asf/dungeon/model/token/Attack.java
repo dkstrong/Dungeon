@@ -17,7 +17,7 @@ public class Attack implements TokenComponent{
         private float attackCooldownDuration = 1; // how long since the last attack ended until a new attack can begin.
         private float projectileSpeed = 2;
 
-        private static final transient boolean rangedKeepDistance = true;             // if true the character will hold position while in range of targeted token and it is alive, if false character will persue and get close inbetween shots
+        private static transient final boolean rangedKeepDistance = true;             // if true the character will hold position while in range of targeted token and it is alive, if false character will persue and get close inbetween shots
 
         //state variables
 

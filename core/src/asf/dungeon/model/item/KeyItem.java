@@ -10,15 +10,7 @@ import asf.dungeon.model.token.Token;
  */
 public class KeyItem extends AbstractItem implements Item {
         public static enum Type{
-                Silver(ModelId.Key),
-                Gold(ModelId.Key2),
-                Red(ModelId.Key3);
-                // TODO: transient?
-                private final ModelId modelId;
-
-                Type(ModelId modelId) {
-                        this.modelId = modelId;
-                }
+                Silver, Gold, Red;
         }
 
         private final Type type;
@@ -29,7 +21,15 @@ public class KeyItem extends AbstractItem implements Item {
 
         @Override
         public ModelId getModelId() {
-                return type.modelId;
+                switch(type){
+                        case Silver:
+                                return ModelId.Key;
+                        case Gold:
+                                return ModelId.Key2;
+                        case Red:
+                                return ModelId.Key3;
+                }
+                throw new AssertionError(type);
         }
 
         @Override
