@@ -165,10 +165,15 @@ public interface Inventory extends TokenComponent {
                 }
 
                 public boolean canChangeEquipment() {
+                        if(token.getAttack() != null && (token.getAttack().isAttacking() || token.getAttack().hasProjectile())){
+                                return false;
+                        }
                         return timeSinceComabt > 5f;
                 }
 
                 public boolean add(Item item) {
+                        if(item == null)
+                                return false;
                         if (isFull())
                                 return false;
 

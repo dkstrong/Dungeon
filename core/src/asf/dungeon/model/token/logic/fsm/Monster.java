@@ -21,7 +21,7 @@ public enum Monster implements State {
                         if(fsm.sector != null){
                                 tokensInSector= token.getFloorMap().getTokensAt(fsm.sector);
                         }else{
-                                tokensInSector= token.getFloorMap().getTokensInExtent(token.getLocation(), 10); // TODO: use visibility radius
+                                tokensInSector= token.getFloorMap().getTokensInExtent(token.getLocation(), token.getDamage().getSightRadius());
                         }
 
                         for (Token t : tokensInSector) {

@@ -236,7 +236,12 @@ public class Dungeon {
                                 setCurrentFloor(token.getFloorMap().index);
 
                 }else{
-                        // TODO: if moving within the same floor, no point in needlessly removing and readding to the token list
+                        if(oldFloorMap == newFloorMap){
+                                // if moving within the same floor, no point in needlessly removing and readding to the token list
+                                token.teleport(oldFloorMap,x,y,direction);
+                                return;
+                        }
+
                         boolean valid = oldFloorMap.tokens.removeValue(token, true);
                         if(valid){
                                 token.teleport(newFloorMap ,x,y,direction);

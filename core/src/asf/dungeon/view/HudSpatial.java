@@ -428,7 +428,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 String text = thoughtsMessageQueue.get(0);
                                 characterActionInfoLabel.setText(text);
                                 world.stage.addActor(characterActionInfoLabel);
-                                thoughtMessageDisplayCountdown = UtMath.scalarLimitsInterpolation(text.length(),30,80,5,8);
+                                thoughtMessageDisplayCountdown = UtMath.scalarLimitsInterpolation(text.length(),30f,80f,5f,8f);
                         }else{
                                 thoughtMessageDisplayCountdown -= delta;
                                 if (thoughtMessageDisplayCountdown < 0) {
@@ -439,7 +439,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         }else{
                                                 String text = thoughtsMessageQueue.get(0);
                                                 characterActionInfoLabel.setText(text);
-                                                thoughtMessageDisplayCountdown = UtMath.scalarLimitsInterpolation(text.length(),30,80,5,8);
+                                                thoughtMessageDisplayCountdown = UtMath.scalarLimitsInterpolation(text.length(),30f,80f,5f,8f);
                                         }
                                 }
                         }

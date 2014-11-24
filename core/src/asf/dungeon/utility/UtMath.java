@@ -260,14 +260,9 @@ public class UtMath {
                 return UtMath.scalarOfPercent(percent, newMin, newMax);
         }
 
-        public static int scalarLimitsInterpolation(float input, float oldMin, float oldMax, int newMin, int newMax) {
-                float percent = UtMath.percentOfScalar(UtMath.clamp(input, oldMin, oldMax), oldMin, oldMax);
-                return UtMath.scalarOfPercent(percent, newMin, newMax);
-        }
-
         public static int scalarLimitsInterpolation(int input, int oldMin, int oldMax, int newMin, int newMax) {
-                float percent = UtMath.percentOfScalar(UtMath.clamp(input, oldMin, oldMax), oldMin, oldMax);
-                return UtMath.scalarOfPercent(percent, newMin, newMax);
+                float floatVal = scalarLimitsInterpolation((float)input, oldMin, oldMax, newMin, newMax);
+                return Math.round(floatVal);
         }
 
         public static float scalarLimitsExtrapolation(float input, float oldMin, float oldMax, float newMin, float newMax) {
@@ -275,14 +270,9 @@ public class UtMath {
                 return UtMath.scalarOfPercent(percent, newMin, newMax);
         }
 
-        public static int scalarLimitsExtrapolation(float input, float oldMin, float oldMax, int newMin, int newMax) {
-                float percent = UtMath.percentOfScalar(input, oldMin, oldMax);
-                return UtMath.scalarOfPercent(percent, newMin, newMax);
-        }
-
         public static int scalarLimitsExtrapolation(int input, int oldMin, int oldMax, int newMin, int newMax) {
-                float percent = UtMath.percentOfScalar(input, oldMin, oldMax);
-                return UtMath.scalarOfPercent(percent, newMin, newMax);
+                float floatVal = scalarLimitsExtrapolation((float)input, oldMin, oldMax, newMin, newMax);
+                return Math.round(floatVal);
         }
 
         /**
@@ -311,6 +301,13 @@ public class UtMath {
                 return (newMin + (input * (newMax - newMin)));
         }
 
+        /**
+         * im not sure how i came up with this contraption, it seems to be broken though
+         * @param input
+         * @param newMin
+         * @param newMax
+         * @return
+         */
         public static int scalarOfPercent(float input, int newMin, int newMax) {
                 return (int) (Math.round((newMin + (UtMath.abs(input) * (newMax - newMin)))) * UtMath.sign(input));
         }

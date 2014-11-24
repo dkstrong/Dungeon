@@ -81,16 +81,18 @@ public class Token  {
                 }
         }
 
+        public boolean isValidTeleportLocation(FloorMap fm, int x, int y){
+                Tile tile = fm.getTile(x,y);
+                if(tile == null || tile.isDoor() || tile.isWall()){
+                        return false;
+                }
+                return true;
+        }
+
         public boolean teleport(FloorMap fm, int x, int y, Direction dir){
 
-                // TODO: in dungeon.moveToken() checking for a valid teleport should be included
-                // to ensure tokens arent teleported to an invalid location
-                // additionally i might want create Token.IsValidTeleprotLocation() or something..
-
-                Tile tile = fm.tiles[x][y];
-                // TODO: also check for walls and null and stuff?
-                if(tile.isDoor()){
-                        return false;
+                if(!isValidTeleportLocation(fm,x,y)){
+                     throw new AssertionError("not a valid teleport location, need to include a check for this earlier in the code");
                 }
 
                 floorMap = fm;

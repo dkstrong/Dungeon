@@ -9,8 +9,10 @@ import asf.dungeon.model.item.Item;
  */
 public class Damage implements TokenComponent{
         private final Token token;
+        private int sightRadius = 6;
         private int health = 10;
         private int maxHealth = 10;
+
         private float deathDuration = 3; // how long since being killed (health ==0) until in the state of being fully dead. once fully dead this token can no longer block the path even if blocksPathing = true;
 
         private boolean attackable = true; // if this token can currently be attackd (eg, not invincible)
@@ -209,4 +211,11 @@ public class Damage implements TokenComponent{
                 this.deathRemovalCountdown = deathRemovalCountdown;
         }
 
+        public int getSightRadius() {
+                return sightRadius;
+        }
+
+        protected void setSightRadius(int sightRadius) {
+                this.sightRadius = sightRadius;
+        }
 }

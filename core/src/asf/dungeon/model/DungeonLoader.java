@@ -223,6 +223,7 @@ public class DungeonLoader {
                 kryo.setRegistrationRequired(true);
 
                 kryo.register(com.badlogic.gdx.utils.IdentityMap.class);
+                kryo.register(com.badlogic.gdx.utils.SnapshotArray.class);
                 kryo.register(Array.class);
                 kryo.register(com.badlogic.gdx.utils.Array[].class);
                 kryo.register(Array.ArrayIterable.class);

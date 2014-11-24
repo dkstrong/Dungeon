@@ -167,6 +167,13 @@ public class Attack implements TokenComponent{
                 //  if ranged attack then launches projectile
                 // if melee attack then sends damage
 
+                // TODO: check to make sure target token is in range for both ranged and melee attacks
+                // this needs to include also checking the floormap teleporting in the middle of being
+                // attacked can get you away safely if done before the attack damage is sent.
+
+                // for ranged attacks i may need to do this again for sendDamageToAttackTarget since
+                // there is that small delay
+
                 if(rangedAttack){
                         if(inAttackRangeOfCommandTarget){ // target is still in range, were going to hit him
                                 projectileAttackCoord.set(meleeAttackTarget.getLocation());
@@ -322,8 +329,8 @@ public class Attack implements TokenComponent{
          *
          * TODO: i may want the "being hit" duration to be its own stat.
          *
-         * TODO:
-         * changing this value in the middle of an attack animaiton might cause
+         *
+         * TODO: changing this value in the middle of an attack animaiton might cause
          * the player being able to move before animation is over and other weirdnesses.
          * will need to expirement
          *
@@ -347,11 +354,8 @@ public class Attack implements TokenComponent{
 
         /**
          * the time from finishing one attack animation until the next one can begin
-         * for ranged attacks the timer starts at time of releasing the projectile
          *
-         * however you can not send another projectile until the current one has landed
-         *
-         * // TODO: need derrived stat to control how fast projectiles move
+         * for ranged attacks the cooldown timer starts after the projectile has hit something
          *
          * @param attackCooldownDuration
          */

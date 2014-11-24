@@ -118,7 +118,7 @@ public class Move implements TokenComponent{
                                         // path is blocked, will attempt to attack what is blocking the path
                                         // if can not attack (due to colldown or some other reason) then the token will just kind of chill
                                         moveU = 1;
-                                        // TODO: may need to reimplement isInteracting()
+
                                         //if (!token.isInteracting()) {
                                                 Direction newDirection = Direction.getDirection(location, nextLocation);
                                                 if (newDirection != null)
@@ -252,10 +252,13 @@ public class Move implements TokenComponent{
                 for (Token t : tokensAt) {
                         Loot loot = t.get(Loot.class);
                         if(loot != null){
-                                boolean valid = token.getInventory().add(loot.getItem());
-                                if(valid)
-                                        loot.becomeRemoved();
-                                // TODO: show message saying inventory is full
+                                if(!loot.isRemoved()){
+                                        boolean valid = token.getInventory().add(loot.getItem());
+                                        if(valid)
+                                                loot.becomeRemoved();
+                                        //else
+                                        // TODO: show message saying inventory is full
+                                }
                         }
                 }
         }

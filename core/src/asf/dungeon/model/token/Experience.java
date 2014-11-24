@@ -119,6 +119,8 @@ public class Experience implements TokenComponent{
                 intelligenceMod = (weapon == null ? 0 : weapon.getIntelligenceMod()) + (armor == null ? 0 : armor.getIntelligenceMod())+ (ring == null ? 0 : ring.getIntelligenceMod());
                 luckMod = (weapon == null ? 0 : weapon.getLuckMod()) + (armor == null ? 0 : armor.getLuckMod())+ (ring == null ? 0 : ring.getLuckMod());
 
+                // TODO: here is also where i need to look at StatusEffects and apply the effects of any status effect
+
                 int vitality = getVitality();
                 int strength = getStrength();
                 int agility = getAgility();
@@ -129,7 +131,7 @@ public class Experience implements TokenComponent{
                 token.getDamage().setMaxHealth(vitality);
 
                 // strength
-                token.getAttack().setAttackRange(UtMath.scalarLimitsInterpolation(strength,1,100,2,6)); // default was 3
+                token.getAttack().setAttackRange(Math.round(UtMath.scalarLimitsInterpolation(strength,1f,100f,2f,6f))); // default was 3
 
                 // agility
                 if(agility < 10) token.getMove().setMoveSpeed(1.5f);
@@ -137,11 +139,16 @@ public class Experience implements TokenComponent{
                 else if(agility < 20) token.getMove().setMoveSpeed(1.7f);
                 else token.getMove().setMoveSpeed(UtMath.scalarLimitsInterpolation(agility,20f,100f,1.7f,3f));
 
+                // TODO: setting the attack duration here might somehow be related to the going idle while attacking, should check to see if somehow
+                // stats are geting recalced in the middle of comabt
                 token.getAttack().setAttackDuration(UtMath.scalarLimitsInterpolation(agility,1f,100f,2.25f,1.5f)); // default was 2
                 token.getAttack().setAttackCooldownDuration(UtMath.scalarLimitsInterpolation(agility,1f,100f,1.5f,.75f)); // default was 1
                 token.getAttack().setProjectileSpeed(UtMath.scalarLimitsInterpolation(agility,1f,100f,1.5f,5f)); // default was 2
 
                 // intelligence
+
+                token.getDamage().setSightRadius(Math.round(UtMath.scalarLimitsInterpolation(intelligence, 1f, 40f, 4f, 10f))); // default is 6
+                //Gdx.app.log(token.getName(),"int: "+intelligence+" sight: "+token.getDamage().getSightRadius()+"");
 
                 // luck
         }

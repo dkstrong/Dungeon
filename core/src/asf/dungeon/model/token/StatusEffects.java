@@ -47,6 +47,7 @@ public class StatusEffects implements TokenComponent{
 
                                 if(durations.size ==0){
                                         statusEffect.end(token);
+                                        token.getExperience().recalcStats();
                                         if(token.listener != null)
                                                 token.listener.onStatusEffectChange(statusEffect, 0);
                                 }
@@ -77,6 +78,7 @@ public class StatusEffects implements TokenComponent{
                 }
 
                 statusEffect.begin(token);
+                token.getExperience().recalcStats();
                 if(token.listener != null)
                         token.listener.onStatusEffectChange(statusEffect, duration);
         }
@@ -85,6 +87,7 @@ public class StatusEffects implements TokenComponent{
                 Array<Float> durations = statusEffects[statusEffect.ordinal()];
                 durations.clear();
                 statusEffect.end(token);
+                token.getExperience().recalcStats();
                 if(token.listener != null)
                         token.listener.onStatusEffectChange(statusEffect, 0);
         }

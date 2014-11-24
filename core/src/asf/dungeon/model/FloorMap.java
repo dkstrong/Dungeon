@@ -3,6 +3,7 @@ package asf.dungeon.model;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.SnapshotArray;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class FloorMap  {
         public final Tile[][] tiles;
         private final Pathfinder pathfinder;
         private final MonsterSpawner monsterSpawner;
-        protected Array<Token> tokens = new Array<Token>(true, 16, Token.class);
+        protected SnapshotArray <Token> tokens = new SnapshotArray<Token>(true, 16, Token.class);
 
         public FloorMap(int index, Tile[][] tiles) {
                 this(index, tiles, null);
@@ -30,74 +31,37 @@ public class FloorMap  {
                 this.monsterSpawner = monsterSpawner;
         }
 
+        //private transient HashSet<String> snapShotRefs = new HashSet<String>();
+
         protected void update(Dungeon dungeon, float delta){
-                // TODO: if teleporting, i think it could cause the token list to shift, and a token would miss an update.
-                // I need to find a way to make sure all tokens are still updated
-                // This same sort of issue would also happen when removing a token in general
-                // TODO: snapsshot array maybe?  http://libgdx.badlogicgames.com/nightlies/docs/api/com/badlogic/gdx/utils/SnapshotArray.html
-                // Or maybe somehow enque the tokens to be removed?
-                // or something with an iterator?
 
                 if(monsterSpawner != null) monsterSpawner.spawnMonsters(dungeon, this);
 
-                for (int i = 0; i < tokens.size; i++) {
-                        tokens.items[i].incremenetU(delta);
+                Token[] tokensSnapshot = tokens.begin();
+                //snapShotRefs.add(String.valueOf(tokensSnapshot));
+                //System.out.println(snapShotRefs.size());
+
+                for (int i = 0, n = tokens.size; i < n; i++) {
+                        tokensSnapshot[i].incremenetU(delta);
                 }
+                tokens.end();
+                // i used to iterate the array like this, using the snapshot is smarter i belive
+                // as it will prevent oditiies with teleporting between floormaps or removing loot etc
+                // will need to test it some
+
+                //for (int i = 0; i < tokens.size; i++) {
+                //        tokens.items[i].incremenetU(delta);
+                //}
         }
 
 
 
-        public Pair getNextClosestLegalLocation(Pair start, Pair goal, Pair store){
-                // check each adjacent tile and pick the closest tile to the start location that is not blocking movement.
-                // if there are no legal adjcant tiles then return null
-                // returning null means no legal pathing can be made so dont try to do pathfinding
-                Tile goalTile;
-                int xRange = start.x - goal.x;
-                int yRange = start.y - goal.y;
-                if(Math.abs(xRange) > Math.abs(yRange)){
-                        int xSign = UtMath.sign(xRange);
-                        goalTile = getTile(goal.x+xSign, goal.y);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x + xSign, goal.y);
-                        int ySign = UtMath.sign(yRange);
-                        goalTile = getTile(goal.x, goal.y+ySign);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y+ySign);
-                        goalTile = getTile(goal.x, goal.y-ySign);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y-ySign);
-                        goalTile = getTile(goal.x-xSign, goal.y);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x-xSign, goal.y);
-                }else{
-                        int ySign = UtMath.sign(yRange);
-                        goalTile = getTile(goal.x, goal.y+ySign);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y+ySign);
-                        int xSign = UtMath.sign(xRange);
-                        goalTile = getTile(goal.x+xSign, goal.y);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x+xSign, goal.y);
-                        goalTile = getTile(goal.x-xSign, goal.y);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x-xSign, goal.y);
-                        goalTile = getTile(goal.x, goal.y-ySign);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y-ySign);
-                }
-                return null;
-        }
-
-        public Pair getClosestLegalLocation(Pair start, Pair goal){
-                // TODO: slightly wasteful creation of new Pair
-                Tile goalTile = getTile(goal);
-                if(goalTile != null && !goalTile.isBlockMovement()) return goal;
 
 
-                return getNextClosestLegalLocation(start, goal, new Pair());
-        }
 
         public boolean computePath(Pair start, Pair goal, Array<Pair> store) {
 
-                //Pair pathingGoal = getClosestLegalLocation(start, goal);
-                Pair pathingGoal = goal; // changed pathfinder to include reference to FloorMap, so it can handle pathing to locked doors on its own now
-
-                if(pathingGoal == null)
-                        return false;
-
-                List<Pair> path = pathfinder.generate(start, pathingGoal);
+                List<Pair> path = pathfinder.generate(start, goal);
 
                 if(path == null)
                         return false;
@@ -106,9 +70,6 @@ public class FloorMap  {
                 for (Pair pair : path) {
                         store.add(pair);
                 }
-
-                if(goal != pathingGoal)
-                        store.add(goal); // an alternate pathing goal was used, re-add the real goal to the pathfinding list
 
                 return true;
         }
@@ -289,27 +250,6 @@ public class FloorMap  {
         }
 
         /**
-         * list of tokens in the supplied direction within the supplied range.
-         *
-         * target tokens must be within +- 89 degrees of the supplied direction
-         *
-         * if a range of 1 is supplied, then will return melee range
-         *
-         * note that the Array that is returned shouldnt be stored as it will be reused next time this method is called
-         *
-         * @param loc
-         * @param dir
-         * @param range
-         * @return
-         */
-        public Array<Token> getTokensAt(Pair loc, Direction dir, int range){
-                tokensAt.clear();
-                for (Token token : tokens) {
-                        // TODO: need to actually code this
-                }
-                return tokensAt;
-        }
-        /**
          * returns true if this location is blocking tile (eg a wall) or if there is a blocking token on it (eg a character)
          *
          * @param loc
@@ -348,6 +288,42 @@ public class FloorMap  {
                 }
                 return tile == null || tile.isBlockVision();
 
+        }
+
+        /**
+         * check each adjacent tile and pick the closest tile to the start location that is not blocking movement.
+         * if there are no legal adjacent tiles then the store will be set to the value of goal
+         * return store if found a legal neighbor, null if no legal neighbor found
+         */
+        public Pair getNextClosestLegalLocation(Pair start, Pair goal, Pair store){
+                Tile goalTile;
+                int xRange = start.x - goal.x;
+                int yRange = start.y - goal.y;
+                if(Math.abs(xRange) > Math.abs(yRange)){
+                        int xSign = UtMath.sign(xRange);
+                        goalTile = getTile(goal.x+xSign, goal.y);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x + xSign, goal.y);
+                        int ySign = UtMath.sign(yRange);
+                        goalTile = getTile(goal.x, goal.y+ySign);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y+ySign);
+                        goalTile = getTile(goal.x, goal.y-ySign);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y-ySign);
+                        goalTile = getTile(goal.x-xSign, goal.y);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x-xSign, goal.y);
+                }else{
+                        int ySign = UtMath.sign(yRange);
+                        goalTile = getTile(goal.x, goal.y+ySign);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y+ySign);
+                        int xSign = UtMath.sign(xRange);
+                        goalTile = getTile(goal.x+xSign, goal.y);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x+xSign, goal.y);
+                        goalTile = getTile(goal.x-xSign, goal.y);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x-xSign, goal.y);
+                        goalTile = getTile(goal.x, goal.y-ySign);
+                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y-ySign);
+                }
+                store.set(goal);
+                return null;
         }
 
 

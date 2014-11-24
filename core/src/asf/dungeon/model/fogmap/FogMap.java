@@ -5,21 +5,21 @@ import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
 
-import java.io.Serializable;
-
 /**
  * adapted from SensorArea in Monkey Trap by Paul Speed
  */
-public class FogMap implements Serializable{
+public class FogMap {
         private FloorMap floorMap;
         private Token token;
         private FogState[][] fog;
         //
-        private int xCenter;
-        private int yCenter;
-        private int radius;
-        private byte[][] stepResult;
-        private Array<Step> pending = new Array<Step>(64);
+        private static transient int xCenter;
+        private static transient int yCenter;
+        private transient int radius; // not statis for effecient resue of stepResult
+        private transient byte[][] stepResult; // not statis for effecient resue of stepResult
+        private static final transient Array<Step> pending = new Array<Step>(true, 64, Step.class);
+        // TODO: could make tstatic final transient pool for Step, though the pool overhead might not be worth it
+
 
         public FogMap(FloorMap floorMap, Token token) {
                 this.floorMap = floorMap;
@@ -63,9 +63,9 @@ public class FogMap implements Serializable{
                 }
                 xCenter = token.getLocation().x;
                 yCenter = token.getLocation().y;
-                radius = 6; // TODO: get vision radius fom the token.
 
-                if (stepResult == null) {
+                if (stepResult == null || radius != token.getDamage().getSightRadius()) {
+                        radius = token.getDamage().getSightRadius();
                         int size = radius * 2 + 1;
                         stepResult = new byte[size][size];
                 } else {

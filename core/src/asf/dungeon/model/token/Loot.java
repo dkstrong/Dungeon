@@ -10,7 +10,6 @@ import asf.dungeon.model.item.Item;
 public class Loot implements TokenComponent{
         private final Token token;
         private boolean removed = false;
-
         private Item item;
 
         public Loot(Token token, Item item) {
@@ -21,19 +20,21 @@ public class Loot implements TokenComponent{
 
         @Override
         public void teleport(FloorMap fm, int x, int y, Direction direction) {
-
         }
 
         @Override
         public boolean update(float delta) {
-                if(removed )
-                        token.dungeon.removeToken(token);
                 return false;
         }
 
         protected void becomeRemoved(){
+                token.dungeon.removeToken(token);
                 removed = true;
                 item = null;
+        }
+
+        public boolean isRemoved(){
+                return removed;
         }
 
         public Item getItem(){
