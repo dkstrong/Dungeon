@@ -9,8 +9,8 @@ import asf.dungeon.model.item.Item;
  */
 public class Damage implements TokenComponent{
         private final Token token;
-        private int health;
-        private int maxHealth;
+        private int health = 10;
+        private int maxHealth = 10;
         private float deathDuration = 3; // how long since being killed (health ==0) until in the state of being fully dead. once fully dead this token can no longer block the path even if blocksPathing = true;
 
         private boolean attackable = true; // if this token can currently be attackd (eg, not invincible)
@@ -22,11 +22,9 @@ public class Damage implements TokenComponent{
         private float deathCountdown = 0;                         // the time that must pass before this token is "fully dead", invalid if health>0
         private float deathRemovalCountdown = 10;           // the time after being fully dead to remove this token from the Dungeon. Use Float.NaN to never remove it. The main purpose of this is for performance
 
-        public Damage(Token token, int initialHealth) {
+        public Damage(Token token) {
                 this.token = token;
                 token.setBlocksPathing(true);
-                this.health = initialHealth;
-                this.maxHealth = initialHealth;
         }
 
         @Override
@@ -53,7 +51,6 @@ public class Damage implements TokenComponent{
                                 hitU = 0;
                                 hitSource = null;
                         }
-                        return true;
                 }
                 return false;
         }
@@ -90,7 +87,11 @@ public class Damage implements TokenComponent{
 
         }
 
-        protected void setMaxHealth(int value){
+        /**
+         * normally only called by Experience, but it could be called at time of creation ot set the max health
+         * @param value
+         */
+        public void setMaxHealth(int value){
                 if(value <=0) throw new IllegalArgumentException("max health must be greater than 0");
                 // ensure that if health =0  that it stays zero.
                 if(health == 0){

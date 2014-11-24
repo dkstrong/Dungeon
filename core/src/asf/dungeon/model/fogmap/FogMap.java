@@ -1,6 +1,7 @@
 package asf.dungeon.model.fogmap;
 
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
 
@@ -111,6 +112,43 @@ public class FogMap implements Serializable{
                 return stepResult[xLocal][yLocal] == 1;
         }
 
+        private void setVisibleAdjacent(int xLocal, int yLocal, int xWorld, int yWorld){
+
+                // TODO: need to do something similiar for wall tiles in the corner of rooms
+
+                // if this is a door tile, set the adjcant wall tiles to visible
+                if(!floorMap.getTile(xWorld, yWorld).isDoor()){
+                    return;
+                }
+
+                if(xLocal -1 >=0){
+                        Tile west = floorMap.getTile(xWorld-1, yWorld);
+                        if(west != null && west.isWall())
+                                stepResult[xLocal -1][yLocal] = 1;
+                }
+
+                if(xLocal +1 < stepResult.length){
+                        Tile east = floorMap.getTile(xWorld+1, yWorld);
+                        if(east != null && east.isWall())
+                                stepResult[xLocal +1][yLocal] = 1;
+                }
+
+                if(yLocal -1 >= 0){
+                        Tile south = floorMap.getTile(xWorld, yWorld-1);
+                        if(south != null && south.isWall())
+                                stepResult[xLocal][yLocal-1] = 1;
+                }
+
+
+
+                if(yLocal +1 < stepResult[0].length){
+                        Tile north = floorMap.getTile(xWorld, yWorld+1);
+                        if(north != null && north.isWall())
+                                stepResult[xLocal][yLocal+1] = 1;
+                }
+
+        }
+
         private void calcStep(int stepX, int stepY, int stepDepth) {
                 int xDelta = stepX - xCenter;
                 int yDelta = stepY - yCenter;
@@ -129,6 +167,7 @@ public class FogMap implements Serializable{
 
                 if(floorMap.isLocationVisionBlocked(xCenter,yCenter, stepX, stepY)){
                         stepResult[xLocal][yLocal]= 1;
+                        setVisibleAdjacent(xLocal, yLocal, stepX, stepY);
                         return; // this tile blocks sight, we reveal it so the wall can be seen, and then stop branching
                 } else if (stepDepth <= 2) {
                         stepResult[xLocal][yLocal]= 1;  // Tile is so close it must be visible

@@ -251,10 +251,14 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
                         rotDir.sub(translation);
                         UtMath.normalize(rotDir);
+
                         if(rotDir.z != -1){
                                 tempTargetRot.setFromCross(Vector3.Z, rotDir);
                         }else{
-                                tempTargetRot.set(Direction.North.quaternion);
+                                // TODO: this hackaround helps prevent some instances of where the
+                                // rotation "loops over" and cases looking south when should really be north
+                                // however it still happens in some instances
+                                tempTargetRot.set(world.getAssetMappings().getRotation(Direction.North));
                         }
 
 
@@ -262,11 +266,14 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         rotation.slerp(tempTargetRot, rotSpeed);
                 } else if(token.getAttack() != null && token.getAttack().hasProjectile()){
                         float rotSpeed = delta * (UtMath.largest(token.getMove().getMoveSpeed(), 7) + 0.5f)*.05f;
-                        rotation.slerp(token.getDirection().quaternion, rotSpeed);
+
+                        Quaternion tokenDirRot = world.getAssetMappings().getRotation(token.getDirection());
+                        rotation.slerp(tokenDirRot, rotSpeed);
                 } else{
                         float rotMoveSpeed = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7f);
                         float rotSpeed = delta * (rotMoveSpeed + 0.5f);
-                        rotation.slerp(token.getDirection().quaternion, rotSpeed);
+                        Quaternion tokenDirRot = world.getAssetMappings().getRotation(token.getDirection());
+                        rotation.slerp(tokenDirRot, rotSpeed);
                 }
         }
 

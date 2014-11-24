@@ -24,10 +24,9 @@ public class FloorMap  {
                 //UtFloorGen.printFloorTile(tiles);
                 this.index = index;
                 this.tiles = tiles;
-                pathfinder = new Pathfinder(tiles);
+                pathfinder = new Pathfinder(this);
                 pathfinder.pathingPolicy = Pathfinder.PathingPolicy.Manhattan;
                 pathfinder.avoidZigZagging = false;
-                //pathfinder.dynamicMovementCostProvider = this;
                 this.monsterSpawner = monsterSpawner;
         }
 
@@ -92,7 +91,8 @@ public class FloorMap  {
 
         public boolean computePath(Pair start, Pair goal, Array<Pair> store) {
 
-                Pair pathingGoal = getClosestLegalLocation(start, goal);
+                //Pair pathingGoal = getClosestLegalLocation(start, goal);
+                Pair pathingGoal = goal; // changed pathfinder to include reference to FloorMap, so it can handle pathing to locked doors on its own now
 
                 if(pathingGoal == null)
                         return false;
@@ -137,22 +137,6 @@ public class FloorMap  {
                 return tiles[loc.x][loc.y];
         }
         public Tile getTile(int x, int y){
-                if(x >= getWidth() || x <0 || y >= getHeight() || y<0){
-                        return null;
-                }
-                return tiles[x][y];
-        }
-
-        public Tile getTile(int x, int y, Direction dir){
-                if(dir == Direction.North){
-                        y++;
-                }else if(dir == Direction.South){
-                        y--;
-                }else if(dir==Direction.East){
-                        x++;
-                }else if(dir ==Direction.West){
-                        x--;
-                }
                 if(x >= getWidth() || x <0 || y >= getHeight() || y<0){
                         return null;
                 }
@@ -279,7 +263,19 @@ public class FloorMap  {
                         x = loc.x + 1;
                 } else if (lookDir == Direction.West) {
                         x = loc.x - 1;
-                } else {
+                } else if(lookDir == Direction.NorthEast){
+                        y = loc.y+1;
+                        x = loc.x+1;
+                } else if(lookDir == Direction.NorthWest){
+                        y = loc.y+1;
+                        x = loc.x-1;
+                } else if(lookDir == Direction.SouthEast){
+                        y = loc.y-1;
+                        x = loc.x+1;
+                } else if(lookDir == Direction.SouthWest){
+                        y = loc.y-1;
+                        x = loc.x-1;
+                } else{
                         throw new AssertionError(lookDir);
                 }
 
@@ -354,56 +350,6 @@ public class FloorMap  {
 
         }
 
-        /**
-         * takes the provided location and moves 1 tile in the direction of dir, then stores that location in store
-         * if the resulting location is outside of the map's boundaries then the values (-1,-1) will be stored.
-         *
-         * @param loc
-         * @param dir
-         * @param store the resulting location
-         */
-        public void getLocationInDirection(Pair loc, Direction dir, Pair store) {
-                switch (dir) {
-                        case North:
-                                store.y = loc.y + 1;
-                                if (store.y < getHeight()) {
-                                        store.x = loc.x;
-                                } else {
-                                        store.y = -1;
-                                        store.x = -1;
-                                }
-                                break;
-                        case South:
-                                store.y = loc.y - 1;
-                                if (store.y >= 0) {
-                                        store.x = loc.x;
-                                } else {
-                                        store.y = -1;
-                                        store.x = -1;
-                                }
-                                break;
-                        case East:
-                                store.x = loc.x + 1;
-                                if (store.x < getWidth()) {
-                                        store.y = loc.y;
-                                } else {
-                                        store.x = -1;
-                                        store.y = -1;
-                                }
-                                break;
-                        case West:
-                                store.x = loc.x - 1;
-                                if (store.x >= 0) {
-                                        store.y = loc.y;
-                                } else {
-                                        store.x = -1;
-                                        store.y = -1;
-                                }
-                                break;
-                        default:
-                                throw new AssertionError(dir);
-                }
-        }
 
         public interface MonsterSpawner{
                 public void spawnMonsters(Dungeon dungeon, FloorMap floorMap);

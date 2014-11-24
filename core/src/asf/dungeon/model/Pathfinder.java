@@ -5,6 +5,7 @@ Self-explanatory. Comes with 2 methods you can use, one for integer positions an
 */
 
 
+import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
@@ -48,11 +49,13 @@ public class Pathfinder {
         private final int[][] hScore; // cost form current to goal
         private final int[][] fScore;
         private final Pair[][] cameFrom;
-        public final Tile[][] map;
+        private final FloorMap floorMap;
+        private final Tile[][] map;
 
 
-        public Pathfinder(Tile[][] map) {
-                this.map = map;
+        public Pathfinder(FloorMap floorMap) {
+                this.floorMap = floorMap;
+                this.map = this.floorMap.tiles;
                 gScore = new int[map.length][map[0].length];
                 fScore = new int[map.length][map[0].length];
                 hScore = new int[map.length][map[0].length];
@@ -157,6 +160,8 @@ public class Pathfinder {
         }
 
         private boolean isWalkable(int x, int y){
+                if(x == end.x && y == end.y) // target location is always walkable, this allows walking in to locked doors to unlock them
+                        return true;
                 if(x <0 || x >= map.length || y<0 || y >= map[0].length){
                         return false;
                 }
@@ -206,8 +211,16 @@ public class Pathfinder {
 
                 int movementCost = map[n1.x][n1.y].getMovementCost();
                 if(closedNodes.size < 5){
-                        // TODO: increase movement cost if n1 has blocking tokens on it
-                        // i might want to do something like +1 if character blocking path, +3 if crate blocking path
+                        // only check tokens if closedNodes < 5. far away tokens are likely to be changed by the time you get there so its not so important to check for them
+                        Array<Token> tokensAt = floorMap.getTokensAt(n1);
+                        for (Token t : tokensAt) {
+                                if(t.isBlocksPathing()){
+                                        if(t.getMove() == null)
+                                                movementCost += 30; // crate, should avoid
+                                        else
+                                                movementCost+=20; // monster, not as important to avoid
+                                }
+                        }
                 }
                 return distance + movementCost;
         }

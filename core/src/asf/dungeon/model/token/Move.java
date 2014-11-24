@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Array;
 public class Move implements TokenComponent{
         private final Token token;
         private float moveSpeed = 1.5f; // how fast the character moves between tiles, generally a value between 1 and 10, could be higher i suppose.
+        private float moveSpeedDiagonal = 1.06066017177f;
         private boolean picksUpItems = true; // if this character will pick up items when standing on tiles with items
         private final Array<Pair> path = new Array<Pair>(true, 32, Pair.class);   // the current path that this token is trying to follow, it may be regularly refreshed with new paths
         private final Pair pathedTarget = new Pair();           // the last element of path. this is compared against continuesMoveTarget to prevent spamming the pathfinder coder
@@ -80,7 +81,7 @@ public class Move implements TokenComponent{
 
                 calcPathToLocation(token.getCommand().getLocation());
 
-                moveU += delta * moveSpeed;
+                moveU += delta * (token.direction.isDiagonal() ? moveSpeedDiagonal : moveSpeed);
 
                 FloorMap floorMap = token.getFloorMap();
                 Pair location = token.getLocation();
@@ -263,9 +264,9 @@ public class Move implements TokenComponent{
                 Direction direction = token.getDirection();
                 if (moveU==1 || direction == Direction.South || direction == Direction.North)
                         return token.getLocation().x;
-                else if (direction == Direction.East)
+                else if (direction == Direction.East || direction == Direction.NorthEast || direction == Direction.SouthEast)
                         return MathUtils.lerp(token.getLocation().x - 1, token.getLocation().x, moveU);
-                else if (direction == Direction.West)
+                else if (direction == Direction.West || direction==Direction.NorthWest || direction == Direction.SouthWest)
                         return MathUtils.lerp(token.getLocation().x + 1, token.getLocation().x, moveU);
                 throw new AssertionError("unexpected state");
         }
@@ -274,9 +275,9 @@ public class Move implements TokenComponent{
                 Direction direction = token.getDirection();
                 if (moveU==1 || direction == Direction.West || direction == Direction.East)
                         return token.getLocation().y;
-                else if (direction == Direction.North)
+                else if (direction == Direction.North || direction == Direction.NorthEast || direction == Direction.NorthWest)
                         return MathUtils.lerp(token.getLocation().y - 1, token.getLocation().y, moveU);
-                else if (direction == Direction.South)
+                else if (direction == Direction.South || direction == Direction.SouthEast || direction == Direction.SouthWest)
                         return MathUtils.lerp(token.getLocation().y + 1, token.getLocation().y, moveU);
                 throw new AssertionError("unexpected state");
         }
@@ -291,5 +292,8 @@ public class Move implements TokenComponent{
 
         protected void setMoveSpeed(float moveSpeed){
                 this.moveSpeed = moveSpeed;
+                // 0.70710678118 = sqrt(.5)
+                this.moveSpeedDiagonal = this.moveSpeed*0.70710678118f;
+
         }
 }

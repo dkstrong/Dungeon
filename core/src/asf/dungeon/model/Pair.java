@@ -50,7 +50,7 @@ public class Pair  {
         public int distance(int targetX, int targetY) {
                 int xDistance = Math.abs(targetX - x);
                 int yDistance = Math.abs(targetY - y);
-                return xDistance + yDistance;
+                return xDistance > yDistance ? xDistance : yDistance;
         }
 
         public Pair add(Direction dir){
@@ -68,6 +68,22 @@ public class Pair  {
                                 x++;
                                 break;
                         case West:
+                                x--;
+                                break;
+                        case NorthEast:
+                                y++;
+                                x++;
+                                break;
+                        case NorthWest:
+                                y++;
+                                x--;
+                                break;
+                        case SouthEast:
+                                y--;
+                                x++;
+                                break;
+                        case SouthWest:
+                                y--;
                                 x--;
                                 break;
                 }

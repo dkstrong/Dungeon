@@ -128,8 +128,8 @@ public class Dungeon {
                 t.add(new Journal(t));
                 t.add(new Inventory.Character(t));
                 t.add(new StatusEffects(t));
+                t.add(new Damage(t));
                 t.add(new Attack(t));
-                t.add(new Damage(t, 10));
                 t.add(new Move(t));
 
                 t.getDamage().setDeathDuration(3f);
@@ -153,8 +153,8 @@ public class Dungeon {
                 t.add(experience);
                 t.add(new Inventory.Character(t));
                 t.add(new StatusEffects(t));
+                t.add(new Damage(t));
                 t.add(new Attack(t));
-                t.add(new Damage(t, 10));
                 t.add(new Move(t));
 
                 t.getDamage().setDeathDuration(3f);
@@ -170,7 +170,8 @@ public class Dungeon {
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 Token t = new Token(this,  nextTokenId++, name, modelId);
                 t.add(new Inventory.Simple(t, item));
-                t.add(new Damage(t, 1));
+                t.add(new Damage(t));
+                t.getDamage().setMaxHealth(1);
                 t.getDamage().setDeathDuration(2.5f);
                 t.getDamage().setDeathRemovalCountdown(.25f);
                 moveToken(t, fm, x,y,Direction.South);

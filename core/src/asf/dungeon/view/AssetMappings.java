@@ -1,15 +1,18 @@
 package asf.dungeon.view;
 
+import asf.dungeon.model.Direction;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.token.StatusEffects;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Quaternion;
 
 /**
  * Created by Danny on 11/22/2014.
  */
 public class AssetMappings {
+        protected final Quaternion[] rotations;
         protected final String[] assetLocations;
         protected final String[] potionTextureAssetLocations;
         protected final Color[] potionDisplayColors;
@@ -17,6 +20,16 @@ public class AssetMappings {
         protected final String[] statusEffectIconTextureAssetLocations;
 
         public AssetMappings() {
+                rotations = new Quaternion[8];
+                rotations[Direction.North.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 3.1459f); // 180
+                rotations[Direction.South.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0f); // 0
+                rotations[Direction.East.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 1.5708f); // 90
+                rotations[Direction.West.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 4.71239f); // 270
+                rotations[Direction.NorthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 2.35619449f); // 135
+                rotations[Direction.NorthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 3.92699082f); // 225
+                rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
+                rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
+
                 assetLocations = new String[14];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
@@ -76,6 +89,10 @@ public class AssetMappings {
                 statusEffectIconTextureAssetLocations[StatusEffects.Effect.Invisibility.ordinal()] = "Interface/Hud/health.png";
                 statusEffectIconTextureAssetLocations[StatusEffects.Effect.MindVision.ordinal()] = "Interface/Hud/health.png";
                 statusEffectIconTextureAssetLocations[StatusEffects.Effect.Speed.ordinal()] = "Interface/Hud/health.png";
+        }
+
+        protected Quaternion getRotation(Direction dir){
+                return rotations[dir.ordinal()];
         }
 
         protected String getAssetLocation(ModelId modelId) {

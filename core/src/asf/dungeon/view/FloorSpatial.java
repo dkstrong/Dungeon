@@ -291,7 +291,8 @@ public class FloorSpatial implements Spatial {
                 float visibleY = 0;
                 if(tile.isDoor()){
                         prop = makeDecalNodeProp("Models/Dungeon/Door/Door.g3db");
-                        Quaternion rot = whichDirectionToFaceDoor(x,y).quaternion;
+
+                        Quaternion rot = world.getAssetMappings().getRotation(whichDirectionToFaceDoor(x,y));
                         prop.modelInstance.transform.set(
                                 worldCoordsTemp.x,worldCoordsTemp.y,worldCoordsTemp.z,
                                 rot.x,rot.y,rot.z,rot.w,
@@ -306,7 +307,10 @@ public class FloorSpatial implements Spatial {
                                 prop = makeDecalNodeProp("Models/Dungeon/Stairs/StairsDown.g3db");
                                 visibleY = -3.753f;
                         }
-                        Quaternion rot = Direction.East.quaternion; // do not use range here because this is a view object
+
+                        // TODO: may want to make it so stairs rotate based on what they are near
+                        Quaternion rot = world.getAssetMappings().getRotation(Direction.East);
+
                         prop.modelInstance.transform.set(
                                 worldCoordsTemp.x,worldCoordsTemp.y,worldCoordsTemp.z,
                                 rot.x,rot.y,rot.z,rot.w,

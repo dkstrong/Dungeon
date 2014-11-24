@@ -33,7 +33,7 @@ public class Attack implements TokenComponent{
         private float attackCoolDown = 0;                       // time until this token can send another attack, after attacking this value is reset to attackCooldownDuration
         private boolean sentAttackResult = false;
 
-        private boolean canInitiateNewAttack;
+
         private boolean inAttackRangeOfCommandTarget;
         private boolean isHoldingRangedWeapon;
 
@@ -49,9 +49,6 @@ public class Attack implements TokenComponent{
 
         @Override
         public boolean update(float delta) {
-                if(token.getDamage().isDead()) // to prevent being hit from interrupting an attack, Damage is lower on the stack than Attack, so i need to check for Death myself
-                        return false;
-
                 attackProjectileU+=delta;
                 if(attackProjectileU >= attackProjectileMaxU){
                         if(projectileAttackTarget != null)
@@ -63,7 +60,7 @@ public class Attack implements TokenComponent{
 
                 attackCoolDown -= delta; // the attack cooldown timer always decreases as long as not dead
 
-                canInitiateNewAttack = calcCanInitiateNewAttack(token.getCommand().getTargetToken());
+                //canInitiateNewAttack = calcCanInitiateNewAttack(token.getCommand().getTargetToken());
 
                 isHoldingRangedWeapon = token.getInventory().getWeaponSlot() != null && token.getInventory().getWeaponSlot().isRanged();
 
@@ -76,31 +73,12 @@ public class Attack implements TokenComponent{
                 }
 
 
+                if(token.getDamage().isHit())
+                        return true; // Damage doesnt block the update on isHit() because Attack can still do things while is hit, however everything else lower on the stack is blocked
 
                 return false;
         }
 
-        /**
-         * used by Move to do auto melee attacks on tokens in the way of pathing.
-         *
-         * Only melee heroes will auto attack, ranged heroes will not.
-         * @param delta
-         * @return
-         */
-        protected boolean attackTargetInDirection(float delta){
-                if(isHoldingRangedWeapon)
-                        return false;
-
-                Array<Token> tokensAt = token.floorMap.getTokensAt(token.location, token.direction);
-                if (tokensAt.size > 0) {
-                        for (Token t : tokensAt) {
-                                boolean valid = attackTarget(delta, t);
-                                if(valid)
-                                        return true;
-                        }
-                }
-                return false;
-        }
 
         private boolean attackTarget(float delta, Token targetToken){
                 if (attackCoolDown > 0) {
@@ -123,6 +101,8 @@ public class Attack implements TokenComponent{
                         return true;
                 }
 
+                if(token.getDamage().isHit())
+                        return false;
 
                 if(inAttackRangeOfCommandTarget &&  rangedAttack == false && token.getCommand().getTargetToken() == targetToken){
                         attackU = 0;
@@ -131,17 +111,49 @@ public class Attack implements TokenComponent{
                         return true;
                 }
 
-                if(calcCanMeleeAttack(targetToken)){
-                        attackU = 0;
-                        meleeAttackTarget = targetToken;
-                        rangedAttack = false;
-                        attackU = 0;
-                        meleeAttackTarget.getDamage().setHitDuration(attackDuration, token);
-                        sentAttackResult = false;
-                        return true;
+
+                return false;
+        }
+
+        /**
+         * used by Move to do auto melee attacks on tokens in the way of pathing.
+         *
+         * Only melee heroes will auto attack, ranged heroes will not.
+         * @param delta
+         * @return
+         */
+        protected boolean attackTargetInDirection(float delta){
+                if(isHoldingRangedWeapon)
+                        return false;
+
+                if (attackCoolDown > 0) {
+                        return false; // attack is on cooldown
+                }
+
+                if(isAttacking() || token.getDamage().isHit()){
+                        return false;
+                }
+
+                Array<Token> tokensAt = token.floorMap.getTokensAt(token.location, token.direction);
+                if (tokensAt.size > 0) {
+                        for (Token t : tokensAt) {
+                                if(calcCanMeleeAttack(t)){
+                                        attackU = 0;
+                                        meleeAttackTarget = t;
+                                        rangedAttack = false;
+                                        attackU = 0;
+                                        meleeAttackTarget.getDamage().setHitDuration(attackDuration, token);
+                                        sentAttackResult = false;
+                                        return true;
+                                }
+
+
+                        }
                 }
                 return false;
         }
+
+
 
 
         private void sendAttackResult(){
@@ -169,30 +181,19 @@ public class Attack implements TokenComponent{
 
         }
 
-
-        private boolean calcCanInitiateNewAttack(Token target){
-                if(token.getDamage().isHit())
-                        return false;
-
-                if(target == null || target.getDamage() == null || !target.getDamage().isAttackable())
-                        return false;
-
-                return true;
-        }
-
         private boolean calcCanRangedAttack(Token target){
                 if(!isHoldingRangedWeapon)
                         return false;
 
-                if(!canInitiateNewAttack)
+                if(target == null || target.getDamage() == null || !target.getDamage().isAttackable())
                         return false;
 
                 int distance = token.location.distance(token.getCommand().getTargetToken().location);
                 if(distance > attackRange)
                         return false;
 
-                if(!token.direction.isDirection(token.location, target.location))  // within attack range, and is facing towards target
-                        return false;  // TODO: may want to remove the facing check unless i add a turn time for doing uTurns.
+                // NOTE: i used to have a check here to make sure this token is facing towards target token
+                // i removed it since turning is instant anyway
 
 
                 if(token.getFogMapping() != null){
@@ -213,10 +214,10 @@ public class Attack implements TokenComponent{
                 if(isHoldingRangedWeapon)
                         return false;
 
-                if(!canInitiateNewAttack)
+                if(target == null || target.getDamage() == null || !target.getDamage().isAttackable())
                         return false;
 
-                int distance = token.location.distance(token.getCommand().getTargetToken().location);
+                int distance = token.location.distance(target.location);
                 if(distance > 1)
                         return false;
 

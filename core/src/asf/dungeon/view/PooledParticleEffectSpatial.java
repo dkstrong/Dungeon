@@ -162,7 +162,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
         @Override
         public void update(float delta){
                 if(reg.isComplete()){
-                        System.out.println("complete");
+                        //System.out.println("complete");
                         deactivate();
                         return;
                 }
@@ -179,6 +179,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                         duration-=delta;
                 }else if(mode == 3){
                         if (attackerToken == null || !attackerToken.getAttack().hasProjectile()) {
+                                //Gdx.app.log("Pooled PE","trigger end fx");
                                 reg.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
                         } else if (attackerToken.getAttack().getEffectiveProjectileU() < 0) {
                                 return;
@@ -199,7 +200,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                         visU = tokenSpatial.visU;
                 else {
                         if (attackerToken.getFloorMap() == world.getLocalPlayerToken().getFloorMap() && world.getLocalPlayerToken().getFogMapping() != null) {
-                                FogMap fogMap = world.getLocalPlayerToken().getFogMapping().getFogMap(world.getLocalPlayerToken().getFloorMap());
+                                FogMap fogMap = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap();
 
                                 if (fogMap != null) {
                                         FogState fogState = fogMap.getFogState(destLoc.x, destLoc.y);
@@ -214,6 +215,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                                 visU = 1;
                         }
                 }
+                //visU= 1;
 
                 // TODO: can visU value be applied to particle effects?
 

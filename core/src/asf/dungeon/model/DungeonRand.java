@@ -33,6 +33,26 @@ public class DungeonRand {
                         return Direction.West;
         }
 
+        public Direction direction8Axis(){
+                int i = random.nextInt(8);
+                if (i == 0)
+                        return Direction.North;
+                else if (i == 1)
+                        return Direction.South;
+                else if (i == 2)
+                        return Direction.East;
+                else if( i == 3)
+                        return Direction.West;
+                else if( i == 4)
+                        return Direction.NorthEast;
+                else if( i == 5)
+                        return Direction.NorthWest;
+                else if( i == 6)
+                        return Direction.SouthEast;
+                else
+                        return Direction.SouthWest;
+        }
+
         public boolean bool(float chance){
                 return random.nextFloat() < chance;
         }
