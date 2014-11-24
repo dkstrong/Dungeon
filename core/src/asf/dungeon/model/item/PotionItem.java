@@ -90,7 +90,7 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
                         return;
                 switch (type) {
                         case Health:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Heal, 3, 3);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Heal, 4, 8);
                                 break;
                         case Experience:
                                 break;

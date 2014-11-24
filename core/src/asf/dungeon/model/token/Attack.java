@@ -45,10 +45,17 @@ public class Attack implements TokenComponent{
         public void teleport(FloorMap fm, int x, int y, Direction direction) {
                 attackU = 0;
                 meleeAttackTarget = null;
+                attackCoolDown = 0;
+                sentAttackResult = false;
+                projectileAttackTarget = null;
+                attackProjectileU = Float.NaN;
+                attackProjectileMaxU = Float.NaN;
+                rangedAttack = false;
         }
 
         @Override
         public boolean update(float delta) {
+
                 attackProjectileU+=delta;
                 if(attackProjectileU >= attackProjectileMaxU){
                         if(projectileAttackTarget != null)
@@ -56,33 +63,6 @@ public class Attack implements TokenComponent{
                         projectileAttackTarget = null;
                         attackProjectileU = Float.NaN;
                         rangedAttack = false;
-                }
-
-                attackCoolDown -= delta; // the attack cooldown timer always decreases as long as not dead
-
-                //canInitiateNewAttack = calcCanInitiateNewAttack(token.getCommand().getTargetToken());
-
-                isHoldingRangedWeapon = token.getInventory().getWeaponSlot() != null && token.getInventory().getWeaponSlot().isRanged();
-
-                inAttackRangeOfCommandTarget = calcCanRangedAttack(token.getCommand().getTargetToken());
-
-                if(attackTarget(delta, token.getCommand().getTargetToken())){
-                        return true; // started or is currently doing attack animation
-                }else if(rangedKeepDistance && inAttackRangeOfCommandTarget){
-                        return true; // still in range of target, dont move
-                }
-
-
-                if(token.getDamage().isHit())
-                        return true; // Damage doesnt block the update on isHit() because Attack can still do things while is hit, however everything else lower on the stack is blocked
-
-                return false;
-        }
-
-
-        private boolean attackTarget(float delta, Token targetToken){
-                if (attackCoolDown > 0) {
-                        return false; // attack is on cooldown
                 }
 
                 if(isAttacking()){
@@ -101,12 +81,41 @@ public class Attack implements TokenComponent{
                         return true;
                 }
 
+                if(rangedAttack == false)
+                        attackCoolDown -= delta; // the attack cooldown timer always decreases as long as not dead, not attacking, and has no projectile
+
+
+                isHoldingRangedWeapon = token.getInventory().getWeaponSlot() != null && token.getInventory().getWeaponSlot().isRanged();
+
+                inAttackRangeOfCommandTarget = calcCanRangedAttack(token.getCommand().getTargetToken());
+
+
+                if(attackCommandTarget(delta)){
+                        return true; // started or is currently doing attack animation
+                }else if(rangedKeepDistance && inAttackRangeOfCommandTarget){
+                        return true; // still in range of target, dont move
+                }
+
+
+                if(token.getDamage().isHit())
+                        return true; // Damage doesnt block the update on isHit() because Attack can still do things while is hit, however everything else lower on the stack is blocked
+
+                return false;
+        }
+
+
+        private boolean attackCommandTarget(float delta){
+
+                if (attackCoolDown > 0) {
+                        return false; // attack is on cooldown
+                }
+
                 if(token.getDamage().isHit())
                         return false;
 
-                if(inAttackRangeOfCommandTarget &&  rangedAttack == false && token.getCommand().getTargetToken() == targetToken){
+                if(inAttackRangeOfCommandTarget &&  rangedAttack == false ){
                         attackU = 0;
-                        meleeAttackTarget = targetToken;
+                        meleeAttackTarget = token.getCommand().getTargetToken();
                         rangedAttack = true;
                         return true;
                 }
@@ -130,9 +139,7 @@ public class Attack implements TokenComponent{
                         return false; // attack is on cooldown
                 }
 
-                if(isAttacking() || token.getDamage().isHit()){
-                        return false;
-                }
+                // no need to do check for isAttacking or isHit, its impossible to be attacking or hit when this is called
 
                 Array<Token> tokensAt = token.floorMap.getTokensAt(token.location, token.direction);
                 if (tokensAt.size > 0) {

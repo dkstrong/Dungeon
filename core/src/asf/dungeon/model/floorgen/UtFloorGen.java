@@ -2,9 +2,11 @@ package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.PotionItem;
+import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FSMLogic;
@@ -37,7 +39,7 @@ public class UtFloorGen {
         protected static void spawnCharacters(Dungeon dungeon, FloorMap floorMap){
                 ModelId[] characters;
                 if(floorMap.index == 0)
-                        characters = new ModelId[]{ModelId.Berzerker};
+                        characters = new ModelId[]{ModelId.Berzerker, ModelId.Archer};
                 else{
                         characters = new ModelId[]{ModelId.Archer,ModelId.Berzerker,ModelId.Diablous,ModelId.FemaleMage,ModelId.Mage,ModelId.Priest}; // "cerberus"
                 }
@@ -51,8 +53,22 @@ public class UtFloorGen {
 
                         Token characterToken = dungeon.newCharacterToken(floorMap,modelId.name(),modelId,
                                 new FSMLogic(1, null, Monster.Sleep),
-                                new Experience(1, 8, 10, 7,1,1),
+                                new Experience(
+                                        1, // level
+                                        8,  // vitality
+                                        4, //str
+                                        6, // agi
+                                        1, // int
+                                        1), // luck
                                 x,y);
+
+                        if(modelId == ModelId.Archer){
+                                WeaponItem weapon = new WeaponItem(ModelId.Sword,"Bow", 1);
+                                weapon.setRanged(true);
+                                weapon.setProjectileFx(FxId.Arrow);
+                                characterToken.getInventory().add(weapon);
+                                characterToken.getInventory().equals(weapon);
+                        }
 
                 }
 

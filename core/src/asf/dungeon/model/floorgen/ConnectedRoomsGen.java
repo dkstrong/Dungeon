@@ -2,8 +2,10 @@ package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FSMLogic;
@@ -85,22 +87,27 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
         @Override
         public void spawnMonsters(Dungeon dungeon, FloorMap floorMap) {
                 int countTeam1 = floorMap.getTokensOnTeam(1).size;
-                if(countTeam1 == 0){
+                if(countTeam1 <2){
                         int x, y;
+                        ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Berzerker : ModelId.Archer;
                         do{
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
-                        Token token = dungeon.newCharacterToken(floorMap, "Monster",
-                                ModelId.Berzerker,
+                        Token token = dungeon.newCharacterToken(floorMap, modelId.name(),
+                                modelId,
                                 new FSMLogic(1, null, Monster.Sleep),
                                 new Experience(1, 8, 4, 6, 1,1),
                                 x,y);
 
-                        //EquipmentItem sword = EquipmentItem.makeWeapon("Sword", 1);
-                        //token.getInventory().add(sword);
-                        //token.getInventory().equip(sword);
+                        if(modelId == ModelId.Archer){
+                                WeaponItem weapon = new WeaponItem(ModelId.Sword,"Bow", 1);
+                                weapon.setRanged(true);
+                                weapon.setProjectileFx(FxId.Arrow);
+                                token.getInventory().add(weapon);
+                                token.getInventory().equals(weapon);
+                        }
 
                 }
         }
