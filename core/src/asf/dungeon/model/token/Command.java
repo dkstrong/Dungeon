@@ -22,6 +22,7 @@ public class Command implements TokenComponent{
         private Tile useKeyOnTile;
 
         protected ConsumableItem consumeItem;
+        protected Item targetItem;
 
         public Command(Token token) {
                 this.token = token;
@@ -80,6 +81,13 @@ public class Command implements TokenComponent{
                 }
                 return false;
 
+        }
+
+        public boolean consumeItem(Item item, Item targetItem){
+                boolean valid = consumeItem(item);
+                if(valid)
+                        this.targetItem = targetItem;
+                return valid;
         }
 
         public Token getTargetToken() {

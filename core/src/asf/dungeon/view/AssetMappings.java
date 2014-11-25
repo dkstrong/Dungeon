@@ -3,7 +3,9 @@ package asf.dungeon.view;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
+import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.PotionItem;
+import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.token.StatusEffects;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Quaternion;
@@ -16,6 +18,8 @@ public class AssetMappings {
         protected final String[] assetLocations;
         protected final String[] potionTextureAssetLocations;
         protected final Color[] potionDisplayColors;
+        protected final String[] scrollTextureAssetLocations;
+        protected final String[] bookTextureAssetLocations;
         protected final FxId[] statusEffectsFxIds;
         protected final String[] statusEffectIconTextureAssetLocations;
 
@@ -30,7 +34,7 @@ public class AssetMappings {
                 rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
                 rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
 
-                assetLocations = new String[14];
+                assetLocations = new String[15];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
                 assetLocations[ModelId.Cerberus.ordinal()] = "Models/Characters/cerberus.g3db";
@@ -41,13 +45,13 @@ public class AssetMappings {
                 assetLocations[ModelId.Priest.ordinal()] = "Models/Characters/priest.g3db";
                 assetLocations[ModelId.CeramicPitcher.ordinal()] = "Models/Crates/CeramicPitcher.g3db";
                 assetLocations[ModelId.Potion.ordinal()] = "Models/Loot/Potion/PotionSmall.g3db";
+                assetLocations[ModelId.Scroll.ordinal()] = "Models/Loot/Scroll/Scroll.g3db";
                 assetLocations[ModelId.Key.ordinal()] = "Models/Loot/Key/Key.g3db";
                 assetLocations[ModelId.Key2.ordinal()] = "Models/Loot/Key/Key2.g3db";
                 assetLocations[ModelId.Key3.ordinal()] = "Models/Loot/Key/Key3.g3db";
                 assetLocations[ModelId.Sword.ordinal()] = "Models/Loot/Sword/SwordLarge.g3db";
 
-                potionTextureAssetLocations = new String[12];
-                potionTextureAssetLocations[PotionItem.Color.LightBlue.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
+                potionTextureAssetLocations = new String[11];
                 potionTextureAssetLocations[PotionItem.Color.Red.ordinal()] = "Models/Loot/Potion/potion_silver_red.png";
                 potionTextureAssetLocations[PotionItem.Color.Blue.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
                 potionTextureAssetLocations[PotionItem.Color.Green.ordinal()] = "Models/Loot/Potion/potion_silver_green.png";
@@ -60,8 +64,7 @@ public class AssetMappings {
                 potionTextureAssetLocations[PotionItem.Color.Silver.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
                 potionTextureAssetLocations[PotionItem.Color.Purple.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
 
-                potionDisplayColors = new Color[12];
-                potionDisplayColors[PotionItem.Color.LightBlue.ordinal()] = com.badlogic.gdx.graphics.Color.TEAL;
+                potionDisplayColors = new Color[11];
                 potionDisplayColors[PotionItem.Color.Red.ordinal()] = com.badlogic.gdx.graphics.Color.RED;
                 potionDisplayColors[PotionItem.Color.Blue.ordinal()] = com.badlogic.gdx.graphics.Color.BLUE;
                 potionDisplayColors[PotionItem.Color.Green.ordinal()] = com.badlogic.gdx.graphics.Color.GREEN;
@@ -73,6 +76,27 @@ public class AssetMappings {
                 potionDisplayColors[PotionItem.Color.White.ordinal()] = com.badlogic.gdx.graphics.Color.WHITE;
                 potionDisplayColors[PotionItem.Color.Silver.ordinal()] = com.badlogic.gdx.graphics.Color.GRAY;
                 potionDisplayColors[PotionItem.Color.Purple.ordinal()] = com.badlogic.gdx.graphics.Color.PURPLE;
+
+                scrollTextureAssetLocations = new String[8];
+                scrollTextureAssetLocations[ScrollItem.Symbol.Air.ordinal()] = "Models/Loot/Scroll/parchment_air.png";
+                scrollTextureAssetLocations[ScrollItem.Symbol.Earth.ordinal()] = "Models/Loot/Scroll/parchment_earth.png";
+                scrollTextureAssetLocations[ScrollItem.Symbol.Fire.ordinal()] = "Models/Loot/Scroll/parchment_fire.png";
+                scrollTextureAssetLocations[ScrollItem.Symbol.Light.ordinal()] = "Models/Loot/Scroll/parchment_light.png";
+                scrollTextureAssetLocations[ScrollItem.Symbol.Metal.ordinal()] = "Models/Loot/Scroll/parchment_metal.png";
+                scrollTextureAssetLocations[ScrollItem.Symbol.Shadow.ordinal()] = "Models/Loot/Scroll/parchment_shadow.png";
+                scrollTextureAssetLocations[ScrollItem.Symbol.Water.ordinal()] = "Models/Loot/Scroll/parchment_water.png";
+                scrollTextureAssetLocations[ScrollItem.Symbol.Wood.ordinal()] = "Models/Loot/Scroll/parchment_wood.png";
+
+                bookTextureAssetLocations = new String[10];
+                bookTextureAssetLocations[BookItem.Symbol.Alpha.ordinal()] = "Models/Loot/Book/Book.png";
+                bookTextureAssetLocations[BookItem.Symbol.Beta.ordinal()] = "Models/Loot/Book/Book.png";
+                bookTextureAssetLocations[BookItem.Symbol.Gamma.ordinal()] = "Models/Loot/Book/Book.png";
+                bookTextureAssetLocations[BookItem.Symbol.Epsilon.ordinal()] = "Models/Loot/Book/Book.png";
+                bookTextureAssetLocations[BookItem.Symbol.Zeta.ordinal()] = "Models/Loot/Book/Book.png";
+                bookTextureAssetLocations[BookItem.Symbol.Eta.ordinal()] = "Models/Loot/Book/Book.png";
+                bookTextureAssetLocations[BookItem.Symbol.Theta.ordinal()] = "Models/Loot/Book/Book.png";
+                bookTextureAssetLocations[BookItem.Symbol.Iota.ordinal()] = "Models/Loot/Book/Book.png";
+                bookTextureAssetLocations[BookItem.Symbol.Kappa.ordinal()] = "Models/Loot/Book/Book.png";
 
                 statusEffectsFxIds = new FxId[6];
                 statusEffectsFxIds[StatusEffects.Effect.Heal.ordinal()] = FxId.HealAura;
@@ -105,6 +129,14 @@ public class AssetMappings {
 
         protected Color getPotionColor(PotionItem potionItem) {
                 return potionDisplayColors[potionItem.getColor().ordinal()];
+        }
+
+        protected String getScrollTextureAssetLocation(ScrollItem scrollItem){
+                return scrollTextureAssetLocations[scrollItem.getSymbol().ordinal()];
+        }
+
+        protected String getBookTextureAssetLocation(BookItem bookItem){
+                return bookTextureAssetLocations[bookItem.getSymbol().ordinal()];
         }
 
         protected FxId getStatusEffectFxId(StatusEffects.Effect effect) {

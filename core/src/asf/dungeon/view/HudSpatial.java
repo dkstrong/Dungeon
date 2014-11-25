@@ -4,6 +4,7 @@ import asf.dungeon.model.Direction;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.ArmorItem;
+import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
@@ -11,11 +12,13 @@ import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.QuickItem;
 import asf.dungeon.model.item.RingItem;
+import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.StackableItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
+import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
@@ -765,9 +768,20 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         @Override
-        public void onUseItem(Item item) {
+        public void onUseItem(Item item, Inventory.Character.UseItemOutcome out) {
+                if(!out.didSomething){
+                        this.showCenterLabelText("A bright light flashed, but nothing happened.");
+                        return;
+                }
                 if (item instanceof PotionItem) {
                         this.showCenterLabelText("You just drank " + item.getNameFromJournal(localPlayerToken));
+                }else if(item instanceof ScrollItem){
+                        ScrollItem scroll = (ScrollItem ) item;
+                        if(scroll.getType() == ScrollItem.Type.Teleportation){
+                                this.showCenterLabelText("You just teleported to-- somewhere.");
+                        }
+                }else if(item instanceof BookItem){
+
                 }
 
         }

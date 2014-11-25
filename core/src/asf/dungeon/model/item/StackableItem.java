@@ -7,4 +7,6 @@ public interface StackableItem extends Item{
 
         public void addChargesFrom(StackableItem other);
         public int getCharges();
+
+        public boolean canStackWith(StackableItem other);
 }

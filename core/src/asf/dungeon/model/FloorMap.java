@@ -1,5 +1,8 @@
 package asf.dungeon.model;
 
+import asf.dungeon.model.fogmap.FogMap;
+import asf.dungeon.model.token.Inventory;
+import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.utils.Array;
@@ -190,6 +193,37 @@ public class FloorMap  {
         }
 
         /**
+         * returns list of tokens that are visible according to the fogmap
+         * if the supplied source token does not have a fogmap, this is the same as doing getTokensInExtent()
+         * The returned array should not be stored as it will be reused next time this method is called
+         */
+        public Array<Token> getVisibleTokens(Token token){
+                if(token.getFogMapping() == null){
+                        return getTokensInExtent(token.getLocation(), token.getDamage() == null ? 3 : token.getDamage().getSightRadius());
+                }
+                FogMap fogMap = token.getFogMapping().getCurrentFogMap();
+
+                tokensAt.clear();
+                for (Token t : tokens) {
+                        Pair tLoc = t.getLocation();
+                        if(fogMap.isVisible(tLoc.x, tLoc.y)){
+                                tokensAt.add(t);
+                        }
+                }
+                return tokensAt;
+        }
+
+        public Array<Token> getCrateAndLootTokens() {
+                tokensAt.clear();
+                for (Token t : tokens) {
+                        if(t.get(Loot.class) != null || t.get(Inventory.Simple.class) != null){
+                                tokensAt.add(t);
+                        }
+                }
+                return tokensAt;
+        }
+
+        /**
          * list of tokens at the supplied location, note that the Array that is returned
          * shouldnt be stored as it will be reused next time this method is called
          *
@@ -325,6 +359,8 @@ public class FloorMap  {
                 store.set(goal);
                 return null;
         }
+
+
 
 
         public interface MonsterSpawner{

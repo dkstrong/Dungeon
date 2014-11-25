@@ -225,9 +225,7 @@ public class Move implements TokenComponent{
                                 }else{
                                         //Gdx.app.log("Move","Unlocking door");
                                         nextTile.setDoorLocked(false);
-                                        if(token.listener != null)
-                                                token.listener.onUseItem(key);
-                                        token.getInventory().discard(key);
+                                        token.getInventory().useKey(key);
                                         //token.getCommand().setLocation(token.location);
                                         return true;
 

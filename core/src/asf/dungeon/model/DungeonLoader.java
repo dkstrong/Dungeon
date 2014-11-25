@@ -14,10 +14,12 @@ import asf.dungeon.model.floorgen.Room;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.item.ArmorItem;
+import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.PotionItem;
+import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.Command;
@@ -68,11 +70,19 @@ public class DungeonLoader {
                 Logic playerLogic;
                 DungeonRand dungeonRand = new DungeonRand(settings.random);
 
-                List<PotionItem.Type> colors= Arrays.asList(PotionItem.Type.values());
-                Collections.shuffle(colors, dungeonRand.random);
-                PotionItem.Type[] potions = colors.toArray(new PotionItem.Type[colors.size()]);
+                List<PotionItem.Type> potionTypeValues= Arrays.asList(PotionItem.Type.values());
+                Collections.shuffle(potionTypeValues, dungeonRand.random);
+                PotionItem.Type[] potions = potionTypeValues.toArray(new PotionItem.Type[potionTypeValues.size()]);
 
-                MasterJournal masterMasterJournal = new MasterJournal(potions);
+                List<ScrollItem.Type> scrollTypeValues = Arrays.asList(ScrollItem.Type.values());
+                Collections.shuffle(scrollTypeValues, dungeonRand.random);
+                ScrollItem.Type[] scrolls = scrollTypeValues.toArray(new ScrollItem.Type[scrollTypeValues.size()]);
+
+                List<BookItem.Type> bookTypeValues = Arrays.asList(BookItem.Type.values());
+                Collections.shuffle(bookTypeValues, dungeonRand.random);
+                BookItem.Type[] books = bookTypeValues.toArray(new BookItem.Type[bookTypeValues.size()]);
+
+                MasterJournal masterMasterJournal = new MasterJournal(potions, scrolls, books);
 
                 if(settings.balanceTest){
                         floorMapGenerator = new BalanceTestFloorGen();
@@ -106,6 +116,18 @@ public class DungeonLoader {
 
                         token.getDamage().setDeathRemovalCountdown(Float.NaN);
                         token.getInventory().add(new PotionItem(dungeon, PotionItem.Type.Health,2 ));
+
+                        token.getInventory().add(new BookItem(dungeon, BookItem.Type.Map));
+                        token.get(Journal.class).learn(BookItem.Type.Map);
+
+                        token.getInventory().add(new BookItem(dungeon, BookItem.Type.ItemDetection));
+                        token.get(Journal.class).learn(BookItem.Type.ItemDetection);
+
+
+                        token.getInventory().add(new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 5));
+                        token.get(Journal.class).learn(ScrollItem.Type.Teleportation);
+                        token.getInventory().add(new ScrollItem(dungeon, ScrollItem.Type.Lightning, 5));
+                        token.get(Journal.class).learn(ScrollItem.Type.Lightning);
 
                         if(settings.playerModel == ModelId.Knight){
                                 WeaponItem sword = new WeaponItem(ModelId.Sword,"Sword", 3);
@@ -282,6 +304,14 @@ public class DungeonLoader {
                 kryo.register(PotionItem.Color.class);
                 kryo.register(PotionItem.Type.class);
                 kryo.register(PotionItem.Type[].class);
+                kryo.register(ScrollItem.class);
+                kryo.register(ScrollItem.Symbol.class);
+                kryo.register(ScrollItem.Type.class);
+                kryo.register(ScrollItem.Type[].class);
+                kryo.register(BookItem.class);
+                kryo.register(BookItem.Symbol.class);
+                kryo.register(BookItem.Type.class);
+                kryo.register(BookItem.Type[].class);
                 kryo.register(asf.dungeon.model.item.WeaponItem.class);
                 kryo.register(asf.dungeon.model.item.ArmorItem.class);
 

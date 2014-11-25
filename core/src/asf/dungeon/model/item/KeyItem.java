@@ -51,6 +51,11 @@ public class KeyItem extends AbstractItem implements Item {
         @Override
         public boolean isIdentified(Token token) { return true; }
 
+        @Override
+        public void identifyItem(Token token) {
+
+        }
+
         public Type getType() {
                 return type;
         }

@@ -8,6 +8,7 @@ import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.Attack;
+import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.DungeonLoader;
@@ -330,7 +331,7 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
 
 
         @Override
-        public void onUseItem(Item item) {
+        public void onUseItem(Item item, Inventory.Character.UseItemOutcome out) {
 
         }
 

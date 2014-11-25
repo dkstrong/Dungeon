@@ -32,6 +32,24 @@ public class FogMap {
                 }
         }
 
+        public void revealMap(){
+                for(int x=0; x<fog.length; x++){
+                        for(int y=0; y<fog[x].length; y++){
+                                if(fog[x][y] != FogState.Visible){
+                                        fog[x][y] = FogState.Visible;
+                                }
+
+                        }
+                }
+        }
+
+        public void revealLocation(int xMapCoord, int yMapCoord){
+                if(xMapCoord <0 || xMapCoord>= fog.length || yMapCoord< 0 || yMapCoord>=fog[0].length){
+                        return;
+                }
+                fog[xMapCoord][yMapCoord] = FogState.Visible;
+        }
+
 
         public boolean isVisible(int x, int y){
                 return fog[x][y] == FogState.Visible;

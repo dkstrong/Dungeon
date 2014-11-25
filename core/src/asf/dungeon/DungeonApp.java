@@ -33,12 +33,12 @@ public class DungeonApp implements ApplicationListener {
 
 
 
-                this.setScreen(new MainMenuScreen(this));
+                //this.setScreen(new MainMenuScreen(this));
 
                 DungeonWorld.Settings settings = new DungeonWorld.Settings();
-                settings.playerModel = ModelId.Archer;
+                settings.playerModel = ModelId.Mage;
 
-                //loadWorld(settings);
+                loadWorld(settings);
         }
 
         @Override

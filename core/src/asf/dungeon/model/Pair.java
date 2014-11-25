@@ -47,6 +47,15 @@ public class Pair  {
                 return distance(targetLocation.getX(), targetLocation.getY());
         }
 
+        /**
+         * distance between these two tile locations
+         * note that distance is determind as number of moves to go from location A to location B with diagonal turned on
+         *
+         * this is often a different distance value than what is conventionally known as "distance"
+         * @param targetX
+         * @param targetY
+         * @return
+         */
         public int distance(int targetX, int targetY) {
                 int xDistance = Math.abs(targetX - x);
                 int yDistance = Math.abs(targetY - y);

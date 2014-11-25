@@ -29,6 +29,8 @@ public interface Item  {
 
         public boolean isIdentified(Token token);
 
+        public void identifyItem(Token token);
+
 
 
 

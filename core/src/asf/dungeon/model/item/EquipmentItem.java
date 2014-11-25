@@ -115,5 +115,15 @@ public abstract class EquipmentItem implements Item {
         }
 
         @Override
-        public boolean isIdentified(Token token) {Journal journal = token.get(Journal.class); return journal == null || journal.knows(this);}
+        public void identifyItem(Token token){
+                Journal journal = token.get(Journal.class);
+                if(journal != null)
+                        journal.learn(this);
+        }
+
+        @Override
+        public boolean isIdentified(Token token) {
+                Journal journal = token.get(Journal.class);
+                return journal == null || journal.knows(this);
+        }
 }

@@ -225,7 +225,7 @@ public class Token  {
 
                 public void onInventoryChanged();
 
-                public void onUseItem(Item item);
+                public void onUseItem(Item item, Inventory.Character.UseItemOutcome out);
 
                 public void onStatusEffectChange(StatusEffects.Effect effect, float duration);
 

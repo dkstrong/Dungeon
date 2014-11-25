@@ -5,7 +5,10 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.item.BookItem;
+import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.PotionItem;
+import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
@@ -79,20 +82,37 @@ public class UtFloorGen {
 
         protected static void spawnRandomCrates(Dungeon dungeon, FloorMap floorMap){
                 int x,y;
-                ModelId[] crates = new ModelId[]{
-                        ModelId.CeramicPitcher,
-                        ModelId.CeramicPitcher,
-                        ModelId.CeramicPitcher,
-                        ModelId.CeramicPitcher,
-                        ModelId.CeramicPitcher};
-                for(ModelId modelId : crates){
+                Item item;
+                for(int i=0; i < 5; i++){
+
 
                         do{
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
-                        dungeon.newCrateToken(floorMap,modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health, 1),x,y);
+
+                        int randInt = dungeon.rand.random.nextInt(3);
+                        if(randInt == 0){
+                                item = new PotionItem(dungeon, PotionItem.Type.Health, 1);
+                                item = new BookItem(dungeon, BookItem.Type.AggravateMonsters);
+                        }else if(randInt == 1){
+
+                                item = new ScrollItem(dungeon, ScrollItem.Type.Lightning, 1);
+                                item = new BookItem(dungeon, BookItem.Type.AggravateMonsters);
+                        }else if(randInt == 2){
+                                item = new BookItem(dungeon, BookItem.Type.AggravateMonsters);
+                        }else{
+                                item = new BookItem(dungeon, BookItem.Type.Experience);
+                        }
+
+                        dungeon.newCrateToken(
+                                floorMap,
+                                ModelId.CeramicPitcher.name(),
+                                ModelId.CeramicPitcher,
+                                item,
+                                x,y);
                 }
+
         }
 
         /**

@@ -7,6 +7,7 @@ import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Sphere;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -37,7 +38,6 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
         protected float duration;
 
         private Token attackerToken;
-        private TokenSpatial targetTokenSpatial;
         private final Pair destLoc = new Pair();
         private final Vector3 worldMoveDir = new Vector3(), worldStartLoc = new Vector3(), worldDestLoc = new Vector3();
 
@@ -81,8 +81,9 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                 setAnimation();
                 mode=  1;
                 destLoc.set(location);
-                this.duration = duration;
                 tokenSpatial = null;
+                this.duration = duration;
+
 
                 world.getWorldCoords(location, decal.getPosition());
                 decal.setPosition(decal.getPosition());
@@ -92,8 +93,10 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                 this.fxId = fxId;
                 setAnimation();
                 mode = 2;
-                this.duration = duration;
                 tokenSpatial = followTokenSpatial;
+                this.duration = duration;
+                Gdx.app.log("DecalSpatial","set Decal Spatial- follow token: "+followTokenSpatial);
+
 
         }
         @Override
@@ -105,10 +108,10 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                 this.destLoc.set(destLoc);
                 world.getWorldCoords(attacker.getMove().getLocationFloatX(), attacker.getMove().getLocationFloatY(), worldStartLoc);
                 if (target == null) {
-                        targetTokenSpatial = null;
+                        tokenSpatial = null;
                         world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
                 } else {
-                        targetTokenSpatial = world.getTokenSpatial(target);
+                        tokenSpatial = world.getTokenSpatial(target);
                         if (target.getMove() == null) world.getWorldCoords(target.getLocation().x, target.getLocation().y, worldDestLoc);
                         else world.getWorldCoords(target.getMove().getLocationFloatX(), target.getMove().getLocationFloatY(), worldDestLoc);
 
@@ -172,8 +175,8 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                 //
                 // Common update code (visibility of material, animation update, rotation of decal)
 
-                if (targetTokenSpatial != null)
-                        visU = targetTokenSpatial.visU;
+                if (tokenSpatial != null)
+                        visU = tokenSpatial.visU;
                 else {
                         if (attackerToken.getFloorMap() == world.getLocalPlayerToken().getFloorMap() && world.getLocalPlayerToken().getFogMapping() != null) {
                                 FogMap fogMap = world.getLocalPlayerToken().getFogMapping().getFogMap(world.getLocalPlayerToken().getFloorMap());
@@ -194,7 +197,7 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
 
                 decal.setColor(1,1,1,visU);
 
-                decal.lookAt(world.cam.position, world.cam.up);
+                //decal.lookAt(world.cam.position, world.cam.up);
                 decal.setTextureRegion(animation.getKeyFrame(time += delta));
                 if(time > animation.getAnimationDuration()) time = 0;
 

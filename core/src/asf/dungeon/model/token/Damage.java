@@ -63,7 +63,7 @@ public class Damage implements TokenComponent{
          *
          * @param value
          */
-        protected void addHealth(int value) {
+        public void addHealth(int value) {
                 if (value > 0) {
                         boolean wasDead = isDead();
                         this.health += value;

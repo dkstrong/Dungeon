@@ -61,7 +61,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                 reg = (RegularEmitter)effect.getControllers().first().emitter;
                 float delta = effect.getControllers().first().deltaTime;
 
-                System.out.println(delta);
+                //System.out.println(delta);
         }
 
         @Override

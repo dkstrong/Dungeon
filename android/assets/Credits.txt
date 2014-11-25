@@ -24,6 +24,14 @@ Potion
 sansdound
 URL: http://opengameart.org/content/potions-4
 
+Scrolls
+Clint Bellanger
+http://opengameart.org/content/elemental-scrolls
+
+Book
+Aare
+http://opengameart.org/content/old-book
+
 ===Crates===
 Ceramic Pitcher
 Aare
@@ -47,19 +55,29 @@ URL: http://opengameart.org/users/spiney, http://opengameart.org/node/12116
 
 
 
-
-
-
-
-
-
+-------------------
 -- considering
+------------------
+
 Stats Icons
 johndh
 URL: http://opengameart.org/content/simple-stat-icons
 
 
-
-
 Flying Loot (has 3d models of various types of loot)
 http://opengameart.org/content/flying-loot-animations
+
+
+Scrolls
+http://opengameart.org/content/scroll
+http://opengameart.org/content/burnt-scroll
+http://opengameart.org/content/scroll-wooden-rollers
+http://opengameart.org/content/scrolls-0
+
+
+Books
+http://opengameart.org/content/spell-book-of-fire
+http://opengameart.org/content/spell-book-pack-0
+http://opengameart.org/content/old-book
+http://opengameart.org/content/book
+http://opengameart.org/content/spell-book

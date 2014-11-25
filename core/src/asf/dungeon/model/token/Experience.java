@@ -94,10 +94,8 @@ public class Experience implements TokenComponent{
         public int getIntelligenceMod() { return intelligenceMod; }
         public int getLuckMod() { return luckMod; }
 
-        protected void addXpFrom(Experience otherExperience){
-                if(otherExperience == null)
-                        return; // killed something with no experience, so no experience to gain
-                xp += 1;
+        public void addXp(int amount){
+                xp += amount;
                 if(xp >= getRequiredXpToLevelUp()){
                         level +=1;
                         vitality+= 1;
@@ -106,6 +104,13 @@ public class Experience implements TokenComponent{
                         intelligence+=1;
                         recalcStats();
                 }
+        }
+
+        protected void addXpFrom(Experience otherExperience){
+                if(otherExperience == null)
+                        return; // killed something with no experience, so no experience to gain
+                addXp(1); // TODO: come up with a good XP amount based on level/xp differende
+
         }
 
         protected void recalcStats(){

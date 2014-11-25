@@ -3,6 +3,7 @@ package asf.dungeon.model.item;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.ModelId;
+import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
@@ -14,11 +15,11 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
 
 
         public static enum Type {
-                Health, Experience, Invisibility, Purity, Poison, Paralyze, MindVision, Strength, Might, Speed;
+                Health, Invisibility, Purity, Poison, Paralyze, Blindness, MindVision, Hallucination, Might, Speed;
         }
 
         public static enum Color {
-                LightBlue, Red, Blue, Green, Yellow, Magenta, Black, Brown, Amber, White, Silver, Purple;
+                 Red, Blue, Green, Yellow, Magenta, Black, Brown, Amber, White, Silver, Purple;
 
         }
 
@@ -63,6 +64,13 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
                 return journal == null || journal.knows(type);
         }
 
+        @Override
+        public void identifyItem(Token token) {
+                Journal journal = token.get(Journal.class);
+                if (journal != null)
+                        journal.learn(type);
+        }
+
         public Type getType() {
                 return type;
         }
@@ -83,7 +91,8 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         }
 
         @Override
-        public void consume(Token token) {
+        public void consume(Token token, Inventory.Character.UseItemOutcome out) {
+                out.didSomething = true;
                 charges--;
                 StatusEffects statusEffects = token.get(StatusEffects.class);
                 if (statusEffects == null)
@@ -91,8 +100,6 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
                 switch (type) {
                         case Health:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Heal, 4, 8);
-                                break;
-                        case Experience:
                                 break;
                         case Invisibility:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Invisibility, 10, 1);
@@ -109,36 +116,31 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
                         case MindVision:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.MindVision, 5, 1);
                                 break;
-                        case Strength:
-                                break;
                         case Might:
                                 break;
                         case Speed:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Speed, 10, 1);
                                 break;
                 }
-                Journal journal = token.get(Journal.class);
-                if (journal != null)
-                        journal.learn(type);
+                identifyItem(token);
 
         }
+
+
+
+
+
+
 
         @Override
-        public boolean equals(Object o) {
-                if (this == o) return true;
-                if (o == null || getClass() != o.getClass()) return false;
-
-                PotionItem that = (PotionItem) o;
-
-                if (type != that.type) return false;
-
-                return true;
+        public boolean canStackWith(StackableItem other) {
+                if(other instanceof PotionItem){
+                        PotionItem otherPotion = (PotionItem) other;
+                        return type == otherPotion.type;
+                }
+                return false;
         }
 
-        @Override
-        public int hashCode() {
-                return type != null ? type.hashCode() : 0;
-        }
 
 
 }

@@ -35,7 +35,7 @@ public interface Inventory extends TokenComponent {
          */
         public boolean discard(Item item);
 
-        public class Character implements Inventory {
+        public static class Character implements Inventory {
                 private final Token token;
                 private final Array<Item> items;
                 private WeaponItem weaponSlot;
@@ -177,12 +177,19 @@ public interface Inventory extends TokenComponent {
                         if (isFull())
                                 return false;
 
-                        if (item instanceof StackableItem && items.contains(item, false)) {
-                                int storedIndex = items.indexOf(item, false);
-                                StackableItem storedItem = (StackableItem) items.get(storedIndex);
-                                storedItem.addChargesFrom((StackableItem) item);
-                                if (token.listener != null) token.listener.onInventoryChanged();
-                                return true;
+                        if (item instanceof StackableItem ) {
+                                // if item can be stacked, attempt to stack instead of adding it
+                                StackableItem stackableItem = (StackableItem) item;
+                                for (Item storedItem : items) {
+                                        if(storedItem instanceof StackableItem){
+                                                StackableItem storedStackable = (StackableItem) storedItem;
+                                                if(storedStackable.canStackWith(stackableItem)){
+                                                        storedStackable.addChargesFrom(stackableItem);
+                                                        if (token.listener != null) token.listener.onInventoryChanged();
+                                                        return true;
+                                                }
+                                        }
+                                }
                         }
 
                         items.add(item);
@@ -216,15 +223,52 @@ public interface Inventory extends TokenComponent {
 
                 }
 
+                private static final transient UseItemOutcome out = new UseItemOutcome();
+
                 @Override
                 public boolean update(float delta) {
                         timeSinceComabt += delta;
                         if (token.getCommand() != null && token.getCommand().consumeItem != null) {
                                 ConsumableItem consumableItem = token.getCommand().consumeItem;
 
-                                consumableItem.consume(token);
+                                boolean hasConsumed = false;
+                                out.damage = 0;
+                                if(consumableItem instanceof ConsumableItem.TargetsTokens){
+                                        if(token.getCommand().getTargetToken() != null){
+                                                ConsumableItem.TargetsTokens citt = (ConsumableItem.TargetsTokens) consumableItem;
+                                                if(citt.canConsume(token, token.getCommand().getTargetToken())){
+                                                        out.targetToken = token.getCommand().getTargetToken();
+                                                        out.targetItem = null;
+                                                        citt.consume(token, token.getCommand().getTargetToken(), out);
+                                                        hasConsumed = true;
+                                                }
+                                        }
+                                }
+
+                                if(consumableItem instanceof ConsumableItem.TargetsItems){
+                                        if(token.getCommand().getTargetToken() != null){
+                                                ConsumableItem.TargetsItems citi = (ConsumableItem.TargetsItems) consumableItem;
+                                                if(citi.canConsume(token, token.getCommand().targetItem)){
+                                                        out.targetToken = null;
+                                                        out.targetItem = token.getCommand().targetItem;
+                                                        citi.consume(token, token.getCommand().targetItem, out);
+                                                        token.getCommand().targetItem = null;
+                                                        hasConsumed = true;
+                                                }
+                                        }
+                                }
+
+
+                                if(!hasConsumed){
+                                        out.targetItem = null;
+                                        out.targetToken = null;
+                                        consumableItem.consume(token, out);
+
+                                }
+
+
                                 if (token.listener != null)
-                                        token.listener.onUseItem(consumableItem);
+                                        token.listener.onUseItem(consumableItem, out);
 
                                 if (consumableItem instanceof StackableItem) {
                                         StackableItem stackableItem = (StackableItem) consumableItem;
@@ -240,9 +284,30 @@ public interface Inventory extends TokenComponent {
 
                         return false;
                 }
+
+                /**
+                 * should only be called by Move after unlocking a door
+                 * @param key
+                 */
+                protected void useKey(KeyItem key){
+
+                        out.targetItem = null;
+                        out.targetToken = null;
+                        out.didSomething = true;
+                        if(token.listener != null)
+                                token.listener.onUseItem(key, out);
+                        discard(key);
+                }
+
+                public static class UseItemOutcome{
+                        public Token targetToken;
+                        public Item targetItem;
+                        public boolean didSomething;
+                        public int damage;
+                }
         }
 
-        public class Simple implements Inventory {
+        public static class Simple implements Inventory {
                 private Token token;
                 private Item item;
 
