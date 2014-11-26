@@ -1,17 +1,16 @@
 package asf.dungeon.desktop;
 
 import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.DungeonLoader;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.DungeonLoader;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.DungeonWorld;
 
@@ -341,7 +340,7 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
         }
 
         @Override
-        public void onLearnedThroughStudy(EquipmentItem item) {
+        public void onLearned(Item journalObject, boolean study) {
 
         }
 

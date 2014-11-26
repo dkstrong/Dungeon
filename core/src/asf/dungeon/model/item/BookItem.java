@@ -92,7 +92,9 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                 }else if(type == Type.RemoveCurse){
                         EquipmentItem equipment = (EquipmentItem ) targetItem;
                         equipment.setCursed(false);
-                        // TODO: this might need to trigger onInventorChange(), perhaps this should get channeled through a protected method in inventory
+                        // TODO: this is a weird place to invoke onInventoryChanged, i might want to come up with a way to channel this through inventory
+                        if(token.getListener() != null)
+                                token.getListener().onInventoryChanged();
                 }else{
                         throw new AssertionError(type);
                 }
@@ -170,7 +172,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
         public void identifyItem(Token token) {
                 Journal journal = token.get(Journal.class);
                 if (journal != null)
-                        journal.learn(type);
+                        journal.learn(this);
         }
 
         public Type getType() {

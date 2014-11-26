@@ -1,6 +1,7 @@
 package asf.dungeon.model;
 
 import asf.dungeon.model.fogmap.FogMap;
+import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.Token;
@@ -187,6 +188,17 @@ public class FloorMap  {
                         Pair tLoc = token.getLocation();
                         if(tLoc.x >= loc.x - extent && tLoc.x <= loc.x+extent && tLoc.y >= loc.y-extent && tLoc.y <= loc.y+extent){
                                 tokensAt.add(token);
+                        }
+                }
+                return tokensAt;
+        }
+
+        public Array<Token> getTargetableTokens(Token token, ConsumableItem.TargetsTokens usingItem){
+                tokensAt.clear();
+                for (Token t : tokens) {
+                        Pair tLoc = t.getLocation();
+                        if(usingItem.canConsume(token, t)){
+                                tokensAt.add(t);
                         }
                 }
                 return tokensAt;

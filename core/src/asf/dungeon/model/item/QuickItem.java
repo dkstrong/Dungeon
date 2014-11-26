@@ -1,9 +1,11 @@
 package asf.dungeon.model.item;
 
 /**
- * Created by Danny on 11/18/2014.
+ * This is bassically a marker interface for items that can be assigned to quickslots.
+ *
+ * Annotations on android currently have performance issues
  */
 public interface QuickItem extends Item {
 
-        public void quickUse();
+
 }

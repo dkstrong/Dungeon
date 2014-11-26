@@ -29,19 +29,31 @@ public class Journal implements TokenComponent{
         }
 
         // potions, scrolls, books
-        public void learn(PotionItem.Type type){
-                if(!knows(type))
-                        potions.add(type);
+        public void learn(PotionItem item){
+                if(!knows(item.getType())){
+                        potions.add(item.getType());
+                        if(token.listener != null)
+                                token.listener.onLearned(item, false);
+                }
+
         }
 
-        public void learn(ScrollItem.Type type){
-                if(!knows(type))
-                        scrolls.add(type);
+        public void learn(ScrollItem item){
+                if(!knows(item.getType())){
+                        scrolls.add(item.getType());
+                        if(token.listener != null)
+                                token.listener.onLearned(item, false);
+                }
+
         }
 
-        public void learn(BookItem.Type type){
-                if(!knows(type))
-                        books.add(type);
+        public void learn(BookItem item){
+                if(!knows(item.getType())){
+                        books.add(item.getType());
+                        if(token.listener != null)
+                                token.listener.onLearned(item, false);
+                }
+
         }
 
         public boolean knows(PotionItem.Type type){
@@ -59,9 +71,14 @@ public class Journal implements TokenComponent{
         // equipment
 
 
+
         public void learn(EquipmentItem equipmentItem){
-                if(!knows(equipmentItem))
+                if(!knows(equipmentItem)){
                         this.equipment.add(equipmentItem);
+                        if(token.listener != null)
+                                token.listener.onLearned(equipmentItem, false);
+                }
+
         }
 
         public boolean knows(EquipmentItem equipmentItem){
@@ -76,10 +93,10 @@ public class Journal implements TokenComponent{
                 currentStudy+=amount;
 
                 if(currentStudy >= item.getComplexity()){
-                        learn(item);
+                        this.equipment.add(item);
                         equipmentStudy.remove(item);
                         if(token.listener != null)
-                                token.listener.onLearnedThroughStudy(item);
+                                token.listener.onLearned(item, true);
                 }else{
                         equipmentStudy.put(item, currentStudy);
                 }

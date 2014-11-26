@@ -7,7 +7,6 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.logic.Logic;
 import com.badlogic.gdx.utils.Array;
@@ -92,7 +91,7 @@ public class Token  {
         public boolean teleport(FloorMap fm, int x, int y, Direction dir){
 
                 if(!isValidTeleportLocation(fm,x,y)){
-                     throw new AssertionError("not a valid teleport location, need to include a check for this earlier in the code");
+                     throw new AssertionError(getName()+"- not a valid teleport location, need to include a check for this earlier in the code");
                 }
 
                 floorMap = fm;
@@ -229,7 +228,12 @@ public class Token  {
 
                 public void onStatusEffectChange(StatusEffects.Effect effect, float duration);
 
-                public void onLearnedThroughStudy(EquipmentItem item);
+                /**
+                 *
+                 * @param journalObject can be PotionItem.Type, ScrollItem.Type, BookItem.Type, or EquipmentItem
+                 * @param study if the object was learned via study or not, if not learned by study then it was learned by Tome of identification
+                 */
+                public void onLearned(Item journalObject, boolean study);
 
 
         }

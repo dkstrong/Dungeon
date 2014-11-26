@@ -3,6 +3,7 @@ package asf.dungeon.model.item;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
+import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Token;
@@ -12,7 +13,7 @@ import com.badlogic.gdx.utils.Array;
 /**
  * Created by Danny on 11/24/2014.
  */
-public class ScrollItem extends AbstractItem implements ConsumableItem.TargetsTokens,StackableItem, QuickItem{
+public class ScrollItem extends AbstractItem implements QuickItem, ConsumableItem.TargetsTokens,StackableItem{
 
 
 
@@ -32,14 +33,6 @@ public class ScrollItem extends AbstractItem implements ConsumableItem.TargetsTo
         }
 
         @Override
-        public void quickUse() {
-                // TODO: i may not want to have this quick item interface, quickUse() isnt really useful as
-                // item use must go through token command. also some scrolls must be targetted
-                // instead i might jsut want scrolls to be the only quick item capable items and do
-                // interactions with it on the Hud spatial tailored to scrolls
-        }
-
-        @Override
         public void consume(Token token, Inventory.Character.UseItemOutcome out) {
                 charges--;
                 switch(type){
@@ -51,7 +44,7 @@ public class ScrollItem extends AbstractItem implements ConsumableItem.TargetsTo
                                 Token closest = null;
                                 int closestDistance = Integer.MAX_VALUE;
                                 for (Token visibleToken : visibleTokens) {
-                                        if(visibleToken == token || visibleToken.getDamage() == null || visibleToken.getMove() == null)
+                                        if(visibleToken == token || visibleToken.getDamage() == null || visibleToken.getMove() == null || visibleToken.getDamage().isDead())
                                                 continue;
                                         Gdx.app.log("ScrollItem-Lightning","testing against:"+visibleToken.getName());
                                         int dist = visibleToken.getLocation().distance(token.getLocation());
@@ -78,21 +71,7 @@ public class ScrollItem extends AbstractItem implements ConsumableItem.TargetsTo
                                 out.didSomething = true;
                                 break;
                         case Teleportation:
-                                // teleport yourself to random location
-                                // TODO: this code allows for teleporting into a locked room
-                                // i need to make it so either it wont go into a locked room, or
-                                // make it so that when getting locked in is detected that the player dies
-                                int x,y;
-                                Dungeon dungeon = token.dungeon;
-                                FloorMap floorMap = token.getFloorMap();
-                                do{
-                                        x = dungeon.rand.random.nextInt(floorMap.getWidth());
-                                        y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                                }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
-
-                                token.teleport(floorMap, x, y, token.getDirection());
-
-                                out.didSomething = true;
+                                consume(token, token, out);
                                 break;
                         case Confusion:
                                 // does nothing
@@ -116,6 +95,20 @@ public class ScrollItem extends AbstractItem implements ConsumableItem.TargetsTo
                         // freeze target token
                 }else if(type == Type.Teleportation){
                         // teleport target token to random location
+                        // TODO: this code allows for teleporting into a locked room
+                        // i need to make it so either it wont go into a locked room, or
+                        // make it so that when getting locked in is detected that the player dies
+                        int x,y;
+                        Dungeon dungeon = token.dungeon;
+                        FloorMap floorMap = token.getFloorMap();
+                        do{
+                                x = dungeon.rand.random.nextInt(floorMap.getWidth());
+                                y = dungeon.rand.random.nextInt(floorMap.getHeight());
+                        }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
+
+                        targetToken.teleport(floorMap, x, y, token.getDirection());
+                        out.targetToken = targetToken;
+                        out.didSomething = true;
                 }else if(type == Type.Confusion){
                         // causes target to become confused, may attack other monsters
                 }else{
@@ -126,12 +119,32 @@ public class ScrollItem extends AbstractItem implements ConsumableItem.TargetsTo
 
         @Override
         public boolean canConsume(Token token, Token targetToken) {
-                if(token == targetToken || targetToken ==null)
-                        return false;
-                if(type == Type.Lightning || type == Type.Fire || type == Type.ScareMonsters)
-                        return false;
+                switch(type){
 
-                return false;
+                        case Lightning:
+                        case Fire:
+                        case ScareMonsters:
+                                return false;
+                        case Ice:
+                        case Confusion:
+                                if(token == targetToken)
+                                        return false;
+                        case Teleportation:
+                                if(targetToken == null || targetToken.getDamage() == null || targetToken.getMove() == null)
+                                        return false;
+                                if(targetToken.getDamage().isDead())
+                                        return false;
+                                if(token.getFloorMap() != targetToken.getFloorMap())
+                                        return false;
+                                if(token.getFogMapping() != null){
+                                        FogMap fogMap = token.getFogMapping().getCurrentFogMap();
+                                        if(!fogMap.isVisible(targetToken.getLocation().x, targetToken.getLocation().y))
+                                                return false;
+                                }
+                                return true;
+                        default:
+                                throw new AssertionError(type);
+                }
         }
 
 
@@ -183,7 +196,7 @@ public class ScrollItem extends AbstractItem implements ConsumableItem.TargetsTo
         public void identifyItem(Token token) {
                 Journal journal = token.get(Journal.class);
                 if (journal != null)
-                        journal.learn(type);
+                        journal.learn(this);
         }
 
         public Type getType() {

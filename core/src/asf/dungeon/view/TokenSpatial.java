@@ -7,7 +7,6 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.BookItem;
-import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
@@ -18,7 +17,6 @@ import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Shape;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
@@ -80,7 +78,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         } else if (loot.getItem() instanceof BookItem) {
                                 BookItem book = (BookItem) loot.getItem();
                                 String assetLocation = world.getAssetMappings().getBookTextureAssetLocation(book);
-                                Gdx.app.log("TokenSpatial","Texture asset location for book: "+assetLocation);
+                                //Gdx.app.log("TokenSpatial","Texture asset location for book: "+assetLocation);
                                 world.assetManager.load(assetLocation, Texture.class);
                         }
                 } else {
@@ -336,8 +334,6 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
                                         TokenSpatial targetTokenSpatial = world.getTokenSpatial(out.targetToken);
 
-                                        Gdx.app.log("TokenSpatial-onUseItem","lightining being used on: "+out.targetToken+", his spatial is: "+targetTokenSpatial);
-
                                         world.getFxManager().spawnEffect(FxId.Lightning, targetTokenSpatial, 3);
                                 }
                         }
@@ -359,9 +355,9 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         @Override
-        public void onLearnedThroughStudy(EquipmentItem item) {
+        public void onLearned(Item journalObject, boolean study) {
                 if (world.getHud().localPlayerToken == token)
-                        world.getHud().onLearnedThroughStudy(item);
+                        world.getHud().onLearned(journalObject, false);
         }
 
         public void render(float delta) {

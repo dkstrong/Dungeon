@@ -11,7 +11,7 @@ import asf.dungeon.model.token.Token;
 /**
  * Created by Danny on 11/5/2014.
  */
-public class PotionItem extends AbstractItem implements ConsumableItem, StackableItem {
+public class PotionItem extends AbstractItem implements ConsumableItem, StackableItem , QuickItem{
 
 
         public static enum Type {
@@ -68,7 +68,7 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         public void identifyItem(Token token) {
                 Journal journal = token.get(Journal.class);
                 if (journal != null)
-                        journal.learn(type);
+                        journal.learn(this);
         }
 
         public Type getType() {

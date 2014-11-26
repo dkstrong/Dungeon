@@ -4,6 +4,7 @@ import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.ConsumableItem;
+import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.QuickItem;
@@ -11,6 +12,8 @@ import asf.dungeon.model.item.RingItem;
 import asf.dungeon.model.item.StackableItem;
 import asf.dungeon.model.item.WeaponItem;
 import com.badlogic.gdx.utils.Array;
+
+import java.util.Arrays;
 
 /**
  * Created by Danny on 11/11/2014.
@@ -41,7 +44,7 @@ public interface Inventory extends TokenComponent {
                 private WeaponItem weaponSlot;
                 private ArmorItem armorSlot;
                 private RingItem ringSlot;
-                private QuickItem quickSlot;
+                private QuickItem[] quickSlots;
                 private float timeSinceComabt = Float.MAX_VALUE;
 
                 public Character(Token token, Item... items) {
@@ -52,6 +55,7 @@ public interface Inventory extends TokenComponent {
                                 this.items = new Array<Item>(true, 16, Item.class);
                         }
                         this.items.addAll(items);
+
                 }
 
                 public Item get() {
@@ -88,15 +92,43 @@ public interface Inventory extends TokenComponent {
                         return ringSlot;
                 }
 
-                public QuickItem getQuickSlot() {
-                        return quickSlot;
+                public QuickItem getQuickSlot(int index) {
+                        if(index < 0 || index >= numQuickSlots()) return null;
+                        return quickSlots[index];
+                }
+
+                public int numQuickSlots(){
+                        return quickSlots == null ? 0: quickSlots.length;
+                }
+
+                public void setNumQuickSlots(int num){
+                        if(num > 3 || num < 0){
+                              throw new IllegalArgumentException("num must be a value between 0 and 3");
+                        }else if(quickSlots == null){
+                                quickSlots = new QuickItem[num];
+                        }else if(num > quickSlots.length){
+                                quickSlots = Arrays.copyOf(quickSlots, num);
+                        }else{
+                                throw new UnsupportedOperationException("can not shrink the number of quick slots");
+                        }
+
+                        if(token.listener != null)
+                                token.listener.onInventoryChanged();
                 }
 
                 public boolean isEquipped(Item item) {
-                        return item != null && (item == weaponSlot || item == armorSlot || item == ringSlot || item == quickSlot);
+                        if(item == null)
+                                return false;
+                        if(item == weaponSlot || item == armorSlot || item == ringSlot)
+                                return true;
+                        for (int i = 0; i < numQuickSlots(); i++) {
+                                if(quickSlots[i] == item) return true;
+                        }
+
+                        return false;
                 }
 
-                public boolean equip(Item item) {
+                public boolean equip(EquipmentItem item) {
                         if (item == null || !canChangeEquipment())
                                 return false;
                         if (item instanceof WeaponItem) {
@@ -111,8 +143,6 @@ public interface Inventory extends TokenComponent {
                                 if (ringSlot != null && ringSlot.isCursed()) return false;
                                 ringSlot = (RingItem) item;
                                 token.getExperience().recalcStats();
-                        } else if (item instanceof QuickItem) {
-                                quickSlot = (QuickItem) item;
                         }
 
                         if (token.listener != null)
@@ -121,8 +151,34 @@ public interface Inventory extends TokenComponent {
 
                 }
 
-                public boolean unequip(Item item) {
+                public boolean equip(QuickItem item) {
                         if (item == null || !canChangeEquipment())
+                                return false;
+                        for (int i = 0; i < numQuickSlots(); i++) {
+                                if(quickSlots[i] == null){
+                                        quickSlots[i] = item;
+                                        if (token.listener != null)
+                                                token.listener.onInventoryChanged();
+                                        return true;
+                                }
+                        }
+                        return false;
+                }
+
+                public boolean equip(QuickItem item, int index) {
+                        if(item == null || !canChangeEquipment() || index <0 || index >=numQuickSlots())
+                                return false;
+
+                        quickSlots[index] = item;
+
+                        if (token.listener != null)
+                                token.listener.onInventoryChanged();
+                        return true;
+                }
+
+                public boolean unequip(Item item) {
+                        // TODO: check to ensure that unequipping something wouldnt go over the inventory limit
+                        if (item == null || !canChangeEquipment() || isFull())
                                 return false;
                         if (weaponSlot == item) {
                                 if (weaponSlot.isCursed()) return false;
@@ -136,8 +192,11 @@ public interface Inventory extends TokenComponent {
                                 if (ringSlot.isCursed()) return false;
                                 ringSlot = null;
                                 token.getExperience().recalcStats();
-                        } else if (quickSlot == item) {
-                                quickSlot = null;
+                        } else  {
+                                for (int i = 0; i < numQuickSlots(); i++) {
+                                        if(quickSlots[i] == item)
+                                                quickSlots[i] = null;
+                                };
                         }
                         if (token.listener != null)
                                 token.listener.onInventoryChanged();
@@ -150,14 +209,24 @@ public interface Inventory extends TokenComponent {
                         return items.size;
                 }
 
-                public boolean isFull() {
-                        if (items.size < 16) return false;
+                public int sizeInBackpack(){
                         int subMax = 0;
                         if (weaponSlot != null) subMax++;
                         if (armorSlot != null) subMax++;
                         if (ringSlot != null) subMax++;
-                        if (quickSlot != null) subMax++;
-                        return items.size - subMax >= 16;
+                        for (int i = 0; i < numQuickSlots(); i++) {
+                                if(quickSlots[i] != null) subMax++;
+                        }
+                        return items.size-subMax;
+
+                }
+
+                public int maxBackpackSlots(){
+                        return 16;
+                }
+
+                public boolean isFull() {
+                        return sizeInBackpack() >= maxBackpackSlots();
                 }
 
                 protected void resetCombatTimer() {
@@ -194,9 +263,8 @@ public interface Inventory extends TokenComponent {
 
                         items.add(item);
 
-                        if (quickSlot == null && item.isIdentified(token) && item instanceof QuickItem) {
-                                // if the quickslot has nothing in it, then put the newly picked up item there...
-                                equip(item); // TODO: if discarding an equipped item this will cause two calls in a row to onInventoryChanged(), the messy code to fix this would be messy so im just going to leave as is for now
+                        if(item instanceof QuickItem){
+                                equip((QuickItem)item); // TODO: if discarding an equipped item this will cause two calls in a row to onInventoryChanged(), the messy code to fix this would be messy so im just going to leave as is for now
                         }
 
                         if (token.listener != null) token.listener.onInventoryChanged();

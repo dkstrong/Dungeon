@@ -89,7 +89,7 @@ public class DungeonLoader {
                         playerLogic = new FullAgroLogic(0);
                 }else{
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new ConnectedRoomsGen(), new PreBuiltFloorGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
+                                new BinarySpaceGen(), new PreBuiltFloorGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
@@ -115,19 +115,20 @@ public class DungeonLoader {
                                 0,0);
 
                         token.getDamage().setDeathRemovalCountdown(Float.NaN);
+
+                        token.getInventory().setNumQuickSlots(1);
                         token.getInventory().add(new PotionItem(dungeon, PotionItem.Type.Health,2 ));
-
                         token.getInventory().add(new BookItem(dungeon, BookItem.Type.Map));
-                        token.get(Journal.class).learn(BookItem.Type.Map);
 
-                        token.getInventory().add(new BookItem(dungeon, BookItem.Type.ItemDetection));
-                        token.get(Journal.class).learn(BookItem.Type.ItemDetection);
+                        ScrollItem teleportScroll = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 5);
+                        //teleportScroll.identifyItem(token);
+                        token.getInventory().add(teleportScroll);
 
+                        ScrollItem scroll = new ScrollItem(dungeon, ScrollItem.Type.Lightning, 5);
+                        //scroll.identifyItem(token);
+                        token.getInventory().add(scroll);
 
-                        token.getInventory().add(new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 5));
-                        token.get(Journal.class).learn(ScrollItem.Type.Teleportation);
-                        token.getInventory().add(new ScrollItem(dungeon, ScrollItem.Type.Lightning, 5));
-                        token.get(Journal.class).learn(ScrollItem.Type.Lightning);
+                        token.getInventory().equip(teleportScroll);
 
                         if(settings.playerModel == ModelId.Knight){
                                 WeaponItem sword = new WeaponItem(ModelId.Sword,"Sword", 3);

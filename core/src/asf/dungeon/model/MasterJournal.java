@@ -3,7 +3,6 @@ package asf.dungeon.model;
 import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
-import com.badlogic.gdx.Gdx;
 
 /**
  * On each new game potions, scrolls, and books are represented by different markings.
@@ -55,15 +54,15 @@ public class MasterJournal  {
         public ScrollItem.Type getScrollType(ScrollItem.Symbol symbol){return scrolls[symbol.ordinal()];}
 
         public BookItem.Symbol getBookSymbol(BookItem.Type type){
-                Gdx.app.log("master journal","getting symbol for book type: "+type);
+                //Gdx.app.log("master journal","getting symbol for book type: "+type);
                 for (int i = 0; i < books.length; i++) {
                         BookItem.Type bookType = books[i];
                         if(bookType == type){
-                                Gdx.app.log("master journal","found symbol: "+(BookItem.Symbol.values()[i]));
+                                //Gdx.app.log("master journal","found symbol: "+(BookItem.Symbol.values()[i]));
                                 return BookItem.Symbol.values()[i];
                         }
                 }
-                Gdx.app.log("master journal","found no symbol");
+                //Gdx.app.log("master journal","found no symbol");
                 return null;
         }
 

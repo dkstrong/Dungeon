@@ -48,9 +48,10 @@ public class Command implements TokenComponent{
         }
 
         public void setLocation(int x, int y) {
-                canUseKeyOnTile = null;
+
                 if(location.equals(x,y))
                         return;
+                canUseKeyOnTile = null;
                 this.location.set(x,y);
                 targetToken = null;
                 useKeyOnTile = null;
@@ -87,6 +88,14 @@ public class Command implements TokenComponent{
                 boolean valid = consumeItem(item);
                 if(valid)
                         this.targetItem = targetItem;
+                return valid;
+        }
+
+        public boolean consumeItem(Item item, Token targetToken){
+                boolean valid = consumeItem(item);
+                if(valid){
+                        setTargetToken(targetToken);
+                }
                 return valid;
         }
 

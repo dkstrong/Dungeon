@@ -217,9 +217,9 @@ public class Move implements TokenComponent{
                                 //token.getTarget().setUseKey(false);
                                 if(key == null){
                                         //Gdx.app.log("Move","Try to use key but do not have a key");
-                                        token.getCommand().setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
-                                        if(token.listener != null)
-                                                token.listener.onPathBlocked(nextLocation, nextTile);
+                                        //token.getCommand().setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
+                                        //if(token.listener != null)
+                                        //        token.listener.onPathBlocked(nextLocation, nextTile);
                                         return true;
 
                                 }else{
@@ -231,11 +231,16 @@ public class Move implements TokenComponent{
 
                                 }
                         }else{
-                                //Gdx.app.log("Move","Ran in to locked door, but does not have open command");
-                                token.getCommand().setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
-                                token.getCommand().canUseKeyOnTile = key != null ? nextTile : null;
-                                if(token.listener != null)
-                                        token.listener.onPathBlocked(nextLocation, nextTile);
+
+                                //token.getCommand().setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
+                                if(token.getCommand().canUseKeyOnTile == null){
+                                        //Gdx.app.log("Move","Ran in to locked door, but does not have open command, tile: "+token.getCommand().canUseKeyOnTile);
+                                        token.getCommand().canUseKeyOnTile = nextTile;
+                                        if(token.listener != null)
+                                                token.listener.onPathBlocked(nextLocation, nextTile);
+                                }
+
+
                                 return true;
 
                         }
