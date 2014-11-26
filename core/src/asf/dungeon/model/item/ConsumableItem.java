@@ -24,6 +24,14 @@ public interface ConsumableItem extends Item{
                  * @return
                  */
                 public boolean canConsume(Token token, Token targetToken);
+                /**
+                 * returns true if this item is not meant to normally be targetted on to other items
+                 *
+                 * This is kind of a hack, some BookItems straight up do not target other items, but for consistency with PotionItems and BookItems
+                 * I want to have all books by a "Type" of ScrollItem, which forces them to inherit this interface
+                 * @return
+                 */
+                public boolean isPrimarilySelfConsume();
         }
 
         public interface TargetsItems extends ConsumableItem{
@@ -38,5 +46,14 @@ public interface ConsumableItem extends Item{
                  * @return
                  */
                 public boolean canConsume(Token token, Item targetItem);
+
+                /**
+                 * returns true if this item is not meant to normally be targetted on to other items
+                 *
+                 * This is kind of a hack, some BookItems straight up do not target other items, but for consistency with PotionItems and ScrollItemss
+                 * I want to have all books by a "Type" of BookItem, which forces them to inherit this interface
+                 * @return
+                 */
+                public boolean isPrimarilySelfConsume();
         }
 }

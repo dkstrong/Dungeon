@@ -85,6 +85,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private boolean tokenSelectMode = false;
         private ConsumableItem.TargetsTokens tokenSelectForItem;
 
+        private boolean itemSelectMode = false;
+        private ConsumableItem.TargetsItems itemSelectForItem;
+
         private final Vector3 tempVec = new Vector3();
 
         @Override
@@ -202,7 +205,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
 
 
-
                 for (int j = 0; j < 4; j++) {
                         equipmentTable.row();
                         for (int i = 0; i < 2; i++) {
@@ -290,7 +292,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 healthProgressBar.setBounds(
                         margin + buttonSize,
-                        margin +buttonSize - buttonSize * .27f,
+                        margin + buttonSize - buttonSize * .27f,
                         buttonSize * 1.5f,
                         buttonSize * .333f);
 
@@ -301,7 +303,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
 
                 avatarStatusEffectsGroup.setBounds(
-                        margin + buttonSize+margin*.25f,
+                        margin + buttonSize + margin * .25f,
                         margin,
                         buttonSize * .333f,
                         buttonSize * .333f);
@@ -472,6 +474,23 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 return null;
         }
 
+        private Button getButton(Item item) {
+                SnapshotArray<Actor> children = backPackTable.getChildren();
+                for (Actor child : children) {
+                        if (child.getUserObject() == item && child instanceof Button) {
+                                return (Button) child;
+                        }
+                }
+
+                children = equipmentTable.getChildren();
+                for (Actor child : children) {
+                        if (child.getUserObject() == item && child instanceof Button) {
+                                return (Button) child;
+                        }
+                }
+                return null;
+        }
+
         private void refreshInventoryElements() {
                 //Gdx.app.log("HudSpatial", "refresh inventory");
                 // refresh hero stats
@@ -507,11 +526,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 sb.append("\n");
 
                 StatusEffects statusEffets = localPlayerToken.get(StatusEffects.class);
-                if(statusEffets.hasStatusEffect(StatusEffects.Effect.Paralyze)){
+                if (statusEffets.hasStatusEffect(StatusEffects.Effect.Paralyze)) {
                         sb.append("You are paralyzed\n");
                 }
 
-                if(statusEffets.hasStatusEffect(StatusEffects.Effect.Poison)){
+                if (statusEffets.hasStatusEffect(StatusEffects.Effect.Poison)) {
                         sb.append("You are poisoned\n");
                 }
 
@@ -802,7 +821,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                         }
                 } else if (item instanceof BookItem) {
-
+                        this.appendToGameLog("You just read "+item.getName()+".. The whole thing!");
+                        if(out.targetItem != null){
+                                // immediatly bring up the inventory window so the user can see the result of using the book on this item
+                                this.setInventoryWindowVisible(true);
+                        }
                 }
 
         }
@@ -905,7 +928,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         if (!tokenSelectForItem.isIdentified(localPlayerToken)) {
 
                                 Array<Token> targetableTokens = localPlayerToken.getFloorMap().getTargetableTokens(localPlayerToken, tokenSelectForItem);
-                                Gdx.app.log("HudSpatial", "not identified, " + targetableTokens);
                                 if (targetableTokens.size == 0) {
                                         tokenSelectMode = false;
                                         tokenSelectForItem = null;
@@ -919,6 +941,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         }
                                 }
                         }
+                } else if (itemSelectMode) {
+
+
                 } else if (mouseDownDrag) {
                         Ray ray = world.cam.getPickRay(Gdx.input.getX(), Gdx.input.getY());
                         dragCommand(ray);
@@ -1055,7 +1080,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         public boolean handle(Event event) {
 
                 if (event.getTarget() == itemWindow) {
-                        if (event instanceof InputEvent) {
+                        if (!tokenSelectMode && !itemSelectMode && event instanceof InputEvent) {
                                 InputEvent inputEvent = (InputEvent) event;
                                 if (inputEvent.getType() == InputEvent.Type.touchDown) {
                                         float clickX = inputEvent.getStageX();
@@ -1070,7 +1095,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
 
                 if (event.getTarget() == avatarWindow) {
-                        if (event instanceof InputEvent) {
+                        if (!tokenSelectMode && !itemSelectMode && event instanceof InputEvent) {
                                 InputEvent inputEvent = (InputEvent) event;
                                 if (inputEvent.getType() == InputEvent.Type.touchDown) {
                                         float clickX = inputEvent.getStageX();
@@ -1090,7 +1115,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
 
                 if (event.getListenerActor() == avatarButton) {
-                        setInventoryWindowVisible(true);
+                        if(!tokenSelectMode)
+                                setInventoryWindowVisible(true);
                 } else if (event.getListenerActor() == itemWindowUseButton) {
                         Object object = itemWindow.getUserObject();
 
@@ -1113,10 +1139,13 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         localPlayerToken.getInventory().equip(item);
                                 }
                                 setItemDialogVisible(false);
-                        } else if (object instanceof ConsumableItem) {
-                                boolean valid = localPlayerToken.getCommand().consumeItem((ConsumableItem) object);
-                                if (valid)
-                                        setInventoryWindowVisible(false);
+                        } else if (object instanceof ConsumableItem.TargetsItems) {
+
+                                this.setItemSelectMode((ConsumableItem.TargetsItems) object);
+
+
+                        } else {
+                                throw new AssertionError(object);
                         }
 
 
@@ -1128,16 +1157,23 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 } else if (event.getListenerActor() == itemWindowBackButton) {
                         setItemDialogVisible(false);
                 } else if (event.getListenerActor() instanceof Button) {
+                        // either an inventory screen button was pressed or a quick slot button
                         Button button = (Button) event.getListenerActor();
                         Object uo = event.getListenerActor().getUserObject();
 
-                        if(inventoryEquipmentButtons.contains(button, true) || inventoryBackPackButtons.contains(button, true)){
+                        if (inventoryEquipmentButtons.contains(button, true) || inventoryBackPackButtons.contains(button, true)) {
                                 // inventory screen button
                                 if (uo instanceof Item) {
-                                        setItemWindowContents((Item) uo);
-                                        setItemDialogVisible(true);
+                                        if(!itemSelectMode){
+                                                setItemWindowContents((Item) uo);
+                                                setItemDialogVisible(true);
+                                        }else{
+                                                localPlayerToken.getCommand().consumeItem(itemSelectForItem, (Item)uo);
+                                                setItemSelectMode(null);
+
+                                        }
                                 }
-                        }else{
+                        } else {
                                 // quick slot button press
                                 if (uo instanceof QuickItem) {
                                         if (tokenSelectMode) {
@@ -1151,20 +1187,26 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         if (uo instanceof ConsumableItem.TargetsTokens) {
                                                 tokenSelectMode = true;
                                                 tokenSelectForItem = (ConsumableItem.TargetsTokens) uo;
-                                                Gdx.app.log("HudSpatial", "start targeting mode");
-                                                // if item is not identified and can not be used on any targets, then automatically cast on self
-                                                if (!tokenSelectForItem.isIdentified(localPlayerToken)) {
-                                                        // if not identified, then using the scroll can not be cancelled
-                                                } else {
-                                                        // TODO: change text to "cancel"
-                                                }
 
+                                                if(tokenSelectForItem.isPrimarilySelfConsume()){
+                                                        localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
+                                                        tokenSelectMode = false;
+                                                        tokenSelectForItem = null;
+                                                }else{
+                                                        //Gdx.app.log("HudSpatial", "start targeting mode");
+                                                        // if item is not identified and can not be used on any targets, then automatically cast on self
+                                                        if (!tokenSelectForItem.isIdentified(localPlayerToken)) {
+                                                                // if not identified, then using the scroll can not be cancelled
+                                                        } else {
+                                                                // TODO: change text to "cancel"
+                                                        }
+                                                }
                                         } else if (uo instanceof ConsumableItem) {
                                                 localPlayerToken.getCommand().consumeItem((ConsumableItem) uo);
                                         } else {
                                                 throw new AssertionError(uo);
                                         }
-                                }else if(uo == null){
+                                } else if (uo == null) {
                                         setInventoryWindowVisible(true);
                                 }
                         }
@@ -1173,6 +1215,100 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 return false;
         }
 
+
+        private void setItemSelectMode(ConsumableItem.TargetsItems item) {
+                itemSelectForItem = item;
+
+                itemSelectMode = itemSelectForItem != null;
+
+                if (itemSelectMode) {
+                        if(item.isPrimarilySelfConsume()){
+                                boolean valid = localPlayerToken.getCommand().consumeItem(itemSelectForItem);
+                                itemSelectForItem = null;
+                                itemSelectMode = false;
+                                if(valid)
+                                        this.setInventoryWindowVisible(false);
+                                return;
+                        }
+
+
+                        int numValid = 0;
+                        SnapshotArray<Actor> equipmentChildren = equipmentTable.getChildren();
+                        SnapshotArray<Actor> backpackChildren = backPackTable.getChildren();
+                        int i = 0;
+                        int n = equipmentChildren.size;
+                        boolean p = true;
+                        // I call this the frankenloop, it iterates over both equipment and backpack buttons to check if they can be used with the user selected item
+                        while (i < n || p) {
+                                Actor actor = p ? equipmentChildren.get(i) : backpackChildren.get(i);
+                                if (actor instanceof Button) {
+                                        Button button = (Button) actor;
+                                        Object uo = button.getUserObject();
+                                        boolean validItem;
+                                        if (uo instanceof Item) {
+                                                Item targetItem = (Item) uo;
+                                                validItem = itemSelectForItem.canConsume(localPlayerToken, targetItem);
+                                        } else {
+                                                validItem = false;
+                                        }
+                                        if (validItem) numValid++;
+                                        button.setVisible(validItem);
+                                        button.setDisabled(!validItem);
+                                }
+                                i++;
+                                if (i >= n && p) {
+                                        n = backpackChildren.size;
+                                        i = 0;
+                                        p = false;
+                                }
+
+                        }
+
+
+
+
+                        if (numValid == 0 && !itemSelectForItem.isIdentified(localPlayerToken)) {
+                                //no valid items to target, if item is not identified force targeting on itself
+                                // because unidentified items can not be cancelled
+
+
+
+                                itemSelectMode = false;
+                                itemSelectForItem = null;
+                                boolean valid = localPlayerToken.getCommand().consumeItem(itemSelectForItem);
+                                if (valid) setInventoryWindowVisible(false);
+                        } else {
+                                setItemDialogVisible(false);
+                                // but keep inventory window open obviously
+                        }
+                } else {
+                        // turn off item select mode
+                        SnapshotArray<Actor> equipmentChildren = equipmentTable.getChildren();
+                        SnapshotArray<Actor> backpackChildren = backPackTable.getChildren();
+                        int i = 0;
+                        int n = equipmentChildren.size;
+                        boolean p = true;
+                        // the return of the frrrannkeeenloooop
+                        while (i < n || p) {
+                                Actor actor = p ? equipmentChildren.get(i) : backpackChildren.get(i);
+                                if (actor instanceof Button) {
+                                        Button button = (Button) actor;
+                                        button.setVisible(true);
+                                        button.setDisabled(false);
+                                }
+                                i++;
+                                if (i >= n && p) {
+                                        n = backpackChildren.size;
+                                        i = 0;
+                                        p = false;
+                                }
+
+                        }
+                        this.setInventoryWindowVisible(false);
+                }
+
+
+        }
 
         private class DamageLabel {
                 Label label;

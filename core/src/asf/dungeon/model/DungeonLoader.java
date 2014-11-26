@@ -118,7 +118,9 @@ public class DungeonLoader {
 
                         token.getInventory().setNumQuickSlots(1);
                         token.getInventory().add(new PotionItem(dungeon, PotionItem.Type.Health,2 ));
-                        token.getInventory().add(new BookItem(dungeon, BookItem.Type.Map));
+                        BookItem book = new BookItem(dungeon, BookItem.Type.Identify);
+                        token.getInventory().add(book);
+                        book.identifyItem(token);
 
                         ScrollItem teleportScroll = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 5);
                         //teleportScroll.identifyItem(token);
@@ -128,7 +130,7 @@ public class DungeonLoader {
                         //scroll.identifyItem(token);
                         token.getInventory().add(scroll);
 
-                        token.getInventory().equip(teleportScroll);
+                        token.getInventory().equip(scroll);
 
                         if(settings.playerModel == ModelId.Knight){
                                 WeaponItem sword = new WeaponItem(ModelId.Sword,"Sword", 3);

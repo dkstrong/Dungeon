@@ -32,6 +32,10 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                 Alpha, Beta, Gamma, Delta, Epsilon, Zeta, Eta, Theta, Iota, Kappa
         }
 
+        public boolean isPrimarilySelfConsume(){
+                return type == Type.Map || type == Type.ItemDetection || type == Type.Sleep || type == Type.AggravateMonsters || type == Type.Experience;
+        }
+
         @Override
         public void consume(Token token, Inventory.Character.UseItemOutcome out) {
 
@@ -68,6 +72,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                         case EnchantArmor:
                         case EnchantRing:
                         case RemoveCurse:
+                                new Error().printStackTrace();
                                 out.didSomething = false;
                                 // do nothing
                                 break;
@@ -102,9 +107,11 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
 
         }
 
+
+
         @Override
         public boolean canConsume(Token token, Item targetItem) {
-                if(this == targetItem || targetItem == null)
+                if(this == targetItem || targetItem == null ||  !token.getInventory().contains(targetItem))
                         return false;
                 if(type == Type.Identify){
                         return !targetItem.isIdentified(token);

@@ -97,6 +97,10 @@ public interface Inventory extends TokenComponent {
                         return quickSlots[index];
                 }
 
+                public boolean contains(Item targetItem) {
+                        return items.contains(targetItem, true);
+                }
+
                 public int numQuickSlots(){
                         return quickSlots == null ? 0: quickSlots.length;
                 }
@@ -317,7 +321,7 @@ public interface Inventory extends TokenComponent {
                                 }
 
                                 if(consumableItem instanceof ConsumableItem.TargetsItems){
-                                        if(token.getCommand().getTargetToken() != null){
+                                        if(token.getCommand().targetItem != null){
                                                 ConsumableItem.TargetsItems citi = (ConsumableItem.TargetsItems) consumableItem;
                                                 if(citi.canConsume(token, token.getCommand().targetItem)){
                                                         out.targetToken = null;
@@ -369,6 +373,8 @@ public interface Inventory extends TokenComponent {
                                 token.listener.onUseItem(key, out);
                         discard(key);
                 }
+
+
 
                 public static class UseItemOutcome{
                         public Token targetToken;

@@ -33,6 +33,11 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
         }
 
         @Override
+        public boolean isPrimarilySelfConsume() {
+                return type == Type.Lightning || type == Type.Fire || type == Type.ScareMonsters;
+        }
+
+        @Override
         public void consume(Token token, Inventory.Character.UseItemOutcome out) {
                 charges--;
                 switch(type){
