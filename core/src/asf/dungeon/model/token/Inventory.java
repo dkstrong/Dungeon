@@ -162,7 +162,10 @@ public interface Inventory extends TokenComponent {
                                         return true;
                                 }
                         }
-                        return false;
+                        quickSlots[0] = item;
+                        if (token.listener != null)
+                                token.listener.onInventoryChanged();
+                        return true;
                 }
 
                 public boolean equip(QuickItem item, int index) {
