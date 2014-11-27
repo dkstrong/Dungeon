@@ -214,6 +214,8 @@ public class Pathfinder {
                         // only check tokens if closedNodes < 5. far away tokens are likely to be changed by the time you get there so its not so important to check for them
                         Array<Token> tokensAt = floorMap.getTokensAt(n1);
                         for (Token t : tokensAt) {
+                                if(t.getDamage() != null && t.getDamage().isDead())
+                                        continue;
                                 if(t.isBlocksPathing()){
                                         if(t.getMove() == null)
                                                 movementCost += 30; // crate, should avoid

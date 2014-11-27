@@ -372,8 +372,13 @@ public class DungeonWorld implements Disposable {
 
                 @Override
                 public void onTokenRemoved(Token token) {
-                        if (token == hudSpatial.localPlayerToken && !token.getDamage().isFullyDead()) {
-                                cameraChaseTarget.visU = 0; // this forces the player spatial to turn black and fade back in
+                        if (token == hudSpatial.localPlayerToken) {
+                                if(!token.getDamage().isFullyDead()){
+                                        cameraChaseTarget.visU = 0; // this forces the player spatial to turn black and fade back in
+                                }else{
+                                        dungeonApp.setAppGameOver();
+                                }
+
                                 return;
                         }
 

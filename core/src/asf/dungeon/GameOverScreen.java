@@ -1,5 +1,6 @@
 package asf.dungeon;
 
+import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
@@ -20,16 +21,20 @@ import com.badlogic.gdx.utils.I18NBundle;
 /**
  * Created by danny on 10/19/14.
  */
-public class PauseScreen implements Screen, InputProcessor, EventListener {
+public class GameOverScreen implements Screen, InputProcessor, EventListener {
         final DungeonApp app;
+         DungeonWorld world;
         private Stage stage;
 
-        public PauseScreen(DungeonApp dungeonApp) {
+        public GameOverScreen(DungeonApp dungeonApp, DungeonWorld world) {
                 app = dungeonApp;
+                this.world = world;
         }
 
         private Window window;
         private Button resumeButton, returnToMainMenuButton;
+
+
         @Override
         public void show() {
                 stage = app.stage;
@@ -43,7 +48,7 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
                 table.setFillParent(true);
 
 
-                window = new Window(i18n.get("paused"),skin);
+                window = new Window("GAME OVER",skin);
                 table.add(window).minSize(Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.75f);
 
                 //window.setFillParent(true);
@@ -82,6 +87,12 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
 
         @Override
         public void render(float delta) {
+                if(world != null){
+                        // I pause the world here instead of inside of DUngeonWorld itself so that saving and pausing doesnt
+                        // happen during the middle of the game loop
+                        world.setPaused(true);
+                        world = null;
+                }
                 //Gdx.gl.glClearColor(0, 0, 0.2f, 1);
                 //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

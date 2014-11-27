@@ -114,7 +114,7 @@ public class DungeonLoader {
                                 new Experience(1, 20, 6, 3, 1,1),
                                 0,0);
 
-                        token.getDamage().setDeathRemovalCountdown(Float.NaN);
+                        token.getDamage().setDeathRemovalCountdown(7);
 
                         token.getInventory().setNumQuickSlots(1);
                         token.getInventory().add(new PotionItem(dungeon, PotionItem.Type.Health,2 ));
@@ -303,6 +303,8 @@ public class DungeonLoader {
                 kryo.register(EquipmentItem[].class);
                 kryo.register(KeyItem.class);
                 kryo.register(KeyItem.Type.class);
+                kryo.register(asf.dungeon.model.item.QuickItem.class);
+                kryo.register(asf.dungeon.model.item.QuickItem[].class);
                 kryo.register(PotionItem.class);
                 kryo.register(PotionItem.Color.class);
                 kryo.register(PotionItem.Type.class);
