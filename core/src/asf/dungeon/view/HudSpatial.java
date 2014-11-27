@@ -64,6 +64,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private boolean showRenderingStasLabel = true;
 
         private Skin skin;
+        // in game hud
         private Label gameLogLabel, targetInfoLabel;
         private float gameLogDisplayCountdown = Float.NaN;
         private Button avatarButton;
@@ -72,22 +73,25 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private Label avatarLabel;
         private HorizontalGroup avatarStatusEffectsGroup;
         private Image[] statusEffectImage;
-        private Window avatarWindow;
         private Label renderingStats;
+        private final Array<DamageLabel> damageInfoLabels = new Array<DamageLabel>(false, 8, DamageLabel.class);
+        //inventory hud
+        private Window inventoryWindow;
         private Table equipmentTable, backPackTable;
         private final Array<Button> inventoryEquipmentButtons = new Array<Button>(true, 6, Button.class);
         private final Array<Button> inventoryBackPackButtons = new Array<Button>(true, 16, Button.class);
         private Window itemWindow;
         private Label itemWindowLabel;
         private Button itemWindowUseButton, itemWindowDiscardButton, itemWindowBackButton;
-        private final Array<DamageLabel> damageInfoLabels = new Array<DamageLabel>(false, 8, DamageLabel.class);
-
+        // input mode
         private boolean tokenSelectMode = false;
         private ConsumableItem.TargetsTokens tokenSelectForItem;
-
         private boolean itemSelectMode = false;
         private ConsumableItem.TargetsItems itemSelectForItem;
-
+        private HorizontalGroup inputModeHorizontalGroup;
+        private Label inputModeLabel;
+        private Button inputModeCancelButton;
+        // temp
         private final Vector3 tempVec = new Vector3();
 
         @Override
@@ -113,7 +117,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 avatarButton = new Button(skin);
                 world.stage.addActor(avatarButton);
-
                 avatarButton.add(new Label("Inventory", skin));
                 avatarButton.addCaptureListener(this);
 
@@ -169,31 +172,46 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         quickButtons[i] = quickButton;
                 }
 
-                avatarWindow = new Window(localPlayerToken.getName(), skin);
-                avatarWindow.setMovable(false);
-                avatarWindow.setModal(true);
-                avatarWindow.addCaptureListener(this);
-                avatarWindow.removeActor(avatarWindow.getButtonTable());
+
+
+                inventoryWindow = new Window(localPlayerToken.getName(), skin);
+                inventoryWindow.setMovable(false);
+                inventoryWindow.addCaptureListener(this);
+                inventoryWindow.removeActor(inventoryWindow.getButtonTable());
                 equipmentTable = new Table(skin);
                 backPackTable = new Table(skin);
-                //avatarWindow.debug();
-                //world.stage.addActor(avatarWindow);
-                //avatarWindow.debugAll();
+                //inventoryWindow.debug();
+                //world.stage.addActor(inventoryWindow);
+                //inventoryWindow.debugAll();
                 {
-                        avatarWindow.row();
-                        avatarWindow.add(equipmentTable).fill().expand();
-                        avatarWindow.add(backPackTable).fill().expand();
+
+                        inputModeLabel = new Label("Choose item to use",skin);
+
+                        inputModeCancelButton = new Button(skin);
+                        inputModeCancelButton.add(new Label("Cancel", skin));
+                        inputModeCancelButton.addCaptureListener(this);
+
+                        inputModeHorizontalGroup = new HorizontalGroup();
+
+                        inputModeHorizontalGroup.setVisible(false);
+                        inputModeHorizontalGroup.addActor(inputModeLabel);
+                        //inventoryWindow.add(inputModeHorizontalGroup).colspan(3);
+
+                        inventoryWindow.row();
+                        inventoryWindow.add(equipmentTable).fill().expand();
+                        inventoryWindow.add(backPackTable).fill().expand();
 
                         Label descriptionLabel = new Label("Hero Stats", skin);
                         descriptionLabel.setWrap(true);
                         ScrollPane scrollPane = new ScrollPane(descriptionLabel, skin);
                         scrollPane.setUserObject("Hero Stats");
-                        avatarWindow.add(scrollPane).fill().expand();
+                        inventoryWindow.add(scrollPane).fill().expand();
 
 
-                        avatarWindow.row();
+                        inventoryWindow.row();
                         Button closeButton = new Button(skin);
                         closeButton.add("Close");
+
                         closeButton.setUserObject("Close");
                         closeButton.addCaptureListener(new ChangeListener() {
                                 @Override
@@ -201,7 +219,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         setInventoryWindowVisible(false);
                                 }
                         });
-                        avatarWindow.add(closeButton).colspan(3);
+                        inventoryWindow.add(closeButton).colspan(3);
                 }
 
 
@@ -275,6 +293,10 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         itemWindow.add(itemWindowBackButton);
                 }
 
+
+
+
+
                 resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
                 refreshInventoryElements();
@@ -338,14 +360,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 float windowHeight = Gdx.graphics.getHeight() - 15 - 15;
                 float windowButtonSize = windowHeight * (1 / 5f);
                 float windowCloseButtonSize = windowButtonSize * .5f;
-                avatarWindow.setBounds(
+                inventoryWindow.setBounds(
                         (Gdx.graphics.getWidth() - windowWidth) * .5f,
                         ((Gdx.graphics.getHeight() - windowHeight) * .5f),
                         windowWidth,
                         windowHeight);
 
 
-                for (Cell cell : avatarWindow.getCells()) {
+                for (Cell cell : inventoryWindow.getCells()) {
                         String uoVal = String.valueOf(cell.getActor().getUserObject());
                         if (uoVal.equals("Close")) {
                                 cell.prefSize(windowCloseButtonSize, windowCloseButtonSize * .5f).pad(windowCloseButtonSize * .35f, 0, windowCloseButtonSize * .15f, 0);
@@ -379,7 +401,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 cell.prefSize(itemWindowButtonSizeX, itemWindowButtonSizeY).minSize(itemWindowButtonSizeX, itemWindowButtonSizeY);
                         }
                 }
-
 
         }
 
@@ -494,7 +515,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private void refreshInventoryElements() {
                 //Gdx.app.log("HudSpatial", "refresh inventory");
                 // refresh hero stats
-                SnapshotArray<Actor> children = avatarWindow.getChildren();
+                SnapshotArray<Actor> children = inventoryWindow.getChildren();
                 Label heroStatsLabel = null;
                 for (Actor child : children) {
                         String uoName = String.valueOf(child.getUserObject());
@@ -755,38 +776,52 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         public boolean isWindowVisible() {
                 if (!isInitialized()) return false;
-                return avatarWindow.getParent() != null || itemWindow.getParent() != null;
+                return inventoryWindow.getParent() != null || itemWindow.getParent() != null;
         }
 
 
+        private void setHudElementsVisible(boolean visible){
+                avatarButton.setVisible(visible);
+                healthProgressBar.setVisible(visible);
+                avatarLabel.setVisible(visible);
+                avatarStatusEffectsGroup.setVisible(visible);
+                gameLogLabel.setVisible(visible);
+                targetInfoLabel.setVisible(visible);
+                for (Button quickButton : quickButtons) {
+                        quickButton.setVisible(visible);
+                }
+        }
+
         private void setInventoryWindowVisible(boolean visible) {
+
+                setHudElementsVisible(!visible);
                 if (visible) {
-                        if (avatarWindow.getParent() == null)
-                                world.stage.addActor(avatarWindow);
+
+                        if (inventoryWindow.getParent() == null)
+                                world.stage.addActor(inventoryWindow);
                         refreshInventoryElements();
                         world.setPaused(true);
                 } else {
-                        avatarWindow.remove();
+                        inventoryWindow.remove();
                         itemWindow.remove();
-                        avatarWindow.setModal(true);
                         world.setPaused(false);
                 }
         }
 
         private void setItemDialogVisible(boolean visible) {
+
                 if (visible) {
                         if (backPackTable.getParent() == null)
-                                world.stage.addActor(avatarWindow);
-                        avatarWindow.setModal(false);
+                                world.stage.addActor(inventoryWindow);
                         if (itemWindow.getParent() == null)
                                 world.stage.addActor(itemWindow);
                         world.setPaused(true);
                 } else {
                         itemWindow.remove();
-                        avatarWindow.setModal(true);
                         world.setPaused(false);
                 }
         }
+
 
         @Override
         public void onPathBlocked(Pair nextLocation, Tile nextTile) {
@@ -899,7 +934,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 this.appendToGameLog(String.format("You now understand the secrets of %s.", item.getName()));
                         }
                 } else {
-                        this.appendToGameLog("You have identified " + identifiedItem.getName());
+                        if(study)
+                                this.appendToGameLog("You have identified " + identifiedItem.getName());
                 }
 
 
@@ -1094,13 +1130,13 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         return false;
                 }
 
-                if (event.getTarget() == avatarWindow) {
+                if (event.getTarget() == inventoryWindow) {
                         if (!tokenSelectMode && !itemSelectMode && event instanceof InputEvent) {
                                 InputEvent inputEvent = (InputEvent) event;
                                 if (inputEvent.getType() == InputEvent.Type.touchDown) {
                                         float clickX = inputEvent.getStageX();
                                         float clickY = inputEvent.getStageY();
-                                        if (clickX < avatarWindow.getX() || clickY < avatarWindow.getY() || clickX > avatarWindow.getX() + avatarWindow.getWidth() || clickY > avatarWindow.getY() + avatarWindow.getHeight()) {
+                                        if (clickX < inventoryWindow.getX() || clickY < inventoryWindow.getY() || clickX > inventoryWindow.getX() + inventoryWindow.getWidth() || clickY > inventoryWindow.getY() + inventoryWindow.getHeight()) {
                                                 setInventoryWindowVisible(false);
                                                 return true;
                                         }
@@ -1156,7 +1192,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 setItemDialogVisible(false);
                 } else if (event.getListenerActor() == itemWindowBackButton) {
                         setItemDialogVisible(false);
-                } else if (event.getListenerActor() instanceof Button) {
+                } else if(event.getListenerActor() == inputModeCancelButton) {
+                        if(itemSelectMode){
+                                setItemSelectMode(null);
+                                this.setInventoryWindowVisible(true);
+                        }
+                }else if (event.getListenerActor() instanceof Button) {
                         // either an inventory screen button was pressed or a quick slot button
                         Button button = (Button) event.getListenerActor();
                         Object uo = event.getListenerActor().getUserObject();
@@ -1264,19 +1305,22 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                         }
 
+                        SnapshotArray<Actor> avatarWindowChildren = inventoryWindow.getChildren();
+                        for (Actor avatarWindowChild : avatarWindowChildren) {
+                                String uo = String.valueOf(avatarWindowChild.getUserObject());
+                                if(uo.equals("Close")){
 
+                                        avatarWindowChild.setVisible(false);
+                                }
+                        }
 
 
                         if (numValid == 0 && !itemSelectForItem.isIdentified(localPlayerToken)) {
                                 //no valid items to target, if item is not identified force targeting on itself
                                 // because unidentified items can not be cancelled
 
-
-
-                                itemSelectMode = false;
-                                itemSelectForItem = null;
-                                boolean valid = localPlayerToken.getCommand().consumeItem(itemSelectForItem);
-                                if (valid) setInventoryWindowVisible(false);
+                                localPlayerToken.getCommand().consumeItem(itemSelectForItem);
+                                setItemSelectMode(null);
                         } else {
                                 setItemDialogVisible(false);
                                 // but keep inventory window open obviously
@@ -1304,10 +1348,30 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 }
 
                         }
+
+                        SnapshotArray<Actor> avatarWindowChildren = inventoryWindow.getChildren();
+                        for (Actor avatarWindowChild : avatarWindowChildren) {
+                                String uo = String.valueOf(avatarWindowChild.getUserObject());
+                                if(uo.equals("Close")){
+
+                                        avatarWindowChild.setVisible(true);
+                                }
+                        }
                         this.setInventoryWindowVisible(false);
                 }
 
+                if(itemSelectMode){
+                        inputModeLabel.setText("Choose item to use with "+itemSelectForItem.getNameFromJournal(localPlayerToken)+"     ");
+                        if(itemSelectForItem.isIdentified(localPlayerToken)) {
+                                if (inputModeCancelButton.getParent() == null)
+                                        inputModeHorizontalGroup.addActor(inputModeCancelButton);
+                        }else
+                                inputModeCancelButton.remove();
 
+                        inputModeHorizontalGroup.setVisible(true);
+                }else{
+                        inputModeHorizontalGroup.setVisible(false);
+                }
         }
 
         private class DamageLabel {

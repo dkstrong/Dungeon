@@ -72,7 +72,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                         case EnchantArmor:
                         case EnchantRing:
                         case RemoveCurse:
-                                new Error().printStackTrace();
+                                //new Error().printStackTrace();
                                 out.didSomething = false;
                                 // do nothing
                                 break;

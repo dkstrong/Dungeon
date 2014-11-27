@@ -1,5 +1,6 @@
 package asf.dungeon;
 
+import asf.dungeon.model.ModelId;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
@@ -35,9 +36,9 @@ public class DungeonApp implements ApplicationListener {
                 //this.setScreen(new MainMenuScreen(this));
                 returnToMainMenu();
 
-                //DungeonWorld.Settings settings = new DungeonWorld.Settings();
-                //settings.playerModel = ModelId.Mage;
-                //loadWorld(settings);
+                DungeonWorld.Settings settings = new DungeonWorld.Settings();
+                settings.playerModel = ModelId.Mage;
+                loadWorld(settings);
         }
 
         public void returnToMainMenu(){

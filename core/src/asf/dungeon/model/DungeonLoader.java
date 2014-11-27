@@ -117,17 +117,21 @@ public class DungeonLoader {
                         token.getDamage().setDeathRemovalCountdown(7);
 
                         token.getInventory().setNumQuickSlots(1);
-                        token.getInventory().add(new PotionItem(dungeon, PotionItem.Type.Health,2 ));
+
+                        PotionItem potion  = new PotionItem(dungeon, PotionItem.Type.Health,2 );
+                        potion.identifyItem(token);
+                        token.getInventory().add(potion);
+
                         BookItem book = new BookItem(dungeon, BookItem.Type.Identify);
                         token.getInventory().add(book);
-                        book.identifyItem(token);
+                        //book.identifyItem(token);
 
                         ScrollItem teleportScroll = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 5);
-                        //teleportScroll.identifyItem(token);
+                        teleportScroll.identifyItem(token);
                         token.getInventory().add(teleportScroll);
 
                         ScrollItem scroll = new ScrollItem(dungeon, ScrollItem.Type.Lightning, 5);
-                        //scroll.identifyItem(token);
+                        scroll.identifyItem(token);
                         token.getInventory().add(scroll);
 
                         token.getInventory().equip(scroll);
@@ -148,6 +152,7 @@ public class DungeonLoader {
                         }else if(settings.playerModel == ModelId.Mage){
                                 WeaponItem staff = new WeaponItem(ModelId.Sword,"Staff", 3);
                                 staff.setRanged(true);
+                                staff.identifyItem(token);
                                 staff.setProjectileFx(FxId.PlasmaBall);
                                 token.getInventory().add(staff);
                                 token.getInventory().equip(staff);
@@ -157,6 +162,7 @@ public class DungeonLoader {
 
 
                         ArmorItem armor = new ArmorItem(ModelId.Potion,"Armor",1);
+                        armor.identifyItem(token);
                         token.getInventory().add(armor);
                         //token.getInventory().equip(armor);
                         //token.get(Journal.class).learn(armor);
