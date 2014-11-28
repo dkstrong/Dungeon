@@ -159,6 +159,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
         }
 
 
+        private float deltaAccumulate;
         @Override
         public void update(float delta){
                 if(reg.isComplete()){
@@ -166,6 +167,8 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                         deactivate();
                         return;
                 }
+
+
 
                 if(mode == 1 || mode == 2){
                         if(duration <=0){
@@ -226,7 +229,15 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                 );
                 effect.setTransform(transformMatrix);
 
-                effect.update();
+                // for god knows why the particle effect system is on a fixed timestep of 60 fps.
+                // this hack should help limit its update rate to 60 fps
+                deltaAccumulate +=delta;
+                if(deltaAccumulate > 0.01666f){
+                        effect.update();
+                        deltaAccumulate -=0.01666f;
+                }
+
+
 
 
         }

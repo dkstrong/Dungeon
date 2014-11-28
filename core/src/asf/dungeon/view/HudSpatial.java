@@ -76,7 +76,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private Label renderingStats;
         private final Array<DamageLabel> damageInfoLabels = new Array<DamageLabel>(false, 8, DamageLabel.class);
         //inventory hud
-        private Window inventoryWindow;
+        private Table inventoryWindow;
+        private Image inventoryWindowBackgroundImage;
         private HorizontalGroup inputModeHorizontalGroup;
         private Label inputModeLabel;
         private Button inputModeCancelButton;
@@ -174,11 +175,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
 
 
+                inventoryWindowBackgroundImage = new Image(skin, "default-rect");
 
-                inventoryWindow = new Window(localPlayerToken.getName(), skin);
-                inventoryWindow.setMovable(false);
+                inventoryWindow = new Table(skin);
+                //inventoryWindow.setMovable(false);
                 inventoryWindow.addCaptureListener(this);
-                inventoryWindow.removeActor(inventoryWindow.getButtonTable());
+                //inventoryWindow.removeActor(inventoryWindow.getButtonTable());
                 equipmentTable = new Table(skin);
                 backPackTable = new Table(skin);
                 //inventoryWindow.debug();
@@ -186,17 +188,15 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 //inventoryWindow.debugAll();
                 {
 
-                        inputModeLabel = new Label("Choose item to use",skin);
+                        inputModeLabel = new Label("Inventory and Stats",skin);
 
                         inputModeCancelButton = new Button(skin);
                         inputModeCancelButton.add(new Label("Cancel", skin));
                         inputModeCancelButton.addCaptureListener(this);
 
                         inputModeHorizontalGroup = new HorizontalGroup();
-
-                        inputModeHorizontalGroup.setVisible(false);
                         inputModeHorizontalGroup.addActor(inputModeLabel);
-                        //inventoryWindow.add(inputModeHorizontalGroup).colspan(3);
+                        inventoryWindow.add(inputModeHorizontalGroup).colspan(3);
 
                         inventoryWindow.row();
                         inventoryWindow.add(equipmentTable).fill().expand();
@@ -362,6 +362,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 float windowButtonSize = windowHeight * (1 / 5f);
                 float windowCloseButtonSize = windowButtonSize * .5f;
                 inventoryWindow.setBounds(
+                        (Gdx.graphics.getWidth() - windowWidth) * .5f,
+                        ((Gdx.graphics.getHeight() - windowHeight) * .5f),
+                        windowWidth,
+                        windowHeight);
+
+                inventoryWindowBackgroundImage.setBounds(
                         (Gdx.graphics.getWidth() - windowWidth) * .5f,
                         ((Gdx.graphics.getHeight() - windowHeight) * .5f),
                         windowWidth,
@@ -749,7 +755,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 useLabel.setText("Equip");
                         }
                 } else if (item instanceof ConsumableItem) {
-                        useLabel.setText("Use");
+                        if(item instanceof BookItem){
+                                useLabel.setText("Read");
+                        }else{
+                                useLabel.setText("Use");
+                        }
+
                 }
 
 
@@ -807,11 +818,15 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 setHudElementsVisible(!visible);
                 if (visible) {
 
-                        if (inventoryWindow.getParent() == null)
+                        if (inventoryWindow.getParent() == null){
+                                world.stage.addActor(inventoryWindowBackgroundImage);
                                 world.stage.addActor(inventoryWindow);
+                        }
+
                         refreshInventoryElements();
                         world.setPaused(true);
                 } else {
+                        inventoryWindowBackgroundImage.remove();
                         inventoryWindow.remove();
                         itemWindow.remove();
                         world.setPaused(false);
@@ -1093,10 +1108,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         inputModeHorizontalGroup.addActor(inputModeCancelButton);
                         }else
                                 inputModeCancelButton.remove();
-
-                        inputModeHorizontalGroup.setVisible(true);
                 }else{
-                        inputModeHorizontalGroup.setVisible(false);
+                        inputModeLabel.setText("Inventory and Stats");
+                        inputModeCancelButton.remove();
                 }
         }
 

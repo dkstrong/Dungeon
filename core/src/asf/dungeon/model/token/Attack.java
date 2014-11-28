@@ -249,8 +249,12 @@ public class Attack implements TokenComponent{
 
         private void sendDamageToAttackTarget(Token targetToken) {
 
-                token.getInventory().resetCombatTimer();
-                if(targetToken.getInventory() != null) targetToken.getInventory().resetCombatTimer();
+
+                if(targetToken.getInventory() != null){
+                        // only reset self combat timer if attacking a character
+                        token.getInventory().resetCombatTimer();
+                        targetToken.getInventory().resetCombatTimer();
+                }
 
                 out.damage = 0;
                 out.dodge = false;

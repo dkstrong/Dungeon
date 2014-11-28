@@ -119,15 +119,15 @@ public class DungeonLoader {
                         token.getInventory().setNumQuickSlots(1);
 
                         PotionItem potion  = new PotionItem(dungeon, PotionItem.Type.Health,2 );
-                        potion.identifyItem(token);
+                        //potion.identifyItem(token);
                         token.getInventory().add(potion);
 
-                        BookItem book = new BookItem(dungeon, BookItem.Type.Map);
+                        BookItem book = new BookItem(dungeon, BookItem.Type.Identify);
                         token.getInventory().add(book);
                         book.identifyItem(token);
 
                         ScrollItem teleportScroll = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 5);
-                        teleportScroll.identifyItem(token);
+                        //teleportScroll.identifyItem(token);
                         token.getInventory().add(teleportScroll);
 
                         ScrollItem scroll = new ScrollItem(dungeon, ScrollItem.Type.Lightning, 5);
