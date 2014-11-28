@@ -16,12 +16,10 @@ import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
-import asf.dungeon.view.shape.Shape;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -42,43 +40,41 @@ import com.badlogic.gdx.math.collision.Ray;
 public class TokenSpatial implements Spatial, Token.Listener {
 
         private boolean initialized = false;
-        private Environment environment;
         private ModelInstance modelInstance;
-        private Shape shape;
         private AnimationController animController;
         private final Vector3 translationBase = new Vector3();
         protected final Vector3 translation = new Vector3();
-        private final Quaternion rotation = new Quaternion();
+        protected final Quaternion rotation = new Quaternion();
         private final Vector3 scale = new Vector3(1, 1, 1);
         private DungeonWorld world;
         private Token token;
         protected float visU = 0; // how visible this object is, 0 = not drawn, 1 = fully visible, inbetween for partially visible
 
-        public TokenSpatial(DungeonWorld world, Token token, Shape shape, Environment environment) {
+        public TokenSpatial(DungeonWorld world, Token token) {
                 this.world = world;
                 this.token = token;
-                this.shape = shape;
-                this.environment = environment;
                 token.setListener(this);
         }
 
         public void preload(DungeonWorld world) {
 
 
-                world.assetManager.load(world.getAssetMappings().getAssetLocation(token.getModelId()), Model.class);
+                world.assetManager.load(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
 
                 Loot loot = token.get(Loot.class);
                 if (loot != null) {
                         if (loot.getItem() instanceof PotionItem) {
                                 PotionItem potion = (PotionItem) loot.getItem();
-                                world.assetManager.load(world.getAssetMappings().getPotionTextureAssetLocation(potion), Texture.class);
+                                world.assetManager.load(world.assetMappings.getPotionTextureAssetLocation(potion), Texture.class);
                         } else if (loot.getItem() instanceof ScrollItem) {
                                 ScrollItem scroll = (ScrollItem) loot.getItem();
-                                world.assetManager.load(world.getAssetMappings().getScrollTextureAssetLocation(scroll), Texture.class);
+                                world.assetManager.load(world.assetMappings.getScrollTextureAssetLocation(scroll), Texture.class);
                         } else if (loot.getItem() instanceof BookItem) {
                                 BookItem book = (BookItem) loot.getItem();
-                                String assetLocation = world.getAssetMappings().getBookTextureAssetLocation(book);
-                                //Gdx.app.log("TokenSpatial","Texture asset location for book: "+assetLocation);
+                                Gdx.app.log("TokenSpatial","Loot with book"+loot+" loot item: "+loot.getItem()+", is loot retreived: "+loot.isRemoved());
+                                Gdx.app.log("TokenSpatial","book type: "+book.getType()+", book symbol: "+book.getSymbol());
+                                String assetLocation = world.assetMappings.getBookTextureAssetLocation(book);
+                                Gdx.app.log("TokenSpatial","Texture asset location for book: "+assetLocation);
                                 world.assetManager.load(assetLocation, Texture.class);
                         }
                 } else {
@@ -91,10 +87,10 @@ public class TokenSpatial implements Spatial, Token.Listener {
         public void init(AssetManager assetManager) {
                 initialized = true;
 
-                if (!assetManager.isLoaded(world.getAssetMappings().getAssetLocation(token.getModelId()), Model.class))
+                if (!assetManager.isLoaded(world.assetMappings.getAssetLocation(token.getModelId()), Model.class))
                         throw new Error("asset not loaded");
 
-                Model model = assetManager.get(world.getAssetMappings().getAssetLocation(token.getModelId()));
+                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.getModelId()));
                 modelInstance = new ModelInstance(model);
 
                 //if (shape != null)
@@ -111,30 +107,31 @@ public class TokenSpatial implements Spatial, Token.Listener {
                 if (loot != null) {
                         if (loot.getItem() instanceof PotionItem) {
                                 PotionItem potion = (PotionItem) loot.getItem();
-                                Texture potionTex = assetManager.get(world.getAssetMappings().getPotionTextureAssetLocation(potion), Texture.class);
+                                Texture potionTex = assetManager.get(world.assetMappings.getPotionTextureAssetLocation(potion), Texture.class);
                                 Material mat = modelInstance.materials.get(0);
                                 mat.set(TextureAttribute.createDiffuse(potionTex));
                                 //ColorAttribute colorAttribute = (ColorAttribute)mat.get(ColorAttribute.Diffuse);
                                 //colorAttribute.color.set(potion.getColor().color);
                         } else if (loot.getItem() instanceof ScrollItem) {
                                 ScrollItem scroll = (ScrollItem) loot.getItem();
-                                Texture scrollTex = assetManager.get(world.getAssetMappings().getScrollTextureAssetLocation(scroll), Texture.class);
+                                Texture scrollTex = assetManager.get(world.assetMappings.getScrollTextureAssetLocation(scroll), Texture.class);
                                 Material mat = modelInstance.materials.get(0);
                                 mat.set(TextureAttribute.createDiffuse(scrollTex));
 
                         } else if (loot.getItem() instanceof BookItem) {
                                 BookItem book = (BookItem) loot.getItem();
-                                Texture bookTex = assetManager.get(world.getAssetMappings().getBookTextureAssetLocation(book), Texture.class);
+                                Texture bookTex = assetManager.get(world.assetMappings.getBookTextureAssetLocation(book), Texture.class);
                                 Material mat = modelInstance.materials.get(0);
                                 mat.set(TextureAttribute.createDiffuse(bookTex));
 
                         }
                 }
 
-                if (world.getAssetMappings().getAssetLocation(token.getModelId()).contains("Characters")) {
+                if (world.assetMappings.getAssetLocation(token.getModelId()).contains("Characters")) {
                         float s = .45f;
                         scale.set(s, s, s);
-                        translationBase.set(0, (shape.getDimensions().y / 2f) + 1.45f, 0);
+
+                        translationBase.set(0, (world.floorSpatial.tileBox.getDimensions().y / 2f) + 1.45f, 0);
                 }
 
                 if (token.getModelId() == ModelId.Diablous || token.getModelId() == ModelId.Berzerker || token.getModelId() == ModelId.Priest || token.getModelId() == ModelId.Scroll) {
@@ -231,8 +228,9 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         }
                 } else if (token.getDamage() != null && token.getDamage().isHit()) {
                         if (current != hit) {
-                                if (world.getHud().localPlayerToken == token)
-                                        world.getHud().closeAllWindows();
+                                if (world.hudSpatial.localPlayerToken == token){
+                                        world.hudSpatial.setMapViewMode(false); // if being attacked, force out of map view mode to make it easier to respond
+                                }
 
                                 if (hit == null) {
                                         throw new Error(token.getName());
@@ -275,7 +273,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                                 // TODO: this hackaround helps prevent some instances of where the
                                 // rotation "loops over" and cases looking south when should really be north
                                 // however it still happens in some instances
-                                tempTargetRot.set(world.getAssetMappings().getRotation(Direction.North));
+                                tempTargetRot.set(world.assetMappings.getRotation(Direction.North));
                         }
 
 
@@ -284,12 +282,12 @@ public class TokenSpatial implements Spatial, Token.Listener {
                 } else if (token.getAttack() != null && token.getAttack().hasProjectile()) {
                         float rotSpeed = delta * (UtMath.largest(token.getMove().getMoveSpeed(), 7) + 0.5f) * .05f;
 
-                        Quaternion tokenDirRot = world.getAssetMappings().getRotation(token.getDirection());
+                        Quaternion tokenDirRot = world.assetMappings.getRotation(token.getDirection());
                         rotation.slerp(tokenDirRot, rotSpeed);
                 } else {
                         float rotMoveSpeed = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7f);
                         float rotSpeed = delta * (rotMoveSpeed + 0.5f);
-                        Quaternion tokenDirRot = world.getAssetMappings().getRotation(token.getDirection());
+                        Quaternion tokenDirRot = world.assetMappings.getRotation(token.getDirection());
                         rotation.slerp(tokenDirRot, rotSpeed);
                 }
         }
@@ -297,31 +295,31 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
         @Override
         public void onPathBlocked(Pair nextLocation, Tile nextTile) {
-                if (world.getHud().localPlayerToken == token)
-                        world.getHud().onPathBlocked(nextLocation, nextTile);
+                if (world.hudSpatial.localPlayerToken == token)
+                        world.hudSpatial.onPathBlocked(nextLocation, nextTile);
         }
 
         @Override
         public void onAttack(Token target, Pair targetLocation, boolean ranged) {
                 if (ranged) {
 
-                        world.getFxManager().shootProjectile(token.getInventory().getWeaponSlot().getProjectileFx(), token, target, targetLocation);
+                        world.fxManager.shootProjectile(token.getInventory().getWeaponSlot().getProjectileFx(), token, target, targetLocation);
                 }
 
-                if (world.getHud().localPlayerToken == token)
-                        world.getHud().onAttack(target, targetLocation, ranged);
+                if (world.hudSpatial.localPlayerToken == token)
+                        world.hudSpatial.onAttack(target, targetLocation, ranged);
         }
 
         @Override
         public void onAttacked(Token attacker, Token target, Attack.AttackOutcome attackOutcome) {
                 // always foward this, let the Hud decide if the information is worth showing
-                world.getHud().onAttacked(attacker, target, attackOutcome);
+                world.hudSpatial.onAttacked(attacker, target, attackOutcome);
         }
 
         @Override
         public void onInventoryChanged() {
-                if (world.getHud().localPlayerToken == token)
-                        world.getHud().onInventoryChanged();
+                if (world.hudSpatial.localPlayerToken == token)
+                        world.hudSpatial.onInventoryChanged();
 
         }
 
@@ -334,30 +332,30 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
                                         TokenSpatial targetTokenSpatial = world.getTokenSpatial(out.targetToken);
 
-                                        world.getFxManager().spawnEffect(FxId.Lightning, targetTokenSpatial, 3);
+                                        world.fxManager.spawnEffect(FxId.Lightning, targetTokenSpatial, 3);
                                 }
                         }
                 }
 
 
-                if (world.getHud().localPlayerToken == token)
-                        world.getHud().onUseItem(item, out);
+                if (world.hudSpatial.localPlayerToken == token)
+                        world.hudSpatial.onUseItem(item, out);
         }
 
 
         @Override
         public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
 
-                world.getFxManager().spawnEffect(world.getAssetMappings().getStatusEffectFxId(effect), this, duration);
+                world.fxManager.spawnEffect(world.assetMappings.getStatusEffectFxId(effect), this, duration);
 
-                if (world.getHud().localPlayerToken == token)
-                        world.getHud().onStatusEffectChange(effect, duration);
+                if (world.hudSpatial.localPlayerToken == token)
+                        world.hudSpatial.onStatusEffectChange(effect, duration);
         }
 
         @Override
         public void onLearned(Item journalObject, boolean study) {
-                if (world.getHud().localPlayerToken == token)
-                        world.getHud().onLearned(journalObject, false);
+                if (world.hudSpatial.localPlayerToken == token)
+                        world.hudSpatial.onLearned(journalObject, false);
         }
 
         public void render(float delta) {
@@ -368,17 +366,8 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         scale.x, scale.y, scale.z
                 );
 
-                if (isVisible(world.modelBatch.getCamera()))
-                        world.modelBatch.render(modelInstance, environment);
-
-        }
-
-        private boolean isVisible(Camera cam) {
-                if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null) {
-                        return visU > 0;
-                } else {
-                        return shape.isVisible(modelInstance.transform, cam);
-                }
+                if (visU > 0 && world.floorSpatial.tileSphere.isVisible(modelInstance.transform, world.cam))
+                        world.modelBatch.render(modelInstance, world.environment);
 
         }
 
@@ -392,7 +381,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
          * object and the point on the ray closest to this object when there is intersection.
          */
         public float intersects(Ray ray) {
-                return shape == null ? -1f : shape.intersects(modelInstance.transform, ray);
+                return world.floorSpatial.tileBox.intersects(modelInstance.transform, ray);
         }
 
         @Override

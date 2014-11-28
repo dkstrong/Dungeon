@@ -57,7 +57,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
         private void setModel(){
                 if(modelInstance != null)
                          return;
-                Model model = world.getFxManager().getModel(fxId);
+                Model model = world.fxManager.getModel(fxId);
                 modelInstance = new ModelInstance(model);
                 if (modelInstance.animations.size > 0) {
                         animController = new AnimationController(modelInstance);

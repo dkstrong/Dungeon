@@ -65,6 +65,7 @@ public class DungeonApp implements ApplicationListener {
 
         @Override
         public void render() {
+                System.out.println("render "+Gdx.graphics.getDeltaTime()+", raw: "+Gdx.graphics.getRawDeltaTime());
                 float delta = Gdx.graphics.getDeltaTime();
                 if (worldManager != null)
                         worldManager.render(delta);
@@ -171,7 +172,6 @@ public class DungeonApp implements ApplicationListener {
                 if (paused) {
                         setScreen(createPauseScreen());
                 } else {
-                        Gdx.graphics.setContinuousRendering(true);
                         setScreen(null);
                 }
         }

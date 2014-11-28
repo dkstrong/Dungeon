@@ -70,7 +70,7 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
         private void setAnimation(){
                 float decalSize = 8;
                 time = 0;
-                this.animation = world.getFxManager().getAnimation(fxId);
+                this.animation = world.fxManager.getAnimation(fxId);
                 decal.setTextureRegion(animation.getKeyFrame(0));
                 decal.setDimensions(decalSize,decalSize);
                 sphere.set(decalSize);

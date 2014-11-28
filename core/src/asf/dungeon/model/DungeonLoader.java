@@ -122,9 +122,9 @@ public class DungeonLoader {
                         potion.identifyItem(token);
                         token.getInventory().add(potion);
 
-                        BookItem book = new BookItem(dungeon, BookItem.Type.Identify);
+                        BookItem book = new BookItem(dungeon, BookItem.Type.Map);
                         token.getInventory().add(book);
-                        //book.identifyItem(token);
+                        book.identifyItem(token);
 
                         ScrollItem teleportScroll = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 5);
                         teleportScroll.identifyItem(token);

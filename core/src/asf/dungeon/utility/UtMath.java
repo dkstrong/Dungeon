@@ -139,6 +139,12 @@ public class UtMath {
 
         }
 
+        public static void multiply(Vector3 vec, float scalar){
+                vec.x*=scalar;
+                vec.y*=scalar;
+                vec.z*=scalar;
+        }
+
 
         /**
          * use this value as the "scale" value in interpolation to use hermite acceleration (easily start up, easily slow down at the end)

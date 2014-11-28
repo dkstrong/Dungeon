@@ -77,6 +77,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private final Array<DamageLabel> damageInfoLabels = new Array<DamageLabel>(false, 8, DamageLabel.class);
         //inventory hud
         private Window inventoryWindow;
+        private HorizontalGroup inputModeHorizontalGroup;
+        private Label inputModeLabel;
+        private Button inputModeCancelButton;
         private Table equipmentTable, backPackTable;
         private final Array<Button> inventoryEquipmentButtons = new Array<Button>(true, 6, Button.class);
         private final Array<Button> inventoryBackPackButtons = new Array<Button>(true, 16, Button.class);
@@ -88,9 +91,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private ConsumableItem.TargetsTokens tokenSelectForItem;
         private boolean itemSelectMode = false;
         private ConsumableItem.TargetsItems itemSelectForItem;
-        private HorizontalGroup inputModeHorizontalGroup;
-        private Label inputModeLabel;
-        private Button inputModeCancelButton;
+        private boolean mapViewMode = false;
         // temp
         private final Vector3 tempVec = new Vector3();
 
@@ -101,7 +102,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 world.assetManager.load("Skins/BasicSkin/uiskin.json", Skin.class);
 
-                for (String statusEffectIconTextureAssetLocation : world.getAssetMappings().statusEffectIconTextureAssetLocations) {
+                for (String statusEffectIconTextureAssetLocation : world.assetMappings.statusEffectIconTextureAssetLocations) {
                         world.assetManager.load(statusEffectIconTextureAssetLocation, Texture.class);
                 }
 
@@ -136,9 +137,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 avatarStatusEffectsGroup.align(Align.bottomLeft);
 
 
-                statusEffectImage = new Image[world.getAssetMappings().statusEffectIconTextureAssetLocations.length];
+                statusEffectImage = new Image[world.assetMappings.statusEffectIconTextureAssetLocations.length];
                 for (int i = 0; i < statusEffectImage.length; i++) {
-                        statusEffectImage[i] = new Image(world.assetManager.get(world.getAssetMappings().statusEffectIconTextureAssetLocations[i], Texture.class));
+                        statusEffectImage[i] = new Image(world.assetManager.get(world.assetMappings.statusEffectIconTextureAssetLocations[i], Texture.class));
                         //statusEffectImage[i].setScaling(Scaling.fit);
                         statusEffectImage[i].setScaling(Scaling.fillY);
                         statusEffectImage[i].setAlign(Align.bottomLeft);
@@ -404,12 +405,21 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         }
 
-
         protected void setToken(Token token) {
                 localPlayerToken = token;
-                if (this.isInitialized()) {
-                        this.init(world.assetManager);
+                if(localPlayerToken != null){
+                        if (this.isInitialized())
+                                this.init(world.assetManager);
+                        if(!mapViewMode)
+                                world.camControl.setChaseTarget(world.getTokenSpatial(localPlayerToken));
+                }else{
+                        if (this.isInitialized()) {
+                                this.setHudElementsVisible(false);
+                                this.setInventoryWindowVisible(false);
+                        }
+                        world.camControl.setChaseTarget(null);
                 }
+
         }
 
         @Override
@@ -788,7 +798,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 gameLogLabel.setVisible(visible);
                 targetInfoLabel.setVisible(visible);
                 for (Button quickButton : quickButtons) {
-                        quickButton.setVisible(visible);
+                        quickButton.setVisible(visible && !mapViewMode);
                 }
         }
 
@@ -952,310 +962,26 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         }
 
-        /**
-         * called before dungeon.update() to do user input related updates
-         *
-         * @param delta
-         */
-        protected void updateInput(float delta) {
-                if (tokenSelectMode) {
-                        // do this check to prevent getting stuck in a state of not being able to cancel
-                        // the quick slot, but not being able ot move because stuck in targeting mode
-                        if (!tokenSelectForItem.isIdentified(localPlayerToken)) {
+        protected void setMapViewMode(boolean mapViewMode){
+                if(this.mapViewMode == mapViewMode)
+                        return;
+                this.mapViewMode = mapViewMode;
+                //setHudElementsVisible(!this.mapViewMode);
+                world.camControl.setChasing(!this.mapViewMode);
+                if(this.mapViewMode){
 
-                                Array<Token> targetableTokens = localPlayerToken.getFloorMap().getTargetableTokens(localPlayerToken, tokenSelectForItem);
-                                if (targetableTokens.size == 0) {
-                                        tokenSelectMode = false;
-                                        tokenSelectForItem = null;
-                                        localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
-                                } else if (targetableTokens.size == 1) {
-                                        if (targetableTokens.get(0) == localPlayerToken) {
-                                                localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
-                                                tokenSelectMode = false;
-                                                tokenSelectForItem = null;
+                }else{
+                        world.camControl.setZoom(1);
+                }
 
-                                        }
-                                }
-                        }
-                } else if (itemSelectMode) {
-
-
-                } else if (mouseDownDrag) {
-                        Ray ray = world.cam.getPickRay(Gdx.input.getX(), Gdx.input.getY());
-                        dragCommand(ray);
+                for (Button quickButton : quickButtons) {
+                        quickButton.setVisible(!mapViewMode);
                 }
         }
 
-        @Override
-        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                if (tokenSelectMode) {
-                        boolean hasTarget = tokenSelectCommand(screenX, screenY);
-                        if (hasTarget) {
-                                tokenSelectMode = false;
-                                tokenSelectForItem = null;
-                        }
-                } else {
-                        boolean hasTarget = touchCommand(screenX, screenY);
-                        if (!hasTarget) {
-                                mouseDownDrag = true;
-                        }
-                }
-
-
-                return true;
+        protected boolean isMapViewMode(){
+                return mapViewMode;
         }
-
-        @Override
-        public boolean touchDragged(int screenX, int screenY, int pointer) {
-                if (mouseDownDrag) {
-                        return true;
-                }
-                return false;
-        }
-
-        @Override
-        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                if (mouseDownDrag) {
-                        mouseDownDrag = false;
-                        return true;
-                }
-                return false;
-        }
-
-        private boolean mouseDownDrag = false;
-        private final Vector3 tempWorldCoords = new Vector3();
-        private final Pair tempMapCoords = new Pair();
-
-        private boolean tokenSelectCommand(int screenX, int screenY) {
-                Ray ray = world.cam.getPickRay(screenX, screenY);
-                Token targetToken = world.getToken(ray, null);
-
-                if (targetToken == null)
-                        return false;
-
-                if (targetToken == localPlayerToken) {
-                        localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
-                } else if (tokenSelectForItem.canConsume(localPlayerToken, targetToken)) {
-                        localPlayerToken.getCommand().consumeItem(tokenSelectForItem, targetToken);
-                }
-
-                return true;
-        }
-
-        private boolean touchCommand(int screenX, int screenY) {
-                Ray ray = world.cam.getPickRay(screenX, screenY);
-                Token targetToken = world.getToken(ray, localPlayerToken);
-                // attempt to target specificaly clicked token
-                if (targetToken != null) {
-                        localPlayerToken.getCommand().setTargetToken(targetToken);
-                        if (localPlayerToken.getCommand().getTargetToken() != null) {
-                                world.selectionMark.mark(targetToken.getLocation());
-                                return true;
-                        }
-
-                }
-
-                final float distance = -ray.origin.y / ray.direction.y;
-                tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
-                world.getMapCoords(tempWorldCoords, tempMapCoords);
-                localPlayerToken.getCommand().setUseKeyOnTile(tempMapCoords);
-                if (localPlayerToken.getCommand().isUseKey()) {
-                        world.selectionMark.mark(tempMapCoords);
-                        return true;
-                }
-
-                // if no token was clicked then go to the tile that was clicked
-                return false;
-        }
-
-        private boolean dragCommand(Ray ray) {
-                final float distance = -ray.origin.y / ray.direction.y;
-                tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
-                world.getMapCoords(tempWorldCoords, tempMapCoords);
-                if (localPlayerToken.getFloorMap().getTile(tempMapCoords) != null) {
-                        localPlayerToken.getCommand().setLocation(tempMapCoords);
-                        world.selectionMark.mark(tempMapCoords);
-                        return true;
-                }
-                return false;
-        }
-
-        @Override
-        public boolean keyDown(int keycode) {
-                return false;
-        }
-
-        @Override
-        public boolean keyUp(int keycode) {
-                return false;
-        }
-
-        @Override
-        public boolean keyTyped(char character) {
-                return false;
-        }
-
-        @Override
-        public boolean mouseMoved(int screenX, int screenY) {
-                return false;
-        }
-
-        @Override
-        public boolean scrolled(int amount) {
-                return false;
-        }
-
-        /**
-         * handles events triggered by the touchPad and converts them in to moveDirections
-         * for the local player token
-         *
-         * @param event
-         * @return
-         */
-        @Override
-        public boolean handle(Event event) {
-
-                if (event.getTarget() == itemWindow) {
-                        if (!tokenSelectMode && !itemSelectMode && event instanceof InputEvent) {
-                                InputEvent inputEvent = (InputEvent) event;
-                                if (inputEvent.getType() == InputEvent.Type.touchDown) {
-                                        float clickX = inputEvent.getStageX();
-                                        float clickY = inputEvent.getStageY();
-                                        if (clickX < itemWindow.getX() || clickY < itemWindow.getY() || clickX > itemWindow.getX() + itemWindow.getWidth() || clickY > itemWindow.getY() + itemWindow.getHeight()) {
-                                                setItemDialogVisible(false);
-                                                return true;
-                                        }
-                                }
-                        }
-                        return false;
-                }
-
-                if (event.getTarget() == inventoryWindow) {
-                        if (!tokenSelectMode && !itemSelectMode && event instanceof InputEvent) {
-                                InputEvent inputEvent = (InputEvent) event;
-                                if (inputEvent.getType() == InputEvent.Type.touchDown) {
-                                        float clickX = inputEvent.getStageX();
-                                        float clickY = inputEvent.getStageY();
-                                        if (clickX < inventoryWindow.getX() || clickY < inventoryWindow.getY() || clickX > inventoryWindow.getX() + inventoryWindow.getWidth() || clickY > inventoryWindow.getY() + inventoryWindow.getHeight()) {
-                                                setInventoryWindowVisible(false);
-                                                return true;
-                                        }
-                                }
-                        }
-                        return false;
-                }
-
-
-                if (!(event instanceof ChangeListener.ChangeEvent)) {
-                        return false;
-                }
-
-                if (event.getListenerActor() == avatarButton) {
-                        if(!tokenSelectMode)
-                                setInventoryWindowVisible(true);
-                } else if (event.getListenerActor() == itemWindowUseButton) {
-                        Object object = itemWindow.getUserObject();
-
-                        if (object instanceof EquipmentItem) {
-                                EquipmentItem item = (EquipmentItem) object;
-                                if (localPlayerToken.getInventory().isEquipped(item)) {
-                                        localPlayerToken.getInventory().unequip(item);
-                                } else {
-                                        boolean valid = localPlayerToken.getInventory().equip(item);
-                                        if (valid && item.isCursed())
-                                                appendToGameLog("You grip the " + item.getNameFromJournal(localPlayerToken) + " tightly. You are powerless to remove it.");
-
-                                }
-                                setItemDialogVisible(false);
-                        } else if (object instanceof QuickItem) {
-                                QuickItem item = (QuickItem) object;
-                                if (localPlayerToken.getInventory().isEquipped(item)) {
-                                        localPlayerToken.getInventory().unequip(item);
-                                } else {
-                                        localPlayerToken.getInventory().equip(item);
-                                }
-                                setItemDialogVisible(false);
-                        } else if (object instanceof ConsumableItem.TargetsItems) {
-
-                                this.setItemSelectMode((ConsumableItem.TargetsItems) object);
-
-
-                        } else {
-                                throw new AssertionError(object);
-                        }
-
-
-                } else if (event.getListenerActor() == itemWindowDiscardButton) {
-                        Item item = (Item) itemWindow.getUserObject();
-                        boolean valid = localPlayerToken.getInventory().discard(item);
-                        if (valid)
-                                setItemDialogVisible(false);
-                } else if (event.getListenerActor() == itemWindowBackButton) {
-                        setItemDialogVisible(false);
-                } else if(event.getListenerActor() == inputModeCancelButton) {
-                        if(itemSelectMode){
-                                setItemSelectMode(null);
-                                this.setInventoryWindowVisible(true);
-                        }
-                }else if (event.getListenerActor() instanceof Button) {
-                        // either an inventory screen button was pressed or a quick slot button
-                        Button button = (Button) event.getListenerActor();
-                        Object uo = event.getListenerActor().getUserObject();
-
-                        if (inventoryEquipmentButtons.contains(button, true) || inventoryBackPackButtons.contains(button, true)) {
-                                // inventory screen button
-                                if (uo instanceof Item) {
-                                        if(!itemSelectMode){
-                                                setItemWindowContents((Item) uo);
-                                                setItemDialogVisible(true);
-                                        }else{
-                                                localPlayerToken.getCommand().consumeItem(itemSelectForItem, (Item)uo);
-                                                setItemSelectMode(null);
-
-                                        }
-                                }
-                        } else {
-                                // quick slot button press
-                                if (uo instanceof QuickItem) {
-                                        if (tokenSelectMode) {
-                                                if (tokenSelectForItem.isIdentified(localPlayerToken)) {
-                                                        // can only cancel identified items
-                                                        tokenSelectForItem = null;
-                                                        tokenSelectMode = false;
-                                                }
-                                                return false;
-                                        }
-                                        if (uo instanceof ConsumableItem.TargetsTokens) {
-                                                tokenSelectMode = true;
-                                                tokenSelectForItem = (ConsumableItem.TargetsTokens) uo;
-
-                                                if(tokenSelectForItem.isPrimarilySelfConsume()){
-                                                        localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
-                                                        tokenSelectMode = false;
-                                                        tokenSelectForItem = null;
-                                                }else{
-                                                        //Gdx.app.log("HudSpatial", "start targeting mode");
-                                                        // if item is not identified and can not be used on any targets, then automatically cast on self
-                                                        if (!tokenSelectForItem.isIdentified(localPlayerToken)) {
-                                                                // if not identified, then using the scroll can not be cancelled
-                                                        } else {
-                                                                // TODO: change text to "cancel"
-                                                        }
-                                                }
-                                        } else if (uo instanceof ConsumableItem) {
-                                                localPlayerToken.getCommand().consumeItem((ConsumableItem) uo);
-                                        } else {
-                                                throw new AssertionError(uo);
-                                        }
-                                } else if (uo == null) {
-                                        setInventoryWindowVisible(true);
-                                }
-                        }
-
-                }
-                return false;
-        }
-
 
         private void setItemSelectMode(ConsumableItem.TargetsItems item) {
                 itemSelectForItem = item;
@@ -1373,6 +1099,336 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         inputModeHorizontalGroup.setVisible(false);
                 }
         }
+
+        /**
+         * called before dungeon.update() to do user input related updates
+         *
+         * @param delta
+         */
+        private float lastTouchTimer = 0;
+        protected void updateInput(float delta) {
+                if(mapViewMode){
+                        // end map view mode by double tapping
+                        if(Gdx.input.justTouched()){
+                                if(lastTouchTimer < 0.54f){
+                                        setMapViewMode(false);
+                                }else{
+                                        lastTouchTimer = 0;
+                                }
+                        }
+                        lastTouchTimer += delta;
+                } else if (tokenSelectMode) {
+                        // do this check to prevent getting stuck in a state of not being able to cancel
+                        // the quick slot, but not being able ot move because stuck in targeting mode
+                        if (!tokenSelectForItem.isIdentified(localPlayerToken)) {
+
+                                Array<Token> targetableTokens = localPlayerToken.getFloorMap().getTargetableTokens(localPlayerToken, tokenSelectForItem);
+                                if (targetableTokens.size == 0) {
+                                        tokenSelectMode = false;
+                                        tokenSelectForItem = null;
+                                        localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
+                                } else if (targetableTokens.size == 1) {
+                                        if (targetableTokens.get(0) == localPlayerToken) {
+                                                localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
+                                                tokenSelectMode = false;
+                                                tokenSelectForItem = null;
+
+                                        }
+                                }
+                        }
+                } else if (itemSelectMode) {
+
+
+                } else if (mouseDownDrag) {
+                        Ray ray = world.cam.getPickRay(Gdx.input.getX(), Gdx.input.getY());
+                        dragCommand(ray);
+                }
+        }
+
+        @Override
+        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+
+                if(world.isPaused()) return false;
+                if(mapViewMode){
+                        return true;
+                } else if (tokenSelectMode) {
+                        boolean hasTarget = tokenSelectCommand(screenX, screenY);
+                        if (hasTarget) {
+                                tokenSelectMode = false;
+                                tokenSelectForItem = null;
+                        }
+                } else {
+                        boolean hasTarget = touchCommand(screenX, screenY);
+                        if (!hasTarget) {
+                                mouseDownDrag = true;
+                        }
+                }
+
+
+                return true;
+        }
+
+        @Override
+        public boolean touchDragged(int screenX, int screenY, int pointer) {
+                if(world.isPaused()) return false;
+                if(mapViewMode){
+                        world.camControl.drag(screenX, screenY);
+                        return true;
+                }else
+                if (mouseDownDrag) {
+                        return true;
+                }
+                return false;
+        }
+
+        @Override
+        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                if(inventoryWindow.getParent() != null ){
+                        float clickX = screenX;
+                        float clickY = screenY;
+                        if (clickX < inventoryWindow.getX() || clickY < inventoryWindow.getY() || clickX > inventoryWindow.getX() + inventoryWindow.getWidth() || clickY > inventoryWindow.getY() + inventoryWindow.getHeight()) {
+                                setInventoryWindowVisible(false);
+                                return true;
+                        }
+                }
+                if(world.isPaused()) return false;
+                if(mapViewMode){
+                        world.camControl.drag(-1, -1);
+                        return true;
+                }else if (mouseDownDrag) {
+                        mouseDownDrag = false;
+                        return true;
+                }
+               return false;
+        }
+
+        @Override
+        public boolean scrolled(int amount) {
+                if(world.isPaused()) return false;
+                if(!tokenSelectMode && !itemSelectMode){
+                        world.camControl.setZoom(world.camControl.getZoom()-amount*.1f);
+                        setMapViewMode(world.camControl.getZoom() <.85f);
+                }
+                return false;
+        }
+
+        private boolean mouseDownDrag = false;
+        private final Vector3 tempWorldCoords = new Vector3();
+        private final Pair tempMapCoords = new Pair();
+
+        private boolean tokenSelectCommand(int screenX, int screenY) {
+                Ray ray = world.cam.getPickRay(screenX, screenY);
+                Token targetToken = world.getToken(ray, null);
+
+                if (targetToken == null)
+                        return false;
+
+                if (targetToken == localPlayerToken) {
+                        localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
+                } else if (tokenSelectForItem.canConsume(localPlayerToken, targetToken)) {
+                        localPlayerToken.getCommand().consumeItem(tokenSelectForItem, targetToken);
+                }
+
+                return true;
+        }
+
+        private boolean touchCommand(int screenX, int screenY) {
+                Ray ray = world.cam.getPickRay(screenX, screenY);
+                Token targetToken = world.getToken(ray, localPlayerToken);
+                // attempt to target specificaly clicked token
+                if (targetToken != null) {
+                        localPlayerToken.getCommand().setTargetToken(targetToken);
+                        if (localPlayerToken.getCommand().getTargetToken() != null) {
+                                world.selectionMark.mark(targetToken.getLocation());
+                                return true;
+                        }
+
+                }
+
+                final float distance = -ray.origin.y / ray.direction.y;
+                tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
+                world.getMapCoords(tempWorldCoords, tempMapCoords);
+                localPlayerToken.getCommand().setUseKeyOnTile(tempMapCoords);
+                if (localPlayerToken.getCommand().isUseKey()) {
+                        world.selectionMark.mark(tempMapCoords);
+                        return true;
+                }
+
+                // if no token was clicked then go to the tile that was clicked
+                return false;
+        }
+
+        private boolean dragCommand(Ray ray) {
+                final float distance = -ray.origin.y / ray.direction.y;
+                tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
+                world.getMapCoords(tempWorldCoords, tempMapCoords);
+                if (localPlayerToken.getFloorMap().getTile(tempMapCoords) != null) {
+                        localPlayerToken.getCommand().setLocation(tempMapCoords);
+                        world.selectionMark.mark(tempMapCoords);
+                        return true;
+                }
+                return false;
+        }
+
+        @Override
+        public boolean keyDown(int keycode) {
+                return false;
+        }
+
+        @Override
+        public boolean keyUp(int keycode) {
+                return false;
+        }
+
+        @Override
+        public boolean keyTyped(char character) {
+                return false;
+        }
+
+        @Override
+        public boolean mouseMoved(int screenX, int screenY) {
+                return false;
+        }
+
+
+
+        /**
+         * handles events triggered by the touchPad and converts them in to moveDirections
+         * for the local player token
+         *
+         * @param event
+         * @return
+         */
+        @Override
+        public boolean handle(Event event) {
+
+                if (event.getTarget() == itemWindow) {
+                        if (!tokenSelectMode && !itemSelectMode && event instanceof InputEvent) {
+                                InputEvent inputEvent = (InputEvent) event;
+                                if (inputEvent.getType() == InputEvent.Type.touchDown) { // ideally this would be on touchUp, but soemthing with how modal windows work prevents me from using touchUp
+                                        float clickX = inputEvent.getStageX();
+                                        float clickY = inputEvent.getStageY();
+                                        if (clickX < itemWindow.getX() || clickY < itemWindow.getY() || clickX > itemWindow.getX() + itemWindow.getWidth() || clickY > itemWindow.getY() + itemWindow.getHeight()) {
+                                                setItemDialogVisible(false);
+                                                return true;
+                                        }
+                                }
+                        }
+                        return false;
+                }
+
+                if (!(event instanceof ChangeListener.ChangeEvent)) {
+                        return false;
+                }
+
+                if (event.getListenerActor() == avatarButton) {
+                        if(!tokenSelectMode)
+                                setInventoryWindowVisible(true);
+                } else if (event.getListenerActor() == itemWindowUseButton) {
+                        Object object = itemWindow.getUserObject();
+
+                        if (object instanceof EquipmentItem) {
+                                EquipmentItem item = (EquipmentItem) object;
+                                if (localPlayerToken.getInventory().isEquipped(item)) {
+                                        localPlayerToken.getInventory().unequip(item);
+                                } else {
+                                        boolean valid = localPlayerToken.getInventory().equip(item);
+                                        if (valid && item.isCursed())
+                                                appendToGameLog("You grip the " + item.getNameFromJournal(localPlayerToken) + " tightly. You are powerless to remove it.");
+
+                                }
+                                setItemDialogVisible(false);
+                        } else if (object instanceof QuickItem) {
+                                QuickItem item = (QuickItem) object;
+                                if (localPlayerToken.getInventory().isEquipped(item)) {
+                                        localPlayerToken.getInventory().unequip(item);
+                                } else {
+                                        localPlayerToken.getInventory().equip(item);
+                                }
+                                setItemDialogVisible(false);
+                        } else if (object instanceof ConsumableItem.TargetsItems) {
+
+                                this.setItemSelectMode((ConsumableItem.TargetsItems) object);
+
+
+                        } else {
+                                throw new AssertionError(object);
+                        }
+
+
+                } else if (event.getListenerActor() == itemWindowDiscardButton) {
+                        Item item = (Item) itemWindow.getUserObject();
+                        boolean valid = localPlayerToken.getInventory().discard(item);
+                        if (valid)
+                                setItemDialogVisible(false);
+                } else if (event.getListenerActor() == itemWindowBackButton) {
+                        setItemDialogVisible(false);
+                } else if(event.getListenerActor() == inputModeCancelButton) {
+                        if(itemSelectMode){
+                                setItemSelectMode(null);
+                                this.setInventoryWindowVisible(true);
+                        }
+                }else if (event.getListenerActor() instanceof Button) {
+                        // either an inventory screen button was pressed or a quick slot button
+                        Button button = (Button) event.getListenerActor();
+                        Object uo = event.getListenerActor().getUserObject();
+
+                        if (inventoryEquipmentButtons.contains(button, true) || inventoryBackPackButtons.contains(button, true)) {
+                                // inventory screen button
+                                if (uo instanceof Item) {
+                                        if(!itemSelectMode){
+                                                setItemWindowContents((Item) uo);
+                                                setItemDialogVisible(true);
+                                        }else{
+                                                localPlayerToken.getCommand().consumeItem(itemSelectForItem, (Item)uo);
+                                                setItemSelectMode(null);
+
+                                        }
+                                }
+                        } else {
+                                // quick slot button press
+                                if (uo instanceof QuickItem) {
+                                        if (tokenSelectMode) {
+                                                if (tokenSelectForItem.isIdentified(localPlayerToken)) {
+                                                        // can only cancel identified items
+                                                        tokenSelectForItem = null;
+                                                        tokenSelectMode = false;
+                                                }
+                                                return false;
+                                        }
+                                        if (uo instanceof ConsumableItem.TargetsTokens) {
+                                                tokenSelectMode = true;
+                                                tokenSelectForItem = (ConsumableItem.TargetsTokens) uo;
+
+                                                if(tokenSelectForItem.isPrimarilySelfConsume()){
+                                                        localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
+                                                        tokenSelectMode = false;
+                                                        tokenSelectForItem = null;
+                                                }else{
+                                                        //Gdx.app.log("HudSpatial", "start targeting mode");
+                                                        // if item is not identified and can not be used on any targets, then automatically cast on self
+                                                        if (!tokenSelectForItem.isIdentified(localPlayerToken)) {
+                                                                // if not identified, then using the scroll can not be cancelled
+                                                        } else {
+                                                                // TODO: change text to "cancel"
+                                                        }
+                                                }
+                                        } else if (uo instanceof ConsumableItem) {
+                                                localPlayerToken.getCommand().consumeItem((ConsumableItem) uo);
+                                        } else {
+                                                throw new AssertionError(uo);
+                                        }
+                                } else if (uo == null) {
+                                        setInventoryWindowVisible(true);
+                                }
+                        }
+
+                }
+                return false;
+        }
+
+
+
 
         private class DamageLabel {
                 Label label;

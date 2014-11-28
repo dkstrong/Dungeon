@@ -54,7 +54,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
 
                 shape = new Sphere(5);
 
-                ParticleEffect srcEffect = world.getFxManager().getParticleEffect(fxId);
+                ParticleEffect srcEffect = world.fxManager.getParticleEffect(fxId);
 
                 effect = srcEffect.copy();
                 effect.init();

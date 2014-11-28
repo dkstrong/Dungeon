@@ -15,9 +15,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -43,7 +43,7 @@ public class DungeonWorld implements Disposable {
         // shared resources
         protected final DungeonApp dungeonApp;
         protected final Settings settings;
-        protected final PerspectiveCamera cam;
+        protected final Camera cam;
         protected final Environment environment;
         protected final Stage stage;
         protected final DecalBatch decalBatch;
@@ -58,32 +58,24 @@ public class DungeonWorld implements Disposable {
         // game stuff
         protected Dungeon dungeon;
 
-        private AssetMappings assetMappings;
+        protected final CamControl camControl;
+        protected AssetMappings assetMappings;
         protected I18NBundle i18n;
-        private FloorSpatial floorDecals;
+        protected FloorSpatial floorSpatial;
         protected SelectionMark selectionMark;
-        private HudSpatial hudSpatial;
-        private FxManager fxManager;
-
-
-        private TokenSpatial cameraChaseTarget;
-        private final Vector3 chaseCamOffset = new Vector3();
+        protected HudSpatial hudSpatial;
+        protected FxManager fxManager;
 
         public DungeonWorld(DungeonApp dungeonApp, Settings settings) {
                 this.dungeonApp = dungeonApp;
                 this.settings = settings;
-                cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-                cam.position.set(0f, 35f, 15f);
-                cam.lookAt(0, 0, 0);
-                cam.near = .1f;
-                cam.far = 300f;
-                cam.update();
-                chaseCamOffset.set(cam.position);
+                camControl = new CamControl();
+                cam = camControl.cam;
                 environment = new Environment();
                 environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.64f, 0.64f, 0.64f, 1f));
                 environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
                 stage = new Stage(new ScreenViewport());
-                decalBatch = new DecalBatch(1000, new CameraGroupStrategy(cam));
+                decalBatch = new DecalBatch(1000, new CameraGroupStrategy(camControl.cam));
                 modelBatch = new ModelBatch();
                 assetManager = new AssetManager();
                 spatials = new Array<Spatial>(true, 16, Spatial.class);
@@ -102,8 +94,8 @@ public class DungeonWorld implements Disposable {
                 inputMultiplexer = new InputMultiplexer(internalInput, stage);
                 Gdx.input.setInputProcessor(internalInput);
 
-                floorDecals = new FloorSpatial();
-                addSpatial(floorDecals);
+                floorSpatial = new FloorSpatial();
+                addSpatial(floorSpatial);
 
 
                 //addSpatial(new ActorSpatial("Models/skydome.g3db", null, null));
@@ -136,35 +128,23 @@ public class DungeonWorld implements Disposable {
 
 
         public Pair getMapCoords(Vector3 worldCoords, Pair storeMapCoords) {
-                return floorDecals.getMapCoords(worldCoords, storeMapCoords);
+                return floorSpatial.getMapCoords(worldCoords, storeMapCoords);
         }
 
         public Vector3 getWorldCoords(float mapCoordsX, float mapCoordsY, Vector3 storeWorldCoords) {
-                return floorDecals.getWorldCoords(mapCoordsX, mapCoordsY, storeWorldCoords);
+                return floorSpatial.getWorldCoords(mapCoordsX, mapCoordsY, storeWorldCoords);
         }
 
         public Vector3 getWorldCoords(Pair mapCoords, Vector3 storeWorldCoords) {
-                return floorDecals.getWorldCoords(mapCoords, storeWorldCoords);
+                return floorSpatial.getWorldCoords(mapCoords, storeWorldCoords);
         }
 
         public void getScreenCoords(float mapCoordsX, float mapCoordsY, Vector3 storeScreenCoords) {
-                cam.project(getWorldCoords(mapCoordsX, mapCoordsY, storeScreenCoords));
-        }
-
-        protected AssetMappings getAssetMappings(){
-                return assetMappings;
-        }
-
-        protected FxManager getFxManager() {
-                return fxManager;
+                camControl.cam.project(getWorldCoords(mapCoordsX, mapCoordsY, storeScreenCoords));
         }
 
         protected Token getLocalPlayerToken() {
                 return hudSpatial.localPlayerToken;
-        }
-
-        protected HudSpatial getHud() {
-                return hudSpatial;
         }
 
         protected TokenSpatial getTokenSpatial(Token token) {
@@ -240,21 +220,12 @@ public class DungeonWorld implements Disposable {
                                         if (spatial.isInitialized())
                                                 spatial.update(delta);
                                 }
-
-                                if (cameraChaseTarget != null) {
-                                        cam.position.set(
-                                                cameraChaseTarget.translation.x + chaseCamOffset.x,
-                                                chaseCamOffset.y,
-                                                cameraChaseTarget.translation.z + chaseCamOffset.z);
-                                        cam.update();
-                                }
-
-
+                                camControl.update(delta);
                         }
 
                         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-                        modelBatch.begin(cam);
+                        modelBatch.begin(camControl.cam);
                         fxManager.beginRender();
 
                         final float effectiveDelta = paused ? 0 : delta;
@@ -284,6 +255,7 @@ public class DungeonWorld implements Disposable {
         public void setPaused(boolean paused) {
                 this.paused = paused;
 
+
                 if (!paused) {
                         Gdx.input.setInputProcessor(inputMultiplexer);
                 }
@@ -291,6 +263,8 @@ public class DungeonWorld implements Disposable {
                 if (!paused && hudSpatial != null && hudSpatial.isWindowVisible()) {
                         this.paused = true; // this shouldnt ever happen, but in the event it does i have a back up check here to make sure the game isnt unpaused while window is up
                 }
+
+                Gdx.graphics.setContinuousRendering(!paused);
         }
 
         public boolean isPaused() {
@@ -300,9 +274,7 @@ public class DungeonWorld implements Disposable {
         public void resize(int width, int height) {
                 stage.getViewport().update(width, height, true);
                 hudSpatial.resize(width, height);
-                cam.viewportWidth = width;
-                cam.viewportHeight = height;
-                cam.update();
+                camControl.resize(width,height);
         }
 
         @Override
@@ -346,18 +318,16 @@ public class DungeonWorld implements Disposable {
                         if (playerToken != null) {
                                 inputMultiplexer.addProcessor(hudSpatial);
                                 hudSpatial.setToken(playerToken);
-                                cameraChaseTarget = getTokenSpatial(playerToken);
                         } else {
                                 inputMultiplexer.removeProcessor(hudSpatial);
                                 hudSpatial.setToken(null); // player died, remove him from the hud
-                                cameraChaseTarget = null;
                         }
 
                 }
 
                 @Override
                 public void onFloorMapChanged(FloorMap newFloorMap) {
-                        floorDecals.setFloorMap(newFloorMap);
+                        floorSpatial.setFloorMap(newFloorMap);
                 }
 
                 @Override
@@ -365,7 +335,7 @@ public class DungeonWorld implements Disposable {
                         if (token == hudSpatial.localPlayerToken) {
                                 // dont re add the token, he already has a token spatial.
                         } else {
-                                addSpatial(new TokenSpatial(DungeonWorld.this, token, floorDecals.tokenCustomBox, environment));
+                                addSpatial(new TokenSpatial(DungeonWorld.this, token));
                         }
 
                 }
@@ -374,7 +344,7 @@ public class DungeonWorld implements Disposable {
                 public void onTokenRemoved(Token token) {
                         if (token == hudSpatial.localPlayerToken) {
                                 if(!token.getDamage().isFullyDead()){
-                                        cameraChaseTarget.visU = 0; // this forces the player spatial to turn black and fade back in
+                                        camControl.chaseTarget.visU = 0; // this forces the player spatial to turn black and fade back in
                                 }else{
                                         dungeonApp.setAppGameOver();
                                 }

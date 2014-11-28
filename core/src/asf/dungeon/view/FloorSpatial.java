@@ -9,6 +9,8 @@ import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Box;
+import asf.dungeon.view.shape.Shape;
+import asf.dungeon.view.shape.Sphere;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -34,8 +36,18 @@ import java.util.Iterator;
  * Created by danny on 10/29/14.
  */
 public class FloorSpatial implements Spatial {
+        /**
+         * actual dimensions of a tile
+         */
         public final Vector3 tileDimensions = new Vector3(5, 5.75f, 5);
-        public final Box tokenCustomBox = new Box(new Vector3(-tileDimensions.x / 2f, 0, -tileDimensions.z / 2f), new Vector3(tileDimensions.x / 2f, tileDimensions.y, tileDimensions.z / 2f));
+        /**
+         * a box that represents the shape size of a tile on the screen
+         */
+        public final Box tileBox = new Box(new Vector3(-tileDimensions.x / 2f, 0, -tileDimensions.z / 2f), new Vector3(tileDimensions.x / 2f, tileDimensions.y, tileDimensions.z / 2f));
+        /**
+         * a sphere that represents the size of a tile on the screen
+         */
+        public final Shape tileSphere = new Sphere(5.75f);
         private DungeonWorld world;
         private FloorMap floorMap;
         private FogMap fogMap;
@@ -123,11 +135,7 @@ public class FloorSpatial implements Spatial {
         public void render(float delta) {
                 for (int i = 0; i < decalNodes.size; i++) {
                         DecalNode decalNode = decalNodes.get(i);
-                        // TODO: if there is no local player token, then all decals will be rendered
-                        //  should maybe have a back up test using distance to camera
-                        if(world.getLocalPlayerToken()!= null && world.getLocalPlayerToken().getLocation().distance(decalNode.x, decalNode.y) > 20){
-                                continue;
-                        }
+
                         Decal decal = decalNode.decal;
                         Color color = decal.getColor();
                         boolean tileVisited;
@@ -149,15 +157,19 @@ public class FloorSpatial implements Spatial {
                         fog = MathUtils.lerp(color.r, fog, delta);
                         color.set(fog,fog,fog,1);
                         decal.setColor(color);
-                        world.decalBatch.add(decalNode.decal);
+
+                        boolean renderDecal = fog > 0 && tileSphere.isVisible(decalNode.decal.getPosition(), world.cam);
+                        if(renderDecal) world.decalBatch.add(decalNode.decal);
 
                         DecalNodeProp prop = decalNode.prop;
                         if(prop != null){
                                 if(decalNode.tile.isDoor()){
-                                        if(decalNode.tile.isDoorLocked()){
-                                                prop.modelInstance.materials.get(0).set(doorLockedTexAttribute[decalNode.tile.getKeyType().ordinal()]);
-                                        }else{
-                                                prop.modelInstance.materials.get(0).set(doorTexAttribute);
+                                        if(renderDecal){
+                                                if(decalNode.tile.isDoorLocked()){
+                                                        prop.modelInstance.materials.get(0).set(doorLockedTexAttribute[decalNode.tile.getKeyType().ordinal()]);
+                                                }else{
+                                                        prop.modelInstance.materials.get(0).set(doorTexAttribute);
+                                                }
                                         }
 
                                         if(decalNode.tile.isDoorOpened()){
@@ -172,8 +184,10 @@ public class FloorSpatial implements Spatial {
 
                                 prop.colorAttribute.color.a = fog;
 
-                                world.modelBatch.render(prop.modelInstance, world.environment);
+                                if(renderDecal) world.modelBatch.render(prop.modelInstance, world.environment);
                         }
+
+
                 }
         }
 
@@ -292,7 +306,7 @@ public class FloorSpatial implements Spatial {
                 if(tile.isDoor()){
                         prop = makeDecalNodeProp("Models/Dungeon/Door/Door.g3db");
 
-                        Quaternion rot = world.getAssetMappings().getRotation(whichDirectionToFaceDoor(x,y));
+                        Quaternion rot = world.assetMappings.getRotation(whichDirectionToFaceDoor(x,y));
                         prop.modelInstance.transform.set(
                                 worldCoordsTemp.x,worldCoordsTemp.y,worldCoordsTemp.z,
                                 rot.x,rot.y,rot.z,rot.w,
@@ -309,7 +323,7 @@ public class FloorSpatial implements Spatial {
                         }
 
                         // TODO: may want to make it so stairs rotate based on what they are near
-                        Quaternion rot = world.getAssetMappings().getRotation(Direction.East);
+                        Quaternion rot = world.assetMappings.getRotation(Direction.East);
 
                         prop.modelInstance.transform.set(
                                 worldCoordsTemp.x,worldCoordsTemp.y,worldCoordsTemp.z,
