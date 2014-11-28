@@ -2,7 +2,6 @@ package asf.dungeon.view;
 
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.Pair;
-import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
@@ -48,8 +47,8 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                 this.world = world;
         }
 
-        private void setEffect(){
-                if(effect != null)
+        private void setEffect() {
+                if (effect != null)
                         return;
 
                 shape = new Sphere(5);
@@ -58,14 +57,14 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
 
                 effect = srcEffect.copy();
                 effect.init();
-                reg = (RegularEmitter)effect.getControllers().first().emitter;
+                reg = (RegularEmitter) effect.getControllers().first().emitter;
                 float delta = effect.getControllers().first().deltaTime;
 
                 //System.out.println(delta);
         }
 
         @Override
-        public void set(FxId fxId, Pair location, float duration){
+        public void set(FxId fxId, Pair location, float duration) {
                 this.fxId = fxId;
                 setEffect();
                 mode = 1;
@@ -80,11 +79,11 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
         }
 
         @Override
-        public void set(FxId fxId, TokenSpatial followTokenSpatial, float duration){
+        public void set(FxId fxId, TokenSpatial followTokenSpatial, float duration) {
                 this.fxId = fxId;
                 setEffect();
                 mode = 2;
-                this.tokenSpatial =followTokenSpatial;
+                this.tokenSpatial = followTokenSpatial;
                 this.duration = duration;
                 rotation.idt();
                 commonSet();
@@ -120,7 +119,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
 
         }
 
-        private void commonSet(){
+        private void commonSet() {
                 //reg.setContinuous(!Float.isNaN(duration));
                 reg.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
                 effect.start();
@@ -129,12 +128,12 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
         /**
          * forces isActive() == false
          */
-        public void deactivate(){
-                if(mode > 0){
+        public void deactivate() {
+                if (mode > 0) {
                         effect.reset();
                         mode = 0;
                         tokenSpatial = null;
-                        visU=0;
+                        visU = 0;
                 }
 
         }
@@ -160,27 +159,27 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
 
 
         private float deltaAccumulate;
+
         @Override
-        public void update(float delta){
-                if(reg.isComplete()){
+        public void update(float delta) {
+                if (reg.isComplete()) {
                         //System.out.println("complete");
                         deactivate();
                         return;
                 }
 
 
-
-                if(mode == 1 || mode == 2){
-                        if(duration <=0){
+                if (mode == 1 || mode == 2) {
+                        if (duration <= 0) {
                                 reg.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
                         }
 
-                        if(tokenSpatial != null){
+                        if (tokenSpatial != null) {
                                 translation.set(tokenSpatial.translation);
                         }
 
-                        duration-=delta;
-                }else if(mode == 3){
+                        duration -= delta;
+                } else if (mode == 3) {
                         if (attackerToken == null || !attackerToken.getAttack().hasProjectile()) {
                                 //Gdx.app.log("Pooled PE","trigger end fx");
                                 reg.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
@@ -199,26 +198,26 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                 //
                 // Common update code (apply transform, visibility of material, animation update)
 
-                if (tokenSpatial != null)
-                        visU = tokenSpatial.visU;
-                else {
-                        if (attackerToken.getFloorMap() == world.getLocalPlayerToken().getFloorMap() && world.getLocalPlayerToken().getFogMapping() != null) {
-                                FogMap fogMap = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap();
-
-                                if (fogMap != null) {
-                                        FogState fogState = fogMap.getFogState(destLoc.x, destLoc.y);
-                                        if (fogState == FogState.Visible) {
-                                                visU += delta * .5f;
-                                        } else {
-                                                visU -= delta * .75f;
-                                        }
-                                        visU = MathUtils.clamp(visU, 0, 1);
-                                }
+                FogState fogState;
+                if (tokenSpatial != null) {
+                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null) {
+                                fogState = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap().getFogState(tokenSpatial.getToken().getLocation().x, tokenSpatial.getToken().getLocation().y);
                         } else {
-                                visU = 1;
+                                fogState = FogState.Visible;
                         }
+                        visU = tokenSpatial.visU;
+
+                } else {
+                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null) {
+                                fogState = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap().getFogState(destLoc.x, destLoc.y);
+                        } else {
+                                fogState = FogState.Visible;
+                        }
+
+                        if(fogState == FogState.Visible || fogState == FogState.MagicMapped)visU += delta * .65f;
+                        else visU -= delta * .75f;
+                        visU = MathUtils.clamp(visU, 0, 1);
                 }
-                //visU= 1;
 
                 // TODO: can visU value be applied to particle effects?
 
@@ -231,24 +230,22 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
 
                 // for god knows why the particle effect system is on a fixed timestep of 60 fps.
                 // this hack should help limit its update rate to 60 fps
-                deltaAccumulate +=delta;
-                if(deltaAccumulate > 0.01666f){
+                deltaAccumulate += delta;
+                if (deltaAccumulate > 0.01666f) {
                         effect.update();
-                        deltaAccumulate -=0.01666f;
+                        deltaAccumulate -= 0.01666f;
                 }
-
-
 
 
         }
 
         @Override
         public void render(float delta) {
-                if( visU <=0){
+                if (visU <= 0) {
                         return;
                 }
 
-                if(mode == 3){
+                if (mode == 3) {
                         // the projectile actually spawns at the beginning of the attack animation leaving about
                         // a half second of time between projectile spawna nd when it should show up
                         // we check the effective projectile u to make sure it is positive to make sure that the
@@ -258,7 +255,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                         }
                 }
 
-                if(!shape.isVisible(transformMatrix, world.cam)) // TODO: this visibility check might not be needed
+                if (!shape.isVisible(transformMatrix, world.cam)) // TODO: this visibility check might not be needed
                         return;
 
 
@@ -269,12 +266,11 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
         public void init(AssetManager assetManager) {
 
         }
+
         @Override
         public boolean isInitialized() {
                 return isActive(); // note that doing this will cause init() to be called often wehn it is not needed, but since init() is empty this doesnt matter
         }
-
-
 
 
         @Override

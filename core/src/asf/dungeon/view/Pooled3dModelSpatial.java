@@ -2,16 +2,14 @@ package asf.dungeon.view;
 
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.Pair;
-import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Interpolation;
@@ -65,9 +63,9 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                         //animController.setAnimation(modelInstance.animations.get(0).id, 100);
                 }
 
-                for (Material material : modelInstance.materials) {
-                        material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
-                }
+                //for (Material material : modelInstance.materials) {
+                //        material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
+                //}
 
                 translationBase.set(0, 4, 0);
         }
@@ -162,30 +160,41 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                 //
                 // Common update code (visibility of material, animation update)
 
-                if (targetTokenSpatial != null)
-                        visU = targetTokenSpatial.visU;
-                else {
-                        if (attackerToken.getFloorMap() == world.getLocalPlayerToken().getFloorMap() && world.getLocalPlayerToken().getFogMapping() != null) {
-                                FogMap fogMap = world.getLocalPlayerToken().getFogMapping().getFogMap(world.getLocalPlayerToken().getFloorMap());
-
-                                if (fogMap != null) {
-                                        FogState fogState = fogMap.getFogState(destLoc.x, destLoc.y);
-                                        if (fogState == FogState.Visible) {
-                                                visU += delta * .5f;
-                                        } else {
-                                                visU -= delta * .75f;
-                                        }
-                                        visU = MathUtils.clamp(visU, 0, 1);
-                                }
+                FogState fogState;
+                if (targetTokenSpatial != null) {
+                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null) {
+                                fogState = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap().getFogState(targetTokenSpatial.getToken().getLocation().x, targetTokenSpatial.getToken().getLocation().y);
                         } else {
-                                visU = 1;
+                                fogState = FogState.Visible;
                         }
+                        visU = targetTokenSpatial.visU;
+
+                } else {
+                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null) {
+                                fogState = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap().getFogState(destLoc.x, destLoc.y);
+                        } else {
+                                fogState = FogState.Visible;
+                        }
+
+                        if(fogState == FogState.Visible || fogState == FogState.MagicMapped)visU += delta * .65f;
+                        else visU -= delta * .75f;
+                        visU = MathUtils.clamp(visU, 0, 1);
                 }
+
 
                 for (Material material : modelInstance.materials) {
                         ColorAttribute colorAttribute = (ColorAttribute) material.get(ColorAttribute.Diffuse);
-                        colorAttribute.color.a = visU;
+                        if(fogState == FogState.MagicMapped){
+                                Color color = colorAttribute.color;
+                                color.r = MathUtils.lerp(color.r, visU*.7f, delta);
+                                color.g = MathUtils.lerp(color.g, visU*.8f, delta);
+                                color.b = visU;
+                                color.a = visU;
+                        }else{
+                                colorAttribute.color.set(visU,visU,visU,1);
+                        }
                 }
+
 
                 if (animController != null)
                         animController.update(delta);

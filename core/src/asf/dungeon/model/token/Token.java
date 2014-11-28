@@ -41,7 +41,9 @@ public class Token  {
         private Damage damage;
         private Attack attack;
         private Inventory.Character inventory;
+        private Inventory.Simple simpleInventory;
         private FogMapping fogMapping;
+
 
         public Token(Dungeon dungeon, int id, String name, ModelId modelId) {
                 this.dungeon = dungeon;
@@ -71,6 +73,8 @@ public class Token  {
                         this.command = (Command) component;
                 } else if (component instanceof Inventory.Character) {
                         this.inventory = (Inventory.Character) component;
+                } else if (component instanceof Inventory.Simple) {
+                        this.simpleInventory = (Inventory.Simple) component;
                 } else if (component instanceof Attack) {
                         this.attack = (Attack) component;
                 } else if (component instanceof Move) {
@@ -187,6 +191,10 @@ public class Token  {
 
         public Experience getExperience() {
                 return experience;
+        }
+
+        public Inventory.Simple getSimpleInventory() {
+                return simpleInventory;
         }
 
         /**

@@ -17,7 +17,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
 
         public static enum Type{
                 Identify,
-                Map, // reveals whole floor, but not items or monsters
+                MagicMapping, // reveals whole floor, but not items or monsters
                 ItemDetection, // reveals locations of crates
                 Sleep, // reader falls asleep for x seconds
                 EnchantWeapon,
@@ -33,22 +33,22 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
         }
 
         public boolean isPrimarilySelfConsume(){
-                return type == Type.Map || type == Type.ItemDetection || type == Type.Sleep || type == Type.AggravateMonsters || type == Type.Experience;
+                return type == Type.MagicMapping || type == Type.ItemDetection || type == Type.Sleep || type == Type.AggravateMonsters || type == Type.Experience;
         }
 
         @Override
         public void consume(Token token, Inventory.Character.UseItemOutcome out) {
 
                 switch(type){
-                        case Map:
-                                // reveal map
+                        case MagicMapping:
+                                // reveal map and crates
                                 token.getFogMapping().getCurrentFogMap().revealMap();
                                 out.didSomething = true;
                                 break;
                         case ItemDetection:
                                 // reveal location of crates
                                 FogMap fogMap = token.getFogMapping().getCurrentFogMap();
-                                Array<Token> crateAndLootTokens = token.getFloorMap().getCrateAndLootTokens();
+                                Array<Token> crateAndLootTokens = token.getFloorMap().getCrateTokens();
                                 for (Token t : crateAndLootTokens) {
                                         fogMap.revealLocation(t.getLocation().x, t.getLocation().y);
                                 }

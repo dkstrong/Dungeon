@@ -2,13 +2,13 @@ package asf.dungeon.view;
 
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.Pair;
-import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Sphere;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
@@ -174,28 +174,41 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
 
                 //
                 // Common update code (visibility of material, animation update, rotation of decal)
-
-                if (tokenSpatial != null)
-                        visU = tokenSpatial.visU;
-                else {
-                        if (attackerToken.getFloorMap() == world.getLocalPlayerToken().getFloorMap() && world.getLocalPlayerToken().getFogMapping() != null) {
-                                FogMap fogMap = world.getLocalPlayerToken().getFogMapping().getFogMap(world.getLocalPlayerToken().getFloorMap());
-
-                                if (fogMap != null) {
-                                        FogState fogState = fogMap.getFogState(destLoc.x, destLoc.y);
-                                        if (fogState == FogState.Visible) {
-                                                visU += delta * .5f;
-                                        } else {
-                                                visU -= delta * .75f;
-                                        }
-                                        visU = MathUtils.clamp(visU, 0, 1);
-                                }
+                FogState fogState;
+                if (tokenSpatial != null) {
+                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null) {
+                                fogState = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap().getFogState(tokenSpatial.getToken().getLocation().x, tokenSpatial.getToken().getLocation().y);
                         } else {
-                                visU = 1;
+                                fogState = FogState.Visible;
                         }
+                        visU = tokenSpatial.visU;
+
+                } else {
+                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null) {
+                                fogState = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap().getFogState(destLoc.x, destLoc.y);
+                        } else {
+                                fogState = FogState.Visible;
+                        }
+
+                        if(fogState == FogState.Visible || fogState == FogState.MagicMapped)visU += delta * .65f;
+                        else visU -= delta * .75f;
+                        visU = MathUtils.clamp(visU, 0, 1);
                 }
 
-                decal.setColor(1,1,1,visU);
+
+                if(fogState == FogState.MagicMapped){
+                        Color color = decal.getColor();
+                        color.r = MathUtils.lerp(color.r, visU*.7f, delta);
+                        color.g = MathUtils.lerp(color.g, visU*.8f, delta);
+                        color.b = visU;
+                        color.a = visU;
+                        decal.setColor(color);
+                }else{
+                        decal.setColor(1, 1, 1, visU);
+                }
+
+
+
 
                 //decal.lookAt(world.cam.position, world.cam.up);
                 decal.setTextureRegion(animation.getKeyFrame(time += delta));

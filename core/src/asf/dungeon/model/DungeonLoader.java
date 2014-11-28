@@ -122,7 +122,7 @@ public class DungeonLoader {
                         //potion.identifyItem(token);
                         token.getInventory().add(potion);
 
-                        BookItem book = new BookItem(dungeon, BookItem.Type.Identify);
+                        BookItem book = new BookItem(dungeon, BookItem.Type.MagicMapping);
                         token.getInventory().add(book);
                         book.identifyItem(token);
 

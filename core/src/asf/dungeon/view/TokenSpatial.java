@@ -5,7 +5,7 @@ import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.fogmap.FogMap;
+import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.PotionItem;
@@ -18,12 +18,10 @@ import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
@@ -99,9 +97,9 @@ public class TokenSpatial implements Spatial, Token.Listener {
                 if (modelInstance.animations.size > 0)
                         animController = new AnimationController(modelInstance);
 
-                for (Material material : modelInstance.materials) {
-                        material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
-                }
+                //for (Material material : modelInstance.materials) {
+                        //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
+                //}
 
                 Loot loot = token.get(Loot.class);
                 if (loot != null) {
@@ -170,28 +168,37 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
                 float minVisU = 0;
                 // if fogmapping is enabled, change its visU value based on the fogstate of the tile its on.
-                if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null) {
-                        FogMap fogMap = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap();
-                        if (fogMap.isVisible(token.getLocation().x, token.getLocation().y)) {
-                                visU += delta * .5f;
-                        } else {
-                                visU -= delta * .75f;
-                                // if in a visited tile, "non move" tokens (eg crates)
-                                // will still be seen through the fog
-                                // also below checks should be done so that their animation
-                                // state doesnt get updated while in the fog.
-                                if (token.getMove() == null && fogMap.isVisited(token.getLocation().x, token.getLocation().y)) {
-                                        minVisU = .2f;
-                                }
-                        }
-                        visU = MathUtils.clamp(visU, minVisU, 1);
-                } else {
-                        visU = 1;
+                FogState fogState;
+                if(world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null){
+                        fogState = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap().getFogState(token.getLocation().x, token.getLocation().y);
+                }else{
+                        fogState = FogState.Visible;
                 }
+
+
+                if(fogState == FogState.Visible){
+                        visU += delta * .65f;
+                }else{
+                        visU -= delta * .75f;
+                        // crates can be seen in visited fog and magic mapped fog
+                        // loot can only be seen in visited fog
+                        if (token.getSimpleInventory() != null && (fogState == FogState.Visited || fogState == FogState.MagicMapped)) {
+                                minVisU = .3f;
+                        }else if(token.getMove() == null && fogState == FogState.Visited){
+                                minVisU = .3f;
+                        }
+                }
+                visU = MathUtils.clamp(visU, minVisU, 1);
+
 
                 for (Material material : modelInstance.materials) {
                         ColorAttribute colorAttribute = (ColorAttribute) material.get(ColorAttribute.Diffuse);
-                        colorAttribute.color.a = visU;
+                        //colorAttribute.color.a = visU;
+                        if(fogState == FogState.MagicMapped){
+                                colorAttribute.color.set(visU*0.7f,visU*.8f,visU,1);
+                        }else{
+                                colorAttribute.color.set(visU,visU,visU,1);
+                        }
                 }
 
                 if (token.getMove() == null)

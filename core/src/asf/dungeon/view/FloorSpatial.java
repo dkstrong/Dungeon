@@ -13,13 +13,11 @@ import asf.dungeon.view.shape.Shape;
 import asf.dungeon.view.shape.Sphere;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
@@ -91,9 +89,9 @@ public class FloorSpatial implements Spatial {
                 }
 
                 fogAlpha[FogState.Dark.ordinal()] = 0;
+                fogAlpha[FogState.MagicMapped.ordinal()] = .5f;
                 fogAlpha[FogState.Visited.ordinal()] = .55f;
                 fogAlpha[FogState.Visible.ordinal()] = 1;
-
 
                 makeDecals();
         }
@@ -138,24 +136,22 @@ public class FloorSpatial implements Spatial {
 
                         Decal decal = decalNode.decal;
                         Color color = decal.getColor();
-                        boolean tileVisited;
-                        float fog;
-                        if(fogMap == null){
-                                tileVisited = true;
-                                fog = fogAlpha[FogState.Visible.ordinal()];
-                        }else{
-                                FogState fogState = fogMap.getFogState(decalNode.x, decalNode.y);
-                                tileVisited = fogState != FogState.Dark;
-                                fog = fogAlpha[fogState.ordinal()];
-                        }
+
+                        FogState fogState = fogMap != null ? fogMap.getFogState(decalNode.x, decalNode.y) : FogState.Visible;
+                        boolean tileVisited = fogState != FogState.Dark;
+                        float fog = fogAlpha[fogState.ordinal()];
 
                         if(tileVisited && decal.getPosition().y != decalNode.visibleY){
                                 decal.getPosition().y = decalNode.visibleY; // if this is the first time this decal tile is "visited" then it needs to "pop up" in to position
                                 decal.setPosition(decal.getPosition());
                         }
 
-                        fog = MathUtils.lerp(color.r, fog, delta);
-                        color.set(fog,fog,fog,1);
+                        fog = MathUtils.lerp(color.g, fog, delta);
+                        if(fogState == FogState.MagicMapped){
+                                color.set(fog*0.9f,fog,fog*1.2f,1);
+                        }else{
+                                color.set(fog,fog,fog,1);
+                        }
                         decal.setColor(color);
 
                         boolean renderDecal = fog > 0 && tileSphere.isVisible(decalNode.decal.getPosition(), world.cam);
@@ -182,7 +178,12 @@ public class FloorSpatial implements Spatial {
                                 if(prop.animController != null)
                                         prop.animController.update(delta);
 
-                                prop.colorAttribute.color.a = fog;
+                                // props need to be a little more visible than tiles
+                                prop.colorAttribute.color.r = UtMath.clamp(color.r+.1f, 0f,1f);
+                                prop.colorAttribute.color.g = UtMath.clamp(color.g+.1f, 0f,1f);
+                                prop.colorAttribute.color.b = UtMath.clamp(color.b+.1f, 0f,1f);
+
+                               //prop.colorAttribute.color.a = fog;
 
                                 if(renderDecal) world.modelBatch.render(prop.modelInstance, world.environment);
                         }
@@ -221,7 +222,7 @@ public class FloorSpatial implements Spatial {
 
         private void initCommonAssets(){
 
-                fogAlpha = new float[3];
+                fogAlpha = new float[5];
                 decalNodes = new Array<DecalNode>(128);
                 decalNodeProps = new Array<DecalNodeProp>(8);
                 decalNodePropsTemp = new Array<DecalNodeProp>(8);
@@ -472,7 +473,7 @@ public class FloorSpatial implements Spatial {
 
 
                 Material material = prop.modelInstance.materials.get(0);
-                material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
+                //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
                 prop.colorAttribute = (ColorAttribute)material.get(ColorAttribute.Diffuse);
 
 

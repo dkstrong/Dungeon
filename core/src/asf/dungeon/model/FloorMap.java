@@ -2,8 +2,6 @@ package asf.dungeon.model;
 
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.ConsumableItem;
-import asf.dungeon.model.token.Inventory;
-import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.utils.Array;
@@ -225,10 +223,10 @@ public class FloorMap  {
                 return tokensAt;
         }
 
-        public Array<Token> getCrateAndLootTokens() {
+        public Array<Token> getCrateTokens() {
                 tokensAt.clear();
                 for (Token t : tokens) {
-                        if(t.get(Loot.class) != null || t.get(Inventory.Simple.class) != null){
+                        if(t.getSimpleInventory() != null){
                                 tokensAt.add(t);
                         }
                 }

@@ -35,10 +35,9 @@ public class FogMap {
         public void revealMap(){
                 for(int x=0; x<fog.length; x++){
                         for(int y=0; y<fog[x].length; y++){
-                                if(fog[x][y] != FogState.Visible){
-                                        fog[x][y] = FogState.Visible;
+                                if(fog[x][y] == FogState.Dark ){
+                                        fog[x][y] = FogState.MagicMapped;
                                 }
-
                         }
                 }
         }
@@ -47,7 +46,7 @@ public class FogMap {
                 if(xMapCoord <0 || xMapCoord>= fog.length || yMapCoord< 0 || yMapCoord>=fog[0].length){
                         return;
                 }
-                fog[xMapCoord][yMapCoord] = FogState.Visible;
+                fog[xMapCoord][yMapCoord] = FogState.MagicMapped;
         }
 
 
@@ -104,7 +103,7 @@ public class FogMap {
 
                 for (int x = 0; x < fog.length; x++) {
                         for (int y = 0; y < fog[x].length; y++) {
-                                if (isVisibleMapCoord(x, y)) {
+                                if (isStepVisibleMapCoord(x, y)) {
                                         fog[x][y] = FogState.Visible;
                                 } else if (fog[x][y] == FogState.Visible) {
                                         fog[x][y] = FogState.Visited;
@@ -114,7 +113,7 @@ public class FogMap {
 
         }
 
-        private boolean isVisibleMapCoord(int xMapCoord, int yMapCoord) {
+        private boolean isStepVisibleMapCoord(int xMapCoord, int yMapCoord) {
                 if (xMapCoord < xCenter - radius || xMapCoord > xCenter + radius)
                         return false;
                 if (yMapCoord < yCenter - radius || yMapCoord > yCenter + radius)

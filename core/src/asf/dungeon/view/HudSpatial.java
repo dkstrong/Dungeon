@@ -881,7 +881,13 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                         }
                 } else if (item instanceof BookItem) {
-                        this.appendToGameLog("You just read "+item.getName()+".. The whole thing!");
+                        BookItem book = (BookItem ) item;
+                        if(book.getType() == BookItem.Type.MagicMapping){
+                                appendToGameLog("The layout of this floor has become revealed to you.");
+                        }else{
+                                appendToGameLog("You just read "+item.getName());
+                        }
+
                         if(out.targetItem != null){
                                 // immediatly bring up the inventory window so the user can see the result of using the book on this item
                                 this.setInventoryWindowVisible(true);
@@ -1221,7 +1227,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 if(world.isPaused()) return false;
                 if(!tokenSelectMode && !itemSelectMode){
                         world.camControl.setZoom(world.camControl.getZoom()-amount*.1f);
-                        setMapViewMode(world.camControl.getZoom() <.85f);
+                        setMapViewMode(world.camControl.getZoom() < 1);
                 }
                 return false;
         }
