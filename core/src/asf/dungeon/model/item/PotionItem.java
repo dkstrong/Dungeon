@@ -19,7 +19,7 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         }
 
         public static enum Color {
-                 Red, Blue, Green, Yellow, Magenta, Black, Brown, Amber, White, Silver, Purple;
+                 Red, Blue, Green, Yellow, Magenta, Black, Brown, Amber, Teal, Silver;
 
         }
 
@@ -108,7 +108,7 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
                                 statusEffects.removeNegativeStatusEffects();
                                 break;
                         case Poison:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Poison, 10, 5);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Poison, 5, 5);
                                 break;
                         case Paralyze:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Paralyze, 5, 1);

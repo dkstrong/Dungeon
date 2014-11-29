@@ -16,7 +16,6 @@ import com.badlogic.gdx.math.Quaternion;
 public class AssetMappings {
         protected final Quaternion[] rotations;
         protected final String[] assetLocations;
-        protected final String[] potionTextureAssetLocations;
         protected final Color[] potionDisplayColors;
         protected final String[] scrollTextureAssetLocations;
         protected final String[] bookTextureAssetLocations;
@@ -51,31 +50,17 @@ public class AssetMappings {
                 assetLocations[ModelId.Key3.ordinal()] = "Models/Loot/Key/Key3.g3db";
                 assetLocations[ModelId.Sword.ordinal()] = "Models/Loot/Sword/SwordLarge.g3db";
 
-                potionTextureAssetLocations = new String[11];
-                potionTextureAssetLocations[PotionItem.Color.Red.ordinal()] = "Models/Loot/Potion/potion_silver_red.png";
-                potionTextureAssetLocations[PotionItem.Color.Blue.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
-                potionTextureAssetLocations[PotionItem.Color.Green.ordinal()] = "Models/Loot/Potion/potion_silver_green.png";
-                potionTextureAssetLocations[PotionItem.Color.Yellow.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
-                potionTextureAssetLocations[PotionItem.Color.Magenta.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
-                potionTextureAssetLocations[PotionItem.Color.Black.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
-                potionTextureAssetLocations[PotionItem.Color.Brown.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
-                potionTextureAssetLocations[PotionItem.Color.Amber.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
-                potionTextureAssetLocations[PotionItem.Color.White.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
-                potionTextureAssetLocations[PotionItem.Color.Silver.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
-                potionTextureAssetLocations[PotionItem.Color.Purple.ordinal()] = "Models/Loot/Potion/potion_silver_blue.png";
-
                 potionDisplayColors = new Color[11];
                 potionDisplayColors[PotionItem.Color.Red.ordinal()] = com.badlogic.gdx.graphics.Color.RED;
                 potionDisplayColors[PotionItem.Color.Blue.ordinal()] = com.badlogic.gdx.graphics.Color.BLUE;
                 potionDisplayColors[PotionItem.Color.Green.ordinal()] = com.badlogic.gdx.graphics.Color.GREEN;
                 potionDisplayColors[PotionItem.Color.Yellow.ordinal()] = com.badlogic.gdx.graphics.Color.YELLOW;
                 potionDisplayColors[PotionItem.Color.Magenta.ordinal()] = com.badlogic.gdx.graphics.Color.MAGENTA;
+                potionDisplayColors[PotionItem.Color.Teal.ordinal()] = Color.TEAL;
                 potionDisplayColors[PotionItem.Color.Black.ordinal()] = com.badlogic.gdx.graphics.Color.BLACK;
                 potionDisplayColors[PotionItem.Color.Brown.ordinal()] = com.badlogic.gdx.graphics.Color.OLIVE;
                 potionDisplayColors[PotionItem.Color.Amber.ordinal()] = com.badlogic.gdx.graphics.Color.ORANGE;
-                potionDisplayColors[PotionItem.Color.White.ordinal()] = com.badlogic.gdx.graphics.Color.WHITE;
                 potionDisplayColors[PotionItem.Color.Silver.ordinal()] = com.badlogic.gdx.graphics.Color.GRAY;
-                potionDisplayColors[PotionItem.Color.Purple.ordinal()] = com.badlogic.gdx.graphics.Color.PURPLE;
 
                 scrollTextureAssetLocations = new String[8];
                 scrollTextureAssetLocations[ScrollItem.Symbol.Air.ordinal()] = "Models/Loot/Scroll/parchment_air.png";
@@ -91,6 +76,7 @@ public class AssetMappings {
                 bookTextureAssetLocations[BookItem.Symbol.Alpha.ordinal()] = "Models/Loot/Book/Book.png";
                 bookTextureAssetLocations[BookItem.Symbol.Beta.ordinal()] = "Models/Loot/Book/Book.png";
                 bookTextureAssetLocations[BookItem.Symbol.Gamma.ordinal()] = "Models/Loot/Book/Book.png";
+                bookTextureAssetLocations[BookItem.Symbol.Delta.ordinal()] = "Models/Loot/Book/Book.png";
                 bookTextureAssetLocations[BookItem.Symbol.Epsilon.ordinal()] = "Models/Loot/Book/Book.png";
                 bookTextureAssetLocations[BookItem.Symbol.Zeta.ordinal()] = "Models/Loot/Book/Book.png";
                 bookTextureAssetLocations[BookItem.Symbol.Eta.ordinal()] = "Models/Loot/Book/Book.png";
@@ -124,7 +110,7 @@ public class AssetMappings {
         }
 
         protected String getPotionTextureAssetLocation(PotionItem potionItem) {
-                return potionTextureAssetLocations[potionItem.getColor().ordinal()];
+                return "Models/Loot/Potion/Potion-"+potionItem.getColor().name()+".png";
         }
 
         protected Color getPotionColor(PotionItem potionItem) {
@@ -132,7 +118,9 @@ public class AssetMappings {
         }
 
         protected String getScrollTextureAssetLocation(ScrollItem scrollItem){
-                return scrollTextureAssetLocations[scrollItem.getSymbol().ordinal()];
+                return "Models/Loot/Scroll/parchment_"+scrollItem.getSymbol().name().toLowerCase()+".png";
+
+                //return scrollTextureAssetLocations[scrollItem.getSymbol().ordinal()];
         }
 
         protected String getBookTextureAssetLocation(BookItem bookItem){

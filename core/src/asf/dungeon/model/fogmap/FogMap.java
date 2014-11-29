@@ -54,16 +54,10 @@ public class FogMap {
                 return fog[x][y] == FogState.Visible;
         }
 
-        public boolean isVisited(int x, int y){
-                if(x <0 || x>= fog.length || y< 0 || y>=fog[0].length){
-                        return false;
-                }
-                return fog[x][y] != FogState.Dark;
-        }
-
         public FogState getFogState(int x, int y){
                 return fog[x][y];
         }
+
 
         public void update(){
                 if(token.getFloorMap() != floorMap){
@@ -110,8 +104,9 @@ public class FogMap {
                                 }
                         }
                 }
-
         }
+
+
 
         private boolean isStepVisibleMapCoord(int xMapCoord, int yMapCoord) {
                 if (xMapCoord < xCenter - radius || xMapCoord > xCenter + radius)
@@ -155,8 +150,6 @@ public class FogMap {
                         if(south != null && south.isWall())
                                 stepResult[xLocal][yLocal-1] = 1;
                 }
-
-
 
                 if(yLocal +1 < stepResult[0].length){
                         Tile north = floorMap.getTile(xWorld, yWorld+1);

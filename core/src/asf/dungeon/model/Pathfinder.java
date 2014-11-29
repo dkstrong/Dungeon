@@ -1,19 +1,14 @@
 package asf.dungeon.model;
 
-/*
-Self-explanatory. Comes with 2 methods you can use, one for integer positions and another for nodes as positions. paths return are lists of nodes, but using my class should be very simple :)
-*/
-
-
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * http://www.raywenderlich.com/4946/introduction-to-a-pathfinding
  * https://github.com/xSmallDeadGuyx/SimpleAStar
+ *
+ * a star pathfinder for tile based maps. uses static variables to minimize memory footprint.
+ * this means the Pathfinder class can not be used twice at once unless the static variables are removed
  */
 public class Pathfinder {
         public static enum PathingPolicy{
@@ -43,6 +38,11 @@ public class Pathfinder {
          */
         public boolean avoidZigZagging = true;
 
+        /**
+         * if path exceeds this length then pathfinding will be forced to return false
+         */
+        public int maxPathSize = Integer.MAX_VALUE;
+
 
         private Pair end;
         private final int[][] gScore; // cost from start to current
@@ -51,6 +51,10 @@ public class Pathfinder {
         private final Pair[][] cameFrom;
         private final FloorMap floorMap;
         private final Tile[][] map;
+        // temp arrays for pathfinding
+        private static transient final Array<Pair> openNodes = new Array<Pair>(true, 32, Pair.class);
+        private static transient final Array<Pair> closedNodes = new Array<Pair>(true, 32, Pair.class);
+        private static transient final Array<Pair> found = new Array<Pair>(12); // neighbors that have been found
 
 
         public Pathfinder(FloorMap floorMap) {
@@ -66,14 +70,12 @@ public class Pathfinder {
                 return new Pair(i, j);
         }
 
-
         private static void clearVars(int[][] vars){
                 for (int x = 0; x < vars.length; x++) {
                         for (int y = 0; y < vars[x].length; y++) {
                                 vars[x][y] = 0;
                         }
                 }
-
         }
 
         private static void clearVars(Pair[][] vars){
@@ -82,17 +84,13 @@ public class Pathfinder {
                                 vars[x][y] = null;
                         }
                 }
-
         }
 
-        public List<Pair> generate(int startX, int startY, int endX, int endY) {
-                return generate(toPair(startX, startY), toPair(endX, endY));
+        public boolean generate(int startX, int startY, int endX, int endY, Array<Pair> storePath) {
+                return generate(toPair(startX, startY), toPair(endX, endY), storePath);
         }
 
-        final Array<Pair>  openNodes = new Array<Pair>(32);
-        final Array<Pair>  closedNodes = new Array<Pair>(32);
-
-        public List<Pair> generate(Pair start, Pair finish) {
+        public boolean generate(Pair start, Pair finish, Array<Pair> storePath) {
                 //System.out.println(String.format("last open size: %s, last closed size: %s", openNodes.size, closedNodes.size));
                 openNodes.clear();
                 closedNodes.clear();
@@ -110,12 +108,16 @@ public class Pathfinder {
                         Pair current = getLowestNodeIn(openNodes);
                         if(current == null)
                                 break;
-                        if(current.equals(end))
-                                return reconstructPath(current);
-                        //System.out.println(current.x + ", " + current.y);
+                        if(current.equals(end)){
+                                reconstructPath(current, storePath);
+                                return true;
+                        }
 
                         openNodes.removeValue(current, true);
                         closedNodes.add(current);
+
+                        if(closedNodes.size >= maxPathSize)
+                                break;
 
                         Array<Pair> neighbors = getNeighborNodes(current);
                         for(Pair n : neighbors) {
@@ -143,19 +145,18 @@ public class Pathfinder {
                                 }
                         }
                 }
-                return null;
+                return false;
         }
 
-        private List<Pair> reconstructPath(Pair n) {
+        private Array<Pair> reconstructPath(Pair n, Array<Pair> storePath) {
                 if(cameFrom[n.x][n.y] != null) {
-                        List<Pair> path = reconstructPath(cameFrom[n.x][n.y]);
-                        path.add(n);
-                        return path;
-                }
-                else {
-                        List<Pair> path = new ArrayList<Pair>(); // instead of making a new list, i could just clear existing one
-                        path.add(n);
-                        return path;
+                        reconstructPath(cameFrom[n.x][n.y], storePath);
+                        storePath.add(n);
+                        return storePath;
+                } else {
+                        storePath.clear();
+                        storePath.add(n);
+                        return storePath;
                 }
         }
 
@@ -169,7 +170,7 @@ public class Pathfinder {
                 Tile tile = map[x][y];
                 return tile!= null && !tile.isBlockMovement();
         }
-        final Array<Pair> found = new Array<Pair>(12);
+
         private Array<Pair> getNeighborNodes(Pair n) {
                 found.clear();
                 if(isWalkable(n.x + 1,n.y)) found.add(toPair(n.x + 1, n.y));

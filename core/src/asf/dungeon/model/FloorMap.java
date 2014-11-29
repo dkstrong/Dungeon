@@ -7,8 +7,6 @@ import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.SnapshotArray;
 
-import java.util.List;
-
 /**
  * A single floor of the dungeon. contains information about the tiles that make up the floor
  * and the tokens on this floor.
@@ -33,47 +31,20 @@ public class FloorMap  {
                 this.monsterSpawner = monsterSpawner;
         }
 
-        //private transient HashSet<String> snapShotRefs = new HashSet<String>();
-
         protected void update(Dungeon dungeon, float delta){
 
                 if(monsterSpawner != null) monsterSpawner.spawnMonsters(dungeon, this);
 
                 Token[] tokensSnapshot = tokens.begin();
-                //snapShotRefs.add(String.valueOf(tokensSnapshot));
-                //System.out.println(snapShotRefs.size());
-
                 for (int i = 0, n = tokens.size; i < n; i++) {
                         tokensSnapshot[i].incremenetU(delta);
                 }
                 tokens.end();
-                // i used to iterate the array like this, using the snapshot is smarter i belive
-                // as it will prevent oditiies with teleporting between floormaps or removing loot etc
-                // will need to test it some
-
-                //for (int i = 0; i < tokens.size; i++) {
-                //        tokens.items[i].incremenetU(delta);
-                //}
         }
 
 
-
-
-
-
         public boolean computePath(Pair start, Pair goal, Array<Pair> store) {
-
-                List<Pair> path = pathfinder.generate(start, goal);
-
-                if(path == null)
-                        return false;
-
-                store.clear();
-                for (Pair pair : path) {
-                        store.add(pair);
-                }
-
-                return true;
+                return pathfinder.generate(start, goal, store);
         }
 
         /**

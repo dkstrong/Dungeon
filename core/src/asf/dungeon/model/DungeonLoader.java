@@ -89,7 +89,7 @@ public class DungeonLoader {
                         playerLogic = new FullAgroLogic(0);
                 }else{
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new BinarySpaceGen(), new PreBuiltFloorGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
+                                new ConnectedRoomsGen(), new DirectionalCaveHallGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
@@ -114,27 +114,23 @@ public class DungeonLoader {
                                 new Experience(1, 20, 6, 3, 1,1),
                                 0,0);
 
-                        token.getDamage().setDeathRemovalCountdown(7);
+                        token.getDamage().setDeathRemovalCountdown(Float.NaN);
 
                         token.getInventory().setNumQuickSlots(1);
 
-                        PotionItem potion  = new PotionItem(dungeon, PotionItem.Type.Health,2 );
-                        //potion.identifyItem(token);
+                        PotionItem potion  = new PotionItem(dungeon, PotionItem.Type.Poison,4 );
+                        potion.identifyItem(token);
                         token.getInventory().add(potion);
+                        token.getInventory().equip(potion);
 
                         BookItem book = new BookItem(dungeon, BookItem.Type.MagicMapping);
                         token.getInventory().add(book);
                         book.identifyItem(token);
 
-                        ScrollItem teleportScroll = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 5);
-                        //teleportScroll.identifyItem(token);
-                        token.getInventory().add(teleportScroll);
-
-                        ScrollItem scroll = new ScrollItem(dungeon, ScrollItem.Type.Lightning, 5);
-                        scroll.identifyItem(token);
-                        token.getInventory().add(scroll);
-
-                        token.getInventory().equip(scroll);
+                        ArmorItem armor = new ArmorItem(ModelId.Sword,"Simple Armor",1);
+                        armor.identifyItem(token);
+                        token.getInventory().add(armor);
+                        token.getInventory().equip(armor);
 
                         if(settings.playerModel == ModelId.Knight){
                                 WeaponItem sword = new WeaponItem(ModelId.Sword,"Sword", 3);
@@ -161,11 +157,6 @@ public class DungeonLoader {
 
 
 
-                        ArmorItem armor = new ArmorItem(ModelId.Potion,"Armor",1);
-                        armor.identifyItem(token);
-                        token.getInventory().add(armor);
-                        //token.getInventory().equip(armor);
-                        //token.get(Journal.class).learn(armor);
 
                         dungeon.moveToken(token, dungeon.generateFloor(0));
                 }else{

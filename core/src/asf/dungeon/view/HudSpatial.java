@@ -67,6 +67,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         // in game hud
         private Label gameLogLabel, targetInfoLabel;
         private float gameLogDisplayCountdown = Float.NaN;
+        private float gameOverCountdown = .75f;
         private Button avatarButton;
         private Button[] quickButtons;
         private ProgressBar healthProgressBar;
@@ -188,7 +189,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 //inventoryWindow.debugAll();
                 {
 
-                        inputModeLabel = new Label("Inventory and Stats",skin);
+                        inputModeLabel = new Label("Inventory and Stats", skin);
 
                         inputModeCancelButton = new Button(skin);
                         inputModeCancelButton.add(new Label("Cancel", skin));
@@ -293,9 +294,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         itemWindowBackButton.addCaptureListener(this);
                         itemWindow.add(itemWindowBackButton);
                 }
-
-
-
 
 
                 resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -413,12 +411,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         protected void setToken(Token token) {
                 localPlayerToken = token;
-                if(localPlayerToken != null){
+                if (localPlayerToken != null) {
                         if (this.isInitialized())
                                 this.init(world.assetManager);
-                        if(!mapViewMode)
+                        if (!mapViewMode)
                                 world.camControl.setChaseTarget(world.getTokenSpatial(localPlayerToken));
-                }else{
+                } else {
                         if (this.isInitialized()) {
                                 this.setHudElementsVisible(false);
                                 this.setInventoryWindowVisible(false);
@@ -448,7 +446,10 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 localPlayerToken.getExperience().getRequiredXpToLevelUp());
                         avatarLabel.setText(s);
 
-                        if (tokenSelectMode) {
+                        if (localPlayerToken.getDamage().isDead()) {
+                                targetInfoLabel.setText("GAME OVER!");
+                                gameOverCountdown-=delta;
+                        } else if (tokenSelectMode) {
                                 targetInfoLabel.setText("Choose target for " + tokenSelectForItem.getNameFromJournal(localPlayerToken));
                         } else {
                                 Token targetToken = localPlayerToken.getCommand().getTargetToken();
@@ -529,7 +530,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         private void refreshInventoryElements() {
-                //Gdx.app.log("HudSpatial", "refresh inventory");
+                Gdx.app.log("HudSpatial", "refresh inventory elements");
                 // refresh hero stats
                 SnapshotArray<Actor> children = inventoryWindow.getChildren();
                 Label heroStatsLabel = null;
@@ -700,6 +701,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
 
                         } else {
+
                                 SnapshotArray<Actor> children = button.getChildren();
                                 for (int i = 0; i < children.size; i++) {
                                         Actor actor = children.get(i);
@@ -710,6 +712,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         } else if (uoName.equals("Quantity")) {
                                                 Label label = (Label) actor;
                                                 if (item instanceof StackableItem) {
+                                                        Gdx.app.log("HudSpatial", "update button contents: " + item + " charges: " + ((StackableItem) item).getCharges());
                                                         StackableItem stackableItem = (StackableItem) item;
                                                         label.setText("x" + stackableItem.getCharges());
                                                 } else {
@@ -755,9 +758,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 useLabel.setText("Equip");
                         }
                 } else if (item instanceof ConsumableItem) {
-                        if(item instanceof BookItem){
+                        if (item instanceof BookItem) {
                                 useLabel.setText("Read");
-                        }else{
+                        } else {
                                 useLabel.setText("Use");
                         }
 
@@ -801,7 +804,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
 
-        private void setHudElementsVisible(boolean visible){
+        private void setHudElementsVisible(boolean visible) {
                 avatarButton.setVisible(visible);
                 healthProgressBar.setVisible(visible);
                 avatarLabel.setVisible(visible);
@@ -818,7 +821,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 setHudElementsVisible(!visible);
                 if (visible) {
 
-                        if (inventoryWindow.getParent() == null){
+                        if (inventoryWindow.getParent() == null) {
                                 world.stage.addActor(inventoryWindowBackgroundImage);
                                 world.stage.addActor(inventoryWindow);
                         }
@@ -881,14 +884,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                         }
                 } else if (item instanceof BookItem) {
-                        BookItem book = (BookItem ) item;
-                        if(book.getType() == BookItem.Type.MagicMapping){
+                        BookItem book = (BookItem) item;
+                        if (book.getType() == BookItem.Type.MagicMapping) {
                                 appendToGameLog("The layout of this floor has become revealed to you.");
-                        }else{
-                                appendToGameLog("You just read "+item.getName());
+                        } else {
+                                appendToGameLog("You just read " + item.getName());
                         }
 
-                        if(out.targetItem != null){
+                        if (out.targetItem != null) {
                                 // immediatly bring up the inventory window so the user can see the result of using the book on this item
                                 this.setInventoryWindowVisible(true);
                         }
@@ -965,7 +968,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 this.appendToGameLog(String.format("You now understand the secrets of %s.", item.getName()));
                         }
                 } else {
-                        if(study)
+                        if (study)
                                 this.appendToGameLog("You have identified " + identifiedItem.getName());
                 }
 
@@ -983,15 +986,15 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         }
 
-        protected void setMapViewMode(boolean mapViewMode){
-                if(this.mapViewMode == mapViewMode)
+        protected void setMapViewMode(boolean mapViewMode) {
+                if (this.mapViewMode == mapViewMode)
                         return;
                 this.mapViewMode = mapViewMode;
                 //setHudElementsVisible(!this.mapViewMode);
                 world.camControl.setChasing(!this.mapViewMode);
-                if(this.mapViewMode){
+                if (this.mapViewMode) {
 
-                }else{
+                } else {
                         world.camControl.setZoom(1);
                 }
 
@@ -1000,8 +1003,29 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
         }
 
-        protected boolean isMapViewMode(){
+        protected boolean isMapViewMode() {
                 return mapViewMode;
+        }
+
+        private void setTokenSelectMode(ConsumableItem.TargetsTokens item) {
+                tokenSelectForItem = item;
+                tokenSelectMode = tokenSelectForItem != null;
+
+                if (tokenSelectMode) {
+                        if (tokenSelectForItem.isPrimarilySelfConsume()) {
+                                localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
+                                tokenSelectMode = false;
+                                tokenSelectForItem = null;
+                        } else {
+                                if (!tokenSelectForItem.isIdentified(localPlayerToken)) {
+                                        // if not identified, then using the scroll can not be cancelled, dont change text
+                                } else {
+                                        // TODO: change text to "cancel"
+                                }
+                        }
+                } else {
+
+                }
         }
 
         private void setItemSelectMode(ConsumableItem.TargetsItems item) {
@@ -1010,11 +1034,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 itemSelectMode = itemSelectForItem != null;
 
                 if (itemSelectMode) {
-                        if(item.isPrimarilySelfConsume()){
+                        if (item.isPrimarilySelfConsume()) {
                                 boolean valid = localPlayerToken.getCommand().consumeItem(itemSelectForItem);
                                 itemSelectForItem = null;
                                 itemSelectMode = false;
-                                if(valid)
+                                if (valid)
                                         this.setInventoryWindowVisible(false);
                                 return;
                         }
@@ -1055,7 +1079,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         SnapshotArray<Actor> avatarWindowChildren = inventoryWindow.getChildren();
                         for (Actor avatarWindowChild : avatarWindowChildren) {
                                 String uo = String.valueOf(avatarWindowChild.getUserObject());
-                                if(uo.equals("Close")){
+                                if (uo.equals("Close")) {
 
                                         avatarWindowChild.setVisible(false);
                                 }
@@ -1099,7 +1123,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         SnapshotArray<Actor> avatarWindowChildren = inventoryWindow.getChildren();
                         for (Actor avatarWindowChild : avatarWindowChildren) {
                                 String uo = String.valueOf(avatarWindowChild.getUserObject());
-                                if(uo.equals("Close")){
+                                if (uo.equals("Close")) {
 
                                         avatarWindowChild.setVisible(true);
                                 }
@@ -1107,14 +1131,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         this.setInventoryWindowVisible(false);
                 }
 
-                if(itemSelectMode){
-                        inputModeLabel.setText("Choose item to use with "+itemSelectForItem.getNameFromJournal(localPlayerToken)+"     ");
-                        if(itemSelectForItem.isIdentified(localPlayerToken)) {
+                if (itemSelectMode) {
+                        inputModeLabel.setText("Choose item to use with " + itemSelectForItem.getNameFromJournal(localPlayerToken) + "     ");
+                        if (itemSelectForItem.isIdentified(localPlayerToken)) {
                                 if (inputModeCancelButton.getParent() == null)
                                         inputModeHorizontalGroup.addActor(inputModeCancelButton);
-                        }else
+                        } else
                                 inputModeCancelButton.remove();
-                }else{
+                } else {
                         inputModeLabel.setText("Inventory and Stats");
                         inputModeCancelButton.remove();
                 }
@@ -1126,34 +1150,29 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
          * @param delta
          */
         private float lastTouchTimer = 0;
+
         protected void updateInput(float delta) {
-                if(mapViewMode){
+                if (mapViewMode) {
                         // end map view mode by double tapping
-                        if(Gdx.input.justTouched()){
-                                if(lastTouchTimer < 0.54f){
+                        if (Gdx.input.justTouched()) {
+                                if (lastTouchTimer < 0.54f) {
                                         setMapViewMode(false);
-                                }else{
+                                } else {
                                         lastTouchTimer = 0;
                                 }
                         }
                         lastTouchTimer += delta;
                 } else if (tokenSelectMode) {
-                        // do this check to prevent getting stuck in a state of not being able to cancel
-                        // the quick slot, but not being able ot move because stuck in targeting mode
+                        if (localPlayerToken.getDamage().isDead()) {
+                                setTokenSelectMode(null);
+                                return;
+                        }
+                        // if item is not identified and it cant be used, then force it to self consume since it cant be cancelled
                         if (!tokenSelectForItem.isIdentified(localPlayerToken)) {
-
                                 Array<Token> targetableTokens = localPlayerToken.getFloorMap().getTargetableTokens(localPlayerToken, tokenSelectForItem);
                                 if (targetableTokens.size == 0) {
-                                        tokenSelectMode = false;
-                                        tokenSelectForItem = null;
+                                        setTokenSelectMode(null);
                                         localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
-                                } else if (targetableTokens.size == 1) {
-                                        if (targetableTokens.get(0) == localPlayerToken) {
-                                                localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
-                                                tokenSelectMode = false;
-                                                tokenSelectForItem = null;
-
-                                        }
                                 }
                         }
                 } else if (itemSelectMode) {
@@ -1168,8 +1187,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         @Override
         public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
-                if(world.isPaused()) return false;
-                if(mapViewMode){
+                if (world.isPaused()) return false;
+                if (mapViewMode) {
                         return true;
                 } else if (tokenSelectMode) {
                         boolean hasTarget = tokenSelectCommand(screenX, screenY);
@@ -1177,7 +1196,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 tokenSelectMode = false;
                                 tokenSelectForItem = null;
                         }
-                } else {
+                }else if(gameOverCountdown < 0){
+                        world.dungeonApp.setAppGameOver();
+                } else{
                         boolean hasTarget = touchCommand(screenX, screenY);
                         if (!hasTarget) {
                                 mouseDownDrag = true;
@@ -1190,12 +1211,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         @Override
         public boolean touchDragged(int screenX, int screenY, int pointer) {
-                if(world.isPaused()) return false;
-                if(mapViewMode){
+                if (world.isPaused()) return false;
+                if (mapViewMode) {
                         world.camControl.drag(screenX, screenY);
                         return true;
-                }else
-                if (mouseDownDrag) {
+                } else if (mouseDownDrag) {
                         return true;
                 }
                 return false;
@@ -1203,7 +1223,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         @Override
         public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                if(inventoryWindow.getParent() != null ){
+                if (inventoryWindow.getParent() != null) {
                         float clickX = screenX;
                         float clickY = screenY;
                         if (clickX < inventoryWindow.getX() || clickY < inventoryWindow.getY() || clickX > inventoryWindow.getX() + inventoryWindow.getWidth() || clickY > inventoryWindow.getY() + inventoryWindow.getHeight()) {
@@ -1211,22 +1231,22 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 return true;
                         }
                 }
-                if(world.isPaused()) return false;
-                if(mapViewMode){
+                if (world.isPaused()) return false;
+                if (mapViewMode) {
                         world.camControl.drag(-1, -1);
                         return true;
-                }else if (mouseDownDrag) {
+                } else if (mouseDownDrag) {
                         mouseDownDrag = false;
                         return true;
                 }
-               return false;
+                return false;
         }
 
         @Override
         public boolean scrolled(int amount) {
-                if(world.isPaused()) return false;
-                if(!tokenSelectMode && !itemSelectMode){
-                        world.camControl.setZoom(world.camControl.getZoom()-amount*.1f);
+                if (world.isPaused()) return false;
+                if (!tokenSelectMode && !itemSelectMode) {
+                        world.camControl.setZoom(world.camControl.getZoom() - amount * .1f);
                         setMapViewMode(world.camControl.getZoom() < 1);
                 }
                 return false;
@@ -1253,6 +1273,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         private boolean touchCommand(int screenX, int screenY) {
+                if (localPlayerToken.getDamage().isDead()) return false;
                 Ray ray = world.cam.getPickRay(screenX, screenY);
                 Token targetToken = world.getToken(ray, localPlayerToken);
                 // attempt to target specificaly clicked token
@@ -1279,6 +1300,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         private boolean dragCommand(Ray ray) {
+                if (localPlayerToken.getDamage().isDead()) return false;
                 final float distance = -ray.origin.y / ray.direction.y;
                 tempWorldCoords.set(ray.direction).scl(distance).add(ray.origin);
                 world.getMapCoords(tempWorldCoords, tempMapCoords);
@@ -1311,7 +1333,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
 
-
         /**
          * handles events triggered by the touchPad and converts them in to moveDirections
          * for the local player token
@@ -1342,7 +1363,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
 
                 if (event.getListenerActor() == avatarButton) {
-                        if(!tokenSelectMode)
+                        if (!tokenSelectMode)
                                 setInventoryWindowVisible(true);
                 } else if (event.getListenerActor() == itemWindowUseButton) {
                         Object object = itemWindow.getUserObject();
@@ -1367,10 +1388,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 }
                                 setItemDialogVisible(false);
                         } else if (object instanceof ConsumableItem.TargetsItems) {
-
                                 this.setItemSelectMode((ConsumableItem.TargetsItems) object);
-
-
                         } else {
                                 throw new AssertionError(object);
                         }
@@ -1383,12 +1401,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 setItemDialogVisible(false);
                 } else if (event.getListenerActor() == itemWindowBackButton) {
                         setItemDialogVisible(false);
-                } else if(event.getListenerActor() == inputModeCancelButton) {
-                        if(itemSelectMode){
+                } else if (event.getListenerActor() == inputModeCancelButton) {
+                        if (itemSelectMode) {
                                 setItemSelectMode(null);
                                 this.setInventoryWindowVisible(true);
                         }
-                }else if (event.getListenerActor() instanceof Button) {
+                } else if (event.getListenerActor() instanceof Button) {
                         // either an inventory screen button was pressed or a quick slot button
                         Button button = (Button) event.getListenerActor();
                         Object uo = event.getListenerActor().getUserObject();
@@ -1396,11 +1414,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         if (inventoryEquipmentButtons.contains(button, true) || inventoryBackPackButtons.contains(button, true)) {
                                 // inventory screen button
                                 if (uo instanceof Item) {
-                                        if(!itemSelectMode){
+                                        if (!itemSelectMode) {
                                                 setItemWindowContents((Item) uo);
                                                 setItemDialogVisible(true);
-                                        }else{
-                                                localPlayerToken.getCommand().consumeItem(itemSelectForItem, (Item)uo);
+                                        } else {
+                                                localPlayerToken.getCommand().consumeItem(itemSelectForItem, (Item) uo);
                                                 setItemSelectMode(null);
 
                                         }
@@ -1411,28 +1429,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         if (tokenSelectMode) {
                                                 if (tokenSelectForItem.isIdentified(localPlayerToken)) {
                                                         // can only cancel identified items
-                                                        tokenSelectForItem = null;
-                                                        tokenSelectMode = false;
+                                                        setTokenSelectMode(null);
                                                 }
                                                 return false;
-                                        }
-                                        if (uo instanceof ConsumableItem.TargetsTokens) {
-                                                tokenSelectMode = true;
-                                                tokenSelectForItem = (ConsumableItem.TargetsTokens) uo;
-
-                                                if(tokenSelectForItem.isPrimarilySelfConsume()){
-                                                        localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
-                                                        tokenSelectMode = false;
-                                                        tokenSelectForItem = null;
-                                                }else{
-                                                        //Gdx.app.log("HudSpatial", "start targeting mode");
-                                                        // if item is not identified and can not be used on any targets, then automatically cast on self
-                                                        if (!tokenSelectForItem.isIdentified(localPlayerToken)) {
-                                                                // if not identified, then using the scroll can not be cancelled
-                                                        } else {
-                                                                // TODO: change text to "cancel"
-                                                        }
-                                                }
+                                        } else if (uo instanceof ConsumableItem.TargetsTokens) {
+                                                setTokenSelectMode((ConsumableItem.TargetsTokens) uo);
                                         } else if (uo instanceof ConsumableItem) {
                                                 localPlayerToken.getCommand().consumeItem((ConsumableItem) uo);
                                         } else {
@@ -1446,8 +1447,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
                 return false;
         }
-
-
 
 
         private class DamageLabel {

@@ -93,12 +93,9 @@ public class UtFloorGen {
 
                         int randInt = dungeon.rand.random.nextInt(3);
                         if(randInt == 0){
-                                item = new PotionItem(dungeon, PotionItem.Type.Health, 1);
-                                item = new BookItem(dungeon, BookItem.Type.AggravateMonsters);
+                                item = new PotionItem(dungeon, dungeon.rand.potionType(), 1);
                         }else if(randInt == 1){
-
                                 item = new ScrollItem(dungeon, ScrollItem.Type.Lightning, 1);
-                                item = new BookItem(dungeon, BookItem.Type.AggravateMonsters);
                         }else if(randInt == 2){
                                 item = new BookItem(dungeon, BookItem.Type.AggravateMonsters);
                         }else{

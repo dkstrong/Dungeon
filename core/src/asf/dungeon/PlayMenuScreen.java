@@ -215,7 +215,7 @@ public class PlayMenuScreen implements Screen {
 
                         Token token = settings.getLocalPlayerToken();
 
-                        setShowLoadButton(token != null);
+                        setShowLoadButton(token != null && !token.getDamage().isDead());
 
                         if(settings.playerModel == ModelId.Knight){
                                 descriptionLabel.setText(i18n.get("knightDescription"));

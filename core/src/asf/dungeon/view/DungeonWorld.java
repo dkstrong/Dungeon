@@ -346,7 +346,7 @@ public class DungeonWorld implements Disposable {
                                 if(!token.getDamage().isFullyDead()){
                                         camControl.chaseTarget.visU = 0; // this forces the player spatial to turn black and fade back in
                                 }else{
-                                        dungeonApp.setAppGameOver();
+                                        //dungeonApp.setAppGameOver();
                                 }
 
                                 return;

@@ -8,7 +8,6 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -38,7 +37,7 @@ public class GameOverScreen implements Screen, InputProcessor, EventListener {
         @Override
         public void show() {
                 stage = app.stage;
-                Gdx.input.setInputProcessor(new InputMultiplexer(this, stage));
+                Gdx.input.setInputProcessor(new InputMultiplexer(stage, this));
                 Skin skin = app.skin;
                 I18NBundle i18n = app.i18n;
                 stage.clear();
@@ -118,21 +117,6 @@ public class GameOverScreen implements Screen, InputProcessor, EventListener {
 
         @Override
         public boolean handle(Event event) {
-                if (event.getTarget() == window) {
-                        if (event instanceof InputEvent) {
-                                InputEvent inputEvent = (InputEvent) event;
-                                if (inputEvent.getType() == InputEvent.Type.touchDown) {
-                                        float clickX = inputEvent.getStageX();
-                                        float clickY = inputEvent.getStageY();
-                                        if (clickX < window.getX() || clickY < window.getY() || clickX > window.getX() + window.getWidth() || clickY > window.getY() + window.getHeight()) {
-                                                app.setAppPaused(false);
-                                                return true;
-                                        }
-                                }
-                        }
-                        return false;
-                }
-
                 if (!(event instanceof ChangeListener.ChangeEvent)) {
                         return false;
                 }
@@ -160,10 +144,6 @@ public class GameOverScreen implements Screen, InputProcessor, EventListener {
 
         @Override
         public boolean keyUp(int keycode) {
-                if(keycode == Input.Keys.ESCAPE){
-                        app.setAppPaused(false);
-                        return true;
-                }
                 return false;
         }
 

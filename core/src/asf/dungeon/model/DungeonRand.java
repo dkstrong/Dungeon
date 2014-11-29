@@ -1,6 +1,8 @@
 package asf.dungeon.model;
 
 
+import asf.dungeon.model.item.PotionItem;
+
 import java.util.Random;
 
 /**
@@ -19,6 +21,32 @@ public class DungeonRand {
                 }else{
                         this.random = random;
                 }
+        }
+
+        public PotionItem.Type potionType(){
+                int i = random.nextInt(10);
+                if(i== 0){
+                        return PotionItem.Type.Blindness;
+                }else if(i==1){
+                        return PotionItem.Type.Hallucination;
+                }else if(i==2){
+                        return PotionItem.Type.Health;
+                }else if(i==3){
+                        return PotionItem.Type.Invisibility;
+                }else if(i==4){
+                        return PotionItem.Type.Might;
+                }else if(i==5){
+                        return PotionItem.Type.MindVision;
+                }else if(i==6){
+                        return PotionItem.Type.Paralyze;
+                }else if(i==7){
+                        return PotionItem.Type.Poison;
+                }else if(i==8){
+                        return PotionItem.Type.Poison;
+                }else if(i==9){
+                        return PotionItem.Type.Speed;
+                }
+                throw new AssertionError(i);
         }
 
         public Direction direction(){
