@@ -126,10 +126,12 @@ public class TokenSpatial implements Spatial, Token.Listener {
                 }
 
                 if (world.assetMappings.getAssetLocation(token.getModelId()).contains("Characters")) {
-                        float s = .45f;
-                        scale.set(s, s, s);
+                        if(token.getModelId() != ModelId.Skeleton){
+                                float s = .45f;
+                                scale.set(s, s, s);
 
-                        translationBase.set(0, (world.floorSpatial.tileBox.getDimensions().y / 2f) + 1.45f, 0);
+                                translationBase.set(0, (world.floorSpatial.tileBox.getDimensions().y / 2f) + 1.45f, 0);
+                        }
                 }
 
                 if (token.getModelId() == ModelId.Diablous || token.getModelId() == ModelId.Berzerker || token.getModelId() == ModelId.Priest || token.getModelId() == ModelId.Scroll) {

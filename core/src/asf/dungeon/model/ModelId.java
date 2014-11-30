@@ -9,6 +9,7 @@ public enum ModelId {
         Knight,
         Mage,
         Priest,
+        Skeleton,
         CeramicPitcher,
         Potion,
         Scroll,

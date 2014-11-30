@@ -42,7 +42,7 @@ public class UtFloorGen {
         protected static void spawnCharacters(Dungeon dungeon, FloorMap floorMap){
                 ModelId[] characters;
                 if(floorMap.index == 0)
-                        characters = new ModelId[]{ModelId.Berzerker, ModelId.Archer};
+                        characters = new ModelId[]{ModelId.Skeleton, ModelId.Berzerker, ModelId.Archer};
                 else{
                         characters = new ModelId[]{ModelId.Archer,ModelId.Berzerker,ModelId.Diablous,ModelId.FemaleMage,ModelId.Mage,ModelId.Priest}; // "cerberus"
                 }

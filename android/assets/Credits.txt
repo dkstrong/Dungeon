@@ -3,6 +3,10 @@ Animated Heroes (Knight, Archer, Mage, ...)
 Clement Wu, Nikolaus, Botanic
 URL: http://opengameart.org/users/botanic
 
+Skeleton
+zebzorb
+http://opengameart.org/content/low-poly-rigged-skeleton
+
 ===Loot===
 Sword, Bow, Staff
 PantherOne
