@@ -8,6 +8,7 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.Attack;
+import asf.dungeon.model.token.Interact;
 import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
@@ -341,6 +342,11 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
 
         @Override
         public void onLearned(Item journalObject, boolean study) {
+
+        }
+
+        @Override
+        public void onInteract(Interact interact) {
 
         }
 

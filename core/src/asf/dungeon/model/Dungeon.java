@@ -166,6 +166,13 @@ public class Dungeon {
                 return t;
         }
 
+        public Token newToken(Token token, FloorMap fm, int x, int y){
+                if(fm == null) throw new IllegalArgumentException("fm can not be null");
+                token.setId(nextTokenId++);
+                moveToken(token, fm, x,y,Direction.South);
+                return token;
+        }
+
         public Token newCrateToken(FloorMap fm, String name, ModelId modelId, Item item, int x, int y) {
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 Token t = new Token(this,  nextTokenId++, name, modelId);

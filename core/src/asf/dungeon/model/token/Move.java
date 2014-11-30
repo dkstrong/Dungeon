@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Array;
 /**
  * Created by Danny on 11/11/2014.
  */
-public class Move implements TokenComponent{
+public class Move implements TokenComponent {
         private final Token token;
         private float moveSpeed = 1.5f; // how fast the character moves between tiles, generally a value between 1 and 10, could be higher i suppose.
         private float moveSpeedDiagonal = 1.06066017177f;
@@ -32,7 +32,7 @@ public class Move implements TokenComponent{
         public void teleport(FloorMap fm, int x, int y, Direction direction) {
                 moveU = 1;
                 path.clear();
-                pathedTarget.set(x,y);
+                pathedTarget.set(x, y);
 
         }
 
@@ -58,17 +58,17 @@ public class Move implements TokenComponent{
                         } else {
                                 targetLocation.set(continuousMoveTokenLastLoc);
                                 continuousMoveTokenLostVisionCountdown -= delta;
-                                if (continuousMoveTokenLostVisionCountdown < 0){
+                                if (continuousMoveTokenLostVisionCountdown < 0) {
                                         token.getCommand().setTargetToken(null); // lost sight for over a second, no longer chasing
                                         targetToken = null;
                                 }
 
                         }
 
-                        if(targetToken != null){
+                        if (targetToken != null) {
                                 Damage moveTokenDamage = targetToken.get(Damage.class);
-                                if(moveTokenDamage!= null){
-                                        if(moveTokenDamage.isDead()){
+                                if (moveTokenDamage != null) {
+                                        if (moveTokenDamage.isDead()) {
                                                 token.getCommand().setTargetToken(null); // target died, well keep moving to its last location but we wont target it anymore
                                                 targetToken = null;
                                         }
@@ -88,7 +88,7 @@ public class Move implements TokenComponent{
 
                 if (moveU > 1) {
 
-                        if (path.size >0)  // check for loot as long as not idle in square. TODO: when path is blocked and stuff in the "chilling" state, pickUpLoot will get spammed, but its better than always spamming it
+                        if (path.size > 0)  // check for loot as long as not idle in square. TODO: when path is blocked and stuff in the "chilling" state, pickUpLoot will get spammed, but its better than always spamming it
                                 pickUpLoot(); // we check for loot before applying moveU because we want to pick up loot only when fully in the tile and not when just entering a new one
 
                         if (path.size > 1) {
@@ -110,7 +110,7 @@ public class Move implements TokenComponent{
                                                 token.direction = newDirection;
                                         location.set(nextLocation);
                                         moveU -= 1;
-                                        if(token.getFogMapping() != null)
+                                        if (token.getFogMapping() != null)
                                                 token.getFogMapping().computeFogMap();
 
                                 } else {
@@ -120,14 +120,18 @@ public class Move implements TokenComponent{
                                         moveU = 1;
 
                                         //if (!token.isInteracting()) {
-                                                Direction newDirection = Direction.getDirection(location, nextLocation);
-                                                if (newDirection != null)
-                                                        token.direction = newDirection;
+                                        Direction newDirection = Direction.getDirection(location, nextLocation);
+                                        if (newDirection != null)
+                                                token.direction = newDirection;
                                         //}
 
-                                        boolean action = useKey(nextLocation);
-                                        if(!action)
-                                                token.getAttack().attackTargetInDirection(delta); // auto attack anything in front of me, do not do ranged attack
+                                        boolean action = interact(nextLocation);
+                                        if (!action) {
+                                                action = useKey(nextLocation);
+                                                if (!action)
+                                                        token.getAttack().attackTargetInDirection(delta); // auto attack anything in front of me, do not do ranged attack
+                                        }
+
 
                                 }
 
@@ -136,13 +140,13 @@ public class Move implements TokenComponent{
                                 path.clear();
                                 pathedTarget.set(location);
                                 Tile tile = floorMap.getTile(location);
-                                if (tile.isStairs() && tile.getStairsTo() >=0) {
+                                if (tile.isStairs() && tile.getStairsTo() >= 0) {
                                         token.dungeon.moveToken(token, token.dungeon.generateFloor(tile.getStairsTo()));
                                         //token.teleportToFloor(tile.getStairsTo());
                                         return true;
                                 }
                                 moveU = 1;
-                        }else{
+                        } else {
                                 moveU = 1;
                         }
                 }
@@ -197,7 +201,7 @@ public class Move implements TokenComponent{
                                         token.direction = newDir;
                                         token.location.set(nextLocation); // set location to path[1] (which is now 0 after removing the original 0)
                                         moveU = 1 - moveU;
-                                        if(token.getFogMapping() != null)
+                                        if (token.getFogMapping() != null)
                                                 token.getFogMapping().computeFogMap();
 
                                         // attackCoolDown == attackCooldownDuration;  // i could do this here to punish making uturns, and give an advantage for coming up from behind
@@ -208,21 +212,32 @@ public class Move implements TokenComponent{
                 }
         }
 
+        private boolean interact(Pair nextLocation) {
+                Array<Token> tokensAt = token.floorMap.getTokensAt(nextLocation);
+                for (Token t : tokensAt) {
+                        Interact interact = t.get(Interact.class);
+                        if(interact == null) continue;
+                        boolean action = interact.interact(token);
+                        if(action) return true;
+                }
+                return false;
+        }
 
-        private boolean useKey(Pair nextLocation){
+
+        private boolean useKey(Pair nextLocation) {
                 Tile nextTile = token.floorMap.getTile(nextLocation);
-                if(nextTile.isDoor() && nextTile.isDoorLocked()){
+                if (nextTile.isDoor() && nextTile.isDoorLocked()) {
                         KeyItem key = token.getInventory().getKeyItem(nextTile.getKeyType());
-                        if(token.getCommand().isUseKey() && nextTile == token.getCommand().getUseKeyOnTile()){
+                        if (token.getCommand().isUseKey() && nextTile == token.getCommand().getUseKeyOnTile()) {
                                 //token.getTarget().setUseKey(false);
-                                if(key == null){
+                                if (key == null) {
                                         //Gdx.app.log("Move","Try to use key but do not have a key");
                                         //token.getCommand().setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
                                         //if(token.listener != null)
                                         //        token.listener.onPathBlocked(nextLocation, nextTile);
                                         return true;
 
-                                }else{
+                                } else {
                                         //Gdx.app.log("Move","Unlocking door");
                                         nextTile.setDoorLocked(false);
                                         token.getInventory().useKey(key);
@@ -230,13 +245,13 @@ public class Move implements TokenComponent{
                                         return true;
 
                                 }
-                        }else{
+                        } else {
 
                                 //token.getCommand().setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
-                                if(token.getCommand().canUseKeyOnTile == null){
+                                if (token.getCommand().canUseKeyOnTile == null) {
                                         //Gdx.app.log("Move","Ran in to locked door, but does not have open command, tile: "+token.getCommand().canUseKeyOnTile);
                                         token.getCommand().canUseKeyOnTile = nextTile;
-                                        if(token.listener != null)
+                                        if (token.listener != null)
                                                 token.listener.onPathBlocked(nextLocation, nextTile);
                                 }
 
@@ -254,10 +269,10 @@ public class Move implements TokenComponent{
                 Array<Token> tokensAt = token.floorMap.getTokensAt(token.location);
                 for (Token t : tokensAt) {
                         Loot loot = t.get(Loot.class);
-                        if(loot != null){
-                                if(!loot.isRemoved()){
+                        if (loot != null) {
+                                if (!loot.isRemoved()) {
                                         boolean valid = token.getInventory().add(loot.getItem());
-                                        if(valid)
+                                        if (valid)
                                                 loot.becomeRemoved();
                                         //else
                                         // TODO: show message saying inventory is full
@@ -268,18 +283,18 @@ public class Move implements TokenComponent{
 
         public float getLocationFloatX() {
                 Direction direction = token.getDirection();
-                if (moveU==1 || direction == Direction.South || direction == Direction.North)
+                if (moveU == 1 || direction == Direction.South || direction == Direction.North)
                         return token.getLocation().x;
                 else if (direction == Direction.East || direction == Direction.NorthEast || direction == Direction.SouthEast)
                         return MathUtils.lerp(token.getLocation().x - 1, token.getLocation().x, moveU);
-                else if (direction == Direction.West || direction==Direction.NorthWest || direction == Direction.SouthWest)
+                else if (direction == Direction.West || direction == Direction.NorthWest || direction == Direction.SouthWest)
                         return MathUtils.lerp(token.getLocation().x + 1, token.getLocation().x, moveU);
                 throw new AssertionError("unexpected state");
         }
 
         public float getLocationFloatY() {
                 Direction direction = token.getDirection();
-                if (moveU==1 || direction == Direction.West || direction == Direction.East)
+                if (moveU == 1 || direction == Direction.West || direction == Direction.East)
                         return token.getLocation().y;
                 else if (direction == Direction.North || direction == Direction.NorthEast || direction == Direction.NorthWest)
                         return MathUtils.lerp(token.getLocation().y - 1, token.getLocation().y, moveU);
@@ -288,7 +303,7 @@ public class Move implements TokenComponent{
                 throw new AssertionError("unexpected state");
         }
 
-        public boolean isMoving(){
+        public boolean isMoving() {
                 return moveU != 1;
         }
 
@@ -296,10 +311,10 @@ public class Move implements TokenComponent{
                 return moveSpeed;
         }
 
-        protected void setMoveSpeed(float moveSpeed){
+        protected void setMoveSpeed(float moveSpeed) {
                 this.moveSpeed = moveSpeed;
                 // 0.70710678118 = sqrt(.5)
-                this.moveSpeedDiagonal = this.moveSpeed*0.70710678118f;
+                this.moveSpeedDiagonal = this.moveSpeed * 0.70710678118f;
 
         }
 }

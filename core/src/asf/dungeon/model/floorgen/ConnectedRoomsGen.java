@@ -4,9 +4,11 @@ import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
+import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
+import asf.dungeon.model.token.InteractChat;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FSMLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
@@ -66,6 +68,16 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
                 valid = Room.spawnKeys(dungeon, floorMap, rooms);
                 if(!valid) throw new Error("could not generate valid key locations, need to regenrate");
+
+                Room room0 = rooms.get(0);
+                Token chatToken = new Token(dungeon, "Priest", ModelId.Priest);
+                InteractChat chat = new InteractChat();
+                chat.setMessage("Hello my name is Priest");
+                chatToken.add(chat);
+                Pair loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, room0);
+                dungeon.newToken(chatToken, floorMap, loc.x, loc.y);
+
+
                 return floorMap;
         }
 

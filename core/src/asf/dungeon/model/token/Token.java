@@ -16,7 +16,7 @@ import com.badlogic.gdx.utils.Array;
  */
 public class Token  {
         public final Dungeon dungeon;
-        private final int id;
+        private int id;
         private final ModelId modelId;
         /**
          * the name of this character or item for the interfce
@@ -50,6 +50,17 @@ public class Token  {
                 this.id = id;
                 this.name = name;
                 this.modelId = modelId;
+        }
+
+        public Token(Dungeon dungeon, String name, ModelId modelId) {
+                this.dungeon = dungeon;
+                this.name = name;
+                this.modelId = modelId;
+        }
+
+
+        public void setId(int id) {
+                this.id = id;
         }
 
         public <T extends TokenComponent> T get(Class<T> componentClass) {
@@ -244,6 +255,7 @@ public class Token  {
                 public void onLearned(Item journalObject, boolean study);
 
 
+                public void onInteract(Interact interact);
         }
 
 

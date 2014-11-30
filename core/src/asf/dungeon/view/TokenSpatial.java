@@ -11,6 +11,7 @@ import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.token.Attack;
+import asf.dungeon.model.token.Interact;
 import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.StatusEffects;
@@ -365,6 +366,12 @@ public class TokenSpatial implements Spatial, Token.Listener {
         public void onLearned(Item journalObject, boolean study) {
                 if (world.hudSpatial.localPlayerToken == token)
                         world.hudSpatial.onLearned(journalObject, false);
+        }
+
+        @Override
+        public void onInteract(Interact interact) {
+                if (world.hudSpatial.localPlayerToken == token)
+                        world.hudSpatial.onInteract(interact);
         }
 
         public void render(float delta) {

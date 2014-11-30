@@ -17,6 +17,8 @@ import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
+import asf.dungeon.model.token.Interact;
+import asf.dungeon.model.token.InteractChat;
 import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
@@ -88,6 +90,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private Window itemWindow;
         private Label itemWindowLabel;
         private Button itemWindowUseButton, itemWindowDiscardButton, itemWindowBackButton;
+        //chat hud
+        private Table chatWindow;
+        private Label chatLabel;
         // input mode
         private boolean tokenSelectMode = false;
         private ConsumableItem.TargetsTokens tokenSelectForItem;
@@ -96,6 +101,23 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private boolean mapViewMode = false;
         // temp
         private final Vector3 tempVec = new Vector3();
+
+        protected void setToken(Token token) {
+                localPlayerToken = token;
+                if (localPlayerToken != null) {
+                        if (this.isInitialized())
+                                this.init(world.assetManager);
+                        if (!mapViewMode)
+                                world.camControl.setChaseTarget(world.getTokenSpatial(localPlayerToken));
+                } else {
+                        if (this.isInitialized()) {
+                                this.setHudElementsVisible(false);
+                                this.setInventoryWindowVisible(false);
+                        }
+                        world.camControl.setChaseTarget(null);
+                }
+
+        }
 
         @Override
         public void preload(DungeonWorld world) {
@@ -177,6 +199,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
 
                 inventoryWindowBackgroundImage = new Image(skin, "default-rect");
+
+
 
                 inventoryWindow = new Table(skin);
                 //inventoryWindow.setMovable(false);
@@ -295,6 +319,28 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         itemWindow.add(itemWindowBackButton);
                 }
 
+                chatWindow = new Table(skin);
+                {
+                        chatWindow.row();
+                        chatLabel = new Label("Chat Label", skin);
+                        chatLabel.setWrap(true);
+                        ScrollPane scrollPane = new ScrollPane(chatLabel, skin);
+                        chatWindow.add(scrollPane).fill().expand().colspan(3);
+                        chatWindow.row();
+
+                        Button closeButton = new Button(skin);
+                        closeButton.add("Close");
+                        closeButton.setUserObject("Close");
+                        closeButton.addCaptureListener(new ChangeListener() {
+                                @Override
+                                public void changed(ChangeEvent event, Actor actor) {
+                                        setChatWindowVisible(false);
+                                }
+                        });
+                        chatWindow.add(closeButton).colspan(3);
+
+                }
+
 
                 resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -407,21 +453,21 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         }
                 }
 
-        }
 
-        protected void setToken(Token token) {
-                localPlayerToken = token;
-                if (localPlayerToken != null) {
-                        if (this.isInitialized())
-                                this.init(world.assetManager);
-                        if (!mapViewMode)
-                                world.camControl.setChaseTarget(world.getTokenSpatial(localPlayerToken));
-                } else {
-                        if (this.isInitialized()) {
-                                this.setHudElementsVisible(false);
-                                this.setInventoryWindowVisible(false);
+                float chatWindowWidth = Gdx.graphics.getWidth()*.5f;
+                float chatWindowHeight = chatWindowWidth;
+
+                chatWindow.setBounds(
+                        (Gdx.graphics.getWidth() - chatWindowWidth) * .5f,
+                        (Gdx.graphics.getHeight() - chatWindowHeight) * .5f,
+                        chatWindowWidth,
+                        chatWindowHeight);
+
+                for (Cell cell : chatWindow.getCells()) {
+                        String uoVal = String.valueOf(cell.getActor().getUserObject());
+                        if (cell.getActor() instanceof Button) {
+                                cell.prefSize(itemWindowButtonSizeX, itemWindowButtonSizeY).minSize(itemWindowButtonSizeX, itemWindowButtonSizeY);
                         }
-                        world.camControl.setChaseTarget(null);
                 }
 
         }
@@ -504,6 +550,77 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         @Override
         public void render(float delta) {
 
+        }
+
+        private void appendToGameLog(String text) {
+
+                String baseText = String.valueOf(gameLogLabel.getText());
+
+                String[] split = baseText.split("\n");
+                if (split.length > 4) {
+                        baseText = "";
+                        for (int i = split.length - 4; i < split.length; i++) {
+                                baseText += split[i] + "\n";
+                        }
+                } else {
+                        baseText += "\n";
+                }
+
+                gameLogLabel.setText(baseText + text);
+
+                if (Float.isNaN(gameLogDisplayCountdown)) gameLogDisplayCountdown = 0;
+                gameLogDisplayCountdown += UtMath.scalarLimitsInterpolation(text.length(), 30f, 80f, 5f, 8f);
+                if (gameLogDisplayCountdown > 16) gameLogDisplayCountdown = 16;
+
+                if (gameLogLabel.getParent() == null)
+                        world.stage.addActor(gameLogLabel);
+
+        }
+
+        private void spawnDamageInfoLabel(String text, Token token, Color color) {
+                TokenSpatial tokenSpatial = world.getTokenSpatial(token);
+                if (tokenSpatial.visU <= 0)
+                        return;
+                DamageLabel label = null;
+                for (DamageLabel l : damageInfoLabels) {
+                        if (l.tokenSpatial == null) {
+                                label = l;
+                                break;
+                        }
+                }
+                if (label == null) {
+                        label = new DamageLabel();
+                        damageInfoLabels.add(label);
+                        label.label = new Label("", skin);
+                        label.label.setFontScale(1.75f);
+                }
+                world.stage.addActor(label.label);
+                label.label.setText(text);
+                label.ttl = 1.5f;
+                label.tokenSpatial = tokenSpatial;
+                label.label.setColor(color);
+        }
+
+        protected void closeAllWindows() {
+                setInventoryWindowVisible(false);
+                setChatWindowVisible(false);
+        }
+
+        public boolean isWindowVisible() {
+                if (!isInitialized()) return false;
+                return inventoryWindow.getParent() != null || itemWindow.getParent() != null || chatWindow.getParent() != null;
+        }
+
+        private void setHudElementsVisible(boolean visible) {
+                avatarButton.setVisible(visible);
+                healthProgressBar.setVisible(visible);
+                avatarLabel.setVisible(visible);
+                avatarStatusEffectsGroup.setVisible(visible);
+                gameLogLabel.setVisible(visible);
+                targetInfoLabel.setVisible(visible);
+                for (Button quickButton : quickButtons) {
+                        quickButton.setVisible(visible && !mapViewMode);
+                }
         }
 
         private Item getItem(Button button) {
@@ -769,53 +886,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         }
 
-        private void appendToGameLog(String text) {
-
-                String baseText = String.valueOf(gameLogLabel.getText());
-
-                String[] split = baseText.split("\n");
-                if (split.length > 4) {
-                        baseText = "";
-                        for (int i = split.length - 4; i < split.length; i++) {
-                                baseText += split[i] + "\n";
-                        }
-                } else {
-                        baseText += "\n";
-                }
-
-                gameLogLabel.setText(baseText + text);
-
-                if (Float.isNaN(gameLogDisplayCountdown)) gameLogDisplayCountdown = 0;
-                gameLogDisplayCountdown += UtMath.scalarLimitsInterpolation(text.length(), 30f, 80f, 5f, 8f);
-                if (gameLogDisplayCountdown > 16) gameLogDisplayCountdown = 16;
-
-                if (gameLogLabel.getParent() == null)
-                        world.stage.addActor(gameLogLabel);
-
-        }
-
-        protected void closeAllWindows() {
-                setInventoryWindowVisible(false);
-        }
-
-        public boolean isWindowVisible() {
-                if (!isInitialized()) return false;
-                return inventoryWindow.getParent() != null || itemWindow.getParent() != null;
-        }
-
-
-        private void setHudElementsVisible(boolean visible) {
-                avatarButton.setVisible(visible);
-                healthProgressBar.setVisible(visible);
-                avatarLabel.setVisible(visible);
-                avatarStatusEffectsGroup.setVisible(visible);
-                gameLogLabel.setVisible(visible);
-                targetInfoLabel.setVisible(visible);
-                for (Button quickButton : quickButtons) {
-                        quickButton.setVisible(visible && !mapViewMode);
-                }
-        }
-
         private void setInventoryWindowVisible(boolean visible) {
 
                 setHudElementsVisible(!visible);
@@ -836,10 +906,10 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
         }
 
-        private void setItemDialogVisible(boolean visible) {
+        private void setItemWindowVisible(boolean visible) {
 
                 if (visible) {
-                        if (backPackTable.getParent() == null)
+                        if (inventoryWindow.getParent() == null)
                                 world.stage.addActor(inventoryWindow);
                         if (itemWindow.getParent() == null)
                                 world.stage.addActor(itemWindow);
@@ -850,6 +920,21 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
         }
 
+        private void setChatWindowContents(InteractChat chat){
+                chatLabel.setText(chat.getMessage());
+        }
+
+        private void setChatWindowVisible(boolean visible){
+                setHudElementsVisible(!visible);
+                if(visible){
+                        if(chatWindow.getParent() == null)
+                                world.stage.addActor(chatWindow);
+                        world.setPaused(true);
+                }else{
+                        chatWindow.remove();
+                        world.setPaused(false);
+                }
+        }
 
         @Override
         public void onPathBlocked(Pair nextLocation, Tile nextTile) {
@@ -916,30 +1001,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         }
 
-        private void spawnDamageInfoLabel(String text, Token token, Color color) {
-                TokenSpatial tokenSpatial = world.getTokenSpatial(token);
-                if (tokenSpatial.visU <= 0)
-                        return;
-                DamageLabel label = null;
-                for (DamageLabel l : damageInfoLabels) {
-                        if (l.tokenSpatial == null) {
-                                label = l;
-                                break;
-                        }
-                }
-                if (label == null) {
-                        label = new DamageLabel();
-                        damageInfoLabels.add(label);
-                        label.label = new Label("", skin);
-                        label.label.setFontScale(1.75f);
-                }
-                world.stage.addActor(label.label);
-                label.label.setText(text);
-                label.ttl = 1.5f;
-                label.tokenSpatial = tokenSpatial;
-                label.label.setColor(color);
-        }
-
         @Override
         public void onInventoryChanged() {
                 refreshInventoryElements();
@@ -973,6 +1034,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
 
 
+        }
+
+        @Override
+        public void onInteract(Interact interact) {
+                if(interact instanceof InteractChat){
+                        this.setChatWindowVisible(true);
+                        this.setChatWindowContents((InteractChat) interact);
+                }
         }
 
         @Override
@@ -1093,7 +1162,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 localPlayerToken.getCommand().consumeItem(itemSelectForItem);
                                 setItemSelectMode(null);
                         } else {
-                                setItemDialogVisible(false);
+                                setItemWindowVisible(false);
                                 // but keep inventory window open obviously
                         }
                 } else {
@@ -1230,6 +1299,13 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 setInventoryWindowVisible(false);
                                 return true;
                         }
+                }else if(chatWindow.getParent() != null){
+                        float clickX = screenX;
+                        float clickY = screenY;
+                        if (clickX < chatWindow.getX() || clickY < chatWindow.getY() || clickX > chatWindow.getX() + chatWindow.getWidth() || clickY > chatWindow.getY() + chatWindow.getHeight()) {
+                                setChatWindowVisible(false);
+                                return true;
+                        }
                 }
                 if (world.isPaused()) return false;
                 if (mapViewMode) {
@@ -1332,7 +1408,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 return false;
         }
 
-
         /**
          * handles events triggered by the touchPad and converts them in to moveDirections
          * for the local player token
@@ -1350,7 +1425,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         float clickX = inputEvent.getStageX();
                                         float clickY = inputEvent.getStageY();
                                         if (clickX < itemWindow.getX() || clickY < itemWindow.getY() || clickX > itemWindow.getX() + itemWindow.getWidth() || clickY > itemWindow.getY() + itemWindow.getHeight()) {
-                                                setItemDialogVisible(false);
+                                                setItemWindowVisible(false);
                                                 return true;
                                         }
                                 }
@@ -1378,7 +1453,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                                 appendToGameLog("You grip the " + item.getNameFromJournal(localPlayerToken) + " tightly. You are powerless to remove it.");
 
                                 }
-                                setItemDialogVisible(false);
+                                setItemWindowVisible(false);
                         } else if (object instanceof QuickItem) {
                                 QuickItem item = (QuickItem) object;
                                 if (localPlayerToken.getInventory().isEquipped(item)) {
@@ -1386,7 +1461,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 } else {
                                         localPlayerToken.getInventory().equip(item);
                                 }
-                                setItemDialogVisible(false);
+                                setItemWindowVisible(false);
                         } else if (object instanceof ConsumableItem.TargetsItems) {
                                 this.setItemSelectMode((ConsumableItem.TargetsItems) object);
                         } else {
@@ -1398,9 +1473,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         Item item = (Item) itemWindow.getUserObject();
                         boolean valid = localPlayerToken.getInventory().discard(item);
                         if (valid)
-                                setItemDialogVisible(false);
+                                setItemWindowVisible(false);
                 } else if (event.getListenerActor() == itemWindowBackButton) {
-                        setItemDialogVisible(false);
+                        setItemWindowVisible(false);
                 } else if (event.getListenerActor() == inputModeCancelButton) {
                         if (itemSelectMode) {
                                 setItemSelectMode(null);
@@ -1416,7 +1491,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 if (uo instanceof Item) {
                                         if (!itemSelectMode) {
                                                 setItemWindowContents((Item) uo);
-                                                setItemDialogVisible(true);
+                                                setItemWindowVisible(true);
                                         } else {
                                                 localPlayerToken.getCommand().consumeItem(itemSelectForItem, (Item) uo);
                                                 setItemSelectMode(null);
@@ -1447,7 +1522,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
                 return false;
         }
-
 
         private class DamageLabel {
                 Label label;

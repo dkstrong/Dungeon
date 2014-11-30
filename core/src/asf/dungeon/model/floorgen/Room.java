@@ -3,6 +3,7 @@ package asf.dungeon.model.floorgen;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
+import asf.dungeon.model.Pair;
 import asf.dungeon.model.Sector;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.Item;
@@ -22,6 +23,15 @@ public class Room extends Sector {
                 super(x1, y1, x2, y2);
         }
 
+        static Pair getRandomLocToSpawnCharacter(Dungeon dungeon, FloorMap floorMap, Room room){
+                int x,y;
+                do{
+
+                        x = dungeon.rand.range(room.x1, room.x2);
+                        y = dungeon.rand.range(room.y1, room.y2);
+                }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
+                return new Pair(x,y);
+        }
 
         static void fillRooms(Tile[][] tiles, Array<Room> rooms) {
                 for (int i = 0; i < rooms.size; i++) {
