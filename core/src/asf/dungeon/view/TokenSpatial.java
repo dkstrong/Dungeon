@@ -17,7 +17,6 @@ import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -70,14 +69,15 @@ public class TokenSpatial implements Spatial, Token.Listener {
                                 world.assetManager.load(world.assetMappings.getScrollTextureAssetLocation(scroll), Texture.class);
                         } else if (loot.getItem() instanceof BookItem) {
                                 BookItem book = (BookItem) loot.getItem();
-                                Gdx.app.log("TokenSpatial","Loot with book"+loot+" loot item: "+loot.getItem()+", is loot retreived: "+loot.isRemoved());
-                                Gdx.app.log("TokenSpatial","book type: "+book.getType()+", book symbol: "+book.getSymbol());
                                 String assetLocation = world.assetMappings.getBookTextureAssetLocation(book);
-                                Gdx.app.log("TokenSpatial","Texture asset location for book: "+assetLocation);
                                 world.assetManager.load(assetLocation, Texture.class);
                         }
                 } else {
 
+                }
+
+                if(token.getModelId() == ModelId.Fountain){
+                        world.assetManager.load(world.assetMappings.getFountainTextureAssetLocation(token), Texture.class);
                 }
 
 
@@ -124,6 +124,12 @@ public class TokenSpatial implements Spatial, Token.Listener {
                                 mat.set(TextureAttribute.createDiffuse(bookTex));
 
                         }
+                }
+
+                if(token.getModelId() == ModelId.Fountain){
+                        Texture fountainTex = assetManager.get(world.assetMappings.getFountainTextureAssetLocation(token), Texture.class);
+                        Material mat = modelInstance.materials.get(0);
+                        mat.set(TextureAttribute.createDiffuse(fountainTex));
                 }
 
                 if (world.assetMappings.getAssetLocation(token.getModelId()).contains("Characters")) {

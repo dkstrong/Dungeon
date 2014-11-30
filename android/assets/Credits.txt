@@ -41,6 +41,10 @@ Ceramic Pitcher
 Aare
 URL: http://opengameart.org/content/ceramic-bear-mug
 
+Fountains, Chests, Barrels
+Danimal
+http://opengameart.org/content/pixel-dungeons-set1-props-and-stuff
+
 ===Misc Dungeon Assets===
 Stairs
 CLint Bellanger

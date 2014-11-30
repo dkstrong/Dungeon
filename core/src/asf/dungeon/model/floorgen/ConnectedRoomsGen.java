@@ -69,13 +69,22 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 valid = Room.spawnKeys(dungeon, floorMap, rooms);
                 if(!valid) throw new Error("could not generate valid key locations, need to regenrate");
 
-                Room room0 = rooms.get(0);
+                Room roomEnd = rooms.get(rooms.size-1);
                 Token chatToken = new Token(dungeon, "Priest", ModelId.Priest);
                 InteractChat chat = new InteractChat();
                 chat.setMessage("Hello my name is Priest");
                 chatToken.add(chat);
-                Pair loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, room0);
+                Pair loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
                 dungeon.newToken(chatToken, floorMap, loc.x, loc.y);
+
+                Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
+                InteractChat fountainInteract = new InteractChat();
+                fountainInteract.setMessage("A mysterious fountain. Who know what would happen if you drank from it.");
+                fountainToken.add(fountainInteract);
+                loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
+                dungeon.newToken(fountainToken, floorMap, loc.x, loc.y);
+
+
 
 
                 return floorMap;

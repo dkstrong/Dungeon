@@ -11,6 +11,7 @@ public enum ModelId {
         Priest,
         Skeleton,
         CeramicPitcher,
+        Fountain,
         Potion,
         Scroll,
         Key,
