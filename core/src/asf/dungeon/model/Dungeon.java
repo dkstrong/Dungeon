@@ -7,6 +7,7 @@ import asf.dungeon.model.token.Command;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.FogMapping;
+import asf.dungeon.model.token.Interactor;
 import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Loot;
@@ -123,6 +124,7 @@ public class Dungeon {
                 Token t = new Token(this,  nextTokenId++, name, modelId);
                 t.add(logic);
                 t.add(new Command(t));
+                t.add(new Interactor(t));
                 t.add(new FogMapping(t));
                 t.add(experience);
                 t.add(new Journal(t));

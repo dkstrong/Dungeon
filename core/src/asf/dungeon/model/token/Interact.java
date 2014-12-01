@@ -5,6 +5,6 @@ package asf.dungeon.model.token;
  */
 public interface Interact extends TokenComponent {
 
-        public boolean interact(Token sourceToken);
+        public boolean interact(Interactor interactor);
 
 }

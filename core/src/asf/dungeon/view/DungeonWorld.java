@@ -215,12 +215,14 @@ public class DungeonWorld implements Disposable {
                 if (simulationStarted) {
                         if (!paused) {
                                 hudSpatial.updateInput(delta);
-                                dungeon.update(delta);
-                                for (final Spatial spatial : spatials) {
-                                        if (spatial.isInitialized())
-                                                spatial.update(delta);
+                                if(!paused){
+                                        dungeon.update(delta);
+                                        for (final Spatial spatial : spatials) {
+                                                if (spatial.isInitialized())
+                                                        spatial.update(delta);
+                                        }
+                                        camControl.update(delta);
                                 }
-                                camControl.update(delta);
                         }
 
                         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);

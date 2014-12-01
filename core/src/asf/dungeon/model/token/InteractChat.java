@@ -8,13 +8,16 @@ import asf.dungeon.model.FloorMap;
  */
 public class InteractChat implements Interact {
         private String message;
+        private String[] choices;
 
 
         @Override
-        public boolean interact(Token sourceToken) {
-                if(sourceToken.listener != null)
-                        sourceToken.listener.onInteract(this);
+        public boolean interact(Interactor interactor) {
                 return true;
+        }
+
+        public boolean makeChoice(Interactor interactor, int choiceIndex){
+                return false;
         }
 
         @Override
@@ -27,11 +30,22 @@ public class InteractChat implements Interact {
                 return false;
         }
 
-        public String getMessage() {
+        public String getMessage(Interactor interactor) {
                 return message;
+        }
+
+        public String[] getChoices(Interactor interactor) {
+                return choices;
         }
 
         public void setMessage(String message) {
                 this.message = message;
         }
+
+        public void setChoices(String[] choices) {
+                this.choices = choices;
+        }
+
+
+
 }

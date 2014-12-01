@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.Array;
 /**
  * Created by danny on 10/22/14.
  */
-public class Token  {
+public class Token {
         public final Dungeon dungeon;
         private int id;
         private final ModelId modelId;
@@ -37,6 +37,7 @@ public class Token  {
         private Logic logic;
         private Experience experience;
         private Command command;
+        private Interactor interactor;
         private Move move;
         private Damage damage;
         private Attack attack;
@@ -75,7 +76,9 @@ public class Token  {
         public void add(TokenComponent component) {
                 components.add(component);
                 if (component instanceof Logic) {
-                        logic = (Logic)component;
+                        this.logic = (Logic) component;
+                } else if (component instanceof Interactor) {
+                        this.interactor = (Interactor) component;
                 } else if (component instanceof Damage) {
                         this.damage = (Damage) component;
                 } else if (component instanceof FogMapping) {
@@ -90,27 +93,27 @@ public class Token  {
                         this.attack = (Attack) component;
                 } else if (component instanceof Move) {
                         this.move = (Move) component;
-                }else if(component instanceof  Experience){
+                } else if (component instanceof Experience) {
                         this.experience = (Experience) component;
                 }
         }
 
-        public boolean isValidTeleportLocation(FloorMap fm, int x, int y){
-                Tile tile = fm.getTile(x,y);
-                if(tile == null || tile.isDoor() || tile.isWall()){
+        public boolean isValidTeleportLocation(FloorMap fm, int x, int y) {
+                Tile tile = fm.getTile(x, y);
+                if (tile == null || tile.isDoor() || tile.isWall()) {
                         return false;
                 }
                 return true;
         }
 
-        public boolean teleport(FloorMap fm, int x, int y, Direction dir){
+        public boolean teleport(FloorMap fm, int x, int y, Direction dir) {
 
-                if(!isValidTeleportLocation(fm,x,y)){
-                     throw new AssertionError(getName()+"- not a valid teleport location, need to include a check for this earlier in the code");
+                if (!isValidTeleportLocation(fm, x, y)) {
+                        throw new AssertionError(getName() + "- not a valid teleport location, need to include a check for this earlier in the code");
                 }
 
                 floorMap = fm;
-                location.set(x,y);
+                location.set(x, y);
                 direction = dir;
 
                 for (TokenComponent c : components) {
@@ -174,15 +177,22 @@ public class Token  {
                 return modelId;
         }
 
-        public Logic getLogic() {return logic;}
+        public Logic getLogic() {
+                return logic;
+        }
 
         public Command getCommand() {
                 return command;
         }
 
+        public Interactor getInteractor() {
+                return interactor;
+        }
+
         public Move getMove() {
                 return move;
         }
+
 
         public Damage getDamage() {
                 return damage;
@@ -248,9 +258,8 @@ public class Token  {
                 public void onStatusEffectChange(StatusEffects.Effect effect, float duration);
 
                 /**
-                 *
                  * @param journalObject can be PotionItem.Type, ScrollItem.Type, BookItem.Type, or EquipmentItem
-                 * @param study if the object was learned via study or not, if not learned by study then it was learned by Tome of identification
+                 * @param study         if the object was learned via study or not, if not learned by study then it was learned by Tome of identification
                  */
                 public void onLearned(Item journalObject, boolean study);
 

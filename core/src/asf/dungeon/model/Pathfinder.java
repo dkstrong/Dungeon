@@ -211,7 +211,7 @@ public class Pathfinder {
 
 
                 int movementCost = map[n1.x][n1.y].getMovementCost();
-                if(closedNodes.size < 5){
+                if(closedNodes.size < 5 && false){
                         // only check tokens if closedNodes < 5. far away tokens are likely to be changed by the time you get there so its not so important to check for them
                         Array<Token> tokensAt = floorMap.getTokensAt(n1);
                         for (Token t : tokensAt) {

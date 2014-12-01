@@ -128,6 +128,7 @@ public class Damage implements TokenComponent{
         }
 
         public boolean isAttackable() {
+                if(token.getInteractor() != null && token.getInteractor().isInteracting()) return false;
                 return attackable && !isDead();
         }
 

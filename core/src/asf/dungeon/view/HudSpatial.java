@@ -93,6 +93,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         //chat hud
         private Table chatWindow;
         private Label chatLabel;
+        private HorizontalGroup buttonGroup;
+        private final Array<Button> chatChoiceButtons = new Array<Button>(true, 4, Button.class);
         // input mode
         private boolean tokenSelectMode = false;
         private ConsumableItem.TargetsTokens tokenSelectForItem;
@@ -328,16 +330,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         chatWindow.add(scrollPane).fill().expand().colspan(3);
                         chatWindow.row();
 
-                        Button closeButton = new Button(skin);
-                        closeButton.add("Close");
-                        closeButton.setUserObject("Close");
-                        closeButton.addCaptureListener(new ChangeListener() {
-                                @Override
-                                public void changed(ChangeEvent event, Actor actor) {
-                                        setChatWindowVisible(false);
-                                }
-                        });
-                        chatWindow.add(closeButton).colspan(3);
+                        buttonGroup = new HorizontalGroup();
+                        chatWindow.add(buttonGroup).colspan(3);
+                        for(int i=0; i<4; i++){
+                                Button button = new Button(skin);
+                                button.addCaptureListener(this);
+                                button.setUserObject(i);
+                                chatChoiceButtons.add(button);
+                        }
 
                 }
 
@@ -921,10 +921,31 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         private void setChatWindowContents(InteractChat chat){
-                chatLabel.setText(chat.getMessage());
+                chatLabel.setText(chat.getMessage(localPlayerToken.getInteractor()));
+                String[] choices = chat.getChoices(localPlayerToken.getInteractor());
+                for(int i=0; i < 4; i++){
+                        Button button = chatChoiceButtons.get(i);
+                        if(i < choices.length && choices[i] != null){
+                                button.clearChildren();
+                                button.add(choices[i]);
+                                if(button.getParent() == null)
+                                        buttonGroup.addActor(button);
+                        }else{
+                                button.remove();
+                        }
+                }
         }
 
         private void setChatWindowVisible(boolean visible){
+                if(tokenSelectMode){
+                        /* actually staying in token select mode might not be an issue..
+                        if(!tokenSelectForItem.isIdentified(localPlayerToken)){
+                                localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
+                        }
+                        setTokenSelectMode(null);
+                        */
+                }
+                mouseDownDrag = false;
                 setHudElementsVisible(!visible);
                 if(visible){
                         if(chatWindow.getParent() == null)
@@ -1240,8 +1261,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         if (!tokenSelectForItem.isIdentified(localPlayerToken)) {
                                 Array<Token> targetableTokens = localPlayerToken.getFloorMap().getTargetableTokens(localPlayerToken, tokenSelectForItem);
                                 if (targetableTokens.size == 0) {
-                                        setTokenSelectMode(null);
                                         localPlayerToken.getCommand().consumeItem(tokenSelectForItem);
+                                        setTokenSelectMode(null);
                                 }
                         }
                 } else if (itemSelectMode) {
@@ -1481,12 +1502,19 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 setItemSelectMode(null);
                                 this.setInventoryWindowVisible(true);
                         }
-                } else if (event.getListenerActor() instanceof Button) {
-                        // either an inventory screen button was pressed or a quick slot button
+                }else if (event.getListenerActor() instanceof Button) {
+                        // either an chat choice button, inventory screen button, or quick slot button
                         Button button = (Button) event.getListenerActor();
                         Object uo = event.getListenerActor().getUserObject();
 
-                        if (inventoryEquipmentButtons.contains(button, true) || inventoryBackPackButtons.contains(button, true)) {
+                        if(chatChoiceButtons.contains(button, true)){
+                                Gdx.app.log("HudSpatial","handle: "+ uo);
+                                // chat choice button
+                                InteractChat chat = (InteractChat)chatWindow.getUserObject();
+                                Integer choiceIndex = (Integer)event.getListenerActor().getUserObject();
+                                localPlayerToken.getCommand().setChatChoice(choiceIndex);
+                                setChatWindowVisible(false);
+                        }else if (inventoryEquipmentButtons.contains(button, true) || inventoryBackPackButtons.contains(button, true)) {
                                 // inventory screen button
                                 if (uo instanceof Item) {
                                         if (!itemSelectMode) {

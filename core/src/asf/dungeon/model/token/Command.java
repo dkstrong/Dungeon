@@ -24,6 +24,8 @@ public class Command implements TokenComponent{
         protected ConsumableItem consumeItem;
         protected Item targetItem;
 
+        private int chatChoice = -1;
+
         public Command(Token token) {
                 this.token = token;
         }
@@ -133,5 +135,17 @@ public class Command implements TokenComponent{
 
         public Tile getUseKeyOnTile() {
                 return useKeyOnTile;
+        }
+
+
+        public boolean hasChatChoice(){
+                return chatChoice >= 0;
+        }
+        public int getChatChoice() {
+                return chatChoice;
+        }
+
+        public void setChatChoice(int chatChoice) {
+                this.chatChoice = chatChoice;
         }
 }

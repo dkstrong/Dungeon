@@ -125,7 +125,13 @@ public class Move implements TokenComponent {
                                                 token.direction = newDirection;
                                         //}
 
-                                        boolean action = interact(nextLocation);
+                                        boolean action;
+                                        if(token.getInteractor() != null){
+                                                action = token.getInteractor().interact(nextLocation);
+                                        }else{
+                                                action = false;
+                                        }
+
                                         if (!action) {
                                                 action = useKey(nextLocation);
                                                 if (!action)
@@ -212,16 +218,6 @@ public class Move implements TokenComponent {
                 }
         }
 
-        private boolean interact(Pair nextLocation) {
-                Array<Token> tokensAt = token.floorMap.getTokensAt(nextLocation);
-                for (Token t : tokensAt) {
-                        Interact interact = t.get(Interact.class);
-                        if(interact == null) continue;
-                        boolean action = interact.interact(token);
-                        if(action) return true;
-                }
-                return false;
-        }
 
 
         private boolean useKey(Pair nextLocation) {

@@ -12,6 +12,7 @@ import asf.dungeon.model.token.InteractChat;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FSMLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -73,6 +74,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 Token chatToken = new Token(dungeon, "Priest", ModelId.Priest);
                 InteractChat chat = new InteractChat();
                 chat.setMessage("Hello my name is Priest");
+                chat.setChoices(new String[]{"Hello","Goodbye"});
                 chatToken.add(chat);
                 Pair loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
                 dungeon.newToken(chatToken, floorMap, loc.x, loc.y);
@@ -80,9 +82,11 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
                 InteractChat fountainInteract = new InteractChat();
                 fountainInteract.setMessage("A mysterious fountain. Who know what would happen if you drank from it.");
+                fountainInteract.setChoices(new String[]{"Do it","Don't do it"});
                 fountainToken.add(fountainInteract);
                 loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
                 dungeon.newToken(fountainToken, floorMap, loc.x, loc.y);
+                Gdx.app.log("ConnectedRoomGen","fountain at: "+loc);
 
 
 
