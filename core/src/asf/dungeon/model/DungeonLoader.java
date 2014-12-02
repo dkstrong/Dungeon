@@ -36,6 +36,7 @@ import asf.dungeon.model.token.TokenComponent;
 import asf.dungeon.model.token.logic.FullAgroLogic;
 import asf.dungeon.model.token.logic.LocalPlayerLogic;
 import asf.dungeon.model.token.logic.Logic;
+import asf.dungeon.model.token.quest.Quest;
 import asf.dungeon.utility.OutputAndroidFix;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.Gdx;
@@ -244,6 +245,7 @@ public class DungeonLoader {
                 kryoSoftReference = new SoftReference<Kryo>(kryo);
                 kryo.setRegistrationRequired(true);
 
+                kryo.register(com.badlogic.gdx.utils.ObjectIntMap.class);
                 kryo.register(com.badlogic.gdx.utils.IdentityMap.class);
                 kryo.register(com.badlogic.gdx.utils.SnapshotArray.class);
                 kryo.register(Array.class);
@@ -294,6 +296,36 @@ public class DungeonLoader {
                 kryo.register(asf.dungeon.model.fogmap.FogState[].class);
                 kryo.register(asf.dungeon.model.fogmap.FogState[][].class);
 
+                kryo.register(Attack.class);
+                kryo.register(Damage.class);
+                kryo.register(Experience.class);
+                kryo.register(FogMapping.class);
+                kryo.register(asf.dungeon.model.token.Fountain.class);
+                kryo.register(asf.dungeon.model.token.Interactor.class);
+                kryo.register(Inventory.class);
+                kryo.register(Inventory.Character.class);
+                kryo.register(Inventory.Simple.class);
+                kryo.register(Journal.class);
+                kryo.register(Loot.class);
+                kryo.register(Move.class);
+                kryo.register(StatusEffects.class);
+                kryo.register(StatusEffects.Effect.class);
+                kryo.register(Command.class);
+                kryo.register(Token.class);
+                kryo.register(asf.dungeon.model.token.Token[].class);
+                kryo.register(TokenComponent.class);
+                kryo.register(asf.dungeon.model.token.TokenComponent[].class);
+
+                kryo.register(Logic.class);
+                kryo.register(LocalPlayerLogic.class);
+                kryo.register(asf.dungeon.model.token.logic.FullAgroLogic.class);
+                kryo.register(asf.dungeon.model.token.logic.fsm.FSMLogic.class);
+                kryo.register(asf.dungeon.model.token.logic.fsm.Monster.class);
+
+                kryo.register(Quest.class);
+                kryo.register(asf.dungeon.model.token.quest.PotionQuest.class);
+                kryo.register(asf.dungeon.model.token.quest.FountainQuest.class);
+
                 kryo.register(Item.class);
                 kryo.register(Item[].class);
                 kryo.register(EquipmentItem.class);
@@ -316,30 +348,6 @@ public class DungeonLoader {
                 kryo.register(BookItem.Type[].class);
                 kryo.register(asf.dungeon.model.item.WeaponItem.class);
                 kryo.register(asf.dungeon.model.item.ArmorItem.class);
-
-                kryo.register(Attack.class);
-                kryo.register(Damage.class);
-                kryo.register(Experience.class);
-                kryo.register(FogMapping.class);
-                kryo.register(Inventory.class);
-                kryo.register(Inventory.Character.class);
-                kryo.register(Inventory.Simple.class);
-                kryo.register(Journal.class);
-                kryo.register(Loot.class);
-                kryo.register(Move.class);
-                kryo.register(StatusEffects.class);
-                kryo.register(StatusEffects.Effect.class);
-                kryo.register(Command.class);
-                kryo.register(Token.class);
-                kryo.register(asf.dungeon.model.token.Token[].class);
-                kryo.register(TokenComponent.class);
-                kryo.register(asf.dungeon.model.token.TokenComponent[].class);
-
-                kryo.register(Logic.class);
-                kryo.register(LocalPlayerLogic.class);
-                kryo.register(asf.dungeon.model.token.logic.FullAgroLogic.class);
-                kryo.register(asf.dungeon.model.token.logic.fsm.FSMLogic.class);
-                kryo.register(asf.dungeon.model.token.logic.fsm.Monster.class);
 
 
                 return kryo;

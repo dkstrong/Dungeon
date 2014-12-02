@@ -7,7 +7,6 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.WeaponItem;
-import asf.dungeon.model.token.Chat;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.Token;
@@ -79,9 +78,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 dungeon.newQuestCharacterToken(traveler, null, new PotionQuest(), floorMap, loc.x, loc.y);
 
                 Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
-                Chat fountainChat = new Chat(fountainToken);
-                fountainChat.setQuest(new FountainQuest());
-                fountainToken.add(fountainChat);
+                fountainToken.add(new FountainQuest());
                 fountainToken.add(new Fountain());
                 loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
                 dungeon.newToken(fountainToken, floorMap, loc.x, loc.y);

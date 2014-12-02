@@ -1,6 +1,5 @@
 package asf.dungeon.model.token.quest;
 
-import asf.dungeon.model.token.Chat;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.Interactor;
 import asf.dungeon.model.token.StatusEffects;
@@ -10,13 +9,15 @@ import asf.dungeon.model.token.StatusEffects;
  */
 public class FountainQuest extends Quest{
 
-        public FountainQuest() {
+
+        @Override
+        protected void makeDialouges() {
                 dialouges = new Dialouge[1];
 
                 dialouges[0] =  new Dialouge(){
                         @Override
-                        public boolean testCondition(Interactor interactor, Chat chat) {
-                                Fountain fountain = chat.token.get(Fountain.class);
+                        public boolean testCondition(Interactor interactor) {
+                                Fountain fountain = interactor.chattingWith.get(Fountain.class);
                                 if(fountain == null) throw new AssertionError("FountainQuest requires Fountain");
                                 return  !fountain.isConsumed();
                         }
@@ -31,9 +32,9 @@ public class FountainQuest extends Quest{
                                 Choice c0 = new Choice("Drink from the fountain");
                                 c0.setCommand(new Command(){
                                         @Override
-                                        public void exec(Interactor interactor, Chat chat) {
+                                        public void exec(Interactor interactor) {
                                                 interactor.token.get(StatusEffects.class).addStatusEffect(StatusEffects.Effect.Heal,5, 5);
-                                                chat.token.get(Fountain.class).setConsumed(true);
+                                                interactor.chattingWith.get(Fountain.class).setConsumed(true);
 
                                         }
                                 });

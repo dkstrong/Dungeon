@@ -108,7 +108,7 @@ public class DungeonWorld implements Disposable {
                 } else {
                         dungeon = DungeonLoader.createDungeon(settings);
                         dungeon.setListener(internalInput);
-                        //saveDungeon();
+                        saveDungeon();
                 }
 
         }

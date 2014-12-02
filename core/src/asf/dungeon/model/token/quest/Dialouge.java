@@ -1,6 +1,5 @@
 package asf.dungeon.model.token.quest;
 
-import asf.dungeon.model.token.Chat;
 import asf.dungeon.model.token.Interactor;
 
 /**
@@ -8,7 +7,7 @@ import asf.dungeon.model.token.Interactor;
  */
 public interface Dialouge {
 
-        public boolean testCondition(Interactor interactor, Chat chat);
+        public boolean testCondition(Interactor interactor);
 
         public String getMessage(Interactor interactor);
 

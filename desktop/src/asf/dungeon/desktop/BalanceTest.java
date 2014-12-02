@@ -8,11 +8,11 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.Attack;
-import asf.dungeon.model.token.Chat;
 import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.quest.Dialouge;
+import asf.dungeon.model.token.quest.Quest;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.DungeonWorld;
 
@@ -347,7 +347,7 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
         }
 
         @Override
-        public void onInteract(Chat chat, Dialouge dialouge) {
+        public void onInteract(Quest quest, Dialouge dialouge) {
 
         }
 

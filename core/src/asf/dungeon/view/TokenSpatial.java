@@ -11,13 +11,13 @@ import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.token.Attack;
-import asf.dungeon.model.token.Chat;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.quest.Dialouge;
+import asf.dungeon.model.token.quest.Quest;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
@@ -405,9 +405,9 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         @Override
-        public void onInteract(Chat chat, Dialouge dialouge) {
+        public void onInteract(Quest quest, Dialouge dialouge) {
                 if (world.hudSpatial.localPlayerToken == token)
-                        world.hudSpatial.onInteract(chat, dialouge);
+                        world.hudSpatial.onInteract(quest, dialouge);
         }
 
         public void render(float delta) {

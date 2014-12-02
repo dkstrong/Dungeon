@@ -1,28 +1,46 @@
 package asf.dungeon.model.token.quest;
 
-import asf.dungeon.model.token.Chat;
+import asf.dungeon.model.Direction;
+import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.token.Interactor;
+import asf.dungeon.model.token.TokenComponent;
 
 /**
  * Created by Danny on 12/1/2014.
  */
-public class  Quest {
-        protected Dialouge[] dialouges;
+public class Quest implements TokenComponent{
+        // by not storing a reference to the Token this compononent is attached to and making it
+        // immutable i can reuse the same quest on multiple tokens
+        protected transient Dialouge[] dialouges;
 
-        public Dialouge initialDialouge(Interactor interactor, Chat chat){
+        protected void makeDialouges(){
+
+        }
+
+        public Dialouge initialDialouge(Interactor interactor){
+                if(dialouges == null) makeDialouges();
                 for (Dialouge dialouge : dialouges) {
-                        if(dialouge.testCondition(interactor, chat)){
+                        if(dialouge.testCondition(interactor)){
                                 return dialouge;
                         }
                 }
                 return null;
         }
 
-        public Dialouge makeChoice(Interactor interactor, Chat chat, Dialouge dialouge, Choice choice){
+        public Dialouge makeChoice(Interactor interactor, Choice choice){
                 Command c = choice.getCommand();
-                if(c != null ) c.exec(interactor, chat);
+                if(c != null ) c.exec(interactor);
                 return choice.getNextDialogue();
         }
 
 
+        @Override
+        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+
+        }
+
+        @Override
+        public boolean update(float delta) {
+                return false;
+        }
 }

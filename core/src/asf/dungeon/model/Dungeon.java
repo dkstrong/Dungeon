@@ -3,7 +3,6 @@ package asf.dungeon.model;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.Attack;
-import asf.dungeon.model.token.Chat;
 import asf.dungeon.model.token.Command;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
@@ -177,9 +176,7 @@ public class Dungeon {
                 if(logic != null)
                         token.add(logic);
                 token.add(new Command(token));
-                Chat chat = new Chat(token);
-                chat.setQuest(quest);
-                token.add(chat);
+                token.add(quest);
                 token.add(new Inventory.Character(token));
                 token.add(new StatusEffects(token));
                 Damage d = new Damage(token);

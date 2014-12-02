@@ -15,7 +15,6 @@ import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.StackableItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Attack;
-import asf.dungeon.model.token.Chat;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Inventory;
@@ -23,6 +22,7 @@ import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.quest.Choice;
 import asf.dungeon.model.token.quest.Dialouge;
+import asf.dungeon.model.token.quest.Quest;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
@@ -921,7 +921,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
         }
 
-        private void setChatWindowContents(Chat chat, Dialouge dialouge){
+        private void setChatWindowContents(Dialouge dialouge){
                 chatLabel.setText(dialouge.getMessage(localPlayerToken.getInteractor()));
                 Choice[] choices = dialouge.getChoices(localPlayerToken.getInteractor());
 
@@ -1067,11 +1067,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
 
         @Override
-        public void onInteract(Chat chat, Dialouge dialouge) {
-                if(chat instanceof Chat){
-                        this.setChatWindowVisible(true);
-                        this.setChatWindowContents(chat, dialouge);
-                }
+        public void onInteract(Quest quest, Dialouge dialouge) {
+                this.setChatWindowVisible(true);
+                this.setChatWindowContents(dialouge);
         }
 
         @Override
@@ -1519,7 +1517,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         if(chatChoiceButtons.contains(button, true)){
                                 Gdx.app.log("HudSpatial","handle: "+ uo);
                                 // chat choice button
-                                Chat chat = (Chat)chatWindow.getUserObject();
                                 Choice choice = (Choice)event.getListenerActor().getUserObject();
                                 localPlayerToken.getCommand().setChatChoice(choice);
                                 setChatWindowVisible(false);
