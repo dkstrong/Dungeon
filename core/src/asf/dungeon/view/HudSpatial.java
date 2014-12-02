@@ -15,13 +15,14 @@ import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.StackableItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Attack;
+import asf.dungeon.model.token.Chat;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
-import asf.dungeon.model.token.Interact;
-import asf.dungeon.model.token.InteractChat;
 import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.quest.Choice;
+import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
@@ -920,20 +921,27 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
         }
 
-        private void setChatWindowContents(InteractChat chat){
-                chatLabel.setText(chat.getMessage(localPlayerToken.getInteractor()));
-                String[] choices = chat.getChoices(localPlayerToken.getInteractor());
-                for(int i=0; i < 4; i++){
-                        Button button = chatChoiceButtons.get(i);
-                        if(i < choices.length && choices[i] != null){
+        private void setChatWindowContents(Chat chat, Dialouge dialouge){
+                chatLabel.setText(dialouge.getMessage(localPlayerToken.getInteractor()));
+                Choice[] choices = dialouge.getChoices(localPlayerToken.getInteractor());
+
+                int buttonI = 0;
+                for (Choice choice : choices) {
+                        if(choice != null){
+                                Button button = chatChoiceButtons.get(buttonI);
                                 button.clearChildren();
-                                button.add(choices[i]);
+                                button.add(choice.getText());
+                                button.setUserObject(choice);
                                 if(button.getParent() == null)
                                         buttonGroup.addActor(button);
-                        }else{
-                                button.remove();
+                                buttonI++;
                         }
                 }
+
+                for(;buttonI< 4; buttonI++){
+                        chatChoiceButtons.get(buttonI).remove();
+                }
+
         }
 
         private void setChatWindowVisible(boolean visible){
@@ -1057,11 +1065,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         }
 
+
         @Override
-        public void onInteract(Interact interact) {
-                if(interact instanceof InteractChat){
+        public void onInteract(Chat chat, Dialouge dialouge) {
+                if(chat instanceof Chat){
                         this.setChatWindowVisible(true);
-                        this.setChatWindowContents((InteractChat) interact);
+                        this.setChatWindowContents(chat, dialouge);
                 }
         }
 
@@ -1510,9 +1519,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         if(chatChoiceButtons.contains(button, true)){
                                 Gdx.app.log("HudSpatial","handle: "+ uo);
                                 // chat choice button
-                                InteractChat chat = (InteractChat)chatWindow.getUserObject();
-                                Integer choiceIndex = (Integer)event.getListenerActor().getUserObject();
-                                localPlayerToken.getCommand().setChatChoice(choiceIndex);
+                                Chat chat = (Chat)chatWindow.getUserObject();
+                                Choice choice = (Choice)event.getListenerActor().getUserObject();
+                                localPlayerToken.getCommand().setChatChoice(choice);
                                 setChatWindowVisible(false);
                         }else if (inventoryEquipmentButtons.contains(button, true) || inventoryBackPackButtons.contains(button, true)) {
                                 // inventory screen button

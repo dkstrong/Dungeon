@@ -155,12 +155,13 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
 
 
 
-
+        private final Dungeon dungeon;
         private final Symbol symbol;
         private final Type type;
         private int charges;
 
         public ScrollItem(Dungeon dungeon, Type type, int charges) {
+                this.dungeon = dungeon;
                 this.symbol = dungeon.getMasterJournal().getScrollSymbol(type);
                 this.type = type;
                 this.charges = charges;
@@ -213,10 +214,18 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
         }
 
         @Override
-        public void addChargesFrom(StackableItem other) {
+        public void stack(StackableItem other) {
                 ScrollItem otherScroll = (ScrollItem) other;
                 charges+=otherScroll.charges;
                 otherScroll.charges = 0;
+        }
+
+        @Override
+        public ScrollItem unStack(int numCharges) {
+                if(numCharges >= charges) throw new IllegalStateException("numCharges for unstacked item must be less than current charges");
+                ScrollItem newScroll = new ScrollItem(dungeon, type, numCharges);
+                charges -= numCharges;
+                return newScroll;
         }
 
         @Override

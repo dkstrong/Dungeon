@@ -9,6 +9,7 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.logic.Logic;
+import asf.dungeon.model.token.quest.Dialouge;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -264,7 +265,7 @@ public class Token {
                 public void onLearned(Item journalObject, boolean study);
 
 
-                public void onInteract(Interact interact);
+                public void onInteract(Chat chat, Dialouge dialouge);
         }
 
 

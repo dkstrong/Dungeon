@@ -23,11 +23,13 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
 
         }
 
+        private final Dungeon dungeon;
         private final Color color;
         private final Type type;
         private int charges;
 
         public PotionItem(Dungeon dungeon, Type type, int charges) {
+                this.dungeon = dungeon;
                 this.color = dungeon.getMasterJournal().getPotionColor(type);
                 this.type = type;
                 this.charges = charges;
@@ -79,10 +81,18 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
                 return color;
         }
 
-        public void addChargesFrom(StackableItem otherItem) {
+        public void stack(StackableItem otherItem) {
                 PotionItem otherPotion = (PotionItem) otherItem;
                 this.charges += otherPotion.charges;
                 otherPotion.charges = 0;
+        }
+
+        @Override
+        public PotionItem unStack(int numCharges) {
+                if(numCharges >= charges) throw new IllegalStateException("numCharges for unstacked item must be less than current charges");
+                PotionItem newPotion = new PotionItem(dungeon, type, numCharges);
+                charges -= numCharges;
+                return newPotion;
         }
 
         @Override

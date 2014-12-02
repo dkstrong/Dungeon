@@ -7,11 +7,12 @@ import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.item.Item;
+import asf.dungeon.model.token.quest.Choice;
 
 /**
  * This component is how the token receives commands from the player or the ai
  *
- * player and ai should not interact with the token directly.
+ * player and ai should not initiateChat with the token directly.
  */
 public class Command implements TokenComponent{
         private final Token token;
@@ -24,7 +25,7 @@ public class Command implements TokenComponent{
         protected ConsumableItem consumeItem;
         protected Item targetItem;
 
-        private int chatChoice = -1;
+        private Choice chatChoice;
 
         public Command(Token token) {
                 this.token = token;
@@ -139,13 +140,13 @@ public class Command implements TokenComponent{
 
 
         public boolean hasChatChoice(){
-                return chatChoice >= 0;
+                return chatChoice !=null;
         }
-        public int getChatChoice() {
+        public Choice getChatChoice() {
                 return chatChoice;
         }
 
-        public void setChatChoice(int chatChoice) {
+        public void setChatChoice(Choice chatChoice) {
                 this.chatChoice = chatChoice;
         }
 }

@@ -7,6 +7,7 @@ import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
+import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.QuickItem;
 import asf.dungeon.model.item.RingItem;
 import asf.dungeon.model.item.StackableItem;
@@ -74,6 +75,18 @@ public interface Inventory extends TokenComponent {
                                         KeyItem key = (KeyItem) item;
                                         if (key.getType() == keyType) {
                                                 return key;
+                                        }
+                                }
+                        }
+                        return null;
+                }
+
+                public PotionItem getPotionItem(PotionItem.Type potionType){
+                        for (Item item : items) {
+                                if(item instanceof PotionItem){
+                                        PotionItem potion = (PotionItem) item;
+                                        if(potion.getType() == potionType){
+                                                return potion;
                                         }
                                 }
                         }
@@ -269,7 +282,7 @@ public interface Inventory extends TokenComponent {
                                         if (storedItem instanceof StackableItem) {
                                                 StackableItem storedStackable = (StackableItem) storedItem;
                                                 if (storedStackable.canStackWith(stackableItem)) {
-                                                        storedStackable.addChargesFrom(stackableItem);
+                                                        storedStackable.stack(stackableItem);
                                                         if (token.listener != null) token.listener.onInventoryChanged();
                                                         return true;
                                                 }

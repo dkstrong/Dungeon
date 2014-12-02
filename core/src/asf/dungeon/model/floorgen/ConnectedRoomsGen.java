@@ -7,11 +7,14 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.WeaponItem;
+import asf.dungeon.model.token.Chat;
 import asf.dungeon.model.token.Experience;
-import asf.dungeon.model.token.InteractChat;
+import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FSMLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
+import asf.dungeon.model.token.quest.FountainQuest;
+import asf.dungeon.model.token.quest.PotionQuest;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 
@@ -71,19 +74,15 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 if(!valid) throw new Error("could not generate valid key locations, need to regenrate");
 
                 Room roomEnd = rooms.get(rooms.size-1);
-                Token chatToken = new Token(dungeon, "Priest", ModelId.Priest);
-                InteractChat chat = new InteractChat();
-                chat.setMessage("Hello my name is Priest");
-                chat.setChoices(new String[]{"Hello","Goodbye"});
-                chatToken.add(chat);
+                Token traveler = new Token(dungeon, "Traveler", ModelId.Priest);
                 Pair loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
-                dungeon.newToken(chatToken, floorMap, loc.x, loc.y);
+                dungeon.newQuestCharacterToken(traveler, null, new PotionQuest(), floorMap, loc.x, loc.y);
 
                 Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
-                InteractChat fountainInteract = new InteractChat();
-                fountainInteract.setMessage("A mysterious fountain. Who know what would happen if you drank from it.");
-                fountainInteract.setChoices(new String[]{"Do it","Don't do it"});
-                fountainToken.add(fountainInteract);
+                Chat fountainChat = new Chat(fountainToken);
+                fountainChat.setQuest(new FountainQuest());
+                fountainToken.add(fountainChat);
+                fountainToken.add(new Fountain());
                 loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
                 dungeon.newToken(fountainToken, floorMap, loc.x, loc.y);
                 Gdx.app.log("ConnectedRoomGen","fountain at: "+loc);

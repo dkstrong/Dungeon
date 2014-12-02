@@ -117,6 +117,10 @@ public class AssetMappings {
                 return "Models/Crates/Fountain/FountainBlue.png";
         }
 
+        protected String getEmptyFountainTextureAssetLocation(Token token){
+                return "Models/Crates/Fountain/FountainEmpty.png";
+        }
+
         protected String getBookTextureAssetLocation(BookItem bookItem){
                 return bookTextureAssetLocations[bookItem.getSymbol().ordinal()];
         }

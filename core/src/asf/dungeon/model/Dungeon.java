@@ -3,6 +3,7 @@ package asf.dungeon.model;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.Attack;
+import asf.dungeon.model.token.Chat;
 import asf.dungeon.model.token.Command;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
@@ -15,6 +16,7 @@ import asf.dungeon.model.token.Move;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.Logic;
+import asf.dungeon.model.token.quest.Quest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -166,6 +168,27 @@ public class Dungeon {
 
                 moveToken(t, fm, x,y,Direction.South);
                 return t;
+        }
+
+        public Token newQuestCharacterToken(Token token, Logic logic, Quest quest, FloorMap fm, int x, int y){
+                if(quest == null) throw new IllegalArgumentException("quest can not be null");
+                if(fm == null) throw new IllegalArgumentException("fm can not be null");
+                token.setId(nextTokenId++);
+                if(logic != null)
+                        token.add(logic);
+                token.add(new Command(token));
+                Chat chat = new Chat(token);
+                chat.setQuest(quest);
+                token.add(chat);
+                token.add(new Inventory.Character(token));
+                token.add(new StatusEffects(token));
+                Damage d = new Damage(token);
+                d.setMaxHealth(4);
+                d.setAttackable(false);
+                token.add(d);
+                token.add(new Move(token));
+                moveToken(token, fm, x,y,Direction.South);
+                return token;
         }
 
         public Token newToken(Token token, FloorMap fm, int x, int y){

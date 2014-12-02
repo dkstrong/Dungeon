@@ -127,6 +127,15 @@ public class Damage implements TokenComponent{
                 }
         }
 
+        /**
+         * this is mainly here to create NPCs that aren't attackable but can receive items that kill them.
+         * this should only be used when creating a token, this shouldnt be called by other components
+         * @param attackable
+         */
+        public void setAttackable(boolean attackable){
+                this.attackable = attackable;
+        }
+
         public boolean isAttackable() {
                 if(token.getInteractor() != null && token.getInteractor().isInteracting()) return false;
                 return attackable && !isDead();

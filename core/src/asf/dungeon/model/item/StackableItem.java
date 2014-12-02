@@ -5,8 +5,13 @@ package asf.dungeon.model.item;
  */
 public interface StackableItem extends Item{
 
-        public void addChargesFrom(StackableItem other);
+        public void stack(StackableItem other);
+
+        public StackableItem unStack(int numCharges);
+
         public int getCharges();
 
         public boolean canStackWith(StackableItem other);
+
+
 }

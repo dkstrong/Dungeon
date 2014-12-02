@@ -3,15 +3,21 @@ package asf.dungeon.model.token;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
+import asf.dungeon.model.token.quest.Choice;
+import asf.dungeon.model.token.quest.Dialouge;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectIntMap;
 
 /**
  * Created by Danny on 11/30/2014.
  */
 public class Interactor implements TokenComponent{
-        protected final Token token;
-        public Token interactingWith;
+        public final Token token;
+        public Token chattingWith;
+        private Dialouge  currentDialogue;
+        private final ObjectIntMap<Chat> chatProgress = new ObjectIntMap<Chat>(1);
+
 
         public Interactor(Token token) {
                 this.token = token;
@@ -19,7 +25,7 @@ public class Interactor implements TokenComponent{
 
         @Override
         public void teleport(FloorMap fm, int x, int y, Direction direction) {
-                interactingWith = null;
+                chattingWith = null;
         }
 
         @Override
@@ -27,19 +33,19 @@ public class Interactor implements TokenComponent{
 
                 if(!isInteracting()) return false;
 
-                int chatChoice = token.getCommand().getChatChoice();
+                Choice chatChoice = token.getCommand().getChatChoice();
                 Gdx.app.log("Interactor","received chat choice: "+chatChoice);
-                if(chatChoice >=0){
-                        InteractChat chat = interactingWith.get(InteractChat.class);
-                        boolean action = chat.makeChoice(this, chatChoice);
-                        if(action){
+                if(chatChoice !=null){
+                        Chat chat = chattingWith.get(Chat.class);
+                        currentDialogue = chat.makeChoice(this, currentDialogue, chatChoice);
+                        if(currentDialogue != null){
                                 if(token.listener != null)
-                                        token.listener.onInteract(chat);
+                                        token.listener.onInteract(chat, currentDialogue);
                                 return true;
                         }else{
                                 Gdx.app.log("Interactor","done interacting");
-                                interactingWith = null;
-                                token.getCommand().setLocation(token.getLocation());
+                                chattingWith = null;
+                                //token.getCommand().setLocation(token.getLocation());
                                 return true;
                         }
                 }
@@ -50,13 +56,15 @@ public class Interactor implements TokenComponent{
         protected boolean interact(Pair nextLocation) {
                 Array<Token> tokensAt = token.floorMap.getTokensAt(nextLocation);
                 for (Token t : tokensAt) {
-                        Interact interact = t.get(Interact.class);
-                        if(interact == null) continue;
-                        boolean action = interact.interact(this);
-                        if(action) {
-                                interactingWith = t;
+                        Chat chat = t.get(Chat.class);
+                        if(chat == null) continue;
+                        currentDialogue = chat.initiateChat(this);
+                        System.out.println("currentDialogue: "+ currentDialogue);
+                        token.getCommand().setLocation(token.getLocation());
+                        if(currentDialogue != null) {
+                                chattingWith = t;
                                 if(token.listener != null)
-                                        token.listener.onInteract(interact);
+                                        token.listener.onInteract(chat, currentDialogue);
                                 return true;
                         }
                 }
@@ -64,6 +72,16 @@ public class Interactor implements TokenComponent{
         }
 
         public boolean isInteracting(){
-                return interactingWith != null;
+                return chattingWith != null;
         }
+
+        public int getChatProgress(Chat chat){
+                return chatProgress.get(chat, 0);
+        }
+
+        public void setChatProgress(Chat chat, int progress){
+                chatProgress.put(chat, progress);
+        }
+
+
 }
