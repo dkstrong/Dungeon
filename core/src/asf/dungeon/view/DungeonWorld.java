@@ -217,12 +217,6 @@ public class DungeonWorld implements Disposable {
                                         setPaused(false); // call this to apply the gameplay input processors
                                 }
 
-                                for (final Spatial spatial : spatials) {
-                                        if (!spatial.isInitialized())
-                                                spatial.init(assetManager);
-                                }
-
-
                                 Iterator<LoadedNotifyable> i = loadables.iterator();
                                 while(i.hasNext()){
                                         // TODO: need to think about this more, might not be possible for loading ot finish and not have the needed asset.
@@ -234,6 +228,14 @@ public class DungeonWorld implements Disposable {
                                                 loading = true;
                                         }
                                 }
+
+                                for (final Spatial spatial : spatials) {
+                                        if (!spatial.isInitialized())
+                                                spatial.init(assetManager);
+                                }
+
+
+
                         }
                 }
 

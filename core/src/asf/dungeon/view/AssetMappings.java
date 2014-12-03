@@ -16,12 +16,10 @@ import com.badlogic.gdx.math.Quaternion;
  * Created by Danny on 11/22/2014.
  */
 public class AssetMappings {
-        protected final Quaternion[] rotations;
-        protected final String[] assetLocations;
-        protected final Color[] potionDisplayColors;
-        protected final String[] bookTextureAssetLocations;
-        protected final FxId[] statusEffectsFxIds;
-        protected final String[] statusEffectIconTextureAssetLocations;
+        private final Quaternion[] rotations;
+        private final String[] assetLocations;
+        private final Color[] potionDisplayColors;
+        private final FxId[] statusEffectsFxIds;
 
         public AssetMappings() {
                 rotations = new Quaternion[8];
@@ -65,18 +63,6 @@ public class AssetMappings {
                 potionDisplayColors[PotionItem.Color.Amber.ordinal()] = com.badlogic.gdx.graphics.Color.ORANGE;
                 potionDisplayColors[PotionItem.Color.Silver.ordinal()] = com.badlogic.gdx.graphics.Color.GRAY;
 
-                bookTextureAssetLocations = new String[10];
-                bookTextureAssetLocations[BookItem.Symbol.Alpha.ordinal()] = "Models/Loot/Book/Book.png";
-                bookTextureAssetLocations[BookItem.Symbol.Beta.ordinal()] = "Models/Loot/Book/Book.png";
-                bookTextureAssetLocations[BookItem.Symbol.Gamma.ordinal()] = "Models/Loot/Book/Book.png";
-                bookTextureAssetLocations[BookItem.Symbol.Delta.ordinal()] = "Models/Loot/Book/Book.png";
-                bookTextureAssetLocations[BookItem.Symbol.Epsilon.ordinal()] = "Models/Loot/Book/Book.png";
-                bookTextureAssetLocations[BookItem.Symbol.Zeta.ordinal()] = "Models/Loot/Book/Book.png";
-                bookTextureAssetLocations[BookItem.Symbol.Eta.ordinal()] = "Models/Loot/Book/Book.png";
-                bookTextureAssetLocations[BookItem.Symbol.Theta.ordinal()] = "Models/Loot/Book/Book.png";
-                bookTextureAssetLocations[BookItem.Symbol.Iota.ordinal()] = "Models/Loot/Book/Book.png";
-                bookTextureAssetLocations[BookItem.Symbol.Kappa.ordinal()] = "Models/Loot/Book/Book.png";
-
                 statusEffectsFxIds = new FxId[6];
                 statusEffectsFxIds[StatusEffects.Effect.Heal.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffects.Effect.Poison.ordinal()] = FxId.HealAura;
@@ -84,14 +70,6 @@ public class AssetMappings {
                 statusEffectsFxIds[StatusEffects.Effect.Invisibility.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffects.Effect.MindVision.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffects.Effect.Speed.ordinal()] = FxId.HealAura;
-
-                statusEffectIconTextureAssetLocations = new String[6];
-                statusEffectIconTextureAssetLocations[StatusEffects.Effect.Heal.ordinal()] = "Interface/Hud/health.png";
-                statusEffectIconTextureAssetLocations[StatusEffects.Effect.Poison.ordinal()] = "Interface/Hud/health.png";
-                statusEffectIconTextureAssetLocations[StatusEffects.Effect.Paralyze.ordinal()] = "Interface/Hud/health.png";
-                statusEffectIconTextureAssetLocations[StatusEffects.Effect.Invisibility.ordinal()] = "Interface/Hud/health.png";
-                statusEffectIconTextureAssetLocations[StatusEffects.Effect.MindVision.ordinal()] = "Interface/Hud/health.png";
-                statusEffectIconTextureAssetLocations[StatusEffects.Effect.Speed.ordinal()] = "Interface/Hud/health.png";
         }
 
         protected Quaternion getRotation(Direction dir){
@@ -102,7 +80,11 @@ public class AssetMappings {
                 return assetLocations[modelId.ordinal()];
         }
 
-        public String getInventoryItemTextureAssetLocation(Item item){
+        protected String getHudStatusEffectIcon(StatusEffects.Effect effect){
+                return "Interface/Hud/health.png";
+        }
+
+        protected String getInventoryItemTextureAssetLocation(Item item){
                 return "Interface/Loot/Potion/Potion-Amber-Transparent.png";
         }
 
@@ -133,7 +115,7 @@ public class AssetMappings {
         }
 
         protected String getBookTextureAssetLocation(BookItem bookItem){
-                return bookTextureAssetLocations[bookItem.getSymbol().ordinal()];
+                return "Models/Loot/Book/Book.png";
         }
 
 

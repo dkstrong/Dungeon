@@ -23,17 +23,18 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                 EnchantWeapon,
                 EnchantArmor,
                 EnchantRing,
+                ExtraQuickSlot,
                 AggravateMonsters, // monsters from around the floor come to attack you
                 RemoveCurse,
                 Experience // increases intelligence stat
         }
 
         public static enum Symbol{
-                Alpha, Beta, Gamma, Delta, Epsilon, Zeta, Eta, Theta, Iota, Kappa
+                Alpha, Beta, Gamma, Delta, Epsilon, Zeta, Eta, Theta, Iota, Kappa, Lambda;
         }
 
         public boolean isPrimarilySelfConsume(){
-                return type == Type.MagicMapping || type == Type.ItemDetection || type == Type.Sleep || type == Type.AggravateMonsters || type == Type.Experience;
+                return type == Type.MagicMapping || type == Type.ItemDetection || type == Type.Sleep || type== Type.ExtraQuickSlot || type == Type.AggravateMonsters || type == Type.Experience;
         }
 
         @Override
@@ -57,6 +58,14 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                         case Sleep:
                                 // cause player to fall asleep for period of time
                                 out.didSomething = true;
+                                break;
+                        case ExtraQuickSlot:
+                                // adds an extra quick slot to the players inventory
+                                Inventory.Character inventory = token.getInventory();
+                                int numSlots = inventory.numQuickSlots();
+                                out.didSomething = numSlots < 3;
+                                if(out.didSomething)
+                                        inventory.setNumQuickSlots(numSlots+1);
                                 break;
                         case AggravateMonsters:
                                 // tokens in entire floor immediatly get aggro for player

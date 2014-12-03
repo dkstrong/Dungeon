@@ -128,10 +128,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 world.assetManager.load("Skins/BasicSkin/uiskin.json", Skin.class);
 
-                for (String statusEffectIconTextureAssetLocation : world.assetMappings.statusEffectIconTextureAssetLocations) {
-                        world.assetManager.load(statusEffectIconTextureAssetLocation, Texture.class);
-                }
-
         }
 
         @Override
@@ -163,9 +159,15 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 avatarStatusEffectsGroup.align(Align.bottomLeft);
 
 
-                statusEffectImage = new Image[world.assetMappings.statusEffectIconTextureAssetLocations.length];
-                for (int i = 0; i < statusEffectImage.length; i++) {
-                        statusEffectImage[i] = new Image(world.assetManager.get(world.assetMappings.statusEffectIconTextureAssetLocations[i], Texture.class));
+                StatusEffects.Effect[] values = StatusEffects.Effect.values();
+
+                statusEffectImage = new Image[values.length];
+                // TODO: need to use texture regions here
+                for (StatusEffects.Effect value : values) {
+                        int i = value.ordinal();
+                        world.assetManager.load(world.assetMappings.getHudStatusEffectIcon(value), Texture.class);
+                        world.assetManager.finishLoading();
+                        statusEffectImage[i] = new Image(world.assetManager.get(world.assetMappings.getHudStatusEffectIcon(value), Texture.class));
                         //statusEffectImage[i].setScaling(Scaling.fit);
                         statusEffectImage[i].setScaling(Scaling.fillY);
                         statusEffectImage[i].setAlign(Align.bottomLeft);
@@ -246,27 +248,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
 
 
-                for (int j = 0; j < 4; j++) {
-                        equipmentTable.row();
-                        for (int i = 0; i < 2; i++) {
-                                if ((j == 0 || j == 2) && i == 1) {
-                                        continue;
-                                } else if (inventoryEquipmentButtons.size - 3 >= numQuickSlots) {
-                                        continue;
-                                }
-                                ItemButtonStack equipmentButton = new ItemButtonStack(skin, this, null);
-                                inventoryEquipmentButtons.add(equipmentButton);
-                                Cell<ItemButtonStack> cell = equipmentTable.add(equipmentButton);
-                                if (j == 2) {
-                                        cell.padTop(20);
-                                }
-                                if (j == 0 || j == 2 || (j == 3 && numQuickSlots == 2)) {
-                                        cell.colspan(2);
-                                } else {
-
-                                }
-                        }
+                for(int i=0; i<3+numQuickSlots;i++){
+                        ItemButtonStack equipmentButton = new ItemButtonStack(skin, this, null);
+                        inventoryEquipmentButtons.add(equipmentButton);
                 }
+
+
 
                 for (int j = 0; j < 4; j++) {
                         backPackTable.row();
@@ -383,9 +370,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         Gdx.graphics.getWidth() * .5f,
                         buttonSize * .25f);
 
-
-
-
                 float windowWidth = Gdx.graphics.getWidth() * .85f;
                 float windowHeight = Gdx.graphics.getHeight() - 15 - 15;
                 float windowButtonSize = windowHeight * (1 / 5f);
@@ -408,9 +392,33 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 }
 
-                for (Cell cell : equipmentTable.getCells()) {
-                        cell.prefSize(windowButtonSize, windowButtonSize).minSize(windowButtonSize, windowButtonSize);
+
+                int buttonI =0;
+                int numQuickSlots = localPlayerToken.getInventory().numQuickSlots();
+                equipmentTable.clearChildren();
+                for (int j = 0; j < 4; j++) {
+                        equipmentTable.row();
+                        for (int i = 0; i < 2; i++) {
+                                if ((j == 0 || j == 2) && i == 1) {
+                                        continue;
+                                } else if (buttonI - 3 >= numQuickSlots) {
+                                        continue;
+                                }
+                                Cell<ItemButtonStack> cell = equipmentTable.add(inventoryEquipmentButtons.get(buttonI++));
+                                cell.prefSize(windowButtonSize, windowButtonSize).minSize(windowButtonSize, windowButtonSize);
+                                // top cell needs extra padding on top
+                                if (j == 2) {
+                                        cell.padTop(20);
+                                }
+                                // if only cell on the row, make its colspan be 2
+                                if (j == 0 || j == 2 || (j == 3 && numQuickSlots == 2)) {
+                                        cell.colspan(2);
+                                } else {
+
+                                }
+                        }
                 }
+
 
                 for (Cell cell : backPackTable.getCells()) {
                         cell.prefSize(windowButtonSize, windowButtonSize).minSize(windowButtonSize, windowButtonSize);
@@ -647,47 +655,25 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
 
                 int numQuickSlots = localPlayerToken.getInventory().numQuickSlots();
-                // ensure there are enough hud elements for all the quick slots
                 if (quickButtons.length != numQuickSlots) {
-                        // resize the quick buttons array, and populate their contents
+                        // ensure there are enough quick slot elements on the screen (on main hud and in inventory)
+                        int i = quickButtons.length;
                         quickButtons = Arrays.copyOf(quickButtons, numQuickSlots);
-                        float quickXOffset = quickButtons[0].getX() + Gdx.graphics.getWidth();
-                        float quickYOffset = quickButtons[0].getY();
-                        float quickButtonSize = quickButtons[0].getWidth();
-                        for (int i = 0; i < numQuickSlots; i++) {
-                                QuickItem quickItem = localPlayerToken.getInventory().getQuickSlot(i);
-                                if (quickButtons[i] != null) {
-                                        quickButtons[i].setItem(quickItem);
-                                } else if (quickButtons[i] == null) {
-                                        ItemButtonStack quickButton = new ItemButtonStack(skin, this, quickItem);
-                                        quickButton.setQuickSlot(true);
-                                        world.stage.addActor(quickButton);
-                                        quickButtons[i] = quickButton;
-                                        quickButtons[i].setBounds(Gdx.graphics.getWidth() - (quickXOffset * (i + 1)), quickYOffset, quickButtonSize, quickButtonSize);
+                        for (; i < numQuickSlots; i++) {
+                                ItemButtonStack quickButton = new ItemButtonStack(skin, this, null);
+                                quickButton.setQuickSlot(true);
+                                world.stage.addActor(quickButton);
+                                quickButtons[i] = quickButton;
 
-                                        // its weird that i set null here, but ill be visiting this again in the loop below
-                                        ItemButtonStack equipmentButton = new ItemButtonStack(skin, this, null);
-                                        inventoryEquipmentButtons.add(equipmentButton);
-                                        equipmentTable.add(equipmentButton);
+                                ItemButtonStack equipmentButton = new ItemButtonStack(skin, this, null);
+                                inventoryEquipmentButtons.add(equipmentButton);
+                        }
 
-                                        // ensure there is top padding for quick item 1 on the inventory window
-                                        if (inventoryEquipmentButtons.size >= 4) {
-                                                Cell q1 = equipmentTable.getCell(inventoryEquipmentButtons.get(3));
-                                                q1.padTop(20);
-                                        }
-                                        // ensure that quick item 2 is properly aligned based on if there is a 3rd quick item or not
-                                        if (inventoryEquipmentButtons.size >= 5) {
-                                                Cell q2 = equipmentTable.getCell(inventoryEquipmentButtons.get(4));
-                                                q2.colspan(inventoryEquipmentButtons.size == 5 ? 2 : 1);
-                                        }
-                                }
-                        }
-                } else {
-                        // has the correct number of quick button elements, just need to repopulate their contents
-                        for (int i = 0; i < numQuickSlots; i++) {
-                                QuickItem quickItem = localPlayerToken.getInventory().getQuickSlot(i);
-                                quickButtons[i].setItem(quickItem);
-                        }
+                        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                }
+                for (int i = 0; i < numQuickSlots; i++) {
+                        QuickItem quickItem = localPlayerToken.getInventory().getQuickSlot(i);
+                        quickButtons[i].setItem(quickItem);
                 }
 
 
@@ -913,7 +899,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 appendToGameLog("You just read " + item.getName());
                         }
 
-                        if (out.targetItem != null) {
+                        if (out.targetItem != null || book.getType() == BookItem.Type.ExtraQuickSlot) {
                                 // immediatly bring up the inventory window so the user can see the result of using the book on this item
                                 this.setInventoryWindowVisible(true);
                         }
@@ -1336,6 +1322,21 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         @Override
         public boolean keyDown(int keycode) {
+                /*
+                if(localPlayerToken == null) return false;
+                int numSlots = -1;
+                if(keycode == Input.Keys.NUMPAD_0)numSlots = 0;
+                else if(keycode == Input.Keys.NUMPAD_1)numSlots = 1;
+                else if(keycode == Input.Keys.NUMPAD_2)numSlots = 2;
+                else if(keycode == Input.Keys.NUMPAD_3)numSlots = 3;
+                else return false;
+
+                if(numSlots <= localPlayerToken.getInventory().numQuickSlots()) return false;
+
+                localPlayerToken.getInventory().setNumQuickSlots(numSlots);
+
+                return true;
+                */
                 return false;
         }
 

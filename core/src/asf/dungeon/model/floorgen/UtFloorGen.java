@@ -92,8 +92,9 @@ public class UtFloorGen {
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
                         int randInt = dungeon.rand.random.nextInt(3);
-                        if(randInt == 0){
-                                item = new PotionItem(dungeon, dungeon.rand.potionType(), 1);
+                        if(randInt == 0 ||true){
+                                //dungeon.rand.potionType()
+                                item = new PotionItem(dungeon, PotionItem.Type.Health, 1);
                         }else if(randInt == 1){
                                 item = new ScrollItem(dungeon, ScrollItem.Type.Lightning, 1);
                         }else if(randInt == 2){

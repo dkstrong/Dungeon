@@ -117,7 +117,7 @@ public class DungeonLoader {
 
                         token.getDamage().setDeathRemovalCountdown(Float.NaN);
 
-                        token.getInventory().setNumQuickSlots(1);
+                        token.getInventory().setNumQuickSlots(0);
 
                         PotionItem potion  = new PotionItem(dungeon, PotionItem.Type.Poison,4 );
                         potion.identifyItem(token);
@@ -129,7 +129,7 @@ public class DungeonLoader {
                         token.getInventory().add(health);
                         token.getInventory().equip(health);
 
-                        BookItem book = new BookItem(dungeon, BookItem.Type.MagicMapping);
+                        BookItem book = new BookItem(dungeon, BookItem.Type.ExtraQuickSlot);
                         token.getInventory().add(book);
                         book.identifyItem(token);
 
