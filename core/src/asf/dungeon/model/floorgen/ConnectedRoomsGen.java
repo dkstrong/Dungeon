@@ -6,15 +6,14 @@ import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FSMLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
-import asf.dungeon.model.token.quest.FountainQuest;
 import asf.dungeon.model.token.quest.PotionQuest;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -25,13 +24,13 @@ import com.badlogic.gdx.utils.Array;
  */
 public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
 
-        private int minRoomSize = 6;
+        private int minRoomSize = 7;
         private int maxRoomSize = 10;
         private int minFloorWidth = 40;
         private int maxFloorWidth = 50;
         private int minFloorHeight = 30;
         private int maxFloorHeight = 50;
-        private int maxRooms = 8;
+        private int maxRooms = 3;
         private boolean makeDoors = true;
         //private int floorIndex;
 
@@ -78,11 +77,10 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 dungeon.newQuestCharacterToken(traveler, null, new PotionQuest(), floorMap, loc.x, loc.y);
 
                 Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
-                fountainToken.add(new FountainQuest());
-                fountainToken.add(new Fountain());
+                fountainToken.add(new Fountain(fountainToken, PotionItem.Type.Health));
                 loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
                 dungeon.newToken(fountainToken, floorMap, loc.x, loc.y);
-                Gdx.app.log("ConnectedRoomGen","fountain at: "+loc);
+                //Gdx.app.log("ConnectedRoomGen","fountain at: "+loc);
 
 
 

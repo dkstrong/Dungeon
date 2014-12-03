@@ -2,7 +2,6 @@ package asf.dungeon.model.token.quest;
 
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.Interactor;
-import asf.dungeon.model.token.StatusEffects;
 
 /**
  * Created by Danny on 12/1/2014.
@@ -24,7 +23,9 @@ public class FountainQuest extends Quest{
 
                         @Override
                         public String getMessage(Interactor interactor) {
-                                return "A mysterious fountain filled with blue liquid. It is unclear why it is here or what it does.";
+                                Fountain fountain = interactor.chattingWith.get(Fountain.class);
+                                String colorName = fountain.getFountainColor().name().toLowerCase();
+                                return "A mysterious fountain filled with "+colorName+" liquid. It is unclear why it is here or what it does.";
                         }
 
                         @Override
@@ -33,8 +34,7 @@ public class FountainQuest extends Quest{
                                 c0.setCommand(new Command(){
                                         @Override
                                         public void exec(Interactor interactor) {
-                                                interactor.token.get(StatusEffects.class).addStatusEffect(StatusEffects.Effect.Heal,5, 5);
-                                                interactor.chattingWith.get(Fountain.class).setConsumed(true);
+                                                interactor.chattingWith.get(Fountain.class).consumeFountain(interactor.token);
 
                                         }
                                 });

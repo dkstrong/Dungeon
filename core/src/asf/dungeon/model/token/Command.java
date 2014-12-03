@@ -76,25 +76,22 @@ public class Command implements TokenComponent{
                 }
         }
 
-        public boolean consumeItem(Item item){
-                if(item instanceof ConsumableItem){
-                        if (consumeItem != null || token.getDamage().isDead())
-                                return false; // already consuming an item, or dead
-                        consumeItem = (ConsumableItem) item;
-                        return true;
-                }
-                return false;
+        public boolean consumeItem(ConsumableItem item){
+                if (consumeItem != null || token.getDamage().isDead())
+                        return false; // already consuming an item, or dead
+                consumeItem = (ConsumableItem) item;
+                return true;
 
         }
 
-        public boolean consumeItem(Item item, Item targetItem){
+        public boolean consumeItem(ConsumableItem item, Item targetItem){
                 boolean valid = consumeItem(item);
                 if(valid)
                         this.targetItem = targetItem;
                 return valid;
         }
 
-        public boolean consumeItem(Item item, Token targetToken){
+        public boolean consumeItem(ConsumableItem item, Token targetToken){
                 boolean valid = consumeItem(item);
                 if(valid){
                         setTargetToken(targetToken);

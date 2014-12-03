@@ -1,6 +1,7 @@
 package asf.dungeon.model;
 
 import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.quest.Quest;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -26,44 +27,27 @@ public class Pathfinder {
                 CanCutCorners;
         }
 
-        /**
-         * how the mover can move about the tile map
-         */
-        public PathingPolicy pathingPolicy = PathingPolicy.Manhattan;
-        /**
-         * the mover will prefer to maintain its momentum and move in a straight line if possible
-         * instead of making zig zag shapes.
-         *
-         * this sometimes produces weird results with CanDiagonalIfNotCuttingCorner and CanCutCorners, really only mean too be used with Manhattan
-         */
-        public boolean avoidZigZagging = true;
-
-        /**
-         * if path exceeds this length then pathfinding will be forced to return false
-         */
-        public int maxPathSize = Integer.MAX_VALUE;
-
-
-        private Pair end;
-        private final int[][] gScore; // cost from start to current
-        private final int[][] hScore; // cost form current to goal
-        private final int[][] fScore;
-        private final Pair[][] cameFrom;
         private final FloorMap floorMap;
-        private final Tile[][] map;
-        // temp arrays for pathfinding
+        // transient variables that can only be used on this pathfinder
+        private transient Tile[][] map;
+        private transient int[][] gScore; // cost from start to current
+        private transient int[][] hScore; // cost form current to goal
+        private transient int[][] fScore;
+        private transient Pair[][] cameFrom;
+        // temp vars for pathfinding, shared across pathfinders
         private static transient final Array<Pair> openNodes = new Array<Pair>(true, 32, Pair.class);
         private static transient final Array<Pair> closedNodes = new Array<Pair>(true, 32, Pair.class);
         private static transient final Array<Pair> found = new Array<Pair>(12); // neighbors that have been found
+        private static transient Token mover;
+        private static transient Pair end;
+        private static transient PathingPolicy pathingPolicy;
+        private static transient boolean avoidZigZagging ; // this sometimes produces weird results with CanDiagonalIfNotCuttingCorner and CanCutCorners, really only mean too be used with Manhattan
+        private static transient int maxPathSize;
 
 
         public Pathfinder(FloorMap floorMap) {
                 this.floorMap = floorMap;
-                this.map = this.floorMap.tiles;
-                gScore = new int[map.length][map[0].length];
-                fScore = new int[map.length][map[0].length];
-                hScore = new int[map.length][map[0].length];
-                cameFrom = new Pair[map.length][map[0].length];
+
         }
 
         public static Pair toPair(int i, int j) {
@@ -86,19 +70,43 @@ public class Pathfinder {
                 }
         }
 
-        public boolean generate(int startX, int startY, int endX, int endY, Array<Pair> storePath) {
-                return generate(toPair(startX, startY), toPair(endX, endY), storePath);
+        public boolean generate(Token mover, Pair start, Pair finish, Array<Pair> storePath) {
+                return generate(mover, start, finish, storePath, PathingPolicy.Manhattan, false, mover.getInteractor() == null ? Integer.MAX_VALUE : 20);
         }
 
-        public boolean generate(Pair start, Pair finish, Array<Pair> storePath) {
+        /**
+         *
+         * @param mover the token that is moving, used for calculating traversal heuristics and avoiding certain locations
+         * @param start start location of the path
+         * @param finish end location of the path
+         * @param storePath the array to store the generated path
+         * @param pathingPolicy how the mover is allowed to move
+         * @param avoidZigZagging if the mover should build momentum and avoid changing direction
+         * @param maxPathSize the maximum path size, will fail if exceeds this size
+         * @return true if found a path, false otherwise, storePath is only modified if true is returned.
+         */
+        public boolean generate(Token mover, Pair start, Pair finish, Array<Pair> storePath, PathingPolicy pathingPolicy, boolean avoidZigZagging, int maxPathSize) {
                 //System.out.println(String.format("last open size: %s, last closed size: %s", openNodes.size, closedNodes.size));
+
+                Pathfinder.mover = mover;
+                Pathfinder.pathingPolicy = pathingPolicy;
+                Pathfinder.avoidZigZagging = avoidZigZagging;
+                Pathfinder.maxPathSize = maxPathSize;
                 openNodes.clear();
                 closedNodes.clear();
                 end = finish;
-                clearVars(gScore);
-                clearVars(fScore);
-                clearVars(hScore);
-                clearVars(cameFrom);
+                if(map == null){
+                        map = this.floorMap.tiles;
+                        gScore = new int[map.length][map[0].length];
+                        fScore = new int[map.length][map[0].length];
+                        hScore = new int[map.length][map[0].length];
+                        cameFrom = new Pair[map.length][map[0].length];
+                }else{
+                        clearVars(gScore);
+                        clearVars(fScore);
+                        clearVars(hScore);
+                        clearVars(cameFrom);
+                }
                 openNodes.add(start);
                 gScore[start.x][start.y] = 0;
                 hScore[start.x][start.y] = calculateHeuristic(start);
@@ -161,7 +169,8 @@ public class Pathfinder {
         }
 
         private boolean isWalkable(int x, int y){
-                if(x == end.x && y == end.y) // target location is always walkable, this allows walking in to locked doors to unlock them
+                // target location is always walkable, this allows walking in to locked doors to unlock them
+                if(x == end.x && y == end.y)
                         return true;
                 if(x <0 || x >= map.length || y<0 || y >= map[0].length){
                         return false;
@@ -211,17 +220,22 @@ public class Pathfinder {
 
 
                 int movementCost = map[n1.x][n1.y].getMovementCost();
-                if(closedNodes.size < 5 && false){
-                        // only check tokens if closedNodes < 5. far away tokens are likely to be changed by the time you get there so its not so important to check for them
+                if(!n1.equals(end) && (closedNodes.size < 5 || mover.getInteractor() == null) ){
+                        // NPCs - we check all their nodes because they dont frequently repath
+                        // players - only check the first 5 nodes because they frequently repath
+
+                        // if the node is the goal node, dont add extra movement code because its the goal
                         Array<Token> tokensAt = floorMap.getTokensAt(n1);
                         for (Token t : tokensAt) {
                                 if(t.getDamage() != null && t.getDamage().isDead())
                                         continue;
+                                if(t.get(Quest.class) != null) // avoiding walking into quest tokens unless they are they target
+                                        movementCost += 30;
                                 if(t.isBlocksPathing()){
-                                        if(t.getMove() == null)
-                                                movementCost += 30; // crate, should avoid
+                                        if(t.getMove() == null) // avoid walking in to crates, unless they are the target
+                                                movementCost += 30;
                                         else
-                                                movementCost+=20; // monster, not as important to avoid
+                                                movementCost+=20; // avoid walking into monsters, unless they are the target
                                 }
                         }
                 }

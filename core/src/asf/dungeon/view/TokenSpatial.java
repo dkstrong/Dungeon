@@ -80,8 +80,9 @@ public class TokenSpatial implements Spatial, Token.Listener {
                 }
 
                 if(token.getModelId() == ModelId.Fountain){
-                        world.assetManager.load(world.assetMappings.getFountainTextureAssetLocation(token), Texture.class);
-                        world.assetManager.load(world.assetMappings.getEmptyFountainTextureAssetLocation(token), Texture.class);
+                        Fountain fountain = token.get(Fountain.class);
+                        world.assetManager.load(world.assetMappings.getFountainTextureAssetLocation(fountain), Texture.class);
+                        world.assetManager.load(world.assetMappings.getEmptyFountainTextureAssetLocation(fountain), Texture.class);
                 }
 
 
@@ -134,11 +135,11 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         Fountain fountain = token.get(Fountain.class);
                         texToggle = fountain.isConsumed();
                         if(fountain.isConsumed()){
-                                Texture fountainTex = world.assetManager.get(world.assetMappings.getEmptyFountainTextureAssetLocation(token), Texture.class);
+                                Texture fountainTex = world.assetManager.get(world.assetMappings.getEmptyFountainTextureAssetLocation(fountain), Texture.class);
                                 Material mat = modelInstance.materials.get(0);
                                 mat.set(TextureAttribute.createDiffuse(fountainTex));
                         }else{
-                                Texture fountainTex = world.assetManager.get(world.assetMappings.getFountainTextureAssetLocation(token), Texture.class);
+                                Texture fountainTex = world.assetManager.get(world.assetMappings.getFountainTextureAssetLocation(fountain), Texture.class);
                                 Material mat = modelInstance.materials.get(0);
                                 mat.set(TextureAttribute.createDiffuse(fountainTex));
                         }
@@ -247,11 +248,11 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         if(texToggle != fountain.isConsumed()){
                                 texToggle= fountain.isConsumed();
                                 if(fountain.isConsumed()){
-                                        Texture fountainTex = world.assetManager.get(world.assetMappings.getEmptyFountainTextureAssetLocation(token), Texture.class);
+                                        Texture fountainTex = world.assetManager.get(world.assetMappings.getEmptyFountainTextureAssetLocation(fountain), Texture.class);
                                         Material mat = modelInstance.materials.get(0);
                                         mat.set(TextureAttribute.createDiffuse(fountainTex));
                                 }else{
-                                        Texture fountainTex = world.assetManager.get(world.assetMappings.getFountainTextureAssetLocation(token), Texture.class);
+                                        Texture fountainTex = world.assetManager.get(world.assetMappings.getFountainTextureAssetLocation(fountain), Texture.class);
                                         Material mat = modelInstance.materials.get(0);
                                         mat.set(TextureAttribute.createDiffuse(fountainTex));
                                 }
@@ -399,7 +400,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         @Override
-        public void onLearned(Item journalObject, boolean study) {
+        public void onLearned(Object journalObject, boolean study) {
                 if (world.hudSpatial.localPlayerToken == token)
                         world.hudSpatial.onLearned(journalObject, false);
         }

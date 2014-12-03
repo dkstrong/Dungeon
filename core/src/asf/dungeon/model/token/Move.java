@@ -174,7 +174,7 @@ public class Move implements TokenComponent {
                         return;
                 }
 
-                boolean foundPath = token.floorMap.computePath(new Pair(token.location), new Pair(targetLocation), path);
+                boolean foundPath = token.floorMap.pathfinder.generate(token, new Pair(token.location), new Pair(targetLocation), path);
                 if (!foundPath) {
                         //Gdx.app.error("Token", "No path found");
                         path.clear();

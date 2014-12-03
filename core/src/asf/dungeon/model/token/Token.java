@@ -75,6 +75,11 @@ public class Token {
                 return null;
         }
 
+        public void remove(TokenComponent component){
+                // TODO: if removing a "common" component then need to null it
+                // though common componnets typicallly wouldnt be removed
+                components.removeValue(component, true);
+        }
         public void add(TokenComponent component) {
                 components.add(component);
                 if (component instanceof Logic) {
@@ -263,7 +268,7 @@ public class Token {
                  * @param journalObject can be PotionItem.Type, ScrollItem.Type, BookItem.Type, or EquipmentItem
                  * @param study         if the object was learned via study or not, if not learned by study then it was learned by Tome of identification
                  */
-                public void onLearned(Item journalObject, boolean study);
+                public void onLearned(Object journalObject, boolean study);
 
 
                 public void onInteract(Quest quest, Dialouge dialouge);

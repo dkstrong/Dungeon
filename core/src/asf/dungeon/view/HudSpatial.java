@@ -45,6 +45,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -81,7 +82,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private final Array<DamageLabel> damageInfoLabels = new Array<DamageLabel>(false, 8, DamageLabel.class);
         //inventory hud
         private Table inventoryWindow;
-        private Image inventoryWindowBackgroundImage;
         private HorizontalGroup inputModeHorizontalGroup;
         private Label inputModeLabel;
         private Button inputModeCancelButton;
@@ -94,7 +94,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         //chat hud
         private Table chatWindow;
         private Label chatLabel;
-        private HorizontalGroup buttonGroup;
+        private VerticalGroup buttonGroup;
         private final Array<Button> chatChoiceButtons = new Array<Button>(true, 4, Button.class);
         // input mode
         private boolean tokenSelectMode = false;
@@ -201,11 +201,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
 
 
-                inventoryWindowBackgroundImage = new Image(skin, "default-rect");
-
-
 
                 inventoryWindow = new Table(skin);
+                inventoryWindow.setBackground("default-rect");
                 //inventoryWindow.setMovable(false);
                 inventoryWindow.addCaptureListener(this);
                 //inventoryWindow.removeActor(inventoryWindow.getButtonTable());
@@ -323,6 +321,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
 
                 chatWindow = new Table(skin);
+                chatWindow.setBackground("default-rect");
                 {
                         chatWindow.row();
                         chatLabel = new Label("Chat Label", skin);
@@ -331,12 +330,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         chatWindow.add(scrollPane).fill().expand().colspan(3);
                         chatWindow.row();
 
-                        buttonGroup = new HorizontalGroup();
+                        buttonGroup = new VerticalGroup();
                         chatWindow.add(buttonGroup).colspan(3);
                         for(int i=0; i<4; i++){
                                 Button button = new Button(skin);
                                 button.addCaptureListener(this);
-                                button.setUserObject(i);
                                 chatChoiceButtons.add(button);
                         }
 
@@ -412,11 +410,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         windowWidth,
                         windowHeight);
 
-                inventoryWindowBackgroundImage.setBounds(
-                        (Gdx.graphics.getWidth() - windowWidth) * .5f,
-                        ((Gdx.graphics.getHeight() - windowHeight) * .5f),
-                        windowWidth,
-                        windowHeight);
+
 
 
                 for (Cell cell : inventoryWindow.getCells()) {
@@ -454,22 +448,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         }
                 }
 
-
-                float chatWindowWidth = Gdx.graphics.getWidth()*.5f;
-                float chatWindowHeight = chatWindowWidth;
-
-                chatWindow.setBounds(
-                        (Gdx.graphics.getWidth() - chatWindowWidth) * .5f,
-                        (Gdx.graphics.getHeight() - chatWindowHeight) * .5f,
-                        chatWindowWidth,
-                        chatWindowHeight);
-
-                for (Cell cell : chatWindow.getCells()) {
-                        String uoVal = String.valueOf(cell.getActor().getUserObject());
-                        if (cell.getActor() instanceof Button) {
-                                cell.prefSize(itemWindowButtonSizeX, itemWindowButtonSizeY).minSize(itemWindowButtonSizeX, itemWindowButtonSizeY);
-                        }
-                }
+                refreshChatWindowElements();
 
         }
 
@@ -604,7 +583,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         protected void closeAllWindows() {
                 setInventoryWindowVisible(false);
-                setChatWindowVisible(false);
+                setChatWindowVisible(null);
         }
 
         public boolean isWindowVisible() {
@@ -648,7 +627,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         private void refreshInventoryElements() {
-                Gdx.app.log("HudSpatial", "refresh inventory elements");
+                //Gdx.app.log("HudSpatial", "refresh inventory elements");
                 // refresh hero stats
                 SnapshotArray<Actor> children = inventoryWindow.getChildren();
                 Label heroStatsLabel = null;
@@ -830,7 +809,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         } else if (uoName.equals("Quantity")) {
                                                 Label label = (Label) actor;
                                                 if (item instanceof StackableItem) {
-                                                        Gdx.app.log("HudSpatial", "update button contents: " + item + " charges: " + ((StackableItem) item).getCharges());
                                                         StackableItem stackableItem = (StackableItem) item;
                                                         label.setText("x" + stackableItem.getCharges());
                                                 } else {
@@ -891,20 +869,16 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 setHudElementsVisible(!visible);
                 if (visible) {
-
-                        if (inventoryWindow.getParent() == null) {
-                                world.stage.addActor(inventoryWindowBackgroundImage);
+                        if (inventoryWindow.getParent() == null)
                                 world.stage.addActor(inventoryWindow);
-                        }
-
                         refreshInventoryElements();
                         world.setPaused(true);
                 } else {
-                        inventoryWindowBackgroundImage.remove();
                         inventoryWindow.remove();
                         itemWindow.remove();
                         world.setPaused(false);
                 }
+
         }
 
         private void setItemWindowVisible(boolean visible) {
@@ -921,14 +895,18 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
         }
 
-        private void setChatWindowContents(Dialouge dialouge){
-                chatLabel.setText(dialouge.getMessage(localPlayerToken.getInteractor()));
+        private void refreshChatWindowElements(){
+                if(chatWindow.getParent() == null)
+                        return;
+                Dialouge dialouge = (Dialouge)chatWindow.getUserObject();
                 Choice[] choices = dialouge.getChoices(localPlayerToken.getInteractor());
-
+                int longestButtonText = 0;
                 int buttonI = 0;
                 for (Choice choice : choices) {
                         if(choice != null){
+                                longestButtonText = UtMath.largest(longestButtonText, choice.getText().length());
                                 Button button = chatChoiceButtons.get(buttonI);
+                                button.pad(15,10,15,10);
                                 button.clearChildren();
                                 button.add(choice.getText());
                                 button.setUserObject(choice);
@@ -939,12 +917,40 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
 
                 for(;buttonI< 4; buttonI++){
-                        chatChoiceButtons.get(buttonI).remove();
+                        Button button = chatChoiceButtons.get(buttonI);
+                        button.setUserObject(null);
+                        button.remove();
                 }
+
+                chatLabel.setText(dialouge.getMessage(localPlayerToken.getInteractor()));
+                float chatWindowWidth = Gdx.graphics.getWidth()*UtMath.scalarLimitsInterpolation(longestButtonText, 25f, 75f, .3f, .5f);
+                float chatWindowHeight = chatWindowWidth;
+                float windowButtonSize = chatWindowHeight * (1 / 5f);
+                float itemWindowButtonSizeX = windowButtonSize * 1.25f;
+                float itemWindowButtonSizeY = windowButtonSize * .75f;
+
+                chatWindow.setBounds(
+                        (Gdx.graphics.getWidth() - chatWindowWidth) * .5f,
+                        (Gdx.graphics.getHeight() - chatWindowHeight) * .5f,
+                        chatWindowWidth,
+                        chatWindowHeight);
+
+                for (Cell cell : chatWindow.getCells()) {
+                        String uoVal = String.valueOf(cell.getActor().getUserObject());
+                        if(cell.getActor() instanceof ScrollPane){
+                                cell.prefSize(chatWindowWidth,chatWindowHeight).maxSize(chatWindowWidth, chatWindowHeight);
+                        }else
+                        if (cell.getActor() instanceof Button) {
+                                cell.prefSize(itemWindowButtonSizeX, itemWindowButtonSizeY).minSize(itemWindowButtonSizeX, itemWindowButtonSizeY);
+                        }
+                }
+
+                buttonGroup.space(15);
+
 
         }
 
-        private void setChatWindowVisible(boolean visible){
+        private void setChatWindowVisible(Dialouge dialouge){
                 if(tokenSelectMode){
                         /* actually staying in token select mode might not be an issue..
                         if(!tokenSelectForItem.isIdentified(localPlayerToken)){
@@ -953,17 +959,22 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         setTokenSelectMode(null);
                         */
                 }
+
                 mouseDownDrag = false;
-                setHudElementsVisible(!visible);
-                if(visible){
+                setHudElementsVisible(dialouge == null);
+                chatWindow.setUserObject(dialouge);
+                if(dialouge != null){
                         if(chatWindow.getParent() == null)
                                 world.stage.addActor(chatWindow);
+                        refreshChatWindowElements();
                         world.setPaused(true);
                 }else{
                         chatWindow.remove();
                         world.setPaused(false);
                 }
         }
+
+
 
         @Override
         public void onPathBlocked(Pair nextLocation, Tile nextTile) {
@@ -1047,19 +1058,20 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         @Override
-        public void onLearned(Item identifiedItem, boolean study) {
+        public void onLearned(Object journalObject, boolean study) {
 
                 refreshInventoryElements();
-                if (identifiedItem instanceof EquipmentItem) {
-                        EquipmentItem item = (EquipmentItem) identifiedItem;
+                if (journalObject instanceof EquipmentItem) {
+                        EquipmentItem item = (EquipmentItem) journalObject;
                         if (study) {
                                 this.appendToGameLog(String.format("You've used %s long enough that you now understand its secrets.", item.getName()));
                         } else {
                                 this.appendToGameLog(String.format("You now understand the secrets of %s.", item.getName()));
                         }
-                } else {
+                } else if(journalObject instanceof Item){
+                        Item item = (Item) journalObject;
                         if (study)
-                                this.appendToGameLog("You have identified " + identifiedItem.getName());
+                                this.appendToGameLog("You have identified " + item.getName());
                 }
 
 
@@ -1068,8 +1080,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         @Override
         public void onInteract(Quest quest, Dialouge dialouge) {
-                this.setChatWindowVisible(true);
-                this.setChatWindowContents(dialouge);
+                this.setChatWindowVisible(dialouge);
         }
 
         @Override
@@ -1331,7 +1342,17 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         float clickX = screenX;
                         float clickY = screenY;
                         if (clickX < chatWindow.getX() || clickY < chatWindow.getY() || clickX > chatWindow.getX() + chatWindow.getWidth() || clickY > chatWindow.getY() + chatWindow.getHeight()) {
-                                setChatWindowVisible(false);
+                                for (int i = chatChoiceButtons.size - 1; i >= 0; i--) {
+                                        Button choiceButton = chatChoiceButtons.get(i);
+                                        Object uo = choiceButton.getUserObject();
+                                        if(uo instanceof Choice){
+                                                Choice choice = (Choice) uo;
+                                                localPlayerToken.getCommand().setChatChoice(choice);
+                                                setChatWindowVisible(null);
+                                                return true;
+                                        }
+                                }
+                                // This shoudlnt ever really happen though...
                                 return true;
                         }
                 }
@@ -1519,7 +1540,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 // chat choice button
                                 Choice choice = (Choice)event.getListenerActor().getUserObject();
                                 localPlayerToken.getCommand().setChatChoice(choice);
-                                setChatWindowVisible(false);
+                                setChatWindowVisible(null);
                         }else if (inventoryEquipmentButtons.contains(button, true) || inventoryBackPackButtons.contains(button, true)) {
                                 // inventory screen button
                                 if (uo instanceof Item) {

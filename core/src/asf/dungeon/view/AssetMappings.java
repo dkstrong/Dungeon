@@ -6,8 +6,8 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
+import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.StatusEffects;
-import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Quaternion;
 
@@ -113,12 +113,18 @@ public class AssetMappings {
                 return "Models/Loot/Scroll/parchment_"+scrollItem.getSymbol().name().toLowerCase()+".png";
         }
 
-        protected String getFountainTextureAssetLocation(Token token){
-                return "Models/Crates/Fountain/FountainBlue.png";
+        protected String getFountainTextureAssetLocation(Fountain fountain){
+                if(fountain.isConsumed()) return getEmptyFountainTextureAssetLocation(fountain);
+                // TODO: need to create all the various fountain colors, then get rid of this extra if statement
+                if(fountain.getFountainColor().name().equals("Red")){
+                        return "Models/Crates/Fountain/Fountain-"+fountain.getFountainColor().name()+".png";
+                }else{
+                        return "Models/Crates/Fountain/Fountain-Blue.png";
+                }
         }
 
-        protected String getEmptyFountainTextureAssetLocation(Token token){
-                return "Models/Crates/Fountain/FountainEmpty.png";
+        protected String getEmptyFountainTextureAssetLocation(Fountain fountain){
+                return "Models/Crates/Fountain/Fountain-Empty.png";
         }
 
         protected String getBookTextureAssetLocation(BookItem bookItem){

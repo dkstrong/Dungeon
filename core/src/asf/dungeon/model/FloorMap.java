@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.SnapshotArray;
 public class FloorMap  {
         public final int index;
         public final Tile[][] tiles;
-        private final Pathfinder pathfinder;
+        public final Pathfinder pathfinder;
         private final MonsterSpawner monsterSpawner;
         protected SnapshotArray <Token> tokens = new SnapshotArray<Token>(true, 16, Token.class);
 
@@ -26,8 +26,6 @@ public class FloorMap  {
                 this.index = index;
                 this.tiles = tiles;
                 pathfinder = new Pathfinder(this);
-                pathfinder.pathingPolicy = Pathfinder.PathingPolicy.Manhattan;
-                pathfinder.avoidZigZagging = false;
                 this.monsterSpawner = monsterSpawner;
         }
 
@@ -40,11 +38,6 @@ public class FloorMap  {
                         tokensSnapshot[i].incremenetU(delta);
                 }
                 tokens.end();
-        }
-
-
-        public boolean computePath(Pair start, Pair goal, Array<Pair> store) {
-                return pathfinder.generate(start, goal, store);
         }
 
         /**

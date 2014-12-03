@@ -81,11 +81,11 @@ public interface Inventory extends TokenComponent {
                         return null;
                 }
 
-                public PotionItem getPotionItem(PotionItem.Type potionType){
+                public PotionItem getPotionItem(PotionItem.Type potionType) {
                         for (Item item : items) {
-                                if(item instanceof PotionItem){
+                                if (item instanceof PotionItem) {
                                         PotionItem potion = (PotionItem) item;
-                                        if(potion.getType() == potionType){
+                                        if (potion.getType() == potionType) {
                                                 return potion;
                                         }
                                 }
@@ -111,7 +111,7 @@ public interface Inventory extends TokenComponent {
                 }
 
                 public boolean isQuickSlotsFull() {
-                        if(quickSlots == null) return true;
+                        if (quickSlots == null) return true;
                         for (QuickItem quickSlot : quickSlots) {
                                 if (quickSlot == null) return false;
                         }
@@ -205,8 +205,11 @@ public interface Inventory extends TokenComponent {
                 }
 
                 public boolean unequip(Item item) {
-                        // TODO: check to ensure that unequipping something wouldnt go over the inventory limit
-                        if (item == null || !canChangeEquipment() || isFull())
+                        return unequip(item, false);
+                }
+
+                private boolean unequip(Item item, boolean forDiscard) {
+                        if (item == null || !canChangeEquipment() || (isFull() && !forDiscard))
                                 return false;
                         if (weaponSlot == item) {
                                 if (weaponSlot.isCursed()) return false;
@@ -227,10 +230,9 @@ public interface Inventory extends TokenComponent {
                                 }
                                 ;
                         }
-                        if (token.listener != null)
+                        if (!forDiscard && token.listener != null)
                                 token.listener.onInventoryChanged();
                         return true;
-
                 }
 
 
@@ -306,14 +308,30 @@ public interface Inventory extends TokenComponent {
                                 return false;
                         }
                         if (isEquipped(item)) {
-                                boolean valid = unequip(item); // TODO: if discarding an equipped item this will cause two calls in a row to onInventoryChanged(), the messy code to fix this would be messy so im just going to leave as is for now
+                                boolean valid = unequip(item, true);
                                 if (!valid) return false;
                         }
 
                         boolean valid = items.removeValue(item, true);
-                        if (valid && token.listener != null) token.listener.onInventoryChanged();
+                        if (token.listener != null)
+                                token.listener.onInventoryChanged();
 
                         return valid;
+                }
+
+                public <S extends StackableItem> S discardOrUnstack(S item, int charges) {
+                        if (charges == 0) throw new IllegalArgumentException("can not unstack 0 charges");
+                        if (charges > item.getCharges()) throw new IllegalArgumentException("can not unstack more charges than exists");
+                        if (charges == item.getCharges()) {
+                                boolean valid = discard(item);
+                                if (valid) return item;
+                                else return null;
+                        } else {
+                                StackableItem newItem = item.unStack(charges);
+                                if (token.listener != null) token.listener.onInventoryChanged();
+                                return (S) newItem;
+                        }
+
                 }
 
                 @Override

@@ -29,6 +29,13 @@ public class Journal implements TokenComponent{
         }
 
         // potions, scrolls, books
+        public void learn(Fountain fountain){
+                if(!knows(fountain.getFountainType())){
+                        potions.add(fountain.getFountainType());
+                        if(token.listener != null)
+                                token.listener.onLearned(fountain, false);
+                }
+        }
         public void learn(PotionItem item){
                 if(!knows(item.getType())){
                         potions.add(item.getType());

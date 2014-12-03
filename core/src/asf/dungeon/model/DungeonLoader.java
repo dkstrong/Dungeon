@@ -124,6 +124,11 @@ public class DungeonLoader {
                         token.getInventory().add(potion);
                         token.getInventory().equip(potion);
 
+                        PotionItem health  = new PotionItem(dungeon, PotionItem.Type.Health,1 );
+                        health.identifyItem(token);
+                        token.getInventory().add(health);
+                        token.getInventory().equip(health);
+
                         BookItem book = new BookItem(dungeon, BookItem.Type.MagicMapping);
                         token.getInventory().add(book);
                         book.identifyItem(token);

@@ -100,6 +100,7 @@ public class PotionQuest extends Quest {
                 dialouges[0] =  new Dialouge(){
                         @Override
                         public boolean testCondition(Interactor interactor) {
+                                if(interactor.token.getInventory() != null && !interactor.token.getInventory().canChangeEquipment()) return false;
                                 return (interactor.getChatProgress(interactor.chattingWith) == 0 && !interactor.chattingWith.getDamage().isDead());
                         }
 
@@ -117,17 +118,8 @@ public class PotionQuest extends Quest {
                                         c0.setCommand(new Command() {
                                                 @Override
                                                 public void exec(Interactor interactor) {
-                                                        PotionItem givePotion;
-                                                        if(health.getCharges() ==1){
-                                                                interactor.token.getInventory().discard(health);
-                                                                givePotion = health;
-                                                        }else{
-                                                                // TODO: there needs to be Inventory.unStackOrDiscard(health)
-                                                                givePotion = health.unStack(1);
-                                                                if(interactor.token.getListener() != null)
-                                                                        interactor.token.getListener().onInventoryChanged();
-                                                        }
-
+                                                        PotionItem givePotion = interactor.token.getInventory().discardOrUnstack(health, 1);
+                                                        if(givePotion == null) throw new AssertionError("potion should now be null");
                                                         interactor.chattingWith.getInventory().add(givePotion);
                                                         interactor.chattingWith.getCommand().consumeItem(givePotion);
                                                         interactor.setChatProgress(interactor.chattingWith, 1);
@@ -145,17 +137,8 @@ public class PotionQuest extends Quest {
                                         c1.setCommand(new Command() {
                                                 @Override
                                                 public void exec(Interactor interactor) {
-                                                        PotionItem givePotion;
-                                                        if(poison.getCharges() ==1){
-                                                                interactor.token.getInventory().discard(poison);
-                                                                givePotion = poison;
-                                                        }else{
-                                                                givePotion = poison.unStack(1);
-                                                                if(interactor.token.getListener() != null)
-                                                                        interactor.token.getListener().onInventoryChanged();
-                                                        }
-
-
+                                                        PotionItem givePotion = interactor.token.getInventory().discardOrUnstack(poison, 1);
+                                                        if(givePotion == null) throw new AssertionError("potion should now be null");
                                                         interactor.chattingWith.getInventory().add(givePotion);
 
                                                         boolean chanceCursed = interactor.token.dungeon.rand.bool(.75f - (interactor.token.getExperience().getLuck()/100f));

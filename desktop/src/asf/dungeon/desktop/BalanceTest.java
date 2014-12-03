@@ -342,7 +342,7 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
         }
 
         @Override
-        public void onLearned(Item journalObject, boolean study) {
+        public void onLearned(Object journalObject, boolean study) {
 
         }
 

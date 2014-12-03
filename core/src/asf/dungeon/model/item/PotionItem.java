@@ -24,13 +24,11 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         }
 
         private final Dungeon dungeon;
-        private final Color color;
         private final Type type;
         private int charges;
 
         public PotionItem(Dungeon dungeon, Type type, int charges) {
                 this.dungeon = dungeon;
-                this.color = dungeon.getMasterJournal().getPotionColor(type);
                 this.type = type;
                 this.charges = charges;
         }
@@ -52,12 +50,14 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
 
         @Override
         public String getVagueName() {
+                Color color = getColor();
                 return color.name() + " Potion";
         }
 
         @Override
         public String getVagueDescription() {
-                return "A mysterious " + color.name() + " potion. The effects of drinking this are not known.";
+                Color color = getColor();
+                return "A mysterious " + color.name().toLowerCase() + " potion. The effects of drinking this are not known.";
         }
 
         @Override
@@ -78,7 +78,7 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         }
 
         public Color getColor() {
-                return color;
+                return dungeon.getMasterJournal().getPotionColor(type);
         }
 
         public void stack(StackableItem otherItem) {
@@ -102,40 +102,42 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
 
         @Override
         public void consume(Token token, Inventory.Character.UseItemOutcome out) {
-                out.didSomething = true;
+                out.didSomething = doPotionEffects(token, type);
                 charges--;
+                identifyItem(token);
+        }
+
+        public static boolean doPotionEffects(Token token, PotionItem.Type type){
                 StatusEffects statusEffects = token.get(StatusEffects.class);
                 if (statusEffects == null)
-                        return;
+                        return false;
                 switch (type) {
                         case Health:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Heal, 4, 8);
-                                break;
+                                return true;
                         case Invisibility:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Invisibility, 10, 1);
-                                break;
+                                return true;
                         case Purity:
                                 statusEffects.removeNegativeStatusEffects();
-                                break;
+                                return true;
                         case Poison:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Poison, 5, 5);
-                                break;
+                                return true;
                         case Paralyze:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Paralyze, 5, 1);
-                                break;
+                                return true;
                         case MindVision:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.MindVision, 5, 1);
-                                break;
+                                return true;
                         case Might:
-                                break;
+                                return true;
                         case Speed:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Speed, 10, 1);
-                                break;
+                                return true;
                 }
-                identifyItem(token);
-
+                throw new AssertionError(type);
         }
-
 
 
 
