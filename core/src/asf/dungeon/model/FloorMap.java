@@ -141,7 +141,23 @@ public class FloorMap  {
         }
 
         /**
-         * returns list of tokens within provided extent of the location. (not manhatten distance)
+         * returns list of tokens that are directly North, South, East, or West of this location.
+         * The returned array should not be stored as it will be reused next time this method is called
+         */
+        public Array<Token> getManhattanNeighborTokens(Pair loc){
+                tokensAt.clear();
+                for (Token token : tokens) {
+                        if(token.getLocation().x == loc.x && (token.getLocation().y == loc.y-1 || token.getLocation().y== loc.y +1)  ){
+                                tokensAt.add(token);
+                        }else if(token.getLocation().y == loc.y && (token.getLocation().x == loc.x-1 || token.getLocation().x == loc.x+1)){
+                                tokensAt.add(token);
+                        }
+                }
+                return tokensAt;
+        }
+
+        /**
+         * returns list of tokens within provided extent of the location. (not manhattan distance)
          * The returned array should not be stored as it will be reused next time this method is called
          */
         public Array<Token> getTokensInExtent(Pair loc, int extent){

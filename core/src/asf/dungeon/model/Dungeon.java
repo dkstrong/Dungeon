@@ -182,6 +182,7 @@ public class Dungeon {
                 Damage d = new Damage(token);
                 d.setMaxHealth(4);
                 d.setAttackable(false);
+                if(token.getLogic() != null) token.getLogic().setToken(token);
                 token.add(d);
                 token.add(new Move(token));
                 moveToken(token, fm, x,y,Direction.South);

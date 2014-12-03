@@ -12,6 +12,6 @@ public interface State {
 
         public void end(FSMLogic fsm, Token token, Command command);
 
-        public void update(FSMLogic fsm, Token token, Command command);
+        public void update(FSMLogic fsm, Token token, Command command, float delta);
 
 }

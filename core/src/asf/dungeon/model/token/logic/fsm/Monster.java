@@ -1,6 +1,6 @@
 package asf.dungeon.model.token.logic.fsm;
 
-import asf.dungeon.model.Tile;
+import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.token.Command;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
@@ -16,7 +16,7 @@ public enum Monster implements State {
                 }
 
                 @Override
-                public void update(FSMLogic fsm, Token token, Command command) {
+                public void update(FSMLogic fsm, Token token, Command command, float delta) {
                         Array<Token> tokensInSector;
                         if(fsm.sector != null){
                                 tokensInSector= token.getFloorMap().getTokensAt(fsm.sector);
@@ -49,7 +49,7 @@ public enum Monster implements State {
         },
         Chase {
                 @Override
-                public void update(FSMLogic fsm, Token token, Command command) {
+                public void update(FSMLogic fsm, Token token, Command command, float delta) {
                         if (command.getTargetToken() == null || command.getTargetToken().getDamage().isDead()) {
                                 fsm.setState(Sleep);
                         }
@@ -62,18 +62,21 @@ public enum Monster implements State {
                 }
 
                 @Override
-                public void update(FSMLogic fsm, Token token, Command command) {
+                public void update(FSMLogic fsm, Token token, Command command, float delta) {
 
                         // TODO: incoprorate the "if see player" sort of check from SLEEP
 
                         if (token.isLocatedAt(token.getCommand().getLocation())) {
-                                int x = token.dungeon.rand.random.nextInt(token.getFloorMap().getWidth());
-                                int y = token.dungeon.rand.random.nextInt(token.getFloorMap().getHeight());
-                                Tile tile = token.getFloorMap().getTile(x, y);
-                                if (tile != null && !tile.isBlockMovement() && !tile.isStairs()) {
-                                        token.getCommand().setLocation(x,y);
-
-                                }
+                                FloorMap floorMap = token.getFloorMap();
+                                int x,y, tries=0;
+                                do{
+                                        if(++tries > 20){
+                                                return;
+                                        }
+                                        x = token.dungeon.rand.random.nextInt(floorMap.getWidth());
+                                        y = token.dungeon.rand.random.nextInt(floorMap.getHeight());
+                                }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
+                                command.setLocation(x,y);
                         }
 
 
@@ -92,7 +95,7 @@ public enum Monster implements State {
         }
 
         @Override
-        public void update(FSMLogic fsm, Token token, Command command) {
+        public void update(FSMLogic fsm, Token token, Command command, float delta) {
 
         }
 }

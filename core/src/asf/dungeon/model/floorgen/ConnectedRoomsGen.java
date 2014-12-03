@@ -13,6 +13,7 @@ import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FSMLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
+import asf.dungeon.model.token.logic.fsm.QuestNPC;
 import asf.dungeon.model.token.quest.PotionQuest;
 import com.badlogic.gdx.utils.Array;
 
@@ -74,7 +75,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 Room roomEnd = rooms.get(rooms.size-1);
                 Token traveler = new Token(dungeon, "Traveler", ModelId.Priest);
                 Pair loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
-                dungeon.newQuestCharacterToken(traveler, null, new PotionQuest(), floorMap, loc.x, loc.y);
+                dungeon.newQuestCharacterToken(traveler, new FSMLogic(2,roomEnd, QuestNPC.PauseThenMove), new PotionQuest(), floorMap, loc.x, loc.y);
 
                 Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
                 fountainToken.add(new Fountain(fountainToken, PotionItem.Type.Health));

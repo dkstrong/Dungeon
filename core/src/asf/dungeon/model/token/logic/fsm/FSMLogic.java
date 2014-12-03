@@ -13,6 +13,7 @@ public class FSMLogic implements Logic {
         protected Token token;
         protected int team;
         protected Sector sector;
+        protected float count;
         private State initialState;
         private State currentState;
 
@@ -46,7 +47,7 @@ public class FSMLogic implements Logic {
         @Override
         public boolean update(float delta) {
                 if (currentState == null) setState(initialState);
-                currentState.update(this, token, token.getCommand());
+                currentState.update(this, token, token.getCommand(), delta);
                 return false;
         }
 }

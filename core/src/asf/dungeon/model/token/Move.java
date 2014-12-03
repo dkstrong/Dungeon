@@ -134,7 +134,7 @@ public class Move implements TokenComponent {
 
                                         if (!action) {
                                                 action = useKey(nextLocation);
-                                                if (!action)
+                                                if (!action && token.getAttack() != null)
                                                         token.getAttack().attackTargetInDirection(delta); // auto attack anything in front of me, do not do ranged attack
                                         }
 

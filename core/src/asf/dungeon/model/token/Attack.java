@@ -141,6 +141,8 @@ public class Attack implements TokenComponent{
 
                 // no need to do check for isAttacking or isHit, its impossible to be attacking or hit when this is called
 
+
+
                 Array<Token> tokensAt = token.floorMap.getTokensAt(token.location, token.direction);
                 if (tokensAt.size > 0) {
                         for (Token t : tokensAt) {
@@ -202,6 +204,9 @@ public class Attack implements TokenComponent{
                 if(target == null || target.getDamage() == null || !target.getDamage().isAttackable())
                         return false;
 
+                if(token.getLogic()!=null && target.getLogic() != null&&token.getLogic().getTeam() == target.getLogic().getTeam())
+                        return false;
+
                 int distance = token.location.distance(token.getCommand().getTargetToken().location);
                 if(distance > attackRange)
                         return false;
@@ -229,6 +234,9 @@ public class Attack implements TokenComponent{
                         return false;
 
                 if(target == null || target.getDamage() == null || !target.getDamage().isAttackable())
+                        return false;
+
+                if(token.getLogic()!=null && target.getLogic() != null&&token.getLogic().getTeam() == target.getLogic().getTeam())
                         return false;
 
                 int distance = token.location.distance(target.location);
