@@ -209,8 +209,20 @@ public interface Inventory extends TokenComponent {
                 }
 
                 private boolean unequip(Item item, boolean forDiscard) {
-                        if (item == null || !canChangeEquipment() || (isFull() && !forDiscard))
+                        if (item == null )
                                 return false;
+                        if(item instanceof QuickItem){
+                                // quick items can be unequipped during combat if it is because they were used in combat
+                                // TODO: prevent direct discard of equipped item eg. not through consumption
+                                if(!forDiscard && (!canChangeEquipment() || isFull()))
+                                        return false;
+                        }else{
+                                // non quick items cant be unequipped during combat
+                                // if unequipping isnt for discard it can discard even if full though
+                                if(!canChangeEquipment()) return false;
+                                if(!forDiscard && isFull()) return false;
+                        }
+
                         if (weaponSlot == item) {
                                 if (weaponSlot.isCursed()) return false;
                                 weaponSlot = null;
@@ -307,6 +319,7 @@ public interface Inventory extends TokenComponent {
                         if (token.getDamage().isDead()) {
                                 return false;
                         }
+
                         if (isEquipped(item)) {
                                 boolean valid = unequip(item, true);
                                 if (!valid) return false;

@@ -31,9 +31,11 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.I18NBundle;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Random;
 
 /**
@@ -49,6 +51,7 @@ public class DungeonWorld implements Disposable {
         protected final DecalBatch decalBatch;
         protected final ModelBatch modelBatch;
         protected final AssetManager assetManager;
+        private final ObjectSet<LoadedNotifyable> loadables;
         private final Array<Spatial> spatials;
         private final InternalInputAdapter internalInput;
         private boolean loading;
@@ -78,6 +81,7 @@ public class DungeonWorld implements Disposable {
                 decalBatch = new DecalBatch(1000, new CameraGroupStrategy(camControl.cam));
                 modelBatch = new ModelBatch();
                 assetManager = new AssetManager();
+                loadables = new ObjectSet<LoadedNotifyable>(24);
                 spatials = new Array<Spatial>(true, 16, Spatial.class);
                 fxManager = new FxManager(this);
                 assetMappings = new AssetMappings();
@@ -113,6 +117,11 @@ public class DungeonWorld implements Disposable {
 
         }
 
+
+        protected void notifyOnLoaded(LoadedNotifyable loadedNotifyable){
+                loadables.add(loadedNotifyable);
+                loading = true;
+        }
 
         protected <T extends Spatial> T addSpatial(T spatial) {
                 spatial.preload(this);
@@ -192,22 +201,39 @@ public class DungeonWorld implements Disposable {
         }
 
         public void render(final float delta) {
-                if (loading && assetManager.update() && !paused) {
-                        loading = false;
-                        if (!simulationStarted) {
-                                Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
-                                //Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-                                fxManager.init();
-                                simulationStarted = true;
 
-                                dungeonApp.onSimulationStarted(); // inform the dungeon app to close the loading screen
-                                Gdx.input.setInputProcessor(inputMultiplexer);
-                                setPaused(false); // call this to apply the gameplay input processors
-                        }
+                if (loading ) {
+                        Gdx.graphics.requestRendering();
+                        if(assetManager.update()){
+                                loading = false;
+                                if (!simulationStarted) {
+                                        Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
+                                        //Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                                        fxManager.init();
+                                        simulationStarted = true;
 
-                        for (final Spatial spatial : spatials) {
-                                if (!spatial.isInitialized())
-                                        spatial.init(assetManager);
+                                        dungeonApp.onSimulationStarted(); // inform the dungeon app to close the loading screen
+                                        Gdx.input.setInputProcessor(inputMultiplexer);
+                                        setPaused(false); // call this to apply the gameplay input processors
+                                }
+
+                                for (final Spatial spatial : spatials) {
+                                        if (!spatial.isInitialized())
+                                                spatial.init(assetManager);
+                                }
+
+
+                                Iterator<LoadedNotifyable> i = loadables.iterator();
+                                while(i.hasNext()){
+                                        // TODO: need to think about this more, might not be possible for loading ot finish and not have the needed asset.
+                                        // gotta think about what happens when inventory changes before loading is finished
+                                        LoadedNotifyable next = i.next();
+                                        if(next.onLoaded()){
+                                                i.remove();
+                                        }else{
+                                                loading = true;
+                                        }
+                                }
                         }
                 }
 
@@ -367,6 +393,14 @@ public class DungeonWorld implements Disposable {
                 } catch (IOException e) {
                         e.printStackTrace();
                 }
+        }
+
+        public interface LoadedNotifyable {
+                /**
+                 *
+                 * @return true if the asset that was needed was obtained, false otherwise
+                 */
+                public boolean onLoaded();
         }
 
         public static class Settings {

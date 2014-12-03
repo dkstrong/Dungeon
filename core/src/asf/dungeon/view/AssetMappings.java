@@ -4,6 +4,7 @@ import asf.dungeon.model.Direction;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.item.BookItem;
+import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.token.Fountain;
@@ -99,6 +100,10 @@ public class AssetMappings {
 
         protected String getAssetLocation(ModelId modelId) {
                 return assetLocations[modelId.ordinal()];
+        }
+
+        public String getInventoryItemTextureAssetLocation(Item item){
+                return "Interface/Loot/Potion/Potion-Amber-Transparent.png";
         }
 
         protected String getPotionTextureAssetLocation(PotionItem potionItem) {
