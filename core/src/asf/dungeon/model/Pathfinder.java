@@ -227,7 +227,7 @@ public class Pathfinder {
                         // if the node is the goal node, dont add extra movement code because its the goal
                         Array<Token> tokensAt = floorMap.getTokensAt(n1);
                         for (Token t : tokensAt) {
-                                if(t.getDamage() != null && t.getDamage().isDead())
+                                if(t.getDamage() != null && t.getDamage().isAttackable())
                                         continue;
                                 if(t.get(Quest.class) != null) // avoiding walking into quest tokens unless they are they target
                                         movementCost += 30;

@@ -5,7 +5,7 @@ import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.TokenComponent;
-import asf.dungeon.utility.UtDungeon;
+import asf.dungeon.utility.UtDebugObject;
 import com.badlogic.gdx.utils.Array;
 
 import javax.swing.JButton;
@@ -54,6 +54,7 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
                         @Override
                         public void run() {
                                 frame.setVisible(true);
+                                rfBuildTree = true;
                         }
                 });
 
@@ -114,7 +115,7 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
 
                 scrollPane.setViewportView(tree);
 
-                JButton refreshButton = new JButton("Refresh");
+                JButton refreshButton = new JButton("Refresh Tree");
                 refreshButton.setFont(fontInterface);
                 refreshButton.addActionListener(new java.awt.event.ActionListener() {
                         public void actionPerformed(ActionEvent e) {
@@ -122,7 +123,7 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
                         }
 
                 });
-                JButton refreshTextButton = new JButton("Refresh Text");
+                JButton refreshTextButton = new JButton("<>");
                 refreshTextButton.setFont(fontInterface);
                 autoRefreshText = new JCheckBox();
                 autoRefreshText.setFont(fontInterface);
@@ -168,12 +169,20 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
                 JScrollPane scrollPane = (JScrollPane) westPanel.getComponent(0);
                 JTree tree = (JTree) scrollPane.getViewport().getView();
 
+                autoSelectNode = null;
                 DungeonTreeModel dungeonTreeModel = new DungeonTreeModel(build(dungeon));
 
                 tree.setModel(dungeonTreeModel);
                 expandAll(tree, true, dungeon.getCurrentFloopMap());
 
-                tree.setSelectionRow(0);
+
+
+                if(autoSelectNode == null){
+                        tree.setSelectionRow(0);
+                }else{
+                        TreePath tp = new TreePath(dungeonTreeModel.getPathToRoot(autoSelectNode));
+                        tree.getSelectionModel().setSelectionPath(tp);
+                }
         }
 
         private static void expandAll(JTree tree, boolean expand, FloorMap expandFm) {
@@ -207,9 +216,14 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
                 }
         }
 
+        private DungeonTreeNode autoSelectNode;
+        private final Array<Token> store = new Array<Token>(true, 32, Token.class);
 
-        private static DungeonTreeNode build(Object o) {
+        private  DungeonTreeNode build(Object o) {
                 DungeonTreeNode treeNode = new DungeonTreeNode(o);
+                if(o==selectedTreeObject){
+                        autoSelectNode = treeNode;
+                }
                 if (o instanceof Dungeon) {
                         Dungeon dungeon = (Dungeon) o;
                         for(int i=0; i < dungeon.numFloormaps(); i++){
@@ -218,8 +232,8 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
                         }
                 } else if (o instanceof FloorMap) {
                         FloorMap floorMap = (FloorMap) o;
-                        Array<Token> tokensOnFloor = floorMap.getTokensOnFloor();
-                        for (Token token : tokensOnFloor) {
+                        floorMap.getTokensOnFloor(store);
+                        for (Token token : store) {
                                 treeNode.add(build(token));
 
                         }
@@ -227,6 +241,29 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
 
                 return treeNode;
 
+        }
+
+
+        private void setTabs(List<List<String>> tabContents){
+                if (frame == null) {
+                        return;
+                }
+                List<String> tabNames = new LinkedList<String>();
+                for (List<String> tabContent : tabContents) {
+                        String tabName = tabContent.get(0);
+                        tabNames.add(tabName);
+                        setTab(tabName, tabContent);
+                }
+
+
+                JTabbedPane tabPane = (JTabbedPane) frame.getContentPane().getComponent(1);
+                for (int i = 0; i < tabPane.getTabCount(); i++) {
+                        String titleAt = tabPane.getTitleAt(i);
+                        if(!tabNames.contains(titleAt)){
+                                tabPane.removeTabAt(i);
+                                i = -1;
+                        }
+                }
         }
 
         private void removeTab(String tabName) {
@@ -315,42 +352,38 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
 
         }
 
+        List<List<String>> tabs = new LinkedList<List<String>>();
+
         private void refresh(Dungeon dungeon){
-                if(rfBuildTree){
+                if(rfBuildTree || true) {
                         rebuildTreeModel(dungeon);
                         rfBuildTree = false;
                 }
                 if (selectedTreeObject == null) {
                         return;
                 }
-                removeTab("Dungeon Debug Session");
+
+                tabs.clear();
                 if (selectedTreeObject instanceof Dungeon) {
                         Dungeon d = (Dungeon) selectedTreeObject;
-                        setTab("Dungeon", UtDungeon.dungeon(d));
-                        setTab("Master Journal", UtDungeon.masterJournal(d));
-                        removeTab("Dungeon Debug Session");
-                        removeTab("Floor Map");
+                        tabs.add(UtDebugObject.object(d));
+                        tabs.add(UtDebugObject.object(d.getMasterJournal()));
                 }else if(selectedTreeObject instanceof FloorMap){
                         FloorMap fm = (FloorMap) selectedTreeObject;
-                        setTab("Floor Map", UtDungeon.floorMap(fm));
-                        removeTab("Dungeon Debug Session");
-                        removeTab("Dungeon");
-                        removeTab("Master Journal");
+                        tabs.add(UtDebugObject.object(fm));
                 }else if (selectedTreeObject instanceof Token) {
                         Token token = (Token) selectedTreeObject;
-                        setTab("Token", UtDungeon.token(token));
+
+                        tabs.add(UtDebugObject.object(token));
                         Array<TokenComponent> components = token.getComponents();
                         for (int i = 0; i < components.size; i++) {
                                 TokenComponent component = components.get(i);
-                                setTab(component.getClass().getSimpleName(), UtDungeon.object(component));
+                                tabs.add(UtDebugObject.object(component));
                         }
-                        removeTab("Dungeon Debug Session");
-                        removeTab("Dungeon");
-                        removeTab("Master Journal");
-                        removeTab("Floor Map");
                 }else{
-                        setTab("Dungeon Debug Session", new LinkedList<String>());
+                        tabs.add(new LinkedList<String>());
                 }
+                setTabs(tabs);
         }
 
         private static class DungeonTreeModel extends DefaultTreeModel {

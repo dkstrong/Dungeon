@@ -58,7 +58,7 @@ public class DungeonWorld implements Disposable {
         private boolean simulationStarted = false;
         private boolean paused = false;
         private final InputMultiplexer inputMultiplexer;
-        private DungeonApp.DebugSession debugSession;
+        private static DungeonApp.DebugSession debugSession;
         // game stuff
         protected Dungeon dungeon;
 
@@ -208,6 +208,9 @@ public class DungeonWorld implements Disposable {
                         if(assetManager.update()){
                                 loading = false;
                                 if (!simulationStarted) {
+                                        if(settings.startDebugSession){
+                                                debugSession = dungeonApp.getPlatformActionResolver().getDebugSession();
+                                        }
                                         Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
                                         //Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
                                         fxManager.init();
@@ -417,6 +420,7 @@ public class DungeonWorld implements Disposable {
                 public Random random;
                 public Dungeon loadedDungeon;
                 public ModelId playerModel;
+                public boolean startDebugSession;
 
                 private String getSaveFileName() {
                         return playerModel.name();

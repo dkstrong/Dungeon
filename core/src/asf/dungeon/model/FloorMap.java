@@ -234,12 +234,12 @@ public class FloorMap  {
          * the array that is returned shoudlnt be stored as ti wil be reused next time this method is called
          * @return
          */
-        public Array<Token> getTokensOnFloor(){
-                tokensAt.clear();
-                for (Token token : tokens) {
-                        tokensAt.add(token);
+        public Array<Token> getTokensOnFloor(Array<Token> store){
+                store.clear();
+                for (int i = 0; i < tokens.size; i++) {
+                        store.add(tokens.get(i));
                 }
-                return tokensAt;
+                return store;
         }
 
         /**

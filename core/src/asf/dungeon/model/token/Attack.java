@@ -213,6 +213,9 @@ public class Attack implements TokenComponent{
                 if(distance > attackRange)
                         return false;
 
+                if(token.getMove() != null && token.getMove().moveU < .7f) return false;
+
+
                 // NOTE: i used to have a check here to make sure this token is facing towards target token
                 // i removed it since turning is instant anyway
 
@@ -222,7 +225,7 @@ public class Attack implements TokenComponent{
                                 return false;
                 }else{
                         // no fogmapping, so we need to do a ray cast here
-                        if(!LOS.hasLineOfSight(token.getFloorMap(), token.location.x, token.location.y, target.location.x, target.location.y))
+                        if(distance != 1 && !LOS.hasLineOfSight(token.getFloorMap(), token.location.x, token.location.y, target.location.x, target.location.y))
                                 return false;
                 }
 
