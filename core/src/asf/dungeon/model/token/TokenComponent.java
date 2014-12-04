@@ -25,4 +25,5 @@ public interface TokenComponent {
          * @return
          */
         public boolean update(float delta);
+
 }

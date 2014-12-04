@@ -66,6 +66,14 @@ public class Token {
                 this.id = id;
         }
 
+        /**
+         * DO NOT MODIFY
+         * @return
+         */
+        public Array<TokenComponent> getComponents() {
+                return components;
+        }
+
         public <T extends TokenComponent> T get(Class<T> componentClass) {
                 for (TokenComponent component : components) {
                         if (componentClass.isAssignableFrom(component.getClass())) {
@@ -130,7 +138,7 @@ public class Token {
                 return true;
         }
 
-        public void incremenetU(float delta) {
+        public void updateComponents(float delta) {
                 for (int i = 0; i < components.size; i++) {
                         if (components.items[i].update(delta)) {
                                 return; // this component consumed the rest of the update
@@ -294,11 +302,6 @@ public class Token {
 
         @Override
         public String toString() {
-                return "Token{" +
-                        "id=" + id +
-                        ", name='" + name + '\'' +
-                        ", location=" + location + "(floor " + floorMap.index + ")" +
-                        ", direction=" + direction +
-                        '}';
+                return getName();
         }
 }

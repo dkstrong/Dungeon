@@ -53,6 +53,10 @@ public class Dungeon {
                 currentFloorMap.update(this, delta);
         }
 
+        public int numFloormaps(){
+                return floorMaps.size();
+        }
+
         public FloorMap generateFloor(int floorIndex) {
 
                 FloorMap floorMap = floorMaps.get(floorIndex);

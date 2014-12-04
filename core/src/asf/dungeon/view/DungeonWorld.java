@@ -58,6 +58,7 @@ public class DungeonWorld implements Disposable {
         private boolean simulationStarted = false;
         private boolean paused = false;
         private final InputMultiplexer inputMultiplexer;
+        private DungeonApp.DebugSession debugSession;
         // game stuff
         protected Dungeon dungeon;
 
@@ -274,6 +275,7 @@ public class DungeonWorld implements Disposable {
 
                 }
 
+                if(debugSession != null) debugSession.updateDebugInfo(dungeon);
 
         }
 
@@ -320,6 +322,8 @@ public class DungeonWorld implements Disposable {
                 Gdx.input.setInputProcessor(null);
         }
 
+
+
         private class InternalInputAdapter extends InputAdapter implements Dungeon.Listener {
 
                 // The internal input adapter only processes input during the loading phase
@@ -339,6 +343,9 @@ public class DungeonWorld implements Disposable {
                 public boolean keyUp(int keycode) {
                         if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACK) {
                                 dungeonApp.setAppPaused(true);
+                                return true;
+                        }else if(keycode == Input.Keys.F12){
+                                debugSession = dungeonApp.getPlatformActionResolver().getDebugSession();
                                 return true;
                         }
                         return false;

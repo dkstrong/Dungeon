@@ -1,8 +1,8 @@
 package asf.dungeon.desktop;
 
+import asf.dungeon.DungeonApp;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import asf.dungeon.DungeonApp;
 
 public class DesktopLauncher implements DungeonApp.Resolver{
 	public static void main (String[] arg) {
@@ -48,6 +48,18 @@ public class DesktopLauncher implements DungeonApp.Resolver{
 
         @Override
         public void showInterstitialAd() {
+
+        }
+
+        private DesktopDebugSession debugSession;
+
+        @Override
+        public DungeonApp.DebugSession getDebugSession() {
+                if(debugSession == null)
+                        debugSession = new DesktopDebugSession();
+                else
+                        debugSession.showWindow();
+                return debugSession;
 
         }
 }

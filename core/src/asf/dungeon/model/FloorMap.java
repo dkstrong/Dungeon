@@ -35,7 +35,7 @@ public class FloorMap  {
 
                 Token[] tokensSnapshot = tokens.begin();
                 for (int i = 0, n = tokens.size; i < n; i++) {
-                        tokensSnapshot[i].incremenetU(delta);
+                        tokensSnapshot[i].updateComponents(delta);
                 }
                 tokens.end();
         }
@@ -226,6 +226,18 @@ public class FloorMap  {
                         if (token.isLocatedAt(loc)) {
                                 tokensAt.add(token);
                         }
+                }
+                return tokensAt;
+        }
+
+        /**
+         * the array that is returned shoudlnt be stored as ti wil be reused next time this method is called
+         * @return
+         */
+        public Array<Token> getTokensOnFloor(){
+                tokensAt.clear();
+                for (Token token : tokens) {
+                        tokensAt.add(token);
                 }
                 return tokensAt;
         }

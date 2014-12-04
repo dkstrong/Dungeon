@@ -1,5 +1,6 @@
 package asf.dungeon;
 
+import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.Application;
@@ -214,5 +215,11 @@ public class DungeonApp implements ApplicationListener {
                 public void loadInterstitialAd();
 
                 public void showInterstitialAd();
+
+                public DebugSession getDebugSession();
+        }
+
+        public interface DebugSession{
+                public void updateDebugInfo(Dungeon dungeon);
         }
 }

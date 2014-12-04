@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Array;
 /**
  * Created by Danny on 11/11/2014.
  */
-public class Move implements TokenComponent {
+public class Move implements TokenComponent{
         private final Token token;
         private float moveSpeed = 1.5f; // how fast the character moves between tiles, generally a value between 1 and 10, could be higher i suppose.
         private float moveSpeedDiagonal = 1.06066017177f;
@@ -23,6 +23,7 @@ public class Move implements TokenComponent {
         private final Pair continuousMoveTokenLastLoc = new Pair();
         private float continuousMoveTokenLostVisionCountdown = 0;
         protected float moveU = 1;                                // 1 = fully on the location, less then 1 means moving on to the location still even though it occupies it, use direction variable to determine which way token is walking towards the location
+
 
         public Move(Token token) {
                 this.token = token;

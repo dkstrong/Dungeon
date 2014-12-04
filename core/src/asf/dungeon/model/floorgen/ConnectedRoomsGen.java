@@ -126,7 +126,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                                 weapon.setRanged(true);
                                 weapon.setProjectileFx(FxId.Arrow);
                                 token.getInventory().add(weapon);
-                                token.getInventory().equals(weapon);
+                                token.getInventory().equip(weapon);
                         }
 
                 }

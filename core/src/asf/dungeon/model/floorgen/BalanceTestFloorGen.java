@@ -2,7 +2,9 @@ package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
+import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.FullAgroLogic;
@@ -14,20 +16,16 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
 
         public FloorMap generate(Dungeon dungeon, int floorIndex){
                 String[] tileData = new String[]{
-                        "-------------------",
-                        "|.................|",
-                        "|.^...............|",
-                        "|.................|",
-                        "|.................|",
-                        "|.................|",
-                        "|.................|",
-                        "|.................|",
-                        "|.................|",
-                        "|.................|",
-                        "|.................|",
-                        "|.................|",
-                        "|.................|",
-                        "|-----------------|"
+                        "---------------",
+                        "|.............|",
+                        "|.^...........|",
+                        "|.............|",
+                        "|.............|",
+                        "|.............|",
+                        "|.............|",
+                        "|.............|",
+                        "|.............|",
+                        "|-------------|"
 
                 };
 
@@ -48,8 +46,11 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
+                        ModelId modelId = ModelId.Archer;
+
                         Token token = dungeon.newCharacterToken(floorMap, "Monster",
-                                ModelId.Berzerker,
+                                modelId,
+                                //new FSMLogic(1, null, Monster.Sleep),
                                 new FullAgroLogic(1),
                                 new Experience(
                                         1,  // level
@@ -63,6 +64,14 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
                         //EquipmentItem sword = EquipmentItem.makeWeapon("Sword", 1);
                         //token.getInventory().add(sword);
                         //token.getInventory().equip(sword);
+
+                        if(modelId == ModelId.Archer){
+                                WeaponItem weapon = new WeaponItem(ModelId.Sword,"Bow", 1);
+                                weapon.setRanged(true);
+                                weapon.setProjectileFx(FxId.Arrow);
+                                token.getInventory().add(weapon);
+                                token.getInventory().equip(weapon);
+                        }
 
                 }
         }

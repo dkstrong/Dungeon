@@ -34,4 +34,9 @@ public class HtmlLauncher extends GwtApplication implements DungeonApp.Resolver 
         public void showInterstitialAd() {
 
         }
+
+        @Override
+        public void getDebugSession() {
+
+        }
 }

@@ -179,14 +179,16 @@ public class Attack implements TokenComponent{
                 if(rangedAttack){
                         if(inAttackRangeOfCommandTarget){ // target is still in range, were going to hit him
                                 projectileAttackCoord.set(meleeAttackTarget.getLocation());
+                                attackProjectileMaxU = token.getLocation().distance(projectileAttackCoord) / projectileSpeed;
                                 projectileAttackTarget = meleeAttackTarget;
                                 meleeAttackTarget.getDamage().setHitDuration(attackProjectileMaxU, token);
                         }else{ // target got out of range, were going to gurantee miss
                                 token.getFloorMap().getNextClosestLegalLocation(token.getLocation(), meleeAttackTarget.getLocation(), projectileAttackCoord);
+                                attackProjectileMaxU = token.getLocation().distance(projectileAttackCoord) / projectileSpeed;
                                 projectileAttackTarget = null;
                         }
                         attackProjectileU = 0;
-                        attackProjectileMaxU = token.getLocation().distance(projectileAttackCoord) / projectileSpeed;
+
                         if(token.listener != null)
                                 token.listener.onAttack(projectileAttackTarget,projectileAttackCoord, true);
                 }else{
