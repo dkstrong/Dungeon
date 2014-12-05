@@ -15,6 +15,10 @@ import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FSMLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
 
+import java.util.List;
+
+import static asf.dungeon.utility.UtDebugPrint.out;
+
 
 /**
  * Created by Danny on 11/4/2014.
@@ -33,10 +37,22 @@ public class UtFloorGen {
                         }
                         System.out.println();
                 }
+        }
 
-
-
-
+        public static List<String> outFloorTiles(Tile[][] tiles){
+                List<String> out = out();
+                for (int y = tiles[0].length - 1; y >= 0; y--) {
+                        String s = "";
+                        for (int x = 0; x < tiles.length; x++) {
+                                Tile tile = tiles[x][y];
+                                if(tile == null)
+                                        s+=" ";
+                                else
+                                        s+=String.valueOf(tile);
+                        }
+                        out.add(s);
+                }
+                return out;
         }
 
         protected static void spawnCharacters(Dungeon dungeon, FloorMap floorMap){

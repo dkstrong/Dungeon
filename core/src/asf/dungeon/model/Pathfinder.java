@@ -243,7 +243,6 @@ public class Pathfinder {
         }
 
 
-
         private int calcMomentumFactor(Pair n){
                 // TODO: i could also look at how long the mover has been traveling
                 // in this direction to build up momemntum and add that to the heuristic score

@@ -1,17 +1,21 @@
 package asf.dungeon.model;
 
+import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.utility.UtDebugPrint;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.SnapshotArray;
+
+import java.util.List;
 
 /**
  * A single floor of the dungeon. contains information about the tiles that make up the floor
  * and the tokens on this floor.
  */
-public class FloorMap  {
+public class FloorMap  implements UtDebugPrint.Debuggable{
         public final int index;
         public final Tile[][] tiles;
         public final Pathfinder pathfinder;
@@ -362,7 +366,18 @@ public class FloorMap  {
                 return null;
         }
 
+        public String toString(){
+                return "FloorMap: "+index;
+        }
 
+        @Override
+        public List<String> toDebugInfo() {
+                List<String> out= UtDebugPrint.object(this);
+                List<String> out2 = UtFloorGen.outFloorTiles(tiles);
+                out.add("");
+                out.addAll(out2);
+                return out;
+        }
 
 
         public interface MonsterSpawner{

@@ -213,7 +213,7 @@ public class Attack implements TokenComponent{
                 if(distance > attackRange)
                         return false;
 
-                if(token.getMove() != null && token.getMove().moveU < .7f) return false;
+                if(token.getMove() != null && token.getMove().moveU < .65f) return false;
 
 
                 // NOTE: i used to have a check here to make sure this token is facing towards target token

@@ -9,10 +9,16 @@ import java.util.List;
 /**
  * Created by Danny on 12/3/2014.
  */
-public class UtDebugObject {
+public class UtDebugPrint {
 
         public interface Debuggable{
                 public List<String> toDebugInfo();
+        }
+
+        public static void print(List<String> out){
+                for (String s : out) {
+                        System.out.println(s);
+                }
         }
 
         public static void format(List<String> out, String s, Object... vals) {
@@ -34,12 +40,15 @@ public class UtDebugObject {
                 return new LinkedList<String>();
         }
 
-        public static List<String> object(Object o) {
+        public static List<String> getDebugInfo(Object o) {
                 if(o instanceof Debuggable){
                         Debuggable dbg = (Debuggable) o;
                         return dbg.toDebugInfo();
                 }
+                return object(o);
+        }
 
+        public static List<String> object(Object o){
                 List<String> out = out();
 
                 format(out, o.getClass().getSimpleName());
@@ -53,10 +62,6 @@ public class UtDebugObject {
                 }catch (IllegalAccessException e) {
                         format(out, e.getMessage());
                 }
-
-
-
-
 
                 return out;
         }

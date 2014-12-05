@@ -31,7 +31,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
         private int maxFloorWidth = 50;
         private int minFloorHeight = 30;
         private int maxFloorHeight = 50;
-        private int maxRooms = 4;
+        private int maxRooms = 2;
         private boolean makeDoors = true;
         //private int floorIndex;
 

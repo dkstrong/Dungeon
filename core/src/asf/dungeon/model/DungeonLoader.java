@@ -90,7 +90,7 @@ public class DungeonLoader {
                         playerLogic = new FullAgroLogic(0);
                 }else{
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new BalanceTestFloorGen(), new DirectionalCaveHallGen(), new ConnectedRoomsGen(), new BinarySpaceGen(),
+                                new ConnectedRoomsGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)

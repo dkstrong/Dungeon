@@ -5,7 +5,7 @@ import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.TokenComponent;
-import asf.dungeon.utility.UtDebugObject;
+import asf.dungeon.utility.UtDebugPrint;
 import com.badlogic.gdx.utils.Array;
 
 import javax.swing.JButton;
@@ -170,6 +170,7 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
                 JTree tree = (JTree) scrollPane.getViewport().getView();
 
                 autoSelectNode = null;
+                currentFloorNode = null;
                 DungeonTreeModel dungeonTreeModel = new DungeonTreeModel(build(dungeon));
 
                 tree.setModel(dungeonTreeModel);
@@ -177,6 +178,7 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
 
 
 
+                if(autoSelectNode == null) autoSelectNode = currentFloorNode;
                 if(autoSelectNode == null){
                         tree.setSelectionRow(0);
                 }else{
@@ -217,6 +219,7 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
         }
 
         private DungeonTreeNode autoSelectNode;
+        private DungeonTreeNode currentFloorNode;
         private final Array<Token> store = new Array<Token>(true, 32, Token.class);
 
         private  DungeonTreeNode build(Object o) {
@@ -232,6 +235,9 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
                         }
                 } else if (o instanceof FloorMap) {
                         FloorMap floorMap = (FloorMap) o;
+                        if(currentFloorNode == null){
+                                currentFloorNode = treeNode;
+                        }
                         floorMap.getTokensOnFloor(store);
                         for (Token token : store) {
                                 treeNode.add(build(token));
@@ -355,6 +361,9 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
         List<List<String>> tabs = new LinkedList<List<String>>();
 
         private void refresh(Dungeon dungeon){
+                // TODO: accessing dungeon and building its output info needs to happen on the
+                // game thread instead of the swing thread. As it is now dungeon is being accessed
+                // concurrently but it is not thread safe.
                 if(rfBuildTree || true) {
                         rebuildTreeModel(dungeon);
                         rfBuildTree = false;
@@ -366,19 +375,21 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
                 tabs.clear();
                 if (selectedTreeObject instanceof Dungeon) {
                         Dungeon d = (Dungeon) selectedTreeObject;
-                        tabs.add(UtDebugObject.object(d));
-                        tabs.add(UtDebugObject.object(d.getMasterJournal()));
+                        tabs.add(UtDebugPrint.getDebugInfo(d));
+                        tabs.add(UtDebugPrint.getDebugInfo(d.getMasterJournal()));
                 }else if(selectedTreeObject instanceof FloorMap){
                         FloorMap fm = (FloorMap) selectedTreeObject;
-                        tabs.add(UtDebugObject.object(fm));
+
+                        tabs.add(UtDebugPrint.getDebugInfo(fm));
+
                 }else if (selectedTreeObject instanceof Token) {
                         Token token = (Token) selectedTreeObject;
 
-                        tabs.add(UtDebugObject.object(token));
+                        tabs.add(UtDebugPrint.getDebugInfo(token));
                         Array<TokenComponent> components = token.getComponents();
                         for (int i = 0; i < components.size; i++) {
                                 TokenComponent component = components.get(i);
-                                tabs.add(UtDebugObject.object(component));
+                                tabs.add(UtDebugPrint.getDebugInfo(component));
                         }
                 }else{
                         tabs.add(new LinkedList<String>());

@@ -46,7 +46,7 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
-                        ModelId modelId = ModelId.Archer;
+                        ModelId modelId = ModelId.Knight;
 
                         Token token = dungeon.newCharacterToken(floorMap, "Monster",
                                 modelId,
