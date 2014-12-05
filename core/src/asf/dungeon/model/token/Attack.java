@@ -106,7 +106,7 @@ public class Attack implements TokenComponent{
 
         private boolean attackCommandTarget(float delta){
 
-                if (attackCoolDown > 0) {
+                if (isOnAttackCooldown()) {
                         return false; // attack is on cooldown
                 }
 
@@ -135,7 +135,7 @@ public class Attack implements TokenComponent{
                 if(isHoldingRangedWeapon)
                         return false;
 
-                if (attackCoolDown > 0) {
+                if (isOnAttackCooldown()) {
                         return false; // attack is on cooldown
                 }
 
@@ -394,6 +394,10 @@ public class Attack implements TokenComponent{
 
         public float getAttackCoolDown() {
                 return attackCoolDown;
+        }
+
+        public boolean isOnAttackCooldown(){
+                return attackCoolDown > 0;
         }
 
         public boolean isInRangeOfAttackTarget(){

@@ -50,10 +50,38 @@ public enum Monster implements State {
         },
         Chase {
                 @Override
+                public void begin(FSMLogic fsm, Token token, Command command) {
+                        fsm.target = token.getCommand().getTargetToken();
+                }
+
+                @Override
                 public void update(FSMLogic fsm, Token token, Command command, float delta) {
-                        if (command.getTargetToken() == null || command.getTargetToken().getDamage().isDead()) {
+                        if (fsm.target.getDamage().isDead()) {
                                 fsm.setState(Sleep);
+                                return;
                         }
+
+                        // if you have a ranged weapon, then the monster should try to stay at maximum range
+                        // while on attack cooldown.
+                        if(token.getAttack().isOnAttackCooldown() && token.getInventory().getWeaponSlot() != null && token.getInventory().getWeaponSlot().isRanged()){
+
+                                //token.getAttack().getAttackRange()
+                                int distance = fsm.target.getLocation().distance(token.getLocation());
+
+                                if(distance == token.getAttack().getAttackRange()){
+                                        // sit still, good location
+                                        command.setLocation(token.getLocation());
+                                }else{
+                                        // TODO: move to the closest location whose distance == attack range
+
+                                }
+
+                        }else{
+                                command.setTargetToken(fsm.target);
+                        }
+
+
+
                 }
         },
         Explore{

@@ -16,6 +16,8 @@ public class FSMLogic implements Logic {
         protected int team;
         protected Sector sector;
         protected float count;
+        protected Token target;
+
         private State initialState;
         private State currentState;
 
