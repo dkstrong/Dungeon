@@ -84,11 +84,13 @@ public class Token {
         }
 
         public void remove(TokenComponent component){
+                if(component == null) return;
                 // TODO: if removing a "common" component then need to null it
                 // though common componnets typicallly wouldnt be removed
                 components.removeValue(component, true);
         }
         public void add(TokenComponent component) {
+                if(component == null) return;
                 components.add(component);
                 if (component instanceof Logic) {
                         this.logic = (Logic) component;

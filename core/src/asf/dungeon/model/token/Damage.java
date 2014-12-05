@@ -63,6 +63,16 @@ public class Damage implements TokenComponent{
          *
          * @param value
          */
+        public void setHealth(int value){
+                addHealth(value-health);
+        }
+
+        /**
+         * adds or subtracts health, will kill or revive token
+         * if health reaches or recovers from zero
+         *
+         * @param value
+         */
         public void addHealth(int value) {
                 if (value > 0) {
                         boolean wasDead = isDead();

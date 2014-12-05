@@ -314,4 +314,12 @@ public class Move implements TokenComponent{
                 this.moveSpeedDiagonal = this.moveSpeed * 0.70710678118f;
 
         }
+
+        public boolean isPicksUpItems() {
+                return picksUpItems;
+        }
+
+        public void setPicksUpItems(boolean picksUpItems) {
+                this.picksUpItems = picksUpItems;
+        }
 }

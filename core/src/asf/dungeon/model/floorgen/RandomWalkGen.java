@@ -6,22 +6,18 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 
 /**
- *
  * makes a floor that is similiar to the classic "Rouge" maps where
  * there are range rooms connected by hallways
- *
+ * <p/>
  * Created by Danny on 11/4/2014.
  */
-public class RandomWalkGen implements FloorMapGenerator{
+public class RandomWalkGen implements FloorMapGenerator {
 
 
-        private int minFloorWidth = 45;
-        private int maxFloorWidth = 60;
-        private int minFloorHeight = 40;
-        private int maxFloorHeight = 65;
-
-
-
+        private int minFloorWidth = 25;
+        private int maxFloorWidth = 35;
+        private int minFloorHeight = 20;
+        private int maxFloorHeight = 30;
 
 
         @Override
@@ -32,37 +28,47 @@ public class RandomWalkGen implements FloorMapGenerator{
                 int floorHeight = dungeon.rand.range(minFloorHeight, maxFloorHeight);
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
-
-                for (int x = 0; x < tiles.length; x++){
-                        for (int y = 0; y < tiles[0].length; y++){
-                                tiles[x][y] = Tile.makeWall();
+                boolean regen;
+                float percentage = .55f;
+                Pair loc = new Pair();
+                Pair locTemp = new Pair();
+                do {
+                        regen = false;
+                        for (int x = 0; x < tiles.length; x++) {
+                                for (int y = 0; y < tiles[0].length; y++) {
+                                        tiles[x][y] = Tile.makeWall();
+                                }
                         }
-                }
-                int maxFloorTiles = Math.round(floorWidth*floorHeight*.5f);
-                int countFlooTiles = 0;
+                        int maxFloorTiles = Math.round(floorWidth * floorHeight * percentage);
+                        int countFloorTiles = 0;
+                        loc.set(
+                                dungeon.rand.range(0, tiles.length - 1),
+                                dungeon.rand.range(0, tiles[0].length - 1));
+                        mid:
+                        while (countFloorTiles < maxFloorTiles) {
+                                if (tiles[loc.x][loc.y].isWall()) {
+                                        tiles[loc.x][loc.y] = Tile.makeFloor();
+                                        countFloorTiles++;
+                                }
+                                locTemp.set(loc);
+                                int tries = 0;
+                                do {
+                                        loc.set(locTemp);
+                                        loc.add(dungeon.rand.direction());
+                                        if(++tries > 20){
+                                                regen = true;
+                                                break mid;
+                                        }
 
-                Pair loc = new Pair(dungeon.rand.range(0, tiles.length - 1),dungeon.rand.range(0, tiles[0].length - 1));
-                while(countFlooTiles < maxFloorTiles){
-                        if(tiles[loc.x][loc.y].isWall()){
-                                tiles[loc.x][loc.y] = Tile.makeFloor();
-                                countFlooTiles++;
+                                } while (loc.x < 0 || loc.x >= tiles.length || loc.y < 0 || loc.y >= tiles[0].length);
                         }
-                        do{
-                                loc.add(dungeon.rand.direction());
-                        }while(loc.x < 0 || loc.x >= tiles.length || loc.y <0 || loc.y >=tiles[0].length);
-                }
-
-
-
+                } while (regen);
 
                 UtFloorGen.ensureEdgesAreWalls(tiles);
-                UtFloorGen.floodFillSmallerAreas(tiles);
                 UtFloorGen.placeUpStairs(dungeon, tiles, floorIndex);
                 UtFloorGen.placeDownStairs(dungeon, tiles, floorIndex);
-                UtFloorGen.printFloorTile(tiles);
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles);
-
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
                 return floorMap;

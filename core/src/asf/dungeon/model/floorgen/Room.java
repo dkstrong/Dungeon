@@ -9,6 +9,7 @@ import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.utility.UtMath;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -18,6 +19,7 @@ public class Room extends Sector {
 
         private KeyItem.Type requiresKey = null;
         private KeyItem.Type containsKey = null;
+        private int containsStairsTo = -1;
 
         Room(int x1, int y1, int x2, int y2) {
                 super(x1, y1, x2, y2);
@@ -144,6 +146,9 @@ public class Room extends Sector {
         }
 
         static boolean carveDoorsKeysStairs(Dungeon dungeon, int floorIndex, Tile[][] tiles, Array<Room> rooms, boolean makeDoors, boolean includeLockedDoors) {
+
+                boolean valid = Room.fillRoomsWithStairs(dungeon, floorIndex, tiles, rooms);
+
                 if (makeDoors){
                         // will create 2 silver rooms, 2 gold rooms, 1 red room, then the rest silver.
                         // actual amount of locked rooms depends on how the floor was generated
@@ -152,8 +157,7 @@ public class Room extends Sector {
                         boolean forceType = false;
                         for (int i = 0; i < rooms.size; i++) {
                                 Room room = rooms.get(i);
-                                float chance = includeLockedDoors ? .45f : 0;
-                                Room.fillRoomWithDoors(dungeon, tiles, room, chance,type);
+                                Room.fillRoomWithDoors(dungeon, floorIndex, tiles, room, includeLockedDoors ? type : null);
                                 if(room.requiresKey != null){
                                         ++count[room.requiresKey.ordinal()];
                                         if(type == KeyItem.Type.Red && room.requiresKey == KeyItem.Type.Red){
@@ -170,13 +174,13 @@ public class Room extends Sector {
 
                 }
 
-                boolean valid = Room.fillRoomsWithStairs(dungeon, tiles, rooms, floorIndex);
+
 
                 return valid;
 
         }
 
-        static void fillRoomWithDoors(Dungeon dungeon, Tile[][] tiles, Room room, float chanceToBeLockedRoom, KeyItem.Type keyType) {
+        static void fillRoomWithDoors(Dungeon dungeon, int floorIndex, Tile[][] tiles, Room room, KeyItem.Type keyType) {
                 // should be called after fillRoom() and fillTunnel()
                 // This is a lot of code for a seemingly simple thing. but it checks to ensure
                 // that these scenarios do not happen
@@ -197,11 +201,13 @@ public class Room extends Sector {
                 for (int y = room.y1; y <= room.y2; y += room.getHeight()) {
                         for (int x = room.x1; x <= room.x2; x++) {
                                 if (tiles[x][y] != null && tiles[x][y].isFloor()) {
-                                        if (UtFloorGen.countDoors(tiles, x, y) == 0 && UtFloorGen.isWall(tiles, x + 1, y) && UtFloorGen.isWall(tiles, x - 1, y)) {
+                                        if (UtFloorGen.countDoors(tiles, x, y) == 0
+                                                && UtFloorGen.isWall(tiles, x + 1, y)
+                                                && UtFloorGen.isWall(tiles, x - 1, y)) {
                                                 door = Tile.makeDoor();
                                                 tiles[x][y] = door;
-                                                doorCount++;
                                         }
+                                        doorCount++; // this is still a "doorway" as in a hole in the room
                                 }
                         }
                 }
@@ -209,46 +215,58 @@ public class Room extends Sector {
                 for (int x = room.x1; x <= room.x2; x += room.getWidth()) {
                         for (int y = room.y1; y <= room.y2; y++) {
                                 if (tiles[x][y] != null && tiles[x][y].isFloor()) {
-                                        if (UtFloorGen.countDoors(tiles, x, y) == 0 && UtFloorGen.isWall(tiles, x, y - 1) && UtFloorGen.isWall(tiles, x, y + 1)) {
+                                        if (UtFloorGen.countDoors(tiles, x, y) == 0
+                                                && UtFloorGen.isWall(tiles, x, y - 1)
+                                                && UtFloorGen.isWall(tiles, x, y + 1)) {
                                                 door = Tile.makeDoor();
                                                 tiles[x][y] = door;
-                                                doorCount++;
                                         }
+                                        doorCount++; // this is still a "doorway" as in a hole in the room
                                 }
                         }
                 }
 
-                if(doorCount ==1 && chanceToBeLockedRoom >0){
-                        boolean lockedRoom = dungeon.rand.bool(chanceToBeLockedRoom);
+                if(room.containsStairsTo >=0) {
+                        if(floorIndex > room.containsStairsTo) {
+                                // stairs up this room cant be locked, otherwise the player could be locked in
+                                // unless i was to ensure that a key spawns in this room, but im not going to look in to doing that yet
+                                keyType = null;
+                        }
+                }
+
+                if(keyType != null && doorCount ==1 && door != null){
+                        boolean lockedRoom = dungeon.rand.bool(.45f);
                         if(lockedRoom){
                                 room.requiresKey  = keyType;
                                 door.setDoorLocked(true, keyType);
                         }
                 }
 
+
         }
 
-        static boolean fillRoomsWithStairs(Dungeon dungeon, Tile[][] tiles, Array<Room> rooms, int floorIndex) {
+        static boolean fillRoomsWithStairs(Dungeon dungeon, int floorIndex, Tile[][] tiles, Array<Room> rooms) {
                 int i = 0;
                 boolean valid = false;
                 while (i < rooms.size && !valid) {
+                        Gdx.app.log("Room","attemping to make stairs up for : "+ i);
                         valid = fillRoomWithStairs(dungeon, tiles, rooms.get(i++), floorIndex, floorIndex + 1);
                 }
-
+                if (!valid)Gdx.app.log("Room","stairs up could not generate");
                 if (!valid) return false;
                 valid = false;
                 int j = rooms.size - 1;
-                while (j > i && !valid) {
+                while (j >= i && !valid) {
+                        Gdx.app.log("Room","attemping to make stairs down for : "+ j);
                         valid = fillRoomWithStairs(dungeon,tiles, rooms.get(j--), floorIndex, floorIndex - 1);
                 }
+                if (!valid)Gdx.app.log("Room","stairs down could not generate");
                 return valid;
         }
 
         private static boolean fillRoomWithStairs(Dungeon dungeon, Tile[][] tiles, Room room, int floorIndex, int floorIndexTo) {
-                if(room.requiresKey != null && floorIndexTo < floorIndex){
-                        return false; // we dont want to lock the player in on the first room.
-                }
                 if (room.x1 + 2 >= room.x2 - 2 || room.y1 + 2 >= room.y2 - 2) {
+                        Gdx.app.log("Room","room too small");
                         return false;
                 }
                 for (int i = 0; i < 20; i++) {
@@ -256,9 +274,11 @@ public class Room extends Sector {
                         int y = dungeon.rand.range(room.y1 + 1, room.y2 - 1);
                         if (tiles[x][y].isFloor()) {
                                 tiles[x][y] = Tile.makeStairs(floorIndex, floorIndexTo);
+                                room.containsStairsTo = floorIndexTo;
                                 return true;
                         }
                 }
+                Gdx.app.log("Room","max tries couldnt place stairs");
                 return false;
         }
 

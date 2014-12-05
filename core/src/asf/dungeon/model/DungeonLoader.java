@@ -90,7 +90,7 @@ public class DungeonLoader {
                         playerLogic = new FullAgroLogic(0);
                 }else{
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new ConnectedRoomsGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
+                                new RandomWalkGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
@@ -114,8 +114,6 @@ public class DungeonLoader {
                                 playerLogic,
                                 new Experience(1, 20, 6, 3, 1,1),
                                 0,0);
-
-                        token.getDamage().setDeathRemovalCountdown(Float.NaN);
 
                         token.getInventory().setNumQuickSlots(0);
 

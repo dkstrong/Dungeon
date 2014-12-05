@@ -25,18 +25,23 @@ import com.badlogic.gdx.utils.Array;
  */
 public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
 
-        private int minRoomSize = 7;
-        private int maxRoomSize = 10;
+        private int minRoomSize = 6;
+        private int maxRoomSize = 9;
         private int minFloorWidth = 40;
         private int maxFloorWidth = 50;
         private int minFloorHeight = 30;
         private int maxFloorHeight = 50;
-        private int maxRooms = 2;
-        private boolean makeDoors = true;
-        //private int floorIndex;
+        private int maxRooms = 8;
 
         @Override
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
+                 minRoomSize = 6;
+                 maxRoomSize = 9;
+                 minFloorWidth = 25;
+                 maxFloorWidth = 30;
+                 minFloorHeight = 25;
+                 maxFloorHeight = 30;
+                 maxRooms = 2;
                 int floorWidth = dungeon.rand.range(minFloorWidth, maxFloorWidth);
                 int floorHeight = dungeon.rand.range(minFloorHeight, maxFloorHeight);
 

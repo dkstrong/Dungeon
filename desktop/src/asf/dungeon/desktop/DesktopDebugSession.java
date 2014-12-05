@@ -88,7 +88,7 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
                 }
 
                 fontInterface = new java.awt.Font("Ubuntu", 0, 18);
-                fontText = new java.awt.Font("Ubuntu", 0, 20);
+                fontText = new java.awt.Font("Courier New", 0, 20);
 
                 frame = new JFrame("Dungeon Debug Session");
                 frame.setFont(fontInterface);

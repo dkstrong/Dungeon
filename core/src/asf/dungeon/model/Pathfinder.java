@@ -227,15 +227,20 @@ public class Pathfinder {
                         // if the node is the goal node, dont add extra movement code because its the goal
                         Array<Token> tokensAt = floorMap.getTokensAt(n1);
                         for (Token t : tokensAt) {
-                                if(t.getDamage() != null && t.getDamage().isAttackable())
+                                if(!t.isBlocksPathing())
                                         continue;
-                                if(t.get(Quest.class) != null) // avoiding walking into quest tokens unless they are they target
+
+                                if (t.getLogic() != null && t.getLogic().getTeam() == mover.getLogic().getTeam()) {
+                                        // walk around tokens on the same team
                                         movementCost += 30;
-                                if(t.isBlocksPathing()){
-                                        if(t.getMove() == null) // avoid walking in to crates, unless they are the target
-                                                movementCost += 30;
-                                        else
-                                                movementCost+=20; // avoid walking into monsters, unless they are the target
+                                } else if (t.getMove() == null ){
+                                        // walk around crates
+                                        movementCost += 30;
+                                } else if (t.get(Quest.class) != null){
+                                        // walk around quest tokens
+                                        movementCost += 30;
+                                }else if(t.getDamage() != null && !t.getDamage().isAttackable()){
+                                        movementCost+=20; // avoid walking into monsters, unless they are the target
                                 }
                         }
                 }

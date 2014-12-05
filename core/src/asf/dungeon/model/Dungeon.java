@@ -140,7 +140,7 @@ public class Dungeon {
                 t.add(new Move(t));
 
                 t.getDamage().setDeathDuration(3f);
-                t.getDamage().setDeathRemovalCountdown(10f);
+                t.getDamage().setDeathRemovalCountdown(Float.NaN);
                 t.getExperience().setToken(t);
                 t.getLogic().setToken(t);
                 localPlayerToken = t;
@@ -164,6 +164,7 @@ public class Dungeon {
                 t.add(new Attack(t));
                 t.add(new Move(t));
 
+                t.getMove().setPicksUpItems(false);
                 t.getDamage().setDeathDuration(3f);
                 t.getDamage().setDeathRemovalCountdown(10f);
                 t.getExperience().setToken(t);
@@ -173,24 +174,26 @@ public class Dungeon {
                 return t;
         }
 
-        public Token newQuestCharacterToken(Token token, Logic logic, Quest quest, FloorMap fm, int x, int y){
+        public Token newQuestCharacterToken(Token t, Logic logic, Quest quest, FloorMap fm, int x, int y){
                 if(quest == null) throw new IllegalArgumentException("quest can not be null");
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
-                token.setId(nextTokenId++);
-                if(logic != null)
-                        token.add(logic);
-                token.add(new Command(token));
-                token.add(quest);
-                token.add(new Inventory.Character(token));
-                token.add(new StatusEffects(token));
-                Damage d = new Damage(token);
-                d.setMaxHealth(4);
-                d.setAttackable(false);
-                if(token.getLogic() != null) token.getLogic().setToken(token);
-                token.add(d);
-                token.add(new Move(token));
-                moveToken(token, fm, x,y,Direction.South);
-                return token;
+                t.setId(nextTokenId++);
+                t.add(logic);
+                t.add(new Command(t));
+                t.add(quest);
+                t.add(new Inventory.Character(t));
+                t.add(new StatusEffects(t));
+                t.add(new Damage(t));
+                t.add(new Move(t));
+                t.getMove().setPicksUpItems(false);
+                t.getDamage().setMaxHealth(4);
+                t.getDamage().setHealth(2);
+                t.getDamage().setAttackable(false);
+                t.getDamage().setDeathRemovalCountdown(Float.NaN);
+                if(t.getLogic() != null) t.getLogic().setToken(t);
+
+                moveToken(t, fm, x,y,Direction.South);
+                return t;
         }
 
         public Token newToken(Token token, FloorMap fm, int x, int y){

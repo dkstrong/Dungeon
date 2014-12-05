@@ -1,6 +1,7 @@
 package asf.dungeon.model.token.logic.fsm;
 
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.DungeonRand;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Sector;
 import asf.dungeon.model.token.Token;
@@ -11,6 +12,7 @@ import asf.dungeon.model.token.logic.Logic;
  */
 public class FSMLogic implements Logic {
         protected Token token;
+        protected DungeonRand rand;
         protected int team;
         protected Sector sector;
         protected float count;
@@ -32,6 +34,7 @@ public class FSMLogic implements Logic {
         @Override
         public void setToken(Token token) {
                 this.token = token;
+                rand = token.dungeon.rand;
         }
 
         @Override
