@@ -100,14 +100,14 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                 this.mode = 3;
                 this.attackerToken = attacker;
                 this.destLoc.set(destLoc);
-                world.getWorldCoords(attacker.getMove().getLocationFloatX(), attacker.getMove().getLocationFloatY(), worldStartLoc);
+                world.getWorldCoords(attacker.getMove().getFloatLocation(), worldStartLoc);
                 if (target == null) {
                         targetTokenSpatial = null;
                         world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
                 } else {
                         targetTokenSpatial = world.getTokenSpatial(target);
                         if (target.getMove() == null) world.getWorldCoords(target.getLocation().x, target.getLocation().y, worldDestLoc);
-                        else world.getWorldCoords(target.getMove().getLocationFloatX(), target.getMove().getLocationFloatY(), worldDestLoc);
+                        else world.getWorldCoords(target.getMove().getFloatLocation(), worldDestLoc);
 
                 }
                 worldMoveDir.set(worldDestLoc).sub(worldStartLoc);

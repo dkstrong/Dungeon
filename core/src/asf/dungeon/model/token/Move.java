@@ -6,7 +6,9 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.KeyItem;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -20,9 +22,11 @@ public class Move implements TokenComponent{
         private final Array<Pair> path = new Array<Pair>(true, 32, Pair.class);   // the current path that this token is trying to follow, it may be regularly refreshed with new paths
         private final Pair pathedTarget = new Pair();           // the last element of path. this is compared against continuesMoveTarget to prevent spamming the pathfinder coder
 
+
         private final Pair continuousMoveTokenLastLoc = new Pair();
         private float continuousMoveTokenLostVisionCountdown = 0;
-        protected float moveU = 1;                                // 1 = fully on the location, less then 1 means moving on to the location still even though it occupies it, use direction variable to determine which way token is walking towards the location
+        private float moveU = 1;                                // 1 = fully on the location, less then 1 means moving on to the location still even though it occupies it, use direction variable to determine which way token is walking towards the location
+        private Vector2 floatLocation = new Vector2();
 
 
         public Move(Token token) {
@@ -34,6 +38,7 @@ public class Move implements TokenComponent{
                 moveU = 1;
                 path.clear();
                 pathedTarget.set(x, y);
+                floatLocation.set(x,y);
 
         }
 
@@ -106,7 +111,7 @@ public class Move implements TokenComponent{
                                                 nextTile.setDoorOpened(true);
 
                                         path.removeIndex(0);
-                                        Direction newDirection = Direction.getDirection(location, nextLocation);
+                                        Direction newDirection = location.direction(nextLocation);
                                         if (newDirection != null)
                                                 token.direction = newDirection;
                                         location.set(nextLocation);
@@ -117,14 +122,12 @@ public class Move implements TokenComponent{
                                 } else {
 
                                         // path is blocked, will attempt to attack what is blocking the path
-                                        // if can not attack (due to colldown or some other reason) then the token will just kind of chill
+                                        // if can not attack (due to cooldown or some other reason) then the token will just kind of chill
                                         moveU = 1;
 
-                                        //if (!token.isInteracting()) {
-                                        Direction newDirection = Direction.getDirection(location, nextLocation);
+                                        Direction newDirection = location.direction(nextLocation);
                                         if (newDirection != null)
                                                 token.direction = newDirection;
-                                        //}
 
                                         boolean action;
                                         if(token.getInteractor() != null){
@@ -150,6 +153,7 @@ public class Move implements TokenComponent{
                                 if (tile.isStairs() && tile.getStairsTo() >= 0) {
                                         token.dungeon.moveToken(token, token.dungeon.generateFloor(tile.getStairsTo()));
                                         //token.teleportToFloor(tile.getStairsTo());
+                                        updateFloatLocation();
                                         return true;
                                 }
                                 moveU = 1;
@@ -157,7 +161,12 @@ public class Move implements TokenComponent{
                                 moveU = 1;
                         }
                 }
+                updateFloatLocation();
                 return false;
+        }
+
+        private void updateFloatLocation(){
+                floatLocation.set(getLocationFloatX(), getLocationFloatY());
         }
 
         private void calcPathToLocation(Pair targetLocation) {
@@ -194,7 +203,10 @@ public class Move implements TokenComponent{
                         // this reverses the direction and fixes the path to account for this
                         Pair nextLocation = path.get(1);
                         if (!token.floorMap.isLocationBlocked(nextLocation)) {
-                                Direction newDir = Direction.getDirection(path.get(0), nextLocation);  // should this be locatioin,nextlocation?
+                                if(!path.get(0).equals(token.location)){
+                                        Gdx.app.error("Move","Invalid path start location");
+                                }
+                                Direction newDir = token.location.direction(nextLocation);  // should this be location.direction(nextlocation)?
                                 if (newDir.isOpposite(token.direction)) {
                                         Tile prevTile = token.floorMap.getTile(token.location);
                                         if (prevTile.isDoor())
@@ -278,7 +290,11 @@ public class Move implements TokenComponent{
                 }
         }
 
-        public float getLocationFloatX() {
+        public Vector2 getFloatLocation(){
+                return floatLocation;
+        }
+
+        private float getLocationFloatX() {
                 Direction direction = token.getDirection();
                 if (moveU == 1 || direction == Direction.South || direction == Direction.North)
                         return token.getLocation().x;
@@ -289,7 +305,7 @@ public class Move implements TokenComponent{
                 throw new AssertionError("unexpected state");
         }
 
-        public float getLocationFloatY() {
+        private float getLocationFloatY() {
                 Direction direction = token.getDirection();
                 if (moveU == 1 || direction == Direction.West || direction == Direction.East)
                         return token.getLocation().y;

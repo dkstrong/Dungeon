@@ -28,27 +28,30 @@ public enum Direction {
                                 return this == NorthEast;
                 }
 
-                throw new IllegalArgumentException(dir + "");
+                throw new AssertionError(dir);
         }
 
-        public static Direction getDirection(Pair from, Pair to) {
-                if (to.x > from.x) {
-                        if (to.y > from.y)
-                                return Direction.NorthEast;
-                        else if (to.y < from.y)
-                                return Direction.SouthEast;
-                        return Direction.East;
-                } else if (to.x < from.x) {
-                        if (to.y > from.y)
-                                return Direction.NorthWest;
-                        else if (to.y < from.y)
-                                return Direction.SouthWest;
-                        return Direction.West;
-                } else if (to.y > from.y)
-                        return Direction.North;
-                else if (to.y < from.y)
-                        return Direction.South;
-                return null;
+        public Direction opposite(){
+                switch (this) {
+                        case North:
+                                return  South;
+                        case South:
+                                return  North;
+                        case East:
+                                return  West;
+                        case West:
+                                return  East;
+                        case NorthEast:
+                                return  SouthWest;
+                        case NorthWest:
+                                return  SouthEast;
+                        case SouthEast:
+                                return  NorthWest;
+                        case SouthWest:
+                                return  NorthEast;
+                }
+
+                throw new AssertionError(this);
         }
 
         public boolean isDiagonal(){

@@ -507,8 +507,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 }
 
                                 world.getScreenCoords(
-                                        label.tokenSpatial.getToken().getMove().getLocationFloatX(),
-                                        label.tokenSpatial.getToken().getMove().getLocationFloatY(),
+                                        label.tokenSpatial.getToken().getMove().getFloatLocation(),
                                         tempVec);
 
 

@@ -82,9 +82,7 @@ public class UtFloorGen {
                                 x,y);
 
                         if(modelId == ModelId.Archer){
-                                WeaponItem weapon = new WeaponItem(ModelId.Sword,"Bow", 1);
-                                weapon.setRanged(true);
-                                weapon.setProjectileFx(FxId.Arrow);
+                                WeaponItem weapon = new WeaponItem(ModelId.Sword,"Bow", 1, FxId.Arrow);
                                 characterToken.getInventory().add(weapon);
                                 characterToken.getInventory().equals(weapon);
                         }

@@ -2,7 +2,9 @@ package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.item.EquipmentItem;
+import asf.dungeon.model.item.ArmorItem;
+import asf.dungeon.model.item.RingItem;
+import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.utility.UtMath;
 
 /**
@@ -114,17 +116,24 @@ public class Experience implements TokenComponent{
         }
 
         protected void recalcStats(){
-                EquipmentItem weapon = token.getInventory().getWeaponSlot();
-                EquipmentItem armor = token.getInventory().getArmorSlot();
-                EquipmentItem ring = token.getInventory().getRingSlot();
+                // equipment
+                WeaponItem weapon = token.getInventory().getWeaponSlot();
+                ArmorItem armor = token.getInventory().getArmorSlot();
+                RingItem ring = token.getInventory().getRingSlot();
 
+                token.getAttack().setWeapon(weapon);
+
+
+                // status effects
+                // TODO: here is also where i need to look at StatusEffects and apply the effects of any status effect
+
+
+                // experience
                 vitalityMod = (weapon == null ? 0 : weapon.getVitalityMod()) + (armor == null ? 0 : armor.getVitalityMod())+ (ring == null ? 0 : ring.getVitalityMod());
                 strengthMod = (weapon == null ? 0 : weapon.getStrengthMod()) + (armor == null ? 0 : armor.getStrengthMod())+ (ring == null ? 0 : ring.getStrengthMod());
                 agilityMod = (weapon == null ? 0 : weapon.getAgilityMod()) + (armor == null ? 0 : armor.getAgilityMod())+ (ring == null ? 0 : ring.getAgilityMod());
                 intelligenceMod = (weapon == null ? 0 : weapon.getIntelligenceMod()) + (armor == null ? 0 : armor.getIntelligenceMod())+ (ring == null ? 0 : ring.getIntelligenceMod());
                 luckMod = (weapon == null ? 0 : weapon.getLuckMod()) + (armor == null ? 0 : armor.getLuckMod())+ (ring == null ? 0 : ring.getLuckMod());
-
-                // TODO: here is also where i need to look at StatusEffects and apply the effects of any status effect
 
                 int vitality = getVitality();
                 int strength = getStrength();
@@ -132,11 +141,11 @@ public class Experience implements TokenComponent{
                 int intelligence = getIntelligence();
                 int luck = getLuck();
 
+
                 // vitality
                 token.getDamage().setMaxHealth(vitality);
 
                 // strength
-                token.getAttack().setAttackRange(Math.round(UtMath.scalarLimitsInterpolation(strength,1f,100f,2f,6f))); // default was 3
 
                 // agility
                 if(agility < 10) token.getMove().setMoveSpeed(1.5f);
@@ -144,18 +153,15 @@ public class Experience implements TokenComponent{
                 else if(agility < 20) token.getMove().setMoveSpeed(1.7f);
                 else token.getMove().setMoveSpeed(UtMath.scalarLimitsInterpolation(agility,20f,100f,1.7f,3f));
 
-                // TODO: setting the attack duration here might somehow be related to the going idle while attacking, should check to see if somehow
-                // stats are geting recalced in the middle of comabt
-                token.getAttack().setAttackDuration(UtMath.scalarLimitsInterpolation(agility,1f,100f,2.25f,1.5f)); // default was 2
-                token.getAttack().setAttackCooldownDuration(UtMath.scalarLimitsInterpolation(agility,1f,100f,1.5f,.75f)); // default was 1
-                token.getAttack().setProjectileSpeed(UtMath.scalarLimitsInterpolation(agility,1f,100f,1.5f,5f)); // default was 2
-
                 // intelligence
 
                 token.getDamage().setSightRadius(Math.round(UtMath.scalarLimitsInterpolation(intelligence, 1f, 40f, 4f, 10f))); // default is 6
                 //Gdx.app.log(token.getName(),"int: "+intelligence+" sight: "+token.getDamage().getSightRadius()+"");
 
                 // luck
+
+
+
         }
 
 }

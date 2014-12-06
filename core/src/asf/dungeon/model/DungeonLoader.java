@@ -90,7 +90,7 @@ public class DungeonLoader {
                         playerLogic = new FullAgroLogic(0);
                 }else{
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new RandomWalkGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
+                                new BalanceTestFloorGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
@@ -143,20 +143,15 @@ public class DungeonLoader {
                                 token.getInventory().equip(sword);
                                 token.get(Journal.class).learn(sword);
                         }else if(settings.playerModel == ModelId.Archer){
-                                WeaponItem bow = new WeaponItem(ModelId.Sword,"Bow", 3);
-                                bow.setRanged(true);
+                                WeaponItem bow = new WeaponItem(ModelId.Sword,"Bow", 3, FxId.Arrow);
                                 bow.setProjectileFx(FxId.Arrow);
                                 token.getInventory().add(bow);
                                 token.getInventory().equip(bow);
-                                token.get(Journal.class).learn(bow);
                         }else if(settings.playerModel == ModelId.Mage){
-                                WeaponItem staff = new WeaponItem(ModelId.Sword,"Staff", 3);
-                                staff.setRanged(true);
+                                WeaponItem staff = new WeaponItem(ModelId.Sword,"Staff", 3, FxId.PlasmaBall);
                                 staff.identifyItem(token);
-                                staff.setProjectileFx(FxId.PlasmaBall);
                                 token.getInventory().add(staff);
                                 token.getInventory().equip(staff);
-                                token.get(Journal.class).learn(staff);
                         }
 
 

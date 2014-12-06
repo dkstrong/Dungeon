@@ -25,6 +25,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -141,12 +142,20 @@ public class DungeonWorld implements Disposable {
                 return floorSpatial.getMapCoords(worldCoords, storeMapCoords);
         }
 
+        public Vector3 getWorldCoords(Vector2 mapCoords, Vector3 storeWorldCoords) {
+                return floorSpatial.getWorldCoords(mapCoords.x, mapCoords.y, storeWorldCoords);
+        }
+
         public Vector3 getWorldCoords(float mapCoordsX, float mapCoordsY, Vector3 storeWorldCoords) {
                 return floorSpatial.getWorldCoords(mapCoordsX, mapCoordsY, storeWorldCoords);
         }
 
         public Vector3 getWorldCoords(Pair mapCoords, Vector3 storeWorldCoords) {
                 return floorSpatial.getWorldCoords(mapCoords, storeWorldCoords);
+        }
+
+        public void getScreenCoords(Vector2 mapCoords, Vector3 storeScreenCoords) {
+                camControl.cam.project(getWorldCoords(mapCoords.x, mapCoords.y, storeScreenCoords));
         }
 
         public void getScreenCoords(float mapCoordsX, float mapCoordsY, Vector3 storeScreenCoords) {

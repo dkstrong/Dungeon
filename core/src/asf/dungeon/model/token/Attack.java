@@ -4,6 +4,7 @@ import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.fogmap.LOS;
+import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.utils.Array;
 
@@ -11,18 +12,12 @@ import com.badlogic.gdx.utils.Array;
  * Created by Danny on 11/11/2014.
  */
 public class Attack implements TokenComponent{
-        private final Token token;
-        // derrived stats
-        private int attackRange = 3; // how far away this character can attack using ranged attacks
-        private float attackDuration = 2; // how long the "is attacking" phase lasts.
-        private float attackCooldownDuration = 1; // how long since the last attack ended until a new attack can begin.
-        private float projectileSpeed = 2;
 
+        private final Token token;
+        private WeaponItem weapon = WeaponItem.NULL;
         private static transient final boolean rangedKeepDistance = true;             // if true the character will hold position while in range of targeted token and it is alive, if false character will persue and get close inbetween shots
 
         //state variables
-
-
         private float attackU = 0;                              // 0 = not attacking, >0 attacking, once attackU >=attackDuration then attackU is reset to 0
         private Token meleeAttackTarget;                             // the token that is being attacked, this also marks if this token is in the "attacking" state
         private float attackProjectileU =Float.NaN;
@@ -32,7 +27,6 @@ public class Attack implements TokenComponent{
         private boolean rangedAttack = false;
         private float attackCoolDown = 0;                       // time until this token can send another attack, after attacking this value is reset to attackCooldownDuration
         private boolean sentAttackResult = false;
-
 
         private boolean inAttackRangeOfCommandTarget;
         private boolean isHoldingRangedWeapon;
@@ -67,14 +61,14 @@ public class Attack implements TokenComponent{
 
                 if(isAttacking()){
                         attackU += delta;
-                        if (attackU >= attackDuration) {
+                        if (attackU >= weapon.getAttackDuration()) {
                                 if(!sentAttackResult){
                                         sendAttackResult();
                                 }
                                 meleeAttackTarget = null;
-                                attackCoolDown = attackCooldownDuration;
+                                attackCoolDown = weapon.getAttackCooldown();
                                 sentAttackResult = false;
-                        }else if(attackU >= attackDuration/2f && !sentAttackResult){
+                        }else if(attackU >= weapon.getAttackDuration()/2f && !sentAttackResult){
                                 sendAttackResult();
                                 sentAttackResult = true;
                         }
@@ -93,6 +87,7 @@ public class Attack implements TokenComponent{
                 if(attackCommandTarget(delta)){
                         return true; // started or is currently doing attack animation
                 }else if(rangedKeepDistance && inAttackRangeOfCommandTarget){
+                        //Gdx.app.log("Attack","in range of target, dont move");
                         return true; // still in range of target, dont move
                 }
 
@@ -151,7 +146,7 @@ public class Attack implements TokenComponent{
                                         meleeAttackTarget = t;
                                         rangedAttack = false;
                                         attackU = 0;
-                                        meleeAttackTarget.getDamage().setHitDuration(attackDuration, token);
+                                        meleeAttackTarget.getDamage().setHitDuration(weapon.getAttackDuration(), token);
                                         sentAttackResult = false;
                                         return true;
                                 }
@@ -179,12 +174,13 @@ public class Attack implements TokenComponent{
                 if(rangedAttack){
                         if(inAttackRangeOfCommandTarget){ // target is still in range, were going to hit him
                                 projectileAttackCoord.set(meleeAttackTarget.getLocation());
-                                attackProjectileMaxU = token.getLocation().distance(projectileAttackCoord) / projectileSpeed;
+                                // TODO: this is an awful way to calculate the duration of the projecctile
+                                attackProjectileMaxU = token.getLocation().distance(projectileAttackCoord) / weapon.getProjectileSpeed();
                                 projectileAttackTarget = meleeAttackTarget;
                                 meleeAttackTarget.getDamage().setHitDuration(attackProjectileMaxU, token);
                         }else{ // target got out of range, were going to gurantee miss
                                 token.getFloorMap().getNextClosestLegalLocation(token.getLocation(), meleeAttackTarget.getLocation(), projectileAttackCoord);
-                                attackProjectileMaxU = token.getLocation().distance(projectileAttackCoord) / projectileSpeed;
+                                attackProjectileMaxU = token.getLocation().distance(projectileAttackCoord) / weapon.getProjectileSpeed();
                                 projectileAttackTarget = null;
                         }
                         attackProjectileU = 0;
@@ -210,10 +206,10 @@ public class Attack implements TokenComponent{
                         return false;
 
                 int distance = token.location.distance(token.getCommand().getTargetToken().location);
-                if(distance > attackRange)
+                // not sure why i need distance-1, but in order to actually have the right range i have to subtract 1
+                if(distance-1 > weapon.getRange())
                         return false;
 
-                if(token.getMove() != null && token.getMove().moveU < .65f) return false;
 
 
                 // NOTE: i used to have a check here to make sure this token is facing towards target token
@@ -247,6 +243,7 @@ public class Attack implements TokenComponent{
                 int distance = token.location.distance(target.location);
                 if(distance > 1)
                         return false;
+
 
                 return true;
         }
@@ -291,7 +288,7 @@ public class Attack implements TokenComponent{
                         }else{
                                 // damage done has a minimum of weapon damage and maximum of strength
                                 int strength = token.getExperience().getStrength();
-                                int weaponDmg = token.getInventory().getWeaponSlot() == null ? 0 : token.getInventory().getWeaponSlot().getDamage();
+                                int weaponDmg = weapon.getDamage();
                                 if(weaponDmg <strength) out.damage = token.dungeon.rand.range(weaponDmg, strength);
                                 else out.damage = weaponDmg;
 
@@ -337,26 +334,14 @@ public class Attack implements TokenComponent{
         public float getEffectiveProjectileU(){return attackProjectileU /attackProjectileMaxU;}
 
         public float getAttackDuration() {
-                return attackDuration;
+                return weapon.getAttackDuration();
         }
+
 
         /**
-         * how long it takes for the attack animaiton to happen
-         * also affects how long the being hit animation lasts for target.
-         *
-         * TODO: i may want the "being hit" duration to be its own stat.
-         *
-         *
-         * TODO: changing this value in the middle of an attack animaiton might cause
-         * the player being able to move before animation is over and other weirdnesses.
-         * will need to expirement
-         *
-         * @param attackDuration
+         * if in attack animation or if has a projectile
+         * @return
          */
-        protected void setAttackDuration(float attackDuration){
-                this.attackDuration = attackDuration;
-        }
-
         public boolean isAttackingRanged(){
                 return isAttacking() && rangedAttack;
         }
@@ -366,30 +351,11 @@ public class Attack implements TokenComponent{
         }
 
         public float getAttackCooldownDuration() {
-                return attackCooldownDuration;
-        }
-
-        /**
-         * the time from finishing one attack animation until the next one can begin
-         *
-         * for ranged attacks the cooldown timer starts after the projectile has hit something
-         *
-         * @param attackCooldownDuration
-         */
-        protected void setAttackCooldownDuration(float attackCooldownDuration){
-                this.attackCooldownDuration = attackCooldownDuration;
+                return weapon.getAttackCooldown();
         }
 
         public float getProjectileSpeed() {
-                return projectileSpeed;
-        }
-
-        /**
-         * how quickly the projectile reaches its target.
-         * @param projectileSpeed
-         */
-        protected void setProjectileSpeed(float projectileSpeed) {
-                this.projectileSpeed = projectileSpeed;
+                return weapon.getProjectileSpeed();
         }
 
         public float getAttackCoolDown() {
@@ -404,19 +370,31 @@ public class Attack implements TokenComponent{
                 return inAttackRangeOfCommandTarget;
         }
 
-        /**
-         * how far (manhattan distance) can be when doing ranged attacks
-         * @param attackRange
-         */
-        protected void setAttackRange(int attackRange) {
-                this.attackRange = attackRange;
-        }
-
         public int getAttackRange() {
-                return attackRange;
+                return weapon.getRange();
         }
 
         public float getCriticalHitChance(){
                 return token.getExperience().getLuck() / 100f;
+        }
+
+        /**
+         * the weapon itme that is used in attack calculations. If the token has an inventory this should match the equipped weapon,
+         * unless there is no equipped weapon then attack uses a default "NULL" weapon.
+         *
+         * For determining attack stats use this weapon for determining what weapon is equipped use the weapon in inventory
+         *
+         * @return
+         */
+        public WeaponItem getWeapon(){
+                return weapon;
+        }
+
+        protected void setWeapon(WeaponItem weapon){
+                if(weapon == null) weapon  = WeaponItem.NULL;
+                if(weapon == this.weapon) return;
+                if(token.getAttack().isAttacking() || token.getAttack().isAttackingRanged())
+                        throw new IllegalStateException("can not change weapon while attacking");
+                this.weapon = weapon;
         }
 }

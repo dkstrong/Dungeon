@@ -227,7 +227,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                 if (token.getMove() == null)
                         world.getWorldCoords(token.getLocation().x, token.getLocation().y, translation);
                 else
-                        world.getWorldCoords(token.getMove().getLocationFloatX(), token.getMove().getLocationFloatY(), translation);
+                        world.getWorldCoords(token.getMove().getFloatLocation(), translation);
 
                 // changing animations and rotations is not allowed for
                 // objects that modify the minVisU (eg these items are in the fog of war but still visible)
@@ -302,13 +302,9 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         Vector3 rotDir = temp;
                         Token attackTarget = token.getAttack().getAttackTarget();
                         if (attackTarget.getMove() == null) {
-                                world.getWorldCoords(
-                                        attackTarget.getLocation().x,
-                                        attackTarget.getLocation().y, rotDir);
+                                world.getWorldCoords(attackTarget.getLocation(), rotDir);
                         } else {
-                                world.getWorldCoords(
-                                        attackTarget.getMove().getLocationFloatX(),
-                                        attackTarget.getMove().getLocationFloatY(), rotDir);
+                                world.getWorldCoords(attackTarget.getMove().getFloatLocation(), rotDir);
                         }
 
                         rotDir.sub(translation);

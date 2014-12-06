@@ -26,25 +26,35 @@ public class Pair  {
                 this.y=y;
                 return this;
         }
-
-        public int getX() {
-                return x;
+        public Pair set(Pair pair) {
+                x = pair.x;
+                y =pair.y;
+                return this;
         }
 
-        public void setX(int x) {
-                this.x = x;
-        }
-
-        public int getY() {
-                return y;
-        }
-
-        public void setY(int y) {
-                this.y = y;
+        public Direction direction(Pair to){
+                Pair from = this;
+                if (to.x > from.x) {
+                        if (to.y > from.y)
+                                return Direction.NorthEast;
+                        else if (to.y < from.y)
+                                return Direction.SouthEast;
+                        return Direction.East;
+                } else if (to.x < from.x) {
+                        if (to.y > from.y)
+                                return Direction.NorthWest;
+                        else if (to.y < from.y)
+                                return Direction.SouthWest;
+                        return Direction.West;
+                } else if (to.y > from.y)
+                        return Direction.North;
+                else if (to.y < from.y)
+                        return Direction.South;
+                return null;
         }
 
         public int distance(Pair targetLocation) {
-                return distance(targetLocation.getX(), targetLocation.getY());
+                return distance(targetLocation.x, targetLocation.y);
         }
 
         /**
@@ -59,7 +69,20 @@ public class Pair  {
         public int distance(int targetX, int targetY) {
                 int xDistance = Math.abs(targetX - x);
                 int yDistance = Math.abs(targetY - y);
-                return xDistance > yDistance ? xDistance : yDistance;
+                return xDistance+yDistance;
+        }
+
+        public Pair add(Direction dir, int scale){
+                if(scale ==0 || dir == null) return this;
+                if(scale <0){
+                        dir = dir.opposite();
+                        scale*=-1;
+                }
+
+                for(int i=0; i < scale; i++)
+                        add(dir);
+
+                return this;
         }
 
         public Pair add(Direction dir){
@@ -128,9 +151,5 @@ public class Pair  {
                 return "{"+x+", "+y+"}";
         }
 
-        public Pair set(Pair pair) {
-                x = pair.x;
-                y =pair.y;
-                return this;
-        }
+
 }
