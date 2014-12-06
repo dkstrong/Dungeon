@@ -165,14 +165,26 @@ public class Token {
         public boolean isLocatedAt(int x, int y) {
                 return location.x == x && location.y == y;
         }
-/*
-        public float getLocationFloatX() {
-                return location.x;
+
+        public float getDistance(Token other){
+                if(move == null){
+                        if(other.move == null) return location.distance(other.location);
+                        return other.move.getFloatLocation().dst(location.x, location.y);
+                }else{
+                        if(other.move == null) move.getFloatLocation().dst(other.location.x, other.location.y);
+                        return move.getFloatLocation().dst(other.move.getFloatLocation());
+                }
         }
 
-        public float getLocationFloatY() {
-                return location.y;
-        }*/
+        public float getFloatLocationX(){
+                if(move == null) return location.x;
+                return move.getFloatLocation().x;
+        }
+
+        public float getFloatLocationY(){
+                if(move == null) return location.y;
+                return move.getFloatLocation().y;
+        }
 
         public int getId() {
                 return id;

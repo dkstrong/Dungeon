@@ -5,7 +5,6 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.Command;
 import asf.dungeon.model.token.Token;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -13,6 +12,9 @@ import com.badlogic.gdx.utils.Array;
  */
 public enum Monster implements State {
 
+        DoNothing{
+
+        },
         Sleep {
                 @Override
                 public void begin(FSMLogic fsm, Token token, Command command) {
@@ -56,31 +58,29 @@ public enum Monster implements State {
                 @Override
                 public void begin(FSMLogic fsm, Token token, Command command) {
                         // if you have a ranged weapon, then the monster should try to stay at maximum range while on attack cooldown.
-                        int distance = fsm.target.getLocation().distance(token.getLocation());
-                        if (distance == token.getAttack().getAttackRange()) {
-                                // sit still, good location
-                                command.setLocation(token.getLocation());
-                        } else {
-                                Gdx.app.log("MonsterFSM", "keep distance");
-                                // move to the closest location whose distance == attack range
-                                // TODO: this can easily choose an "invalid" location such as a wall tile,
-                                // need to do additional checks to make sure a valid floor tile is chosen by limiting the move range until
-                                // shrink the "keep distance" range until a valid tile is found to stand on
-                                Direction dir = fsm.target.getLocation().direction(token.getLocation());
-                                FloorMap fm = token.getFloorMap();
-                                int r = token.getAttack().getAttackRange();
+
+                        // move to the closest location whose distance == attack range
+                        Direction dir = fsm.target.getLocation().direction(token.getLocation());
+                        FloorMap fm = token.getFloorMap();
+                        float distance = token.getDistance(fsm.target);
+                        float r = token.getAttack().getWeapon().getRange();
+
+                        if(distance < r){
+
+                                int rInt = (int)r;
                                 Tile tile;
                                 do{
-                                        fsm.pair.set(fsm.target.getLocation()).add(dir, r--);
+                                        fsm.pair.set(fsm.target.getLocation()).add(dir, rInt--);
                                         tile = fm.getTile(fsm.pair);
-                                }while((tile == null || fm.isLocationBlocked(fsm.pair)) && r>0);
-                                if(r==0 ){
+                                }while((tile == null || fm.isLocationBlocked(fsm.pair)) && rInt>0);
+                                if(rInt==0 ){
+                                        // TODO: instead of just keeping back against the wall, attempt to move in a perpendicular direction
                                         command.setLocation(token.getLocation());
                                 }else{
                                         command.setLocation(fsm.pair);
                                 }
-
                         }
+
 
 
                 }

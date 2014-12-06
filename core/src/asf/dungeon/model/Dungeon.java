@@ -168,7 +168,7 @@ public class Dungeon {
                 t.getDamage().setDeathDuration(3f);
                 t.getDamage().setDeathRemovalCountdown(10f);
                 t.getExperience().setToken(t);
-                t.getLogic().setToken(t);
+                if(t.getLogic()!=null)t.getLogic().setToken(t);
 
                 moveToken(t, fm, x,y,Direction.South);
                 return t;

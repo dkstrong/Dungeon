@@ -15,7 +15,7 @@ public class WeaponItem extends EquipmentItem{
         private float attackDuration =2;
         private float attackCooldown =1;
         private FxId projectileFx;
-        private int range = 3;
+        private float range = 3;
         private float projectileSpeed =2;
 
         public WeaponItem(ModelId modelId, String name, int damage) {
@@ -38,7 +38,7 @@ public class WeaponItem extends EquipmentItem{
                 this.projectileFx = projectileFx;
         }
 
-        public WeaponItem(ModelId modelId, String name, int damage, float attackDuration, float attackCooldown, FxId projectileFx, int range, float projectileSpeed){
+        public WeaponItem(ModelId modelId, String name, int damage, float attackDuration, float attackCooldown, FxId projectileFx, float range, float projectileSpeed){
                 super(modelId, name, "A ranged weapon");
                 this.damage = damage;
                 this.attackDuration = attackDuration;
@@ -52,7 +52,7 @@ public class WeaponItem extends EquipmentItem{
                 this.attackDuration = attackDuration;
                 this.attackCooldown = attackCooldown;
         }
-        public void setRangedStats(int range, float projectileSpeed){
+        public void setRangedStats(float range, float projectileSpeed){
                 this.range = range;
                 this.projectileSpeed = projectileSpeed;
         }
@@ -92,15 +92,18 @@ public class WeaponItem extends EquipmentItem{
                 return String.format("%s (%s)", getName(), damage);
         }
 
-        public int getRange() {
+        public float getRange() {
                 return range;
         }
 
         /**
          * the maximum range for this weapon. only applies to ranged weapons
+         *
+         * use 0 to specify a non ranged weapon
+         * range is typically a value greater than 1f
          * @param range
          */
-        public void setRange(int range) {
+        public void setRange(float range) {
                 this.range = range;
         }
 

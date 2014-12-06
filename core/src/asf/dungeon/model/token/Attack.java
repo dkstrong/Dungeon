@@ -28,8 +28,8 @@ public class Attack implements TokenComponent{
         private float attackCoolDown = 0;                       // time until this token can send another attack, after attacking this value is reset to attackCooldownDuration
         private boolean sentAttackResult = false;
 
+        private Token commandTarget;
         private boolean inAttackRangeOfCommandTarget;
-        private boolean isHoldingRangedWeapon;
 
         public Attack(Token token) {
                 this.token = token;
@@ -79,8 +79,8 @@ public class Attack implements TokenComponent{
                         attackCoolDown -= delta; // the attack cooldown timer always decreases as long as not dead, not attacking, and has no projectile
 
 
-                isHoldingRangedWeapon = token.getInventory().getWeaponSlot() != null && token.getInventory().getWeaponSlot().isRanged();
 
+                commandTarget = token.getCommand().getTargetToken();
                 inAttackRangeOfCommandTarget = calcCanRangedAttack(token.getCommand().getTargetToken());
 
 
@@ -127,7 +127,7 @@ public class Attack implements TokenComponent{
          * @return
          */
         protected boolean attackTargetInDirection(float delta){
-                if(isHoldingRangedWeapon)
+                if(weapon.isRanged())
                         return false;
 
                 if (isOnAttackCooldown()) {
@@ -196,7 +196,7 @@ public class Attack implements TokenComponent{
         }
 
         private boolean calcCanRangedAttack(Token target){
-                if(!isHoldingRangedWeapon)
+                if(!weapon.isRanged())
                         return false;
 
                 if(target == null || target.getDamage() == null || !target.getDamage().isAttackable())
@@ -205,10 +205,13 @@ public class Attack implements TokenComponent{
                 if(token.getLogic()!=null && target.getLogic() != null&&token.getLogic().getTeam() == target.getLogic().getTeam())
                         return false;
 
-                int distance = token.location.distance(token.getCommand().getTargetToken().location);
+                float distance = token.getDistance(token.getCommand().getTargetToken());
                 // not sure why i need distance-1, but in order to actually have the right range i have to subtract 1
-                if(distance-1 > weapon.getRange())
+
+                if(distance > weapon.getRange()){
                         return false;
+                }
+
 
 
 
@@ -221,7 +224,12 @@ public class Attack implements TokenComponent{
                                 return false;
                 }else{
                         // no fogmapping, so we need to do a ray cast here
-                        if(distance != 1 && !LOS.hasLineOfSight(token.getFloorMap(), token.location.x, token.location.y, target.location.x, target.location.y))
+                        // this alternate version works better for this purpose, though it might not give the same
+                        // LOS reading as fogmapping., the alternate LOS is a little less permissive
+
+                        // TODO: i should change the logic here to always use the alternate LOS algorithm for range
+                        // or i need to figure out how to use the same LOS algorithm that fogmapping uses
+                        if(distance > 1 && !LOS.hasLineOfSightAlternate(token.getFloorMap(), token.location.x, token.location.y, target.location.x, target.location.y))
                                 return false;
                 }
 
@@ -231,7 +239,7 @@ public class Attack implements TokenComponent{
         }
 
         private boolean calcCanMeleeAttack(Token target){
-                if(isHoldingRangedWeapon)
+                if(weapon.isRanged())
                         return false;
 
                 if(target == null || target.getDamage() == null || !target.getDamage().isAttackable())
@@ -240,8 +248,8 @@ public class Attack implements TokenComponent{
                 if(token.getLogic()!=null && target.getLogic() != null&&token.getLogic().getTeam() == target.getLogic().getTeam())
                         return false;
 
-                int distance = token.location.distance(target.location);
-                if(distance > 1)
+                float distance = token.getDistance(target);
+                if(distance > 1f)
                         return false;
 
 
@@ -368,10 +376,6 @@ public class Attack implements TokenComponent{
 
         public boolean isInRangeOfAttackTarget(){
                 return inAttackRangeOfCommandTarget;
-        }
-
-        public int getAttackRange() {
-                return weapon.getRange();
         }
 
         public float getCriticalHitChance(){

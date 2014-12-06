@@ -246,8 +246,8 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
                         token1.getAttack().getAttackDuration(),
                         token2.getAttack().getAttackDuration());
                 printInfo("Attack Range",
-                        token1.getAttack().getAttackRange(),
-                        token2.getAttack().getAttackRange());
+                        token1.getAttack().getWeapon().getRange(),
+                        token2.getAttack().getWeapon().getRange());
                 printLabel("Agility");
                 printInfo("Move Speed",
                         token1.getMove().getMoveSpeed(),

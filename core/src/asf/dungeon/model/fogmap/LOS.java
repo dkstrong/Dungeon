@@ -51,7 +51,7 @@ public class LOS {
                 return true;
         }
 
-        private boolean hasLineOfSightAlternate(FloorMap floorMap, int xVantage, int yVantage, int xTarget, int yTarget) {
+        public static boolean hasLineOfSightAlternate(FloorMap floorMap, int xVantage, int yVantage, int xTarget, int yTarget) {
                 int sx, sy, xNext, yNext;
                 float denom, dist;
                 float xDelta = xTarget - xVantage;

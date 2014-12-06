@@ -57,7 +57,7 @@ public class UtDebugPrint {
                         Field[] fields = o.getClass().getDeclaredFields();
                         for (Field field : fields) {
                                 field.setAccessible(true);
-                                format(out, "%-15s %15s %s",field.getType().getSimpleName(),field.getName()+":", field.get(o));
+                                format(out, "%-25s %25s %s",field.getType().getSimpleName(),field.getName()+":", field.get(o));
                         }
                 }catch (IllegalAccessException e) {
                         format(out, e.getMessage());

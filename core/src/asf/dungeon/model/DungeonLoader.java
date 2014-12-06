@@ -143,7 +143,8 @@ public class DungeonLoader {
                                 token.getInventory().equip(sword);
                                 token.get(Journal.class).learn(sword);
                         }else if(settings.playerModel == ModelId.Archer){
-                                WeaponItem bow = new WeaponItem(ModelId.Sword,"Bow", 3, FxId.Arrow);
+                                WeaponItem bow = new WeaponItem(ModelId.Sword,"Bow", 2, FxId.Arrow);
+                                bow.setRangedStats(3,1);
                                 bow.setProjectileFx(FxId.Arrow);
                                 token.getInventory().add(bow);
                                 token.getInventory().equip(bow);
@@ -250,6 +251,7 @@ public class DungeonLoader {
                 kryo.register(com.badlogic.gdx.utils.Array[].class);
                 kryo.register(Array.ArrayIterable.class);
                 kryo.register(Array.ArrayIterator.class);
+                kryo.register(com.badlogic.gdx.math.Vector2.class);
                 kryo.register(Object[].class);
                 kryo.register(int[].class);
                 kryo.register(int[][].class);
