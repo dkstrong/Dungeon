@@ -1,7 +1,6 @@
 package asf.dungeon.view;
 
 import asf.dungeon.DungeonApp;
-import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.DungeonLoader;
 import asf.dungeon.model.FloorMap;
@@ -118,7 +117,7 @@ public class DungeonWorld implements Disposable {
                         saveDungeon();
                 }
 
-                System.out.println("North index is: "+ Direction.North.index);
+
 
         }
 

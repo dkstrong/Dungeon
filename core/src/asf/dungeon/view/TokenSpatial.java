@@ -1,6 +1,5 @@
 package asf.dungeon.view;
 
-import asf.dungeon.model.Direction;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
@@ -298,41 +297,10 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         }
                 }
 
-                if (token.getAttack() != null && token.getAttack().isAttackingRanged()) {
-                        Vector3 rotDir = temp;
-                        Token attackTarget = token.getAttack().getAttackTarget();
-                        if (attackTarget.getMove() == null) {
-                                world.getWorldCoords(attackTarget.getLocation(), rotDir);
-                        } else {
-                                world.getWorldCoords(attackTarget.getMove().getFloatLocation(), rotDir);
-                        }
-
-                        rotDir.sub(translation);
-                        UtMath.normalize(rotDir);
-
-                        if (rotDir.z != -1) {
-                                tempTargetRot.setFromCross(Vector3.Z, rotDir);
-                        } else {
-                                // TODO: this hackaround helps prevent some instances of where the
-                                // rotation "loops over" and cases looking south when should really be north
-                                // however it still happens in some instances
-                                tempTargetRot.set(world.assetMappings.getRotation(Direction.North));
-                        }
-
-
-                        float rotSpeed = delta * (UtMath.largest(token.getMove().getMoveSpeed(), 7) + 0.5f);
-                        rotation.slerp(tempTargetRot, rotSpeed);
-                } else if (token.getAttack() != null && token.getAttack().hasProjectile()) {
-                        float rotSpeed = delta * (UtMath.largest(token.getMove().getMoveSpeed(), 7) + 0.5f) * .05f;
-
-                        Quaternion tokenDirRot = world.assetMappings.getRotation(token.getDirection());
-                        rotation.slerp(tokenDirRot, rotSpeed);
-                } else {
-                        float rotMoveSpeed = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7f);
-                        float rotSpeed = delta * (rotMoveSpeed + 0.5f);
-                        Quaternion tokenDirRot = world.assetMappings.getRotation(token.getDirection());
-                        rotation.slerp(tokenDirRot, rotSpeed);
-                }
+                float rotMoveSpeed = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7f);
+                float rotSpeed = delta * (rotMoveSpeed + 0.5f);
+                Quaternion tokenDirRot = world.assetMappings.getRotation(token.getDirection());
+                rotation.slerp(tokenDirRot, rotSpeed);
         }
 
 

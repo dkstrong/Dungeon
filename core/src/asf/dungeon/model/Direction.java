@@ -42,45 +42,70 @@ public enum Direction {
                 throw new AssertionError(dir);
         }
 
-        public Direction opposite(){
+        public Direction opposite() {
                 switch (this) {
-                        case North: return South;
-                        case South: return North;
-                        case East: return West;
-                        case West: return East;
-                        case NorthEast: return SouthWest;
-                        case NorthWest: return SouthEast;
-                        case SouthEast: return NorthWest;
-                        case SouthWest: return NorthEast;
+                        case North:
+                                return South;
+                        case South:
+                                return North;
+                        case East:
+                                return West;
+                        case West:
+                                return East;
+                        case NorthEast:
+                                return SouthWest;
+                        case NorthWest:
+                                return SouthEast;
+                        case SouthEast:
+                                return NorthWest;
+                        case SouthWest:
+                                return NorthEast;
                 }
 
                 throw new AssertionError(this);
         }
 
-        public Direction rotate(int degrees){
-        return null;
+        public Direction rotate(int degrees) {
+                return Direction.getDirection(this.degrees+degrees);
         }
 
-        public boolean isDiagonal(){
+        public boolean isDiagonal() {
                 return this == NorthEast || this == NorthWest || this == SouthEast || this == SouthWest;
         }
 
-        public boolean isNorth(){
+        public boolean isNorth() {
                 return this == North || this == NorthEast || this == NorthWest;
         }
 
-        public boolean isEast(){
+        public boolean isEast() {
                 return this == East || this == NorthEast || this == SouthEast;
         }
 
-        public boolean isWest(){
+        public boolean isWest() {
                 return this == West || this == NorthWest || this == SouthWest;
         }
 
-        public boolean isSouth(){
+        public boolean isSouth() {
                 return this == South || this == SouthEast || this == SouthWest;
         }
 
+
+        public static Direction getDirection(int degrees) {
+                while(degrees >360) degrees-=360;
+                while(degrees <0) degrees+=360;
+
+                if(degrees == North.degrees) return North;
+                if(degrees == East.degrees) return East;
+                if(degrees == South.degrees) return South;
+                if(degrees == West.degrees) return West;
+
+                if(degrees == NorthEast.degrees) return NorthEast;
+                if(degrees == NorthWest.degrees) return NorthWest;
+                if(degrees == SouthEast.degrees) return SouthEast;
+                if(degrees == SouthWest.degrees) return SouthWest;
+
+                throw new AssertionError(degrees);
+        }
 
 
 }
