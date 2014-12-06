@@ -148,18 +148,38 @@ public class Experience implements TokenComponent{
                 // strength
 
                 // agility
+
                 if(agility < 10) token.getMove().setMoveSpeed(1.5f);
                 else if(agility < 15) token.getMove().setMoveSpeed(1.6f);
                 else if(agility < 20) token.getMove().setMoveSpeed(1.7f);
                 else token.getMove().setMoveSpeed(UtMath.scalarLimitsInterpolation(agility,20f,100f,1.7f,3f));
 
+                if(token.getStatusEffects() != null){
+                        if(token.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Speed)){
+                                token.getMove().setMoveSpeed(token.getMove().getMoveSpeed()*1.3f);
+                        }
+                }
+
+
+
+
+
                 // intelligence
 
-                token.getDamage().setSightRadius(Math.round(UtMath.scalarLimitsInterpolation(intelligence, 1f, 40f, 4f, 10f))); // default is 6
+                if(token.getStatusEffects() != null && token.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Blind)){
+                        token.getDamage().setSightRadius(1);
+                }else{
+                        token.getDamage().setSightRadius(Math.round(UtMath.scalarLimitsInterpolation(intelligence, 1f, 40f, 4f, 10f))); // default is 6
+                }
+
                 //Gdx.app.log(token.getName(),"int: "+intelligence+" sight: "+token.getDamage().getSightRadius()+"");
 
                 // luck
 
+
+                if(token.getFogMapping()!= null && token.getFloorMap() != null){
+                        token.getFogMapping().computeFogMap();
+                }
 
 
         }

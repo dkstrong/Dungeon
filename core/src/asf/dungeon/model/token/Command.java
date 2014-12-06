@@ -5,6 +5,7 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
+import asf.dungeon.model.fogmap.LOS;
 import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.quest.Choice;
@@ -114,11 +115,26 @@ public class Command implements TokenComponent{
                         return;
                 }
 
+                if(targetToken.getStatusEffects() != null){
+                        if(targetToken.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Invisibility)){
+                                this.targetToken = null;
+                                return;
+                        }
+                }
+
+
                 if(token.getFogMapping() != null){
                         FogMap fogMap = token.getFogMapping().getFogMap(token.getFloorMap());
                         if(!fogMap.isVisible(targetToken.location.x, targetToken.location.y)){
                                 this.targetToken = null;
                                 return;
+                        }
+                }else{
+                        // same LOS fallback used in Attack
+                        float distance = token.getDistance(targetToken);
+                        if(distance > 1 && !LOS.hasLineOfSightAlternate(token.getFloorMap(), token.location.x, token.location.y, targetToken.location.x, targetToken.location.y)){
+                                this.targetToken = null;
+                                return ;
                         }
                 }
                 this.targetToken = targetToken;

@@ -2,6 +2,7 @@ package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.fogmap.FogMap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.reflect.ArrayReflection;
 
@@ -54,9 +55,26 @@ public class StatusEffects implements TokenComponent{
                                 }
                         }
                 }
+
+                if(hasStatusEffect(Effect.MindVision)){
+                        FogMap fogMap = token.getFogMapping().getCurrentFogMap();
+                        Array<Token> monsterTokens = token.getFloorMap().getMonsterTokens(token.getLogic().getTeam());
+                        for (Token monsterToken : monsterTokens) {
+                                fogMap.revealLocation(monsterToken.getLocation().x, monsterToken.getLocation().y);
+                        }
+                }
+
+                if(hasStatusEffect(Effect.Paralyze))
+                        return true;
+
                 return false;
         }
 
+        public void addStatusEffect(Effect statusEffect){
+                // TODO: need to implement this
+                // shoudl add status effect pemenatly, will not be removed until removeStatusEffect() is called
+                throw new UnsupportedOperationException("not yet implemented");
+        }
         public void addStatusEffect(Effect statusEffect, float duration){
                 addStatusEffect(statusEffect,duration,1);
         }
@@ -97,6 +115,7 @@ public class StatusEffects implements TokenComponent{
         public void removeNegativeStatusEffects(){
                 removeStatusEffect(Effect.Poison);
                 removeStatusEffect(Effect.Paralyze);
+                removeStatusEffect(Effect.Blind);
         }
 
         public void removeAllStatusEffects(){
@@ -132,10 +151,11 @@ public class StatusEffects implements TokenComponent{
                                 token.getDamage().addHealth(-1);
                         }
                 },
-                Paralyze(),
-                Invisibility(),
-                MindVision(),
-                Speed();
+                Paralyze(), // StatusEffects.update() checks for this and blocks the stack if paralyzed
+                Invisibility(), // Damage checks for this and sets not attackable is invisible
+                MindVision(), // StatusEffects.update() checks for this, reveals tiles of monster tokens
+                Blind(), // Experience.recalcStats() checks for this, redudes visibility to 1 tile
+                Speed(); // Experience.recalcStats() checks for this and gives 35% speed increase
 
                 /**
                  * called when the status effect is added

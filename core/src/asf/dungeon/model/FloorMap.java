@@ -217,6 +217,19 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                 return tokensAt;
         }
 
+        public Array<Token> getMonsterTokens(int notOnTeam) {
+                tokensAt.clear();
+                for (Token t : tokens) {
+                        if(t.getLogic() != null && t.getLogic().getTeam() != notOnTeam
+                           && t.getDamage() != null && t.getDamage().isAttackable()
+                           )
+                                tokensAt.add(t);
+                }
+                return tokensAt;
+        }
+
+
+
         /**
          * list of tokens at the supplied location, note that the Array that is returned
          * shouldnt be stored as it will be reused next time this method is called

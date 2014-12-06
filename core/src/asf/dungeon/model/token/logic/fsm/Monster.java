@@ -28,7 +28,7 @@ public enum Monster implements State {
                                         if (++tries > 20) {
                                                 x = token.getLocation().x;
                                                 y = token.getLocation().y;
-                                                return;
+                                                break;
                                         }
                                         x = fsm.sector.getRandomX(fsm.rand);
                                         y = fsm.sector.getRandomY(fsm.rand);
@@ -61,7 +61,7 @@ public enum Monster implements State {
 
                 @Override
                 public void update(FSMLogic fsm, Token token, Command command, float delta) {
-                        if (fsm.target.getDamage().isDead()) {
+                        if (!fsm.target.getDamage().isAttackable()) {
                                 fsm.setState(Sleep);
                         } else if (!token.getAttack().isOnAttackCooldown()) {
                                 fsm.setState(Chase);
@@ -69,6 +69,8 @@ public enum Monster implements State {
                                 // if finished moving while keeping distance and attack cooldown still isnt finished
                                 // then go in to attack target token mode
                                 command.setTargetToken(fsm.target);
+                                if(command.getTargetToken() == null)
+                                        fsm.setState(Sleep);
                         } else if (command.getTargetToken() != null) {
                                 // if elected to hold position because already at a good range, then continualy check
                                 // distance to target and move back if needed
@@ -82,11 +84,13 @@ public enum Monster implements State {
                 @Override
                 public void begin(FSMLogic fsm, Token token, Command command) {
                         command.setTargetToken(fsm.target);
+                        if(command.getTargetToken() == null)
+                                fsm.setState(Sleep);
                 }
 
                 @Override
                 public void update(FSMLogic fsm, Token token, Command command, float delta) {
-                        if (fsm.target.getDamage().isDead()) {
+                        if (!fsm.target.getDamage().isAttackable()) {
                                 fsm.setState(Sleep);
                                 return;
                         }

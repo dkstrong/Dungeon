@@ -46,6 +46,7 @@ public class Token {
         private Inventory.Character inventory;
         private Inventory.Simple simpleInventory;
         private FogMapping fogMapping;
+        private StatusEffects statusEffects;
 
 
         public Token(Dungeon dungeon, int id, String name, ModelId modelId) {
@@ -112,6 +113,8 @@ public class Token {
                         this.move = (Move) component;
                 } else if (component instanceof Experience) {
                         this.experience = (Experience) component;
+                } else if(component instanceof StatusEffects){
+                        this.statusEffects = (StatusEffects)component;
                 }
         }
 
@@ -222,7 +225,6 @@ public class Token {
                 return move;
         }
 
-
         public Damage getDamage() {
                 return damage;
         }
@@ -245,6 +247,10 @@ public class Token {
 
         public Inventory.Simple getSimpleInventory() {
                 return simpleInventory;
+        }
+
+        public StatusEffects getStatusEffects() {
+                return statusEffects;
         }
 
         /**

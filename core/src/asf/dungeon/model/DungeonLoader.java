@@ -90,7 +90,7 @@ public class DungeonLoader {
                         playerLogic = new FullAgroLogic(0);
                 }else{
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new BalanceTestFloorGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
+                                new DirectionalCaveHallGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
@@ -115,14 +115,18 @@ public class DungeonLoader {
                                 new Experience(1, 20, 6, 3, 1,1),
                                 0,0);
 
-                        token.getInventory().setNumQuickSlots(0);
+                        // TODO: if adding a status effect before adding to the dungeon, the tokenspatial and hudspatial
+                        // wont know about the status effect. need to modify how this works (maybe automatically do onStatusEffectCHanged
+                        // when adding new token?
+                        token.getStatusEffects().addStatusEffect(StatusEffects.Effect.Blind, 10);
+                        token.getInventory().setNumQuickSlots(2);
 
-                        PotionItem potion  = new PotionItem(dungeon, PotionItem.Type.Poison,4 );
+                        PotionItem potion  = new PotionItem(dungeon, PotionItem.Type.MindVision,4 );
                         potion.identifyItem(token);
                         token.getInventory().add(potion);
                         token.getInventory().equip(potion);
 
-                        PotionItem health  = new PotionItem(dungeon, PotionItem.Type.Health,1 );
+                        PotionItem health  = new PotionItem(dungeon, PotionItem.Type.Blindness,1 );
                         health.identifyItem(token);
                         token.getInventory().add(health);
                         token.getInventory().equip(health);

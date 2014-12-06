@@ -115,22 +115,29 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
                         case Health:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Heal, 4, 8);
                                 return true;
+                        case Poison:
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Poison, 5, 5);
+                                return true;
                         case Invisibility:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Invisibility, 10, 1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Invisibility, 10);
                                 return true;
                         case Purity:
                                 statusEffects.removeNegativeStatusEffects();
                                 return true;
-                        case Poison:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Poison, 5, 5);
-                                return true;
                         case Paralyze:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Paralyze, 5, 1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Paralyze, 5);
+                                return true;
+                        case Blindness:
+                                statusEffects.addStatusEffect(StatusEffects.Effect.Blind, 10);
                                 return true;
                         case MindVision:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.MindVision, 5, 1);
+                                statusEffects.addStatusEffect(StatusEffects.Effect.MindVision, 5);
+                                return true;
+                        case Hallucination:
+                                // TODO: I... forget what this was supposed to do.. I think show loot on the ground that isnt actually there?
                                 return true;
                         case Might:
+                                // TODO: Attack should check for this, should increase damage dealt and reduce damage received
                                 return true;
                         case Speed:
                                 statusEffects.addStatusEffect(StatusEffects.Effect.Speed, 10, 1);
