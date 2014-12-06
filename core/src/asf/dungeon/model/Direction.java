@@ -69,26 +69,9 @@ public enum Direction {
                 return Direction.getDirection(this.degrees+degrees);
         }
 
-        public boolean isDiagonal() {
-                return this == NorthEast || this == NorthWest || this == SouthEast || this == SouthWest;
+        public int range(Direction dir){
+                return Math.abs(degrees - dir.degrees);
         }
-
-        public boolean isNorth() {
-                return this == North || this == NorthEast || this == NorthWest;
-        }
-
-        public boolean isEast() {
-                return this == East || this == NorthEast || this == SouthEast;
-        }
-
-        public boolean isWest() {
-                return this == West || this == NorthWest || this == SouthWest;
-        }
-
-        public boolean isSouth() {
-                return this == South || this == SouthEast || this == SouthWest;
-        }
-
 
         public static Direction getDirection(int degrees) {
                 while(degrees >360) degrees-=360;
@@ -107,5 +90,8 @@ public enum Direction {
                 throw new AssertionError(degrees);
         }
 
+        public boolean isDiagonal() {
+                return this == NorthEast || this == NorthWest || this == SouthEast || this == SouthWest;
+        }
 
 }

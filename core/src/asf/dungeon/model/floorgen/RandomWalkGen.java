@@ -54,7 +54,7 @@ public class RandomWalkGen implements FloorMapGenerator {
                                 int tries = 0;
                                 do {
                                         loc.set(locTemp);
-                                        loc.add(dungeon.rand.direction());
+                                        loc.addFree(dungeon.rand.direction());
                                         if(++tries > 20){
                                                 regen = true;
                                                 break mid;

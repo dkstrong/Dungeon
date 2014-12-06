@@ -6,7 +6,6 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.KeyItem;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -203,10 +202,7 @@ public class Move implements TokenComponent{
                         // this reverses the direction and fixes the path to account for this
                         Pair nextLocation = path.get(1);
                         if (!token.floorMap.isLocationBlocked(nextLocation)) {
-                                if(!path.get(0).equals(token.location)){
-                                        Gdx.app.error("Move","Invalid path start location");
-                                }
-                                Direction newDir = token.location.direction(nextLocation);  // should this be location.direction(nextlocation)?
+                                Direction newDir = token.location.direction(nextLocation);
                                 if (newDir.isOpposite(token.direction)) {
                                         Tile prevTile = token.floorMap.getTile(token.location);
                                         if (prevTile.isDoor())

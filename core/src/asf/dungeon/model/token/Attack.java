@@ -28,7 +28,6 @@ public class Attack implements TokenComponent{
         private float attackCoolDown = 0;                       // time until this token can send another attack, after attacking this value is reset to attackCooldownDuration
         private boolean sentAttackResult = false;
 
-        private Token commandTarget;
         private boolean inAttackRangeOfCommandTarget;
 
         public Attack(Token token) {
@@ -80,7 +79,7 @@ public class Attack implements TokenComponent{
 
 
 
-                commandTarget = token.getCommand().getTargetToken();
+
                 inAttackRangeOfCommandTarget = calcCanRangedAttack(token.getCommand().getTargetToken());
 
 
@@ -205,13 +204,16 @@ public class Attack implements TokenComponent{
                 if(token.getLogic()!=null && target.getLogic() != null&&token.getLogic().getTeam() == target.getLogic().getTeam())
                         return false;
 
-                float distance = token.getDistance(token.getCommand().getTargetToken());
+                float distance = token.getDistance(target);
                 // not sure why i need distance-1, but in order to actually have the right range i have to subtract 1
 
-                if(distance > weapon.getRange()){
+                if(distance > weapon.getRange())
                         return false;
-                }
 
+
+                Direction dirToTarget = token.location.direction(target.location);
+                if(token.direction.range(dirToTarget)>45)
+                        return false;
 
 
 

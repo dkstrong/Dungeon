@@ -2,7 +2,6 @@ package asf.dungeon.model.token.logic.fsm;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.Command;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
@@ -12,7 +11,7 @@ import com.badlogic.gdx.utils.Array;
  */
 public enum Monster implements State {
 
-        DoNothing{
+        DoNothing {
 
         },
         Sleep {
@@ -57,39 +56,26 @@ public enum Monster implements State {
         ChaseKeepDistance {
                 @Override
                 public void begin(FSMLogic fsm, Token token, Command command) {
-                        // if you have a ranged weapon, then the monster should try to stay at maximum range while on attack cooldown.
-
-                        // move to the closest location whose distance == attack range
-                        Direction dir = fsm.target.getLocation().direction(token.getLocation());
-                        FloorMap fm = token.getFloorMap();
-                        float distance = token.getDistance(fsm.target);
-                        float r = token.getAttack().getWeapon().getRange();
-
-                        if(distance < r){
-
-                                int rInt = (int)r;
-                                Tile tile;
-                                do{
-                                        fsm.pair.set(fsm.target.getLocation()).add(dir, rInt--);
-                                        tile = fm.getTile(fsm.pair);
-                                }while((tile == null || fm.isLocationBlocked(fsm.pair)) && rInt>0);
-                                if(rInt==0 ){
-                                        // TODO: instead of just keeping back against the wall, attempt to move in a perpendicular direction
-                                        command.setLocation(token.getLocation());
-                                }else{
-                                        command.setLocation(fsm.pair);
-                                }
-                        }
-
-
-
+                        moveToSafeDistance(fsm, token, command, token.getAttack().getWeapon().getRange());
                 }
 
                 @Override
                 public void update(FSMLogic fsm, Token token, Command command, float delta) {
-                        if (!token.getAttack().isOnAttackCooldown()) {
+                        if (fsm.target.getDamage().isDead()) {
+                                fsm.setState(Sleep);
+                        } else if (!token.getAttack().isOnAttackCooldown()) {
                                 fsm.setState(Chase);
+                        } else if (command.getTargetToken() == null && !token.getMove().isMoving() && command.getLocation().equals(token.getLocation())) {
+                                // if finished moving while keeping distance and attack cooldown still isnt finished
+                                // then go in to attack target token mode
+                                command.setTargetToken(fsm.target);
+                        } else if (command.getTargetToken() != null) {
+                                // if elected to hold position because already at a good range, then continualy check
+                                // distance to target and move back if needed
+                                moveToSafeDistance(fsm, token, command, token.getAttack().getWeapon().getRange());
                         }
+
+
                 }
         },
         Chase {
@@ -106,7 +92,7 @@ public enum Monster implements State {
                         }
 
                         if (token.getAttack().getWeapon().isRanged()) {
-                                if (token.getAttack().isOnAttackCooldown() ) {
+                                if (token.getAttack().isOnAttackCooldown()) {
                                         fsm.setState(ChaseKeepDistance);
                                 }
                         }
@@ -182,4 +168,40 @@ public enum Monster implements State {
                         }
                 }
         }
+
+        private static void moveToSafeDistance(FSMLogic fsm, Token token, Command command, float safeDistance) {
+                // TODO: this seems to work ok as is. Ideally id like ot use multAdd instead of multAddFree
+                // so the mosnter wont move out of their own range when moving diagonally. though when i use multAdd
+                // the monster tends to want to stay horizontal/vertical with the player and ends up doing a bad
+                // job of keeping distance
+                //
+                // TODO: when backed in to a corner the mosnter can kind of "flicker" inbetween two states, i think
+                // this is caused by ChaseKeepDistance toggling between targeting and untargetting the player.
+                float distance = token.getDistance(fsm.target);
+
+                if (distance > safeDistance - .25f) {
+                        return;
+                }
+
+                Direction dir = fsm.target.getLocation().direction(token.getLocation());
+                int range = (int) safeDistance;
+                FloorMap fm = token.getFloorMap();
+                do {
+                        fsm.pair.set(fsm.target.getLocation()).multAddFree(dir, range);
+                        if(!fm.isLocationBlocked(fsm.pair)) break;
+                        //fsm.pair.set(fsm.target.getLocation()).multAdd(dir, range, false);
+                        //if(!fm.isLocationBlocked(fsm.pair)) break;
+
+                        range--;
+                } while (range > 0);
+
+                if(range > 0){
+                        command.setLocation(fsm.pair);
+                }else{
+                        // backed in to a corner, give command to just hold location
+                        command.setLocation(token.getLocation());
+                }
+
+        }
+
 }

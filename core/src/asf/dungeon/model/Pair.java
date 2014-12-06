@@ -4,14 +4,15 @@ package asf.dungeon.model;
 /**
  * Created by danny on 10/21/14.
  */
-public class Pair  {
+public class Pair {
         public int x;
         public int y;
 
         public Pair() {
 
         }
-        public Pair(Pair copy){
+
+        public Pair(Pair copy) {
                 x = copy.x;
                 y = copy.y;
         }
@@ -21,18 +22,19 @@ public class Pair  {
                 this.y = y;
         }
 
-        public Pair set(int x, int  y){
-                this.x=x;
-                this.y=y;
-                return this;
-        }
-        public Pair set(Pair pair) {
-                x = pair.x;
-                y =pair.y;
+        public Pair set(int x, int y) {
+                this.x = x;
+                this.y = y;
                 return this;
         }
 
-        public Direction direction(Pair to){
+        public Pair set(Pair pair) {
+                x = pair.x;
+                y = pair.y;
+                return this;
+        }
+
+        public Direction direction(Pair to) {
                 Pair from = this;
                 if (to.x > from.x) {
                         if (to.y > from.y)
@@ -60,8 +62,9 @@ public class Pair  {
         /**
          * distance between these two tile locations
          * note that distance is determind as number of moves to go from location A to location B with diagonal turned on
-         *
+         * <p/>
          * this is often a different distance value than what is conventionally known as "distance"
+         *
          * @param targetX
          * @param targetY
          * @return
@@ -69,27 +72,112 @@ public class Pair  {
         public int distance(int targetX, int targetY) {
                 int xDistance = Math.abs(targetX - x);
                 int yDistance = Math.abs(targetY - y);
-                return xDistance+yDistance;
+                return xDistance + yDistance;
         }
 
-        public Pair add(Direction dir, int scale){
-                if(scale ==0 || dir == null) return this;
-                if(scale <0){
+        /**
+         * adds directions to this coordinate with the rules of manhatten distance (going diagonal takes two moves).
+         *
+         * @param dir
+         * @param scale
+         * @param horizontalFirst
+         * @return
+         */
+        public Pair multAdd(Direction dir, int scale, boolean horizontalFirst) {
+                if(scale ==0) return this;
+                if (scale < 0) {
                         dir = dir.opposite();
-                        scale*=-1;
+                        scale *= -1;
                 }
 
-                for(int i=0; i < scale; i++)
-                        add(dir);
+                while(scale >=2){
+                        add(dir,horizontalFirst);
+                        add(dir,!horizontalFirst);
+                        scale-=2;
+                }
+                if(scale == 1)
+                        add(dir, horizontalFirst);
+                return this;
+        }
+
+
+
+        /**
+         * adds a direction to a location, but diagonals take 1 move instead of 2
+         *
+         * @param dir
+         * @param scale
+         * @return
+         */
+        public Pair multAddFree(Direction dir, int scale) {
+                if (scale == 0 || dir == null) return this;
+                if (scale < 0) {
+                        dir = dir.opposite();
+                        scale *= -1;
+                }
+
+                for (int i = 0; i < scale; i++)
+                        addFree(dir);
 
                 return this;
         }
 
-        public Pair add(Direction dir){
-                if(dir == null){
+        /**
+         * adds directions to this coordinate with the rules of manhatten distance (going diagonal takes two moves).
+         *
+         * note that going diagonal can look like going horizontal or vertical when using this method
+         * @param dir
+         * @param horizontalFirst
+         * @return
+         */
+        public Pair add(Direction dir, boolean horizontalFirst){
+                if (dir == null) {
                         return this;
                 }
-                switch(dir){
+                switch (dir) {
+                        case North:
+                                y++;
+                                break;
+                        case South:
+                                y--;
+                                break;
+                        case East:
+                                x++;
+                                break;
+                        case West:
+                                x--;
+                                break;
+                        case NorthEast:
+                                if(horizontalFirst) x++;
+                                else y++;
+                                break;
+                        case NorthWest:
+                                if(horizontalFirst) x--;
+                                else y++;
+                                break;
+                        case SouthEast:
+                                if(horizontalFirst) x++;
+                                else y--;
+                                break;
+                        case SouthWest:
+                                if(horizontalFirst) x--;
+                                else y--;
+                                break;
+                }
+                return this;
+        }
+
+        /**
+         * adds a direction to a location, but diagonals take 1 move instead of 2
+         *
+         * @param dir
+         * @return
+         */
+        public Pair addFree(Direction dir) {
+                if (dir == null) {
+                        return this;
+                }
+                switch (dir) {
                         case North:
                                 y++;
                                 break;
@@ -122,8 +210,8 @@ public class Pair  {
                 return this;
         }
 
-        public boolean equals(int x, int y){
-                return this.x == x && this.y==y;
+        public boolean equals(int x, int y) {
+                return this.x == x && this.y == y;
         }
 
         @Override
@@ -148,7 +236,7 @@ public class Pair  {
 
         @Override
         public String toString() {
-                return "{"+x+", "+y+"}";
+                return "{" + x + ", " + y + "}";
         }
 
 
