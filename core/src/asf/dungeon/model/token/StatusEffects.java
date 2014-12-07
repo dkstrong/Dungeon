@@ -4,25 +4,24 @@ import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.fogmap.FogMap;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.reflect.ArrayReflection;
+import com.badlogic.gdx.utils.FloatArray;
 
 /**
  * Created by Danny on 11/11/2014.
  */
 public class StatusEffects implements TokenComponent{
         private final Token token;
-        private static transient final Effect[] effectValues = Effect.values();
-        private final Array<Float>[] statusEffects;
+        public static transient final Effect[] effectValues = Effect.values();
+        private final FloatArray[] statusEffects;
 
-        //private final Map<Effect, Array<Float>> statusEffects = new EnumMap<Effect, Array<Float>>(Effect.class);
 
         public StatusEffects(Token token) {
                 this.token = token;
 
-                statusEffects = (Array<Float>[]) ArrayReflection.newInstance(Array.class, effectValues.length);
+                statusEffects = new FloatArray[effectValues.length];
 
                 for (Effect statusEffect : effectValues) {
-                        statusEffects[statusEffect.ordinal()] = new Array<Float>(false, 8, Float.class);
+                        statusEffects[statusEffect.ordinal()] = new FloatArray(false, 8);
                 }
         }
 
@@ -34,7 +33,7 @@ public class StatusEffects implements TokenComponent{
         @Override
         public boolean update(float delta) {
                 for (Effect statusEffect : effectValues) {
-                        Array<Float> durations = statusEffects[statusEffect.ordinal()];
+                        FloatArray durations = statusEffects[statusEffect.ordinal()];
                         if(durations.size ==0){
                                 continue;
                         }
@@ -54,6 +53,7 @@ public class StatusEffects implements TokenComponent{
                                                 token.listener.onStatusEffectChange(statusEffect, 0);
                                 }
                         }
+
                 }
 
                 if(hasStatusEffect(Effect.MindVision)){
@@ -70,20 +70,34 @@ public class StatusEffects implements TokenComponent{
                 return false;
         }
 
+        /**
+         * adds a status effect with no duration (NaN), this means it wont be removed until removeStatusEffect is called.
+         *
+         * note that status effects without durations will never call apply(), this means that Health and Poison wont do anything
+         * if added this way
+         * @param statusEffect
+         */
         public void addStatusEffect(Effect statusEffect){
-                // TODO: need to implement this
-                // shoudl add status effect pemenatly, will not be removed until removeStatusEffect() is called
-                throw new UnsupportedOperationException("not yet implemented");
+                FloatArray durations = statusEffects[statusEffect.ordinal()];
+                durations.clear();
+                durations.add(Float.NaN);
+                // following the logic from the bottom of addStatusEffect(Effect,float,int)
+                statusEffect.begin(token);
+                if(token.getExperience() != null)
+                        token.getExperience().recalcStats();
+                if(token.listener != null)
+                        token.listener.onStatusEffectChange(statusEffect, Float.NaN);
         }
         public void addStatusEffect(Effect statusEffect, float duration){
                 addStatusEffect(statusEffect,duration,1);
         }
         public void addStatusEffect(Effect statusEffect, float duration, int value){
-                if(duration < this.getStatusEffectDuration(statusEffect)){
+                float currentDuration = getStatusEffectDuration(statusEffect);
+                if(duration < currentDuration || Float.isNaN(currentDuration)){
                         return;
                 }
 
-                Array<Float> durations = statusEffects[statusEffect.ordinal()];
+                FloatArray durations = statusEffects[statusEffect.ordinal()];
                 durations.clear();
                 if(value >1){
                         float subDuration = duration/(value-1);
@@ -104,10 +118,11 @@ public class StatusEffects implements TokenComponent{
         }
 
         public void removeStatusEffect(Effect statusEffect){
-                Array<Float> durations = statusEffects[statusEffect.ordinal()];
+                FloatArray durations = statusEffects[statusEffect.ordinal()];
                 durations.clear();
                 statusEffect.end(token);
-                token.getExperience().recalcStats();
+                if(token.getExperience() != null)
+                        token.getExperience().recalcStats();
                 if(token.listener != null)
                         token.listener.onStatusEffectChange(statusEffect, 0);
         }
@@ -130,9 +145,9 @@ public class StatusEffects implements TokenComponent{
 
         public float getStatusEffectDuration(Effect statusEffect){
                 float duration = 0;
-                Array<Float> durations = statusEffects[statusEffect.ordinal()];
-                for (Float aFloat : durations) {
-                        duration+=aFloat;
+                FloatArray durations = statusEffects[statusEffect.ordinal()];
+                for(int i=0; i<durations.size; i++){
+                        duration+=durations.items[i];
                 }
                 return duration;
         }

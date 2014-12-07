@@ -131,10 +131,13 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                         if(targetTokenSpatial != null){
                                 translation.set(targetTokenSpatial.translation);
                                 //rotation.set(targetTokenSpatial.rotation) // TODO: do i want to follow rotation too?
+                                if(targetTokenSpatial.getToken().getDamage() != null && targetTokenSpatial.getToken().getDamage().isDead()){
+                                        duration = 0;
+                                }
                         }
 
                 }else if(mode == 3){
-                        if (attackerToken == null || !attackerToken.getAttack().hasProjectile()) {
+                        if (attackerToken == null || !attackerToken.getAttack().hasProjectile() || attackerToken.getDamage().isDead()) {
                                 deactivate();
                                 return;
                         } else if (attackerToken.getAttack().getEffectiveProjectileU() < 0) {
@@ -213,7 +216,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                         // a half second of time between projectile spawna nd when it should show up
                         // we check the effective projectile u to make sure it is positive to make sure that the
                         // projectile should be visible
-                        if (attackerToken == null || attackerToken.getAttack().getEffectiveProjectileU() < 0) {
+                        if (attackerToken == null || attackerToken.getAttack().getEffectiveProjectileU() < 0 || attackerToken.getDamage().isDead()) {
                                 return;
                         }
                 }

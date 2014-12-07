@@ -148,12 +148,18 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                                 deactivate();
                                 return;
                         }
-                        if(tokenSpatial != null)
+                        if(tokenSpatial != null){
                                 decal.setPosition(tokenSpatial.translation.x,
                                         tokenSpatial.translation.y+sphere.getRadius(),
                                         tokenSpatial.translation.z);
+
+                                if(tokenSpatial.getToken().getDamage() != null && tokenSpatial.getToken().getDamage().isDead()){
+                                        duration = 0;
+                                }
+                        }
+
                 }else if(mode == 3){
-                        if (attackerToken == null || !attackerToken.getAttack().hasProjectile()) {
+                        if (attackerToken == null || !attackerToken.getAttack().hasProjectile() || attackerToken.getDamage().isDead()) {
                                 deactivate();
                                 return;
                         } else if (attackerToken.getAttack().getEffectiveProjectileU() < 0) {
@@ -228,7 +234,7 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                         // a half second of time between projectile spawna nd when it should show up
                         // we check the effective projectile u to make sure it is positive to make sure that the
                         // projectile should be visible
-                        if (attackerToken == null || attackerToken.getAttack().getEffectiveProjectileU() < 0) {
+                        if (attackerToken == null || attackerToken.getAttack().getEffectiveProjectileU() < 0 || attackerToken.getDamage().isDead()) {
                                 return;
                         }
                 }

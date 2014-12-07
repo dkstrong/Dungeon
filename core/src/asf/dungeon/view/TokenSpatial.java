@@ -1,5 +1,6 @@
 package asf.dungeon.view;
 
+import asf.dungeon.model.Direction;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
@@ -84,6 +85,10 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         world.assetManager.load(world.assetMappings.getEmptyFountainTextureAssetLocation(fountain), Texture.class);
                 }
 
+                // check to see if the token spawned with a projectile, spawn the projectile with it if thats the case
+                if(token.getAttack() != null && token.getAttack().hasProjectile()){
+                        world.fxManager.shootProjectile(token.getAttack().getWeapon().getProjectileFx(), token, token.getAttack().getProjectileAttackTarget(), token.getAttack().getProjectileAttackCoord());
+                }
 
         }
 
@@ -179,11 +184,20 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
                 }
 
+                // check to see if token spawned with status effects already on, if so then shot their Fx and hud information
+                if(token.getStatusEffects()!= null){
+                        for (StatusEffects.Effect effect : StatusEffects.effectValues) {
+                                if(token.getStatusEffects().hasStatusEffect(effect)){
+                                        float duration = token.getStatusEffects().getStatusEffectDuration(effect);
+                                        onStatusEffectChange(effect, duration);
+                                }
+                        }
+                }
+
+
         }
 
         private Animation current, idle, walk, attack, hit, die;
-        private static final Vector3 temp = new Vector3();
-        private final Quaternion tempTargetRot = new Quaternion();
 
 
         public void update(final float delta) {
@@ -268,7 +282,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
                 } else if (token.getAttack() != null && token.getAttack().isAttacking()) {
                         if (current != attack) {
-                                animController.animate(attack.id, 1, attack.duration / token.getAttack().getAttackDuration(), null, .2f);
+                                animController.animate(attack.id, 1, attack.duration / token.getAttack().getWeapon().getAttackDuration(), null, .2f);
 
                                 current = attack;
                         }
@@ -297,12 +311,33 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         }
                 }
 
-                float rotMoveSpeed = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7f);
-                float rotSpeed = delta * (rotMoveSpeed + 0.5f);
-                Quaternion tokenDirRot = world.assetMappings.getRotation(token.getDirection());
-                rotation.slerp(tokenDirRot, rotSpeed);
+
+
+                if(token.getDamage() != null && !token.getDamage().isDead() && token.getAttack()!=null &&token.getAttack().isAttackingRanged()){
+                        float rotMoveSpeed = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7f);
+                        float rotSpeed = delta * (rotMoveSpeed + 0.5f);
+                        Direction dir = token.getLocation().direction(token.getAttack().getAttackTarget().getLocation());
+                        Quaternion tokenDirRot = world.assetMappings.getRotation(dir);
+                        rotation.slerp(tokenDirRot, rotSpeed);
+                }else{
+                        float rotMoveSpeed = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7f);
+                        float rotSpeed = delta * (rotMoveSpeed + 0.5f);
+                        Quaternion tokenDirRot = world.assetMappings.getRotation(token.getDirection());
+                        rotation.slerp(tokenDirRot, rotSpeed);
+                }
+
+
         }
 
+
+        @Override
+        public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
+
+                world.fxManager.spawnEffect(world.assetMappings.getStatusEffectFxId(effect), this, duration);
+
+                if (world.hudSpatial.localPlayerToken == token)
+                        world.hudSpatial.onStatusEffectChange(effect, duration);
+        }
 
         @Override
         public void onPathBlocked(Pair nextLocation, Tile nextTile) {
@@ -312,9 +347,9 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
         @Override
         public void onAttack(Token target, Pair targetLocation, boolean ranged) {
-                if (ranged) {
 
-                        world.fxManager.shootProjectile(token.getInventory().getWeaponSlot().getProjectileFx(), token, target, targetLocation);
+                if (ranged) {
+                        world.fxManager.shootProjectile(token.getAttack().getWeapon().getProjectileFx(), token, target, targetLocation);
                 }
 
                 if (world.hudSpatial.localPlayerToken == token)
@@ -354,14 +389,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
 
-        @Override
-        public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
 
-                world.fxManager.spawnEffect(world.assetMappings.getStatusEffectFxId(effect), this, duration);
-
-                if (world.hudSpatial.localPlayerToken == token)
-                        world.hudSpatial.onStatusEffectChange(effect, duration);
-        }
 
         @Override
         public void onLearned(Object journalObject, boolean study) {

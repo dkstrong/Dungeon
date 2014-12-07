@@ -38,7 +38,7 @@ public class DungeonApp implements ApplicationListener {
                 returnToMainMenu();
 
                 DungeonWorld.Settings settings = new DungeonWorld.Settings();
-                settings.playerModel = ModelId.Knight;
+                settings.playerModel = ModelId.Archer;
                 settings.startDebugSession = true;
                 loadWorld(settings);
         }

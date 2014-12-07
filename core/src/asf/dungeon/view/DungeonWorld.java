@@ -118,11 +118,10 @@ public class DungeonWorld implements Disposable {
                 }
 
 
-
         }
 
 
-        protected void notifyOnLoaded(LoadedNotifyable loadedNotifyable){
+        protected void notifyOnLoaded(LoadedNotifyable loadedNotifyable) {
                 loadables.add(loadedNotifyable);
                 loading = true;
         }
@@ -214,12 +213,12 @@ public class DungeonWorld implements Disposable {
 
         public void render(final float delta) {
 
-                if (loading ) {
+                if (loading) {
                         Gdx.graphics.requestRendering();
-                        if(assetManager.update()){
+                        if (assetManager.update()) {
                                 loading = false;
                                 if (!simulationStarted) {
-                                        if(settings.startDebugSession){
+                                        if (settings.startDebugSession) {
                                                 debugSession = dungeonApp.getPlatformActionResolver().getDebugSession();
                                         }
                                         Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
@@ -233,13 +232,13 @@ public class DungeonWorld implements Disposable {
                                 }
 
                                 Iterator<LoadedNotifyable> i = loadables.iterator();
-                                while(i.hasNext()){
+                                while (i.hasNext()) {
                                         // TODO: need to think about this more, might not be possible for loading ot finish and not have the needed asset.
                                         // gotta think about what happens when inventory changes before loading is finished
                                         LoadedNotifyable next = i.next();
-                                        if(next.onLoaded()){
+                                        if (next.onLoaded()) {
                                                 i.remove();
-                                        }else{
+                                        } else {
                                                 loading = true;
                                         }
                                 }
@@ -250,7 +249,6 @@ public class DungeonWorld implements Disposable {
                                 }
 
 
-
                         }
                 }
 
@@ -258,7 +256,7 @@ public class DungeonWorld implements Disposable {
                 if (simulationStarted) {
                         if (!paused) {
                                 hudSpatial.updateInput(delta);
-                                if(!paused){
+                                if (!paused) {
                                         dungeon.update(delta);
                                         for (final Spatial spatial : spatials) {
                                                 if (spatial.isInitialized())
@@ -289,7 +287,7 @@ public class DungeonWorld implements Disposable {
 
                 }
 
-                if(debugSession != null) debugSession.updateDebugInfo(dungeon);
+                if (debugSession != null) debugSession.updateDebugInfo(dungeon);
 
         }
 
@@ -320,7 +318,7 @@ public class DungeonWorld implements Disposable {
         public void resize(int width, int height) {
                 stage.getViewport().update(width, height, true);
                 hudSpatial.resize(width, height);
-                camControl.resize(width,height);
+                camControl.resize(width, height);
         }
 
         @Override
@@ -335,7 +333,6 @@ public class DungeonWorld implements Disposable {
                 stage.dispose();
                 Gdx.input.setInputProcessor(null);
         }
-
 
 
         private class InternalInputAdapter extends InputAdapter implements Dungeon.Listener {
@@ -358,7 +355,7 @@ public class DungeonWorld implements Disposable {
                         if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACK) {
                                 dungeonApp.setAppPaused(true);
                                 return true;
-                        }else if(keycode == Input.Keys.F12){
+                        } else if (keycode == Input.Keys.F12) {
                                 debugSession = dungeonApp.getPlatformActionResolver().getDebugSession();
                                 return true;
                         }
@@ -394,9 +391,9 @@ public class DungeonWorld implements Disposable {
                 @Override
                 public void onTokenRemoved(Token token) {
                         if (token == hudSpatial.localPlayerToken) {
-                                if(!token.getDamage().isFullyDead()){
+                                if (!token.getDamage().isFullyDead()) {
                                         camControl.chaseTarget.visU = 0; // this forces the player spatial to turn black and fade back in
-                                }else{
+                                } else {
                                         //dungeonApp.setAppGameOver();
                                 }
 
@@ -420,7 +417,6 @@ public class DungeonWorld implements Disposable {
 
         public interface LoadedNotifyable {
                 /**
-                 *
                  * @return true if the asset that was needed was obtained, false otherwise
                  */
                 public boolean onLoaded();

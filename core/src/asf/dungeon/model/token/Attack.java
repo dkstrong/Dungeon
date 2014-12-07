@@ -194,6 +194,8 @@ public class Attack implements TokenComponent{
 
         }
 
+
+
         private boolean calcCanRangedAttack(Token target){
                 if(!weapon.isRanged())
                         return false;
@@ -333,39 +335,8 @@ public class Attack implements TokenComponent{
                 }
         }
 
-        public boolean isAttacking() {return meleeAttackTarget != null;}
-
-        public boolean hasProjectile(){return  !Float.isNaN(attackProjectileU);}
-
-        /**
-         *
-         * @return percentage value between this token and its attack target. value less than 0 means that the attack animation is still happening and the projectile hasnt launched yet
-         */
-        public float getEffectiveProjectileU(){return attackProjectileU /attackProjectileMaxU;}
-
-        public float getAttackDuration() {
-                return weapon.getAttackDuration();
-        }
-
-
-        /**
-         * if in attack animation or if has a projectile
-         * @return
-         */
-        public boolean isAttackingRanged(){
-                return isAttacking() && rangedAttack;
-        }
-
         public Token getAttackTarget(){
                 return meleeAttackTarget;
-        }
-
-        public float getAttackCooldownDuration() {
-                return weapon.getAttackCooldown();
-        }
-
-        public float getProjectileSpeed() {
-                return weapon.getProjectileSpeed();
         }
 
         public float getAttackCoolDown() {
@@ -376,13 +347,53 @@ public class Attack implements TokenComponent{
                 return attackCoolDown > 0;
         }
 
+        public float getCriticalHitChance(){
+                return token.getExperience().getLuck() / 100f;
+        }
+
+        public boolean isAttacking() {return meleeAttackTarget != null;}
+
+        /**
+         * if in attack animation or if has a projectile
+         * @return
+         */
+        public boolean isAttackingRanged(){
+                return isAttacking() && rangedAttack;
+        }
+
+        public boolean hasProjectile(){return  !Float.isNaN(attackProjectileU);}
+
+        /**
+         * if has projectile, this the the token the projectile will hit (may be null if the projectile misses)
+         * @return
+         */
+        public Token getProjectileAttackTarget() {
+                return projectileAttackTarget;
+        }
+
+        /**
+         * if has projectile, the coordinate that the projectile will hit (do not modify)
+         * @return
+         */
+        public Pair getProjectileAttackCoord() {
+                return projectileAttackCoord;
+        }
+
+        /**
+         *
+         * @return percentage value between this token and its attack target. value less than 0 means that the attack animation is still happening and the projectile hasnt launched yet
+         */
+        public float getEffectiveProjectileU(){return attackProjectileU /attackProjectileMaxU;}
+
+        /**
+         * if in range of command target token (only applies if holding a ranged weapon)
+         * @return
+         */
         public boolean isInRangeOfAttackTarget(){
                 return inAttackRangeOfCommandTarget;
         }
 
-        public float getCriticalHitChance(){
-                return token.getExperience().getLuck() / 100f;
-        }
+
 
         /**
          * the weapon itme that is used in attack calculations. If the token has an inventory this should match the equipped weapon,

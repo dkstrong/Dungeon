@@ -170,17 +170,22 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
 
 
                 if (mode == 1 || mode == 2) {
+                        duration -= delta;
                         if (duration <= 0) {
                                 reg.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
                         }
 
                         if (tokenSpatial != null) {
                                 translation.set(tokenSpatial.translation);
+
+                                if(tokenSpatial.getToken().getDamage() != null && tokenSpatial.getToken().getDamage().isDead()){
+                                        duration = 0;
+                                }
                         }
 
-                        duration -= delta;
+
                 } else if (mode == 3) {
-                        if (attackerToken == null || !attackerToken.getAttack().hasProjectile()) {
+                        if (attackerToken == null || !attackerToken.getAttack().hasProjectile() || attackerToken.getDamage().isDead()) {
                                 //Gdx.app.log("Pooled PE","trigger end fx");
                                 reg.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
                         } else if (attackerToken.getAttack().getEffectiveProjectileU() < 0) {
@@ -250,7 +255,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                         // a half second of time between projectile spawna nd when it should show up
                         // we check the effective projectile u to make sure it is positive to make sure that the
                         // projectile should be visible
-                        if (attackerToken == null || attackerToken.getAttack().getEffectiveProjectileU() < 0) {
+                        if (attackerToken == null || attackerToken.getAttack().getEffectiveProjectileU() < 0 || attackerToken.getDamage().isDead()) {
                                 return;
                         }
                 }

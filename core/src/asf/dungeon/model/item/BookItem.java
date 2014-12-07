@@ -43,7 +43,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                 switch(type){
                         case MagicMapping:
                                 // reveal map and crates
-                                token.getFogMapping().getCurrentFogMap().revealMap();
+                                token.getFogMapping().getCurrentFogMap().revealMapWithMagic();
                                 out.didSomething = true;
                                 break;
                         case ItemDetection:
@@ -51,7 +51,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                                 FogMap fogMap = token.getFogMapping().getCurrentFogMap();
                                 Array<Token> crateAndLootTokens = token.getFloorMap().getCrateTokens();
                                 for (Token t : crateAndLootTokens) {
-                                        fogMap.revealLocation(t.getLocation().x, t.getLocation().y);
+                                        fogMap.revealLocationWithMagic(t.getLocation().x, t.getLocation().y);
                                 }
                                 out.didSomething = true;
                                 break;

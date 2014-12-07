@@ -60,18 +60,17 @@ import java.util.List;
 public class DungeonLoader {
 
 
-
         private DungeonLoader() {
 
         }
 
-        public static Dungeon createDungeon(DungeonWorld.Settings settings){
+        public static Dungeon createDungeon(DungeonWorld.Settings settings) {
 
                 FloorMapGenerator floorMapGenerator;
                 Logic playerLogic;
                 DungeonRand dungeonRand = new DungeonRand(settings.random);
 
-                List<PotionItem.Type> potionTypeValues= Arrays.asList(PotionItem.Type.values());
+                List<PotionItem.Type> potionTypeValues = Arrays.asList(PotionItem.Type.values());
                 Collections.shuffle(potionTypeValues, dungeonRand.random);
                 PotionItem.Type[] potions = potionTypeValues.toArray(new PotionItem.Type[potionTypeValues.size()]);
 
@@ -85,23 +84,20 @@ public class DungeonLoader {
 
                 MasterJournal masterMasterJournal = new MasterJournal(potions, scrolls, books);
 
-                if(settings.balanceTest){
+                if (settings.balanceTest) {
                         floorMapGenerator = new BalanceTestFloorGen();
                         playerLogic = new FullAgroLogic(0);
-                }else{
+                } else {
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
-                                new ConnectedRoomsGen(),new MazeGen(7,4),new ConnectedRoomsGen(),new MazeGen(15,18)
-                        },new FloorMapGenerator[]{
-                                new ConnectedRoomsGen(), new MazeGen(10,10)
+                                new ConnectedRoomsGen(), new MazeGen(7, 4), new ConnectedRoomsGen(), new MazeGen(15, 18)
+                        }, new FloorMapGenerator[]{
+                                new ConnectedRoomsGen(), new MazeGen(10, 10)
                         });
                         playerLogic = new LocalPlayerLogic(0);
                 }
-
-
-
 
 
                 Dungeon dungeon = new Dungeon(dungeonRand, masterMasterJournal, floorMapGenerator);
@@ -109,24 +105,22 @@ public class DungeonLoader {
                 // spawn player
                 boolean spawn = true;
 
-                if(spawn){
+                if (spawn) {
                         Token token = dungeon.newPlayerCharacterToken(null, "Player 1", settings.playerModel,
                                 playerLogic,
-                                new Experience(1, 20, 6, 3, 1,1),
-                                0,0);
+                                new Experience(1, 20, 6, 3, 1, 1),
+                                0, 0);
 
-                        // TODO: if adding a status effect before adding to the dungeon, the tokenspatial and hudspatial
-                        // wont know about the status effect. need to modify how this works (maybe automatically do onStatusEffectCHanged
-                        // when adding new token?
-                        token.getStatusEffects().addStatusEffect(StatusEffects.Effect.Blind, 10);
+
+                        token.getStatusEffects().addStatusEffect(StatusEffects.Effect.Blind);
                         token.getInventory().setNumQuickSlots(2);
 
-                        PotionItem potion  = new PotionItem(dungeon, PotionItem.Type.MindVision,4 );
+                        PotionItem potion = new PotionItem(dungeon, PotionItem.Type.MindVision, 4);
                         potion.identifyItem(token);
                         token.getInventory().add(potion);
                         token.getInventory().equip(potion);
 
-                        PotionItem health  = new PotionItem(dungeon, PotionItem.Type.Blindness,1 );
+                        PotionItem health = new PotionItem(dungeon, PotionItem.Type.Blindness, 1);
                         health.identifyItem(token);
                         token.getInventory().add(health);
                         token.getInventory().equip(health);
@@ -135,45 +129,40 @@ public class DungeonLoader {
                         token.getInventory().add(book);
                         book.identifyItem(token);
 
-                        ArmorItem armor = new ArmorItem(ModelId.Sword,"Simple Armor",1);
+                        ArmorItem armor = new ArmorItem(ModelId.Sword, "Simple Armor", 1);
                         armor.identifyItem(token);
                         token.getInventory().add(armor);
                         token.getInventory().equip(armor);
 
-                        if(settings.playerModel == ModelId.Knight){
-                                WeaponItem sword = new WeaponItem(ModelId.Sword,"Sword", 3);
+                        if (settings.playerModel == ModelId.Knight) {
+                                WeaponItem sword = new WeaponItem(ModelId.Sword, "Sword", 3);
                                 sword.setCursed(true);
                                 token.getInventory().add(sword);
                                 token.getInventory().equip(sword);
                                 token.get(Journal.class).learn(sword);
-                        }else if(settings.playerModel == ModelId.Archer){
-                                WeaponItem bow = new WeaponItem(ModelId.Sword,"Bow", 2, FxId.Arrow);
-                                bow.setRangedStats(3,1);
+                        } else if (settings.playerModel == ModelId.Archer) {
+                                WeaponItem bow = new WeaponItem(ModelId.Sword, "Bow", 2, FxId.Arrow);
+                                bow.setRangedStats(3, 1);
                                 bow.setProjectileFx(FxId.Arrow);
                                 token.getInventory().add(bow);
                                 token.getInventory().equip(bow);
-                        }else if(settings.playerModel == ModelId.Mage){
-                                WeaponItem staff = new WeaponItem(ModelId.Sword,"Staff", 3, FxId.PlasmaBall);
+                        } else if (settings.playerModel == ModelId.Mage) {
+                                WeaponItem staff = new WeaponItem(ModelId.Sword, "Staff", 3, FxId.PlasmaBall);
                                 staff.identifyItem(token);
                                 token.getInventory().add(staff);
                                 token.getInventory().equip(staff);
                         }
 
 
-
-
                         dungeon.moveToken(token, dungeon.generateFloor(0));
-                }else{
+                } else {
                         dungeon.setCurrentFloor(0);
                 }
-
-
 
 
                 return dungeon;
 
         }
-
 
 
         // https://github.com/EsotericSoftware/kryo
@@ -187,13 +176,13 @@ public class DungeonLoader {
          */
         public static Dungeon loadDungeon(String fileName) {
                 boolean isLocAvailable = Gdx.files.isLocalStorageAvailable();
-                if(!isLocAvailable){
+                if (!isLocAvailable) {
                         return null;
                 }
-                Gdx.app.log("DungeonLoader", "loading dungeon from: "+Gdx.files.getLocalStoragePath()+"sav\\"+fileName+".sav");
+                Gdx.app.log("DungeonLoader", "loading dungeon from: " + Gdx.files.getLocalStoragePath() + "sav\\" + fileName + ".sav");
 
-                FileHandle fileHandle = Gdx.files.local("sav/"+fileName+".sav");
-                if(!fileHandle.exists()){
+                FileHandle fileHandle = Gdx.files.local("sav/" + fileName + ".sav");
+                if (!fileHandle.exists()) {
                         return null;
                 }
 
@@ -201,9 +190,9 @@ public class DungeonLoader {
                 Kryo kryo = getKryo();
                 Input input = new Input(in);
                 Dungeon dungeon;
-                try{
+                try {
                         dungeon = kryo.readObject(input, Dungeon.class);
-                }catch(KryoException ex){
+                } catch (KryoException ex) {
                         dungeon = null;
                         //ex.printStackTrace(); // this usually means the api was changed since the last file save. the file save is bassically useless
                 }
@@ -215,16 +204,16 @@ public class DungeonLoader {
                 }
 
                 return dungeon;
-       }
+        }
 
-        public static void saveDungeon(Dungeon dungeon, String fileName) throws IOException{
+        public static void saveDungeon(Dungeon dungeon, String fileName) throws IOException {
                 boolean isLocAvailable = Gdx.files.isLocalStorageAvailable();
-                if(!isLocAvailable){
+                if (!isLocAvailable) {
                         throw new IOException("could not save dungeon, local storage is not available.");
                 }
-                Gdx.app.log("DungeonLoader", "saving dungeon to: "+Gdx.files.getLocalStoragePath()+"sav\\"+fileName+".sav");
+                Gdx.app.log("DungeonLoader", "saving dungeon to: " + Gdx.files.getLocalStoragePath() + "sav\\" + fileName + ".sav");
 
-                FileHandle fileHandle = Gdx.files.local("sav/"+fileName+".sav");
+                FileHandle fileHandle = Gdx.files.local("sav/" + fileName + ".sav");
 
                 OutputStream out = fileHandle.write(false);
                 Kryo kryo = getKryo();
@@ -237,10 +226,10 @@ public class DungeonLoader {
         // http://developer.android.com/reference/java/lang/ref/SoftReference.html
         private static SoftReference<Kryo> kryoSoftReference;
 
-        private static Kryo getKryo(){
-                if(kryoSoftReference != null){
+        private static Kryo getKryo() {
+                if (kryoSoftReference != null) {
                         Kryo kryo = kryoSoftReference.get();
-                        if(kryo != null){
+                        if (kryo != null) {
                                 return kryo;
                         }
                 }
@@ -256,12 +245,14 @@ public class DungeonLoader {
                 kryo.register(Array.ArrayIterable.class);
                 kryo.register(Array.ArrayIterator.class);
                 kryo.register(com.badlogic.gdx.math.Vector2.class);
+                kryo.register(com.badlogic.gdx.utils.FloatArray.class);
+                kryo.register(com.badlogic.gdx.utils.FloatArray[].class);
                 kryo.register(Object[].class);
                 kryo.register(int[].class);
                 kryo.register(int[][].class);
                 kryo.register(byte[].class);
                 kryo.register(byte[][].class);
-                kryo.register(Float[].class);
+                kryo.register(float[].class);
                 kryo.register(java.util.HashMap.class);
                 kryo.register(java.util.Random.class);
                 kryo.register(java.util.concurrent.atomic.AtomicLong.class);
