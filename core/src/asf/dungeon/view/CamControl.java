@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 
 /**
- * Created by Danny on 11/27/2014.
+ * Created by Daniel Strong on 11/27/2014.
  */
 public class CamControl {
         protected final PerspectiveCamera cam;

@@ -174,7 +174,7 @@ public class Token {
                         if(other.move == null) return location.distance(other.location);
                         return other.move.getFloatLocation().dst(location.x, location.y);
                 }else{
-                        if(other.move == null) move.getFloatLocation().dst(other.location.x, other.location.y);
+                        if(other.move == null) return move.getFloatLocation().dst(other.location.x, other.location.y);
                         return move.getFloatLocation().dst(other.move.getFloatLocation());
                 }
         }

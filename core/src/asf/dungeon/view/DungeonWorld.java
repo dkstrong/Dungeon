@@ -40,7 +40,7 @@ import java.util.Iterator;
 import java.util.Random;
 
 /**
- * Created by danny on 10/20/14.
+ * Created by Daniel Strong on 10/20/14.
  */
 public class DungeonWorld implements Disposable {
         // shared resources
@@ -61,15 +61,16 @@ public class DungeonWorld implements Disposable {
         private final InputMultiplexer inputMultiplexer;
         private static DungeonApp.DebugSession debugSession;
         // game stuff
-        protected Dungeon dungeon;
+        protected final Dungeon dungeon;
 
         protected final CamControl camControl;
-        protected AssetMappings assetMappings;
+        protected final AssetMappings assetMappings;
         protected I18NBundle i18n;
-        protected FloorSpatial floorSpatial;
-        protected SelectionMark selectionMark;
-        protected HudSpatial hudSpatial;
-        protected FxManager fxManager;
+        protected final FloorSpatial floorSpatial;
+        protected final SelectionMark selectionMark;
+        protected final HudSpatial hudSpatial;
+        protected final SfxManager sounds;
+        protected final FxManager fxManager;
 
         public DungeonWorld(DungeonApp dungeonApp, Settings settings) {
                 this.dungeonApp = dungeonApp;
@@ -85,8 +86,9 @@ public class DungeonWorld implements Disposable {
                 assetManager = new AssetManager();
                 loadables = new ObjectSet<LoadedNotifyable>(24);
                 spatials = new Array<Spatial>(true, 16, Spatial.class);
-                fxManager = new FxManager(this);
                 assetMappings = new AssetMappings();
+                sounds = new SfxManager(this);
+                fxManager = new FxManager(this);
                 loading = true;
 
                 //FileHandle baseFileHandle = Gdx.files.internal("i18n/Game/Game");
@@ -223,6 +225,7 @@ public class DungeonWorld implements Disposable {
                                         }
                                         Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
                                         //Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                                        sounds.init();
                                         fxManager.init();
                                         simulationStarted = true;
 
@@ -297,18 +300,24 @@ public class DungeonWorld implements Disposable {
          * @param paused
          */
         public void setPaused(boolean paused) {
-                this.paused = paused;
-
-
-                if (!paused) {
+                if (!paused && Gdx.input.getInputProcessor() != inputMultiplexer) {
+                        // the pause menu screen changes the input processor, so we need to change it
+                        // back when unpaussing
                         Gdx.input.setInputProcessor(inputMultiplexer);
                 }
 
-                if (!paused && hudSpatial != null && hudSpatial.isWindowVisible()) {
-                        this.paused = true; // this shouldnt ever happen, but in the event it does i have a back up check here to make sure the game isnt unpaused while window is up
-                }
 
-                Gdx.graphics.setContinuousRendering(!paused);
+                // the || statement ensure if libgdx "unpauses" the game but the inventory window
+                // is open that the game remains paused
+                this.paused = paused || (hudSpatial != null && hudSpatial.isWindowVisible());
+
+
+                dungeonApp.music.setPaused(this.paused && (hudSpatial== null || !hudSpatial.isWindowVisible()));
+
+                sounds.setPaused(this.paused);
+
+                if(Gdx.graphics.isContinuousRendering() == this.paused)
+                        Gdx.graphics.setContinuousRendering(!this.paused);
         }
 
         public boolean isPaused() {
@@ -328,6 +337,7 @@ public class DungeonWorld implements Disposable {
                 }
                 decalBatch.dispose();
                 modelBatch.dispose();
+                sounds.dispose();
                 fxManager.dispose();
                 assetManager.dispose();
                 stage.dispose();

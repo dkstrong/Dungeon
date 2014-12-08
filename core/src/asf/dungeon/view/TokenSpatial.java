@@ -4,6 +4,7 @@ import asf.dungeon.model.Direction;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
+import asf.dungeon.model.SfxId;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.item.BookItem;
@@ -203,6 +204,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         public void update(final float delta) {
 
                 float minVisU = 0;
+                float maxVisU = 1;
                 // if fogmapping is enabled, change its visU value based on the fogstate of the tile its on.
                 FogState fogState;
                 if(world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null){
@@ -211,9 +213,13 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         fogState = FogState.Visible;
                 }
 
-
+                // TODO: i should have a targetVisuU and just lerp to that instead of how i have it here
+                // as is if you are fully visible, then get the invisibility status effct you'll "snap" to visuU = 0.5f
                 if(fogState == FogState.Visible){
                         visU += delta * .65f;
+                        if(token.getStatusEffects() != null && token.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Invisibility)){
+                                maxVisU = .5f;
+                        }
                 }else{
                         visU -= delta * .75f;
                         // crates can be seen in visited fog and magic mapped fog
@@ -224,7 +230,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                                 minVisU = .3f;
                         }
                 }
-                visU = MathUtils.clamp(visU, minVisU, 1);
+                visU = MathUtils.clamp(visU, minVisU, maxVisU);
 
 
                 for (Material material : modelInstance.materials) {
@@ -278,12 +284,13 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         if (current != die) {
                                 animController.animate(die.id, 1, die.duration / token.getDamage().getDeathDuration(), null, .2f);
                                 current = die;
+                                world.sounds.play(SfxId.Die);
                         }
 
                 } else if (token.getAttack() != null && token.getAttack().isAttacking()) {
                         if (current != attack) {
                                 animController.animate(attack.id, 1, attack.duration / token.getAttack().getWeapon().getAttackDuration(), null, .2f);
-
+                                world.sounds.play(SfxId.Hit);
                                 current = attack;
                         }
                 } else if (token.getDamage() != null && token.getDamage().isHit()) {
@@ -360,6 +367,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         public void onAttacked(Token attacker, Token target, Attack.AttackOutcome attackOutcome) {
                 // always foward this, let the Hud decide if the information is worth showing
                 world.hudSpatial.onAttacked(attacker, target, attackOutcome);
+
         }
 
         @Override

@@ -3,6 +3,7 @@ package asf.dungeon.view;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
+import asf.dungeon.model.SfxId;
 import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.PotionItem;
@@ -10,6 +11,7 @@ import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.StatusEffects;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 
 /**
@@ -20,6 +22,7 @@ public class AssetMappings {
         private final String[] assetLocations;
         private final Color[] potionDisplayColors;
         private final FxId[] statusEffectsFxIds;
+        private final String[][] soundLocations;
 
         public AssetMappings() {
                 rotations = new Quaternion[8];
@@ -71,6 +74,27 @@ public class AssetMappings {
                 statusEffectsFxIds[StatusEffects.Effect.MindVision.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffects.Effect.Blind.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffects.Effect.Speed.ordinal()] = FxId.HealAura;
+
+                soundLocations = new String[3][];
+                soundLocations[SfxId.AlertMonster.ordinal()] = new String[]{"Sounds/monster-alert.ogg"};
+                soundLocations[SfxId.Hit.ordinal()] = new String[]{"Sounds/goblin-hit.ogg"};
+                soundLocations[SfxId.Die.ordinal()] = new String[]{"Sounds/monsterdeath1.ogg","Sounds/monsterdeath2.ogg"};
+
+        }
+
+
+        public String[][] getSoundLocations(){
+                return soundLocations;
+        }
+
+
+        public String[] getSoundLocations(SfxId sfx){
+                return soundLocations[sfx.ordinal()];
+        }
+
+        public String getRandomSoundLocation(SfxId sfx){
+                String[] locations = soundLocations[sfx.ordinal()];
+                return locations[MathUtils.random.nextInt(locations.length)];
         }
 
         protected Quaternion getRotation(Direction dir){

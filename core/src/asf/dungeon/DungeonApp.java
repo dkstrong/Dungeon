@@ -1,7 +1,6 @@
 package asf.dungeon;
 
 import asf.dungeon.model.Dungeon;
-import asf.dungeon.model.ModelId;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
@@ -20,8 +19,9 @@ import java.util.Locale;
  */
 public class DungeonApp implements ApplicationListener {
 
+        public final MusicManager music = new MusicManager();
         private Screen screen;
-        private DungeonWorld worldManager;
+        private DungeonWorld dungeonWorld;
         private Resolver platformActionResolver;
         protected Stage stage;
         protected Skin skin;
@@ -32,33 +32,29 @@ public class DungeonApp implements ApplicationListener {
                 Gdx.input.setCatchMenuKey(true);
                 Gdx.input.setCatchBackKey(true);
 
-
-
                 //this.setScreen(new MainMenuScreen(this));
                 returnToMainMenu();
 
-                DungeonWorld.Settings settings = new DungeonWorld.Settings();
-                settings.playerModel = ModelId.Archer;
-                settings.startDebugSession = true;
-                loadWorld(settings);
+                //DungeonWorld.Settings settings = new DungeonWorld.Settings();
+                //settings.playerModel = ModelId.Archer;
+                //settings.startDebugSession = true;
+                //loadWorld(settings);
+                music.playSong(MusicManager.Song.MainTheme);
         }
 
         public void returnToMainMenu(){
-                if (worldManager != null){
-                        worldManager.saveDungeon();
+                if (dungeonWorld != null){
+                        dungeonWorld.saveDungeon();
                         unloadWorld();
                 }
 
                 this.setScreen(new MainMenuScreen(this));
-
         }
-
-
 
         @Override
         public void resize(int width, int height) {
-                if (worldManager != null)
-                        worldManager.resize(width, height);
+                if (dungeonWorld != null)
+                        dungeonWorld.resize(width, height);
                 if (stage != null)
                         stage.getViewport().update(width, height, true);
                 if (screen != null)
@@ -69,20 +65,18 @@ public class DungeonApp implements ApplicationListener {
         public void render() {
                 //System.out.println("render "+Gdx.graphics.getDeltaTime()+", raw: "+Gdx.graphics.getRawDeltaTime());
                 float delta = Gdx.graphics.getDeltaTime();
-                if (worldManager != null)
-                        worldManager.render(delta);
+                if (dungeonWorld != null)
+                        dungeonWorld.render(delta);
                 if (screen != null)
                         screen.render(delta);
-
-
         }
 
         @Override
         public void pause() {
                 if (Gdx.app.getType() != Application.ApplicationType.Desktop) {
                         // only autopause for android/ios/html
-                        if (worldManager != null)
-                                worldManager.saveDungeon();
+                        if (dungeonWorld != null)
+                                dungeonWorld.saveDungeon();
                         setAppPaused(true);
                 }
                 if (screen != null)
@@ -101,8 +95,8 @@ public class DungeonApp implements ApplicationListener {
         @Override
         public void dispose() {
                 unloadWorld();
-                if (screen != null)
-                        screen.hide();
+                setScreen(null);
+                music.dispose();
         }
 
         public void setScreen(Screen screen) {
@@ -131,12 +125,12 @@ public class DungeonApp implements ApplicationListener {
         }
 
         public void loadWorld(DungeonWorld.Settings settings) {
-                if (worldManager != null)
+                if (dungeonWorld != null)
                         throw new IllegalStateException("world is already loaded");
 
                 Gdx.graphics.setContinuousRendering(true);
-                worldManager = new DungeonWorld(this, settings);
-                //worldManager.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                dungeonWorld = new DungeonWorld(this, settings);
+                //dungeonWorld.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
                 setScreen(createLoadingScreen());
 
@@ -155,9 +149,9 @@ public class DungeonApp implements ApplicationListener {
         }
 
         public void unloadWorld() {
-                if (worldManager != null)
-                        worldManager.dispose();
-                worldManager = null;
+                if (dungeonWorld != null)
+                        dungeonWorld.dispose();
+                dungeonWorld = null;
         }
 
         /**
@@ -166,10 +160,10 @@ public class DungeonApp implements ApplicationListener {
          * @param paused
          */
         public void setAppPaused(boolean paused) {
-                if (worldManager == null || worldManager.isPaused() == paused)
+                if (dungeonWorld == null || dungeonWorld.isPaused() == paused)
                         return;
 
-                worldManager.setPaused(paused);
+                dungeonWorld.setPaused(paused);
 
                 if (paused) {
                         setScreen(createPauseScreen());
@@ -179,18 +173,18 @@ public class DungeonApp implements ApplicationListener {
         }
 
         public boolean isAppPaused() {
-                if (worldManager == null)
+                if (dungeonWorld == null)
                         return false;
 
-                return worldManager.isPaused();
+                return dungeonWorld.isPaused();
 
         }
 
         public void setAppGameOver(){
-                if (worldManager == null)
+                if (dungeonWorld == null)
                          return;
 
-                this.setScreen(new GameOverScreen(this,worldManager));
+                this.setScreen(new GameOverScreen(this, dungeonWorld));
         }
 
         public void exitApp() {

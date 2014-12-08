@@ -55,7 +55,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by Danny on 11/13/2014.
+ * Created by Daniel Strong on 11/13/2014.
  */
 public class DungeonLoader {
 
@@ -112,7 +112,7 @@ public class DungeonLoader {
                                 0, 0);
 
 
-                        token.getStatusEffects().addStatusEffect(StatusEffects.Effect.Blind);
+                        //token.getStatusEffects().addStatusEffect(StatusEffects.Effect.Blind);
                         token.getInventory().setNumQuickSlots(2);
 
                         PotionItem potion = new PotionItem(dungeon, PotionItem.Type.MindVision, 4);
@@ -120,7 +120,7 @@ public class DungeonLoader {
                         token.getInventory().add(potion);
                         token.getInventory().equip(potion);
 
-                        PotionItem health = new PotionItem(dungeon, PotionItem.Type.Blindness, 1);
+                        PotionItem health = new PotionItem(dungeon, PotionItem.Type.Invisibility, 4);
                         health.identifyItem(token);
                         token.getInventory().add(health);
                         token.getInventory().equip(health);

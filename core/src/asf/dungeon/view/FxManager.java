@@ -19,7 +19,8 @@ import com.badlogic.gdx.utils.Disposable;
 
 /**
  * Controls the creation and detruction of special effects like particle emitters and projectiles. will effeciently reuse them when possible
- * Created by Danny on 11/21/2014.
+ *
+ * Created by Daniel Strong on 11/21/2014.
  */
 public class FxManager implements Disposable {
 

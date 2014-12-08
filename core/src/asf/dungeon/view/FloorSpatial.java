@@ -31,7 +31,7 @@ import com.badlogic.gdx.utils.Array;
 import java.util.Iterator;
 
 /**
- * Created by danny on 10/29/14.
+ * Created by Daniel Strong on 10/29/14.
  */
 public class FloorSpatial implements Spatial {
         /**
