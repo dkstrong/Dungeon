@@ -6,6 +6,7 @@ import asf.dungeon.model.DungeonLoader;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
+import asf.dungeon.model.SongId;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.ModelFactory;
@@ -232,6 +233,9 @@ public class DungeonWorld implements Disposable {
                                         dungeonApp.onSimulationStarted(); // inform the dungeon app to close the loading screen
                                         Gdx.input.setInputProcessor(inputMultiplexer);
                                         setPaused(false); // call this to apply the gameplay input processors
+
+                                        dungeonApp.music.setPlaylist(SongId.MainTheme, SongId.Arabesque, SongId.RitualNorm);
+                                        dungeonApp.music.playSong(SongId.RitualNorm);
                                 }
 
                                 Iterator<LoadedNotifyable> i = loadables.iterator();
@@ -310,9 +314,6 @@ public class DungeonWorld implements Disposable {
                 // the || statement ensure if libgdx "unpauses" the game but the inventory window
                 // is open that the game remains paused
                 this.paused = paused || (hudSpatial != null && hudSpatial.isWindowVisible());
-
-
-                dungeonApp.music.setPaused(this.paused && (hudSpatial== null || !hudSpatial.isWindowVisible()));
 
                 sounds.setPaused(this.paused);
 

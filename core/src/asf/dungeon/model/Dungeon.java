@@ -140,7 +140,7 @@ public class Dungeon {
                 t.add(new Move(t));
 
                 t.getDamage().setDeathDuration(3f);
-                t.getDamage().setDeathRemovalCountdown(Float.NaN);
+                t.getDamage().setDeathRemovalDuration(Float.NaN);
                 t.getExperience().setToken(t);
                 t.getLogic().setToken(t);
                 localPlayerToken = t;
@@ -166,7 +166,7 @@ public class Dungeon {
 
                 t.getMove().setPicksUpItems(false);
                 t.getDamage().setDeathDuration(3f);
-                t.getDamage().setDeathRemovalCountdown(10f);
+                t.getDamage().setDeathRemovalDuration(10f);
                 t.getExperience().setToken(t);
                 if(t.getLogic()!=null)t.getLogic().setToken(t);
 
@@ -189,7 +189,7 @@ public class Dungeon {
                 t.getDamage().setMaxHealth(4);
                 t.getDamage().setHealth(2);
                 t.getDamage().setAttackable(false);
-                t.getDamage().setDeathRemovalCountdown(Float.NaN);
+                t.getDamage().setDeathRemovalDuration(Float.NaN);
                 if(t.getLogic() != null) t.getLogic().setToken(t);
 
                 moveToken(t, fm, x,y,Direction.South);
@@ -210,7 +210,7 @@ public class Dungeon {
                 t.add(new Damage(t));
                 t.getDamage().setMaxHealth(1);
                 t.getDamage().setDeathDuration(2.5f);
-                t.getDamage().setDeathRemovalCountdown(.25f);
+                t.getDamage().setDeathRemovalDuration(.25f);
                 moveToken(t, fm, x,y,Direction.South);
                 return t;
         }

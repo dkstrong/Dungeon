@@ -11,6 +11,8 @@ import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.logic.fsm.FsmLogic;
+import asf.dungeon.model.token.logic.fsm.State;
 import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.model.token.quest.Quest;
 import asf.dungeon.utility.UtMath;
@@ -311,6 +313,11 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
                         out+=s+" ";
                 }
                 return out;
+
+        }
+
+        @Override
+        public void onFsmStateChange(FsmLogic fsm, State oldState, State newState) {
 
         }
 

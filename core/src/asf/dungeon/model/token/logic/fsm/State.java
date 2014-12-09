@@ -8,10 +8,10 @@ import asf.dungeon.model.token.Token;
  */
 public interface State {
 
-        public void begin(FSMLogic fsm, Token token, Command command);
+        public void begin(FsmLogic fsm, Token token, Command command);
 
-        public void end(FSMLogic fsm, Token token, Command command);
+        public void end(FsmLogic fsm, Token token, Command command);
 
-        public void update(FSMLogic fsm, Token token, Command command, float delta);
+        public void update(FsmLogic fsm, Token token, Command command, float delta);
 
 }

@@ -19,6 +19,8 @@ import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.logic.fsm.FsmLogic;
+import asf.dungeon.model.token.logic.fsm.State;
 import asf.dungeon.model.token.quest.Choice;
 import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.model.token.quest.Quest;
@@ -920,6 +922,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         //System.out.println(String.format("%s received %s damage from %s", target.getName(), damage, attacker.getName()));
                         spawnDamageInfoLabel(String.valueOf(attackOutcome.damage), target, Color.RED);
                 }
+
+        }
+
+        @Override
+        public void onFsmStateChange(FsmLogic fsm, State oldState, State newState) {
 
         }
 

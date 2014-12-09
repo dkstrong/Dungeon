@@ -16,7 +16,7 @@ public enum Monster implements State {
         },
         Sleep {
                 @Override
-                public void begin(FSMLogic fsm, Token token, Command command) {
+                public void begin(FsmLogic fsm, Token token, Command command) {
                         if (fsm.sector == null || fsm.sector.contains(token.getLocation())) {
                                 // monster haas no sector, or already is in sector, just sit still
                                 command.setLocation(token.getLocation());
@@ -38,7 +38,7 @@ public enum Monster implements State {
                 }
 
                 @Override
-                public void update(FSMLogic fsm, Token token, Command command, float delta) {
+                public void update(FsmLogic fsm, Token token, Command command, float delta) {
                         Array<Token> tokensInSector;
                         if (fsm.sector != null && fsm.sector.contains(token.getLocation())) {
                                 tokensInSector = token.getFloorMap().getTokensAt(fsm.sector);
@@ -55,12 +55,12 @@ public enum Monster implements State {
 
         ChaseKeepDistance {
                 @Override
-                public void begin(FSMLogic fsm, Token token, Command command) {
+                public void begin(FsmLogic fsm, Token token, Command command) {
                         moveToSafeDistance(fsm, token, command, token.getAttack().getWeapon().getRange());
                 }
 
                 @Override
-                public void update(FSMLogic fsm, Token token, Command command, float delta) {
+                public void update(FsmLogic fsm, Token token, Command command, float delta) {
                         if (!fsm.target.getDamage().isAttackable()) {
                                 fsm.setState(Sleep);
                         } else if (!token.getAttack().isOnAttackCooldown()) {
@@ -82,14 +82,14 @@ public enum Monster implements State {
         },
         Chase {
                 @Override
-                public void begin(FSMLogic fsm, Token token, Command command) {
+                public void begin(FsmLogic fsm, Token token, Command command) {
                         command.setTargetToken(fsm.target);
                         if(command.getTargetToken() == null)
                                 fsm.setState(Sleep);
                 }
 
                 @Override
-                public void update(FSMLogic fsm, Token token, Command command, float delta) {
+                public void update(FsmLogic fsm, Token token, Command command, float delta) {
                         if (!fsm.target.getDamage().isAttackable()) {
                                 fsm.setState(Sleep);
                                 return;
@@ -106,12 +106,12 @@ public enum Monster implements State {
         },
         Explore {
                 @Override
-                public void begin(FSMLogic fsm, Token token, Command command) {
+                public void begin(FsmLogic fsm, Token token, Command command) {
                         command.setLocation(token.getLocation());
                 }
 
                 @Override
-                public void update(FSMLogic fsm, Token token, Command command, float delta) {
+                public void update(FsmLogic fsm, Token token, Command command, float delta) {
                         if (token.isLocatedAt(token.getCommand().getLocation())) {
                                 // Wander aimlessly
                                 FloorMap floorMap = token.getFloorMap();
@@ -137,21 +137,21 @@ public enum Monster implements State {
         };
 
         @Override
-        public void begin(FSMLogic fsm, Token token, Command command) {
+        public void begin(FsmLogic fsm, Token token, Command command) {
 
         }
 
         @Override
-        public void end(FSMLogic fsm, Token token, Command command) {
+        public void end(FsmLogic fsm, Token token, Command command) {
 
         }
 
         @Override
-        public void update(FSMLogic fsm, Token token, Command command, float delta) {
+        public void update(FsmLogic fsm, Token token, Command command, float delta) {
 
         }
 
-        private static void chaseToken(FSMLogic fsm, Token token, Command command, Array<Token> tokensInSector) {
+        private static void chaseToken(FsmLogic fsm, Token token, Command command, Array<Token> tokensInSector) {
                 for (Token t : tokensInSector) {
                         if (t.getLogic() != null && t.getLogic().getTeam() != fsm.getTeam() && t.getDamage() != null && t.getDamage().isAttackable()) {
                                 if (t.getFogMapping() == null) {
@@ -173,7 +173,7 @@ public enum Monster implements State {
                 }
         }
 
-        private static void moveToSafeDistance(FSMLogic fsm, Token token, Command command, float safeDistance) {
+        private static void moveToSafeDistance(FsmLogic fsm, Token token, Command command, float safeDistance) {
                 // TODO: this seems to work ok as is. Ideally id like ot use multAdd instead of multAddFree
                 // so the mosnter wont move out of their own range when moving diagonally. though when i use multAdd
                 // the monster tends to want to stay horizontal/vertical with the player and ends up doing a bad

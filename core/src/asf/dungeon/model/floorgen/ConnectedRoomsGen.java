@@ -11,7 +11,7 @@ import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.fsm.FSMLogic;
+import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
 import asf.dungeon.model.token.logic.fsm.QuestNPC;
 import asf.dungeon.model.token.quest.PotionQuest;
@@ -80,7 +80,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 Room roomEnd = rooms.get(rooms.size-1);
                 Token traveler = new Token(dungeon, "Traveler", ModelId.Priest);
                 Pair loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
-                dungeon.newQuestCharacterToken(traveler, new FSMLogic(2,roomEnd, QuestNPC.PauseThenMove), new PotionQuest(), floorMap, loc.x, loc.y);
+                dungeon.newQuestCharacterToken(traveler, new FsmLogic(2,roomEnd, QuestNPC.PauseThenMove), new PotionQuest(), floorMap, loc.x, loc.y);
 
                 Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
                 fountainToken.add(new Fountain(fountainToken, PotionItem.Type.Health));
@@ -122,7 +122,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
 
                         Token token = dungeon.newCharacterToken(floorMap, modelId.name(),
                                 modelId,
-                                new FSMLogic(1, null, Monster.Sleep),
+                                new FsmLogic(1, null, Monster.Sleep),
                                 new Experience(1, 8, 4, 6, 1,1),
                                 x,y);
 

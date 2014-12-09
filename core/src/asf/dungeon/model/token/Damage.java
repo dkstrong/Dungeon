@@ -2,6 +2,7 @@ package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.SfxId;
 import asf.dungeon.model.item.Item;
 
 /**
@@ -12,17 +13,18 @@ public class Damage implements TokenComponent{
         private int sightRadius = 6;
         private int health = 10;
         private int maxHealth = 10;
-
         private float deathDuration = 3; // how long since being killed (health ==0) until in the state of being fully dead. once fully dead this token can no longer block the path even if blocksPathing = true;
-
-        private boolean attackable = true; // if this token can currently be attackd (eg, not invincible)
+        private float deathRemovalDuration = 10;           // the time after being fully dead to remove this token from the Dungeon. Use Float.NaN to never remove it. The main purpose of this is for performance
+        private boolean attackable = true; // if this token can currently be attackd (eg, not invincible).
+        private SfxId hitSfx = SfxId.Hit;
+        private SfxId deathSfx = SfxId.Die;
 
         // state variables
-        private float hitU = 0;                                 // being hit overrides moving and attacking, hitU >0 means currently in hit animation, hit animaiton ends when hitU>=hitDuration
-        private float hitDuration = 1;                          // hitDuration is set by the token that attacked it, while being "hit" this token can not move or attack
-        private Token hitSource;                                // the token that attacked, this also marks if this token is in the "being hit" state.
-        private float deathCountdown = 0;                         // the time that must pass before this token is "fully dead", invalid if health>0
-        private float deathRemovalCountdown = 10;           // the time after being fully dead to remove this token from the Dungeon. Use Float.NaN to never remove it. The main purpose of this is for performance
+        private float hitU = 0;              // being hit overrides moving and attacking, hitU >0 means currently in hit animation, hit animaiton ends when hitU>=hitDuration
+        private float hitDuration = 1;       // hitDuration is set by the token that attacked it, while being "hit" this token can not move or attack
+        private Token hitSource;             // the token that attacked, this also marks if this token is in the "being hit" state.
+        private float deathCountdown = 0;    // the time that must pass before this token is "fully dead", invalid if health>0
+
 
         public Damage(Token token) {
                 this.token = token;
@@ -40,7 +42,7 @@ public class Damage implements TokenComponent{
                 if (isFullyDead()) {
                         token.setBlocksPathing(false);
                         deathCountdown -= delta;
-                        if (deathCountdown < -deathRemovalCountdown) {
+                        if (deathCountdown < -deathRemovalDuration) {
                                 token.dungeon.removeToken(token);
                         }
                         return true;
@@ -224,12 +226,12 @@ public class Damage implements TokenComponent{
                 return deathDuration;
         }
 
-        public float getDeathRemovalCountdown() {
-                return deathRemovalCountdown;
+        public float getDeathRemovalDuration() {
+                return deathRemovalDuration;
         }
 
-        public void setDeathRemovalCountdown(float deathRemovalCountdown) {
-                this.deathRemovalCountdown = deathRemovalCountdown;
+        public void setDeathRemovalDuration(float deathRemovalDuration) {
+                this.deathRemovalDuration = deathRemovalDuration;
         }
 
         public int getSightRadius() {
@@ -239,4 +241,22 @@ public class Damage implements TokenComponent{
         protected void setSightRadius(int sightRadius) {
                 this.sightRadius = sightRadius;
         }
+
+        public SfxId getHitSfx() {
+                return hitSfx;
+        }
+
+        public void setHitSfx(SfxId hitSfx) {
+                this.hitSfx = hitSfx;
+        }
+
+        public SfxId getDeathSfx() {
+                return deathSfx;
+        }
+
+        public void setDeathSfx(SfxId deathSfx) {
+                this.deathSfx = deathSfx;
+        }
+
+
 }

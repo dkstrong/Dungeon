@@ -30,30 +30,6 @@ import com.badlogic.gdx.utils.Disposable;
  */
 public class MusicManager implements Music.OnCompletionListener, Disposable {
 
-        public static enum Song implements SongInfo {
-                MainTheme("Music/walking_with_poseidon.mp3", 1f),
-                MainTheme1("Music/walking_with_poseidon.mp3", 1f),
-                MainTheme2("Music/walking_with_poseidon.mp3", 1f),
-                MainTheme3("Music/walking_with_poseidon.mp3", 1f);
-
-                private transient final String assetLocation;
-                private transient final float volume;
-
-                Song(String assetLocation, float volume) {
-                        this.assetLocation = assetLocation;
-                        this.volume = volume;
-                }
-
-                @Override
-                public String getAssetLocation() {
-                        return assetLocation;
-                }
-
-                public float getVolume() {
-                        return volume;
-                }
-        }
-
         public interface SongInfo {
                 public String getAssetLocation();
 
@@ -70,8 +46,9 @@ public class MusicManager implements Music.OnCompletionListener, Disposable {
         private SongInfo nextSong;
         private boolean loopNextSong;
 
-        public MusicManager() {
-                setPlaylist(Song.MainTheme,Song.MainTheme1,Song.MainTheme2,Song.MainTheme3);
+
+
+        public void update(float delta){
 
         }
 
@@ -185,7 +162,7 @@ public class MusicManager implements Music.OnCompletionListener, Disposable {
                                 currentMusic.play();
                 }
                 currentSong = nextSong;
-                currentSong = null;
+                nextSong = null;
                 loopNextSong = false;
 
         }

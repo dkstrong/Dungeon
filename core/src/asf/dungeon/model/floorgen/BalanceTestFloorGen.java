@@ -7,7 +7,7 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.fsm.FSMLogic;
+import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
 
 /**
@@ -51,7 +51,7 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
 
                         Token token = dungeon.newCharacterToken(floorMap, "Monster",
                                 modelId,
-                                new FSMLogic(1, null, Monster.Sleep),
+                                new FsmLogic(1, null, Monster.Sleep),
                                 //new FullAgroLogic(1),
                                 new Experience(
                                         1,  // level

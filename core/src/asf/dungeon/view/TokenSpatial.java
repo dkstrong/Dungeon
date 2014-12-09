@@ -17,6 +17,9 @@ import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.logic.fsm.FsmLogic;
+import asf.dungeon.model.token.logic.fsm.Monster;
+import asf.dungeon.model.token.logic.fsm.State;
 import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.model.token.quest.Quest;
 import asf.dungeon.utility.UtMath;
@@ -284,13 +287,13 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         if (current != die) {
                                 animController.animate(die.id, 1, die.duration / token.getDamage().getDeathDuration(), null, .2f);
                                 current = die;
-                                world.sounds.play(SfxId.Die);
+                                world.sounds.play(token.getDamage().getDeathSfx());
                         }
 
                 } else if (token.getAttack() != null && token.getAttack().isAttacking()) {
                         if (current != attack) {
                                 animController.animate(attack.id, 1, attack.duration / token.getAttack().getWeapon().getAttackDuration(), null, .2f);
-                                world.sounds.play(SfxId.Hit);
+
                                 current = attack;
                         }
                 } else if (token.getDamage() != null && token.getDamage().isHit()) {
@@ -304,6 +307,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                                 }
                                 animController.animate(hit.id, 1, hit.duration / token.getDamage().getHitDuration(), null, .2f);
                                 current = hit;
+                                world.sounds.play(token.getDamage().getHitSfx());
                         }
                 } else if (token.getMove() != null && token.getMove().isMoving() && !(token.getAttack() != null && token.getAttack().isInRangeOfAttackTarget())) {
                         if (current != walk) {
@@ -336,6 +340,12 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
         }
 
+        @Override
+        public void onFsmStateChange(FsmLogic fsm, State oldState, State newState) {
+                if(oldState == Monster.Sleep && newState == Monster.Chase){
+                        world.sounds.play(SfxId.AlertMonster);
+                }
+        }
 
         @Override
         public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {

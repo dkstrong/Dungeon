@@ -36,6 +36,7 @@ import asf.dungeon.model.token.TokenComponent;
 import asf.dungeon.model.token.logic.FullAgroLogic;
 import asf.dungeon.model.token.logic.LocalPlayerLogic;
 import asf.dungeon.model.token.logic.Logic;
+import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.quest.Quest;
 import asf.dungeon.utility.OutputAndroidFix;
 import asf.dungeon.view.DungeonWorld;
@@ -263,6 +264,7 @@ public class DungeonLoader {
                 kryo.register(asf.dungeon.model.DungeonRand.class);
                 kryo.register(MasterJournal.class);
                 kryo.register(ModelId.class);
+                kryo.register(asf.dungeon.model.SfxId.class);
                 kryo.register(asf.dungeon.model.FxId.class);
                 kryo.register(Pair.class);
                 kryo.register(Pair[].class);
@@ -314,7 +316,7 @@ public class DungeonLoader {
                 kryo.register(Logic.class);
                 kryo.register(LocalPlayerLogic.class);
                 kryo.register(asf.dungeon.model.token.logic.FullAgroLogic.class);
-                kryo.register(asf.dungeon.model.token.logic.fsm.FSMLogic.class);
+                kryo.register(FsmLogic.class);
                 kryo.register(asf.dungeon.model.token.logic.fsm.Monster.class);
 
                 kryo.register(Quest.class);

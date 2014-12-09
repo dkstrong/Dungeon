@@ -12,7 +12,7 @@ import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.fsm.FSMLogic;
+import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
 
 import java.util.List;
@@ -71,7 +71,7 @@ public class UtFloorGen {
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
                         Token characterToken = dungeon.newCharacterToken(floorMap,modelId.name(),modelId,
-                                new FSMLogic(1, null, Monster.Sleep),
+                                new FsmLogic(1, null, Monster.Sleep),
                                 new Experience(
                                         1, // level
                                         8,  // vitality

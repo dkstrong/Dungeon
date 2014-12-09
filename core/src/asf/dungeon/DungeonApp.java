@@ -1,6 +1,7 @@
 package asf.dungeon;
 
 import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.SongId;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
@@ -39,7 +40,7 @@ public class DungeonApp implements ApplicationListener {
                 //settings.playerModel = ModelId.Archer;
                 //settings.startDebugSession = true;
                 //loadWorld(settings);
-                music.playSong(MusicManager.Song.MainTheme);
+
         }
 
         public void returnToMainMenu(){
@@ -49,6 +50,10 @@ public class DungeonApp implements ApplicationListener {
                 }
 
                 this.setScreen(new MainMenuScreen(this));
+                music.setPlaylist(SongId.MainTheme, SongId.Arabesque, SongId.RitualNorm);
+                music.playSong(SongId.MainTheme);
+                music.setPaused(false);
+
         }
 
         @Override
@@ -69,6 +74,7 @@ public class DungeonApp implements ApplicationListener {
                         dungeonWorld.render(delta);
                 if (screen != null)
                         screen.render(delta);
+                music.update(delta);
         }
 
         @Override
@@ -170,6 +176,8 @@ public class DungeonApp implements ApplicationListener {
                 } else {
                         setScreen(null);
                 }
+
+                music.setPaused(screen != null);
         }
 
         public boolean isAppPaused() {

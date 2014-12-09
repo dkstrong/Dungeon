@@ -61,6 +61,9 @@ URL: http://opengameart.org/users/spiney, http://opengameart.org/node/12116
 ===Music===
 
 http://opengameart.org/content/walking-with-poseidon
+http://opengameart.org/content/arabesque
+http://opengameart.org/content/ritual
+
 
 
 
@@ -91,3 +94,6 @@ http://opengameart.org/content/spell-book-pack-0
 http://opengameart.org/content/old-book
 http://opengameart.org/content/book
 http://opengameart.org/content/spell-book
+
+Music
+http://opengameart.org/content/magical-theme

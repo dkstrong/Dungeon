@@ -11,13 +11,13 @@ import com.badlogic.gdx.utils.Array;
 public enum QuestNPC implements State{
         PauseThenMove{
                 @Override
-                public void begin(FSMLogic fsm, Token token, Command command) {
+                public void begin(FsmLogic fsm, Token token, Command command) {
                         fsm.count = 3;
                         command.setLocation(token.getLocation());
                 }
 
                 @Override
-                public void update(FSMLogic fsm, Token token, Command command, float delta) {
+                public void update(FsmLogic fsm, Token token, Command command, float delta) {
                         Array<Token> tokensAt = token.getFloorMap().getManhattanNeighborTokens(token.getLocation());
                         for (Token t : tokensAt) {
                                 if(t.getInteractor() != null ){
@@ -46,17 +46,17 @@ public enum QuestNPC implements State{
         };
 
         @Override
-        public void begin(FSMLogic fsm, Token token, Command command) {
+        public void begin(FsmLogic fsm, Token token, Command command) {
 
         }
 
         @Override
-        public void end(FSMLogic fsm, Token token, Command command) {
+        public void end(FsmLogic fsm, Token token, Command command) {
 
         }
 
         @Override
-        public void update(FSMLogic fsm, Token token, Command command, float delta) {
+        public void update(FsmLogic fsm, Token token, Command command, float delta) {
 
         }
 }
