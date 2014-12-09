@@ -133,7 +133,7 @@ public class Dungeon {
                 t.add(new FogMapping(t));
                 t.add(experience);
                 t.add(new Journal(t));
-                t.add(new Inventory.Character(t));
+                t.add(new Inventory.CharacterInventory(t));
                 t.add(new StatusEffects(t));
                 t.add(new Damage(t));
                 t.add(new Attack(t));
@@ -158,7 +158,7 @@ public class Dungeon {
                 //t.add(new FogMapping(t));
                 //t.add(new Journal());
                 t.add(experience);
-                t.add(new Inventory.Character(t));
+                t.add(new Inventory.CharacterInventory(t));
                 t.add(new StatusEffects(t));
                 t.add(new Damage(t));
                 t.add(new Attack(t));
@@ -181,7 +181,7 @@ public class Dungeon {
                 t.add(logic);
                 t.add(new Command(t));
                 t.add(quest);
-                t.add(new Inventory.Character(t));
+                t.add(new Inventory.CharacterInventory(t));
                 t.add(new StatusEffects(t));
                 t.add(new Damage(t));
                 t.add(new Move(t));
@@ -206,7 +206,7 @@ public class Dungeon {
         public Token newCrateToken(FloorMap fm, String name, ModelId modelId, Item item, int x, int y) {
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 Token t = new Token(this,  nextTokenId++, name, modelId);
-                t.add(new Inventory.Simple(t, item));
+                t.add(new Inventory.CrateInventory(t, item));
                 t.add(new Damage(t));
                 t.getDamage().setMaxHealth(1);
                 t.getDamage().setDeathDuration(2.5f);

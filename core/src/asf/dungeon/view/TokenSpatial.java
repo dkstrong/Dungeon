@@ -227,7 +227,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         visU -= delta * .75f;
                         // crates can be seen in visited fog and magic mapped fog
                         // loot can only be seen in visited fog
-                        if (token.getSimpleInventory() != null && (fogState == FogState.Visited || fogState == FogState.MagicMapped)) {
+                        if (token.getCrateInventory() != null && (fogState == FogState.Visited || fogState == FogState.MagicMapped)) {
                                 minVisU = .3f;
                         }else if(token.getMove() == null && fogState == FogState.Visited){
                                 minVisU = .3f;
@@ -388,7 +388,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         @Override
-        public void onUseItem(Item item, Inventory.Character.UseItemOutcome out) {
+        public void onUseItem(Item item, Inventory.CharacterInventory.UseItemOutcome out) {
                 if(out.didSomething){
                         if(item instanceof ScrollItem){
                                 ScrollItem scroll = (ScrollItem ) item;

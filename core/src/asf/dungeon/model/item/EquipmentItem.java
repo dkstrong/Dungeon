@@ -16,9 +16,9 @@ public abstract class EquipmentItem implements Item {
         private int complexity = 5;
 
         private int vitalityMod, strengthMod, agilityMod, intelligenceMod, luckMod;
+        public int requiredStrength, requiredAgility, requiredIntelligence;
 
         private boolean cursed;
-
 
         public EquipmentItem(ModelId modelId, String name, String description) {
                 this.modelId = modelId;
@@ -26,8 +26,52 @@ public abstract class EquipmentItem implements Item {
                 this.description = description;
         }
 
+        public void setName(String name) {
+                this.name = name;
+        }
+
+        public void setDescription(String description) {
+                this.description = description;
+        }
+
         public void setCursed(boolean cursed) {
                 this.cursed = cursed;
+        }
+
+        public void setComplexity(int complexity) {
+                this.complexity = complexity;
+        }
+
+        public void setVitalityMod(int vitalityMod) {
+                this.vitalityMod = vitalityMod;
+        }
+
+        public void setStrengthMod(int strengthMod) {
+                this.strengthMod = strengthMod;
+        }
+
+        public void setAgilityMod(int agilityMod) {
+                this.agilityMod = agilityMod;
+        }
+
+        public void setIntelligenceMod(int intelligenceMod) {
+                this.intelligenceMod = intelligenceMod;
+        }
+
+        public void setLuckMod(int luckMod) {
+                this.luckMod = luckMod;
+        }
+
+        public void setRequiredStrength(int requiredStrength) {
+                this.requiredStrength = requiredStrength;
+        }
+
+        public void setRequiredAgility(int requiredAgility) {
+                this.requiredAgility = requiredAgility;
+        }
+
+        public void setRequiredIntelligence(int requiredIntelligence) {
+                this.requiredIntelligence = requiredIntelligence;
         }
 
         /**
@@ -37,11 +81,6 @@ public abstract class EquipmentItem implements Item {
         public boolean isCursed() {
                 return cursed;
         }
-
-        public void setComplexity(int complexity) {
-                this.complexity = complexity;
-        }
-
         /**
          *
          * @return how complex the item is / how long it takes to manually identify it.
@@ -68,6 +107,20 @@ public abstract class EquipmentItem implements Item {
                 return luckMod;
         }
 
+        public int getRequiredStrength() {
+                return requiredStrength;
+        }
+
+        public int getRequiredAgility() {
+                return requiredAgility;
+        }
+
+        public int getRequiredIntelligence() {
+                return requiredIntelligence;
+        }
+
+
+
         @Override
         public ModelId getModelId() {
                 return modelId;
@@ -83,13 +136,7 @@ public abstract class EquipmentItem implements Item {
                 return description;
         }
 
-        public void setName(String name) {
-                this.name = name;
-        }
 
-        public void setDescription(String description) {
-                this.description = description;
-        }
 
         @Override
         public String getNameFromJournal(Token token) {

@@ -161,9 +161,6 @@ public class Experience implements TokenComponent{
                 }
 
 
-
-
-
                 // intelligence
 
                 if(token.getStatusEffects() != null && token.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Blind)){

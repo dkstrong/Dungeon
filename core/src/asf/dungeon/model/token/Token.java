@@ -45,8 +45,8 @@ public class Token {
         private Move move;
         private Damage damage;
         private Attack attack;
-        private Inventory.Character inventory;
-        private Inventory.Simple simpleInventory;
+        private Inventory.CharacterInventory inventory;
+        private Inventory.CrateInventory crateInventory;
         private FogMapping fogMapping;
         private StatusEffects statusEffects;
 
@@ -105,10 +105,10 @@ public class Token {
                         this.fogMapping = (FogMapping) component;
                 } else if (component instanceof Command) {
                         this.command = (Command) component;
-                } else if (component instanceof Inventory.Character) {
-                        this.inventory = (Inventory.Character) component;
-                } else if (component instanceof Inventory.Simple) {
-                        this.simpleInventory = (Inventory.Simple) component;
+                } else if (component instanceof Inventory.CharacterInventory) {
+                        this.inventory = (Inventory.CharacterInventory) component;
+                } else if (component instanceof Inventory.CrateInventory) {
+                        this.crateInventory = (Inventory.CrateInventory) component;
                 } else if (component instanceof Attack) {
                         this.attack = (Attack) component;
                 } else if (component instanceof Move) {
@@ -235,7 +235,7 @@ public class Token {
                 return attack;
         }
 
-        public Inventory.Character getInventory() {
+        public Inventory.CharacterInventory getInventory() {
                 return inventory;
         }
 
@@ -247,8 +247,8 @@ public class Token {
                 return experience;
         }
 
-        public Inventory.Simple getSimpleInventory() {
-                return simpleInventory;
+        public Inventory.CrateInventory getCrateInventory() {
+                return crateInventory;
         }
 
         public StatusEffects getStatusEffects() {
@@ -290,7 +290,7 @@ public class Token {
 
                 public void onInventoryChanged();
 
-                public void onUseItem(Item item, Inventory.Character.UseItemOutcome out);
+                public void onUseItem(Item item, Inventory.CharacterInventory.UseItemOutcome out);
 
                 public void onStatusEffectChange(StatusEffects.Effect effect, float duration);
 

@@ -101,7 +101,7 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         }
 
         @Override
-        public void consume(Token token, Inventory.Character.UseItemOutcome out) {
+        public void consume(Token token, Inventory.CharacterInventory.UseItemOutcome out) {
                 out.didSomething = doPotionEffects(token, type);
                 charges--;
                 identifyItem(token);

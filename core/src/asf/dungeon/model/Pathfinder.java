@@ -225,6 +225,12 @@ public class Pathfinder {
                         // players - only check the first 5 nodes because they frequently repath
 
                         // if the node is the goal node, dont add extra movement code because its the goal
+
+                        Tile tile = floorMap.getTile(n1);
+                        if(tile.isStairs()){
+                                movementCost+=25;
+                        }
+
                         Array<Token> tokensAt = floorMap.getTokensAt(n1);
                         for (Token t : tokensAt) {
                                 if(!t.isBlocksPathing())

@@ -66,13 +66,14 @@ public class AssetMappings {
                 potionDisplayColors[PotionItem.Color.Amber.ordinal()] = com.badlogic.gdx.graphics.Color.ORANGE;
                 potionDisplayColors[PotionItem.Color.Silver.ordinal()] = com.badlogic.gdx.graphics.Color.GRAY;
 
-                statusEffectsFxIds = new FxId[7];
+                statusEffectsFxIds = new FxId[8];
                 statusEffectsFxIds[StatusEffects.Effect.Heal.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffects.Effect.Poison.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffects.Effect.Paralyze.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffects.Effect.Invisibility.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffects.Effect.MindVision.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffects.Effect.Blind.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.Effect.Might.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffects.Effect.Speed.ordinal()] = FxId.HealAura;
 
                 soundLocations = new String[3][];

@@ -38,7 +38,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
         }
 
         @Override
-        public void consume(Token token, Inventory.Character.UseItemOutcome out) {
+        public void consume(Token token, Inventory.CharacterInventory.UseItemOutcome out) {
                 charges--;
                 switch(type){
                         case Lightning:
@@ -93,7 +93,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
         }
 
         @Override
-        public void consume(Token token, Token targetToken, Inventory.Character.UseItemOutcome out) {
+        public void consume(Token token, Token targetToken, Inventory.CharacterInventory.UseItemOutcome out) {
                 charges--;
                 out.didSomething = true;
                 if(type == Type.Ice){

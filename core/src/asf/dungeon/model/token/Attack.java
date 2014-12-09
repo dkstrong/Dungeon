@@ -304,6 +304,10 @@ public class Attack implements TokenComponent{
                                 if(weaponDmg <strength) out.damage = token.dungeon.rand.range(weaponDmg, strength);
                                 else out.damage = weaponDmg;
 
+                                if(token.getStatusEffects() != null && token.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Might)){
+                                        out.damage = Math.round(out.damage*1.5f);
+                                }
+
                                 // if lucky will do a critical strike
                                 if(token.dungeon.rand.bool(getCriticalHitChance())){
                                         // If you are lucky, will do critical damage causing x2 output damage
@@ -314,6 +318,11 @@ public class Attack implements TokenComponent{
 
                                 // damage absorb is the armor rating of worn armor.
                                 int armorAbsorb = targetToken.getInventory().getArmorSlot() == null ? 0 : targetToken.getInventory().getArmorSlot().getArmorRating();
+
+                                // actually since armorAbsorb is only based on the armor worn, maybe Might shoudlnt increase its effectiveness
+                                //if(targetToken.getStatusEffects() != null && targetToken.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Might)){
+                                //        armorAbsorb = Math.round(armorAbsorb*1.25f);
+                                //}
 
                                 out.damage-=armorAbsorb;
 

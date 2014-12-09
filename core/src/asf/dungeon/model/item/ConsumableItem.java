@@ -8,12 +8,12 @@ import asf.dungeon.model.token.Token;
 */
 public interface ConsumableItem extends Item{
 
-        public void consume(Token token, Inventory.Character.UseItemOutcome out);
+        public void consume(Token token, Inventory.CharacterInventory.UseItemOutcome out);
 
 
 
         public interface TargetsTokens extends ConsumableItem{
-                public void consume(Token token, Token targetToken, Inventory.Character.UseItemOutcome out);
+                public void consume(Token token, Token targetToken, Inventory.CharacterInventory.UseItemOutcome out);
 
                 /**
                  * if this token can use this item to target the specified targetToken (not himself)
@@ -35,7 +35,7 @@ public interface ConsumableItem extends Item{
         }
 
         public interface TargetsItems extends ConsumableItem{
-                public void consume(Token token, Item targetItem, Inventory.Character.UseItemOutcome out);
+                public void consume(Token token, Item targetItem, Inventory.CharacterInventory.UseItemOutcome out);
 
                 /**
                  * if the token can use this item to target the specified targetItem (not the item itself)

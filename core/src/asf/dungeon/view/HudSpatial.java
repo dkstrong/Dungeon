@@ -873,7 +873,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         @Override
-        public void onUseItem(Item item, Inventory.Character.UseItemOutcome out) {
+        public void onUseItem(Item item, Inventory.CharacterInventory.UseItemOutcome out) {
                 if (!out.didSomething) {
                         this.appendToGameLog("A bright light flashed, but nothing happened.");
                         return;
@@ -1424,7 +1424,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 } else if (event.getListenerActor() == itemWindowDiscardButton) {
                         Item item = (Item) itemWindow.getUserObject();
-                        boolean valid = localPlayerToken.getInventory().discard(item);
+                        boolean valid = localPlayerToken.getInventory().drop(item);
                         if (valid)
                                 setItemWindowVisible(false);
                 } else if (event.getListenerActor() == itemWindowBackButton) {

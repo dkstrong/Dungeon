@@ -210,7 +210,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         public Array<Token> getCrateTokens() {
                 tokensAt.clear();
                 for (Token t : tokens) {
-                        if(t.getSimpleInventory() != null){
+                        if(t.getCrateInventory() != null){
                                 tokensAt.add(t);
                         }
                 }

@@ -339,7 +339,7 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
 
 
         @Override
-        public void onUseItem(Item item, Inventory.Character.UseItemOutcome out) {
+        public void onUseItem(Item item, Inventory.CharacterInventory.UseItemOutcome out) {
 
         }
 

@@ -300,8 +300,8 @@ public class DungeonLoader {
                 kryo.register(asf.dungeon.model.token.Fountain.class);
                 kryo.register(asf.dungeon.model.token.Interactor.class);
                 kryo.register(Inventory.class);
-                kryo.register(Inventory.Character.class);
-                kryo.register(Inventory.Simple.class);
+                kryo.register(Inventory.CharacterInventory.class);
+                kryo.register(Inventory.CrateInventory.class);
                 kryo.register(Journal.class);
                 kryo.register(Loot.class);
                 kryo.register(Move.class);

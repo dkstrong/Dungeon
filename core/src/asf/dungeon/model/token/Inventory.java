@@ -21,7 +21,7 @@ import java.util.Arrays;
  */
 public interface Inventory extends TokenComponent {
 
-        public Item get();
+        public Item getItemToDrop();
 
         public int size();
 
@@ -33,13 +33,15 @@ public interface Inventory extends TokenComponent {
          */
         public boolean add(Item item);
 
+        public boolean drop(Item item);
+
         /**
          * @param item
          * @return true if the item was succesfully discard, false if it could not be discarded (eg it is cursed)
          */
         public boolean discard(Item item);
 
-        public static class Character implements Inventory {
+        public static class CharacterInventory implements Inventory {
                 private final Token token;
                 private final Array<Item> items;
                 private WeaponItem weaponSlot;
@@ -48,7 +50,7 @@ public interface Inventory extends TokenComponent {
                 private QuickItem[] quickSlots;
                 private float timeSinceComabt = Float.MAX_VALUE;
 
-                public Character(Token token, Item... items) {
+                public CharacterInventory(Token token, Item... items) {
                         this.token = token;
                         if (token.getLogic() == null) {
                                 this.items = new Array<Item>(true, items.length, Item.class); // this is probably a crate, inventory will probaby not grow in size
@@ -59,7 +61,7 @@ public interface Inventory extends TokenComponent {
 
                 }
 
-                public Item get() {
+                public Item getItemToDrop() {
                         if (items.size > 0) return items.get(0);
                         return null;
                 }
@@ -153,19 +155,53 @@ public interface Inventory extends TokenComponent {
                         return false;
                 }
 
+                private boolean canChangeEquipment(EquipmentItem currentSlot, EquipmentItem otherSlot1, EquipmentItem otherSlot2, EquipmentItem item){
+                        int str = token.getExperience().getStrength();
+                        int agi = token.getExperience().getAgility();
+                        int ine = token.getExperience().getIntelligence();
+                        if(item != null){
+                                str += item.getStrengthMod();
+                                agi += item.getAgilityMod();
+                                ine += item.getIntelligenceMod();
+                        }
+                        if(currentSlot != null){
+                                if(currentSlot.isCursed()) return false;
+                                str -= currentSlot.getStrengthMod();
+                                agi -= currentSlot.getAgilityMod();
+                                ine -= currentSlot.getAgilityMod();
+                        }
+                        if(item != null){
+                                if(str < item.getRequiredStrength()) return false;
+                                if(agi < item.getRequiredAgility()) return false;
+                                if(ine < item.getRequiredIntelligence()) return false;
+                        }
+                        if(otherSlot1 != null){
+                                if(str < otherSlot1.getRequiredStrength()) return false;
+                                if(agi < otherSlot1.getRequiredAgility()) return false;
+                                if(ine < otherSlot1.getRequiredIntelligence()) return false;
+                        }
+
+                        if(otherSlot2 != null){
+                                if(str < otherSlot2.getRequiredStrength()) return false;
+                                if(agi < otherSlot2.getRequiredAgility()) return false;
+                                if(ine < otherSlot2.getRequiredIntelligence()) return false;
+                        }
+                        return true;
+                }
+
                 public boolean equip(EquipmentItem item) {
                         if (item == null || !canChangeEquipment())
                                 return false;
                         if (item instanceof WeaponItem) {
-                                if (weaponSlot != null && weaponSlot.isCursed()) return false;
+                                if(!canChangeEquipment(weaponSlot, armorSlot, ringSlot, item)) return false;
                                 weaponSlot = (WeaponItem) item;
                                 token.getExperience().recalcStats();
                         } else if (item instanceof ArmorItem) {
-                                if (armorSlot != null && armorSlot.isCursed()) return false;
+                                if(!canChangeEquipment(armorSlot, weaponSlot, ringSlot, item)) return false;
                                 armorSlot = (ArmorItem) item;
                                 token.getExperience().recalcStats();
                         } else if (item instanceof RingItem) {
-                                if (ringSlot != null && ringSlot.isCursed()) return false;
+                                if(!canChangeEquipment(ringSlot, weaponSlot, armorSlot, item)) return false;
                                 ringSlot = (RingItem) item;
                                 token.getExperience().recalcStats();
                         }
@@ -208,34 +244,36 @@ public interface Inventory extends TokenComponent {
                 }
 
                 public boolean unequip(Item item) {
-                        return unequip(item, false);
+                        return unequip(item, false, false);
                 }
 
-                private boolean unequip(Item item, boolean forDiscard) {
+                private boolean unequip(Item item, boolean forDiscard, boolean forDrop) {
                         if (item == null )
                                 return false;
-                        if(item instanceof QuickItem){
-                                // quick items can be unequipped during combat if it is because they were used in combat
-                                // TODO: prevent direct discard of equipped item eg. not through consumption
-                                if(!forDiscard && (!canChangeEquipment() || isFull()))
-                                        return false;
-                        }else{
-                                // non quick items cant be unequipped during combat
-                                // if unequipping isnt for discard it can discard even if full though
-                                if(!canChangeEquipment()) return false;
-                                if(!forDiscard && isFull()) return false;
+
+                        if(!canChangeEquipment()){
+                                if(item instanceof QuickItem){
+                                        // quick items can be unequipped during combat if it is was consumed
+                                        // (being discard, but not being dropped)
+                                        if(forDrop || !forDiscard) return false;
+                                }else{
+                                        return false; // non quick items cant be unequipped during combat
+                                }
                         }
 
+                        // if unequipping an item and the inventory is full, it can still go through if the item will be discarded
+                        if(isFull() && !forDiscard) return false;
+
                         if (weaponSlot == item) {
-                                if (weaponSlot.isCursed()) return false;
+                                if(!canChangeEquipment(weaponSlot, armorSlot, ringSlot, null)) return false;
                                 weaponSlot = null;
                                 token.getExperience().recalcStats();
                         } else if (armorSlot == item) {
-                                if (armorSlot.isCursed()) return false;
+                                if(!canChangeEquipment(armorSlot, weaponSlot, ringSlot, null)) return false;
                                 armorSlot = null;
                                 token.getExperience().recalcStats();
                         } else if (ringSlot == item) {
-                                if (ringSlot.isCursed()) return false;
+                                if(!canChangeEquipment(ringSlot, weaponSlot, armorSlot, null)) return false;
                                 ringSlot = null;
                                 token.getExperience().recalcStats();
                         } else {
@@ -318,13 +356,21 @@ public interface Inventory extends TokenComponent {
                         return true;
                 }
 
+                public boolean drop(Item item){
+                        boolean valid = discard(item);
+                        if(!valid) return false;
+                        // TODO: attempt to drop on an empty tiles N,S,E, or W of location firs,t drop on self as last resort
+                        token.dungeon.newLootToken(token.getFloorMap(), item, token.getLocation().x, token.getLocation().y);
+                        return true;
+                }
+
                 public boolean discard(Item item) {
                         if (token.getDamage().isDead()) {
                                 return false;
                         }
 
                         if (isEquipped(item)) {
-                                boolean valid = unequip(item, true);
+                                boolean valid = unequip(item, true, false);
                                 if (!valid) return false;
                         }
 
@@ -445,16 +491,16 @@ public interface Inventory extends TokenComponent {
                 }
         }
 
-        public static class Simple implements Inventory {
+        public static class CrateInventory implements Inventory {
                 private Token token;
                 private Item item;
 
-                public Simple(Token token, Item item) {
+                public CrateInventory(Token token, Item item) {
                         this.token = token;
                         this.item = item;
                 }
 
-                public Item get() {
+                public Item getItemToDrop() {
                         return item;
                 }
 
@@ -473,6 +519,15 @@ public interface Inventory extends TokenComponent {
 
                         if (token.listener != null)
                                 token.listener.onInventoryChanged();
+                        return true;
+                }
+
+                public boolean drop(Item item){
+                        boolean valid = discard(item);
+                        if(!valid) return false;
+
+                        token.dungeon.newLootToken(token.getFloorMap(), item, token.getLocation().x, token.getLocation().y);
+
                         return true;
                 }
 

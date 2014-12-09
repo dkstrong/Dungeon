@@ -3,7 +3,6 @@ package asf.dungeon.model.token;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.SfxId;
-import asf.dungeon.model.item.Item;
 
 /**
  * Created by Danny on 11/11/2014.
@@ -130,11 +129,7 @@ public class Damage implements TokenComponent{
 
                 Inventory inventory = token.get(Inventory.class);
                 if(inventory != null){
-                        Item item = inventory.get();
-                        if(item != null){
-                                inventory.discard(item);
-                                token.dungeon.newLootToken(token.getFloorMap(), item, token.getLocation().x, token.getLocation().y);
-                        }
+                        inventory.drop(inventory.getItemToDrop());
 
                 }
         }

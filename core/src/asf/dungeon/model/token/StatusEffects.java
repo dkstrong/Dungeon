@@ -170,6 +170,7 @@ public class StatusEffects implements TokenComponent{
                 Invisibility(), // Damage checks for this and sets not attackable is invisible
                 MindVision(), // StatusEffects.update() checks for this, reveals tiles of monster tokens
                 Blind(), // Experience.recalcStats() checks for this, redudes visibility to 1 tile
+                Might(), // Attack.sendDamageToAttackTarget() checks for this, increases damage dealt and reduces damage received
                 Speed(); // Experience.recalcStats() checks for this and gives 35% speed increase
 
                 /**
