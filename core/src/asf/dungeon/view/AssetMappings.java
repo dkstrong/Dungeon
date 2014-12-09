@@ -66,15 +66,21 @@ public class AssetMappings {
                 potionDisplayColors[PotionItem.Color.Amber.ordinal()] = com.badlogic.gdx.graphics.Color.ORANGE;
                 potionDisplayColors[PotionItem.Color.Silver.ordinal()] = com.badlogic.gdx.graphics.Color.GRAY;
 
-                statusEffectsFxIds = new FxId[8];
-                statusEffectsFxIds[StatusEffects.Effect.Heal.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.Effect.Poison.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.Effect.Paralyze.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.Effect.Invisibility.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.Effect.MindVision.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.Effect.Blind.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.Effect.Might.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.Effect.Speed.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds = new FxId[14];
+                statusEffectsFxIds[StatusEffects.StatusEffect.Heal.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.Poison.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.Frozen.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.Frozen.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.Burning.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.Invisibility.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.MindVision.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.ItemVision.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.Blind.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.Might.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.Speed.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.Confused.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.ScaresMonsters.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffects.StatusEffect.LuresMonsters.ordinal()] = FxId.HealAura;
 
                 soundLocations = new String[3][];
                 soundLocations[SfxId.AlertMonster.ordinal()] = new String[]{"Sounds/monster-alert.ogg"};
@@ -106,7 +112,7 @@ public class AssetMappings {
                 return assetLocations[modelId.ordinal()];
         }
 
-        protected String getHudStatusEffectIcon(StatusEffects.Effect effect){
+        protected String getHudStatusEffectIcon(StatusEffects.StatusEffect effect){
                 return "Interface/Hud/health.png";
         }
 
@@ -146,7 +152,7 @@ public class AssetMappings {
 
 
 
-        protected FxId getStatusEffectFxId(StatusEffects.Effect effect) {
+        protected FxId getStatusEffectFxId(StatusEffects.StatusEffect effect) {
                 return statusEffectsFxIds[effect.ordinal()];
         }
 }

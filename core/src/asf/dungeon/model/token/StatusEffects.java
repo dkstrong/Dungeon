@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.FloatArray;
  */
 public class StatusEffects implements TokenComponent{
         private final Token token;
-        public static transient final Effect[] effectValues = Effect.values();
+        public static transient final StatusEffect[] effectValues = StatusEffect.values();
         private final FloatArray[] statusEffects;
 
 
@@ -20,7 +20,7 @@ public class StatusEffects implements TokenComponent{
 
                 statusEffects = new FloatArray[effectValues.length];
 
-                for (Effect statusEffect : effectValues) {
+                for (StatusEffect statusEffect : effectValues) {
                         statusEffects[statusEffect.ordinal()] = new FloatArray(false, 8);
                 }
         }
@@ -32,7 +32,7 @@ public class StatusEffects implements TokenComponent{
 
         @Override
         public boolean update(float delta) {
-                for (Effect statusEffect : effectValues) {
+                for (StatusEffect statusEffect : effectValues) {
                         FloatArray durations = statusEffects[statusEffect.ordinal()];
                         if(durations.size ==0){
                                 continue;
@@ -56,7 +56,7 @@ public class StatusEffects implements TokenComponent{
 
                 }
 
-                if(hasStatusEffect(Effect.MindVision)){
+                if(hasStatusEffect(StatusEffect.MindVision)){
                         FogMap fogMap = token.getFogMapping().getCurrentFogMap();
                         Array<Token> monsterTokens = token.getFloorMap().getMonsterTokens(token.getLogic().getTeam());
                         for (Token monsterToken : monsterTokens) {
@@ -64,7 +64,16 @@ public class StatusEffects implements TokenComponent{
                         }
                 }
 
-                if(hasStatusEffect(Effect.Paralyze))
+                if(hasStatusEffect(StatusEffect.ItemVision)){
+                        // TODO: and loot tiles?
+                        FogMap fogMap = token.getFogMapping().getCurrentFogMap();
+                        Array<Token> crateAndLootTokens = token.getFloorMap().getCrateTokens();
+                        for (Token t : crateAndLootTokens) {
+                                fogMap.revealLocationWithMagic(t.getLocation().x, t.getLocation().y);
+                        }
+                }
+
+                if(hasStatusEffect(StatusEffect.Paralyze) || hasStatusEffect(StatusEffect.Frozen))
                         return true;
 
                 return false;
@@ -77,21 +86,22 @@ public class StatusEffects implements TokenComponent{
          * if added this way
          * @param statusEffect
          */
-        public void addStatusEffect(Effect statusEffect){
+        public void addStatusEffect(StatusEffect statusEffect){
                 FloatArray durations = statusEffects[statusEffect.ordinal()];
                 durations.clear();
                 durations.add(Float.NaN);
                 // following the logic from the bottom of addStatusEffect(Effect,float,int)
-                statusEffect.begin(token);
+
                 if(token.getExperience() != null)
                         token.getExperience().recalcStats();
                 if(token.listener != null)
                         token.listener.onStatusEffectChange(statusEffect, Float.NaN);
+                statusEffect.begin(token);
         }
-        public void addStatusEffect(Effect statusEffect, float duration){
+        public void addStatusEffect(StatusEffect statusEffect, float duration){
                 addStatusEffect(statusEffect,duration,1);
         }
-        public void addStatusEffect(Effect statusEffect, float duration, int value){
+        public void addStatusEffect(StatusEffect statusEffect, float duration, int value){
                 float currentDuration = getStatusEffectDuration(statusEffect);
                 if(duration < currentDuration || Float.isNaN(currentDuration)){
                         return;
@@ -110,14 +120,15 @@ public class StatusEffects implements TokenComponent{
                         durations.add(duration);
                 }
 
-                statusEffect.begin(token);
+
                 if(token.getExperience() != null)
                         token.getExperience().recalcStats();
                 if(token.listener != null)
                         token.listener.onStatusEffectChange(statusEffect, duration);
+                statusEffect.begin(token);
         }
 
-        public void removeStatusEffect(Effect statusEffect){
+        public void removeStatusEffect(StatusEffect statusEffect){
                 FloatArray durations = statusEffects[statusEffect.ordinal()];
                 durations.clear();
                 statusEffect.end(token);
@@ -128,22 +139,22 @@ public class StatusEffects implements TokenComponent{
         }
 
         public void removeNegativeStatusEffects(){
-                removeStatusEffect(Effect.Poison);
-                removeStatusEffect(Effect.Paralyze);
-                removeStatusEffect(Effect.Blind);
+                removeStatusEffect(StatusEffect.Poison);
+                removeStatusEffect(StatusEffect.Paralyze);
+                removeStatusEffect(StatusEffect.Blind);
         }
 
         public void removeAllStatusEffects(){
-                for (Effect statusEffect : effectValues) {
+                for (StatusEffect statusEffect : effectValues) {
                         removeStatusEffect(statusEffect);
                 }
         }
 
-        public boolean hasStatusEffect(Effect statusEffect){
+        public boolean hasStatusEffect(StatusEffect statusEffect){
                 return statusEffects[statusEffect.ordinal()].size >0;
         }
 
-        public float getStatusEffectDuration(Effect statusEffect){
+        public float getStatusEffectDuration(StatusEffect statusEffect){
                 float duration = 0;
                 FloatArray durations = statusEffects[statusEffect.ordinal()];
                 for(int i=0; i<durations.size; i++){
@@ -152,7 +163,7 @@ public class StatusEffects implements TokenComponent{
                 return duration;
         }
 
-        public static enum Effect {
+        public static enum StatusEffect {
 
                 Heal(){
                         @Override
@@ -166,13 +177,34 @@ public class StatusEffects implements TokenComponent{
                                 token.getDamage().addHealth(-1);
                         }
                 },
-                Paralyze(), // StatusEffects.update() checks for this and blocks the stack if paralyzed
+                Frozen(){
+                        // StatusEffects.update() checks for this and blocks the stack if paralyzed,
+                        // Attack.sendDamageToAttackTarget also checks for this and increases damage received
+                        @Override
+                        protected void begin(Token token) {
+                                token.getStatusEffects().removeStatusEffect(StatusEffect.Burning);
+                        }
+                },
+                Burning(){
+                        @Override
+                        protected void begin(Token token) {
+                                token.getStatusEffects().removeStatusEffect(StatusEffect.Frozen);
+                        }
+                        @Override
+                        protected void apply(Token token) {
+                                token.getDamage().addHealth(-1);
+                        }
+                },
+                Paralyze(), // StatusEffects.update() checks for this and blocks the stack if paralyzed, Inventory
                 Invisibility(), // Damage checks for this and sets not attackable is invisible
                 MindVision(), // StatusEffects.update() checks for this, reveals tiles of monster tokens
+                ItemVision(), // StatusEffects.update() checks for tihs, reveals tiles of crates and loot
                 Blind(), // Experience.recalcStats() checks for this, redudes visibility to 1 tile
                 Might(), // Attack.sendDamageToAttackTarget() checks for this, increases damage dealt and reduces damage received
-                Speed(); // Experience.recalcStats() checks for this and gives 35% speed increase
-
+                Speed(), // Experience.recalcStats() checks for this and gives 35% speed increase
+                Confused(),// TODO: Monster FSM checks for this, changes the fsm team to a random team number, if logic is local player then i need to come up with something else to do.
+                ScaresMonsters(), // TODO: Monster FSM checks for this, runs from this token's location if nearby
+                LuresMonsters(); // TODO: Monster FSM checks for this, moves towards tokens location if within some large range
                 /**
                  * called when the status effect is added
                  * @param token

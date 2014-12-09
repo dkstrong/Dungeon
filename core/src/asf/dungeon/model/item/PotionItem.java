@@ -108,30 +108,30 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         }
 
         public static boolean doPotionEffects(Token token, PotionItem.Type type){
-                StatusEffects statusEffects = token.get(StatusEffects.class);
+                StatusEffects statusEffects = token.getStatusEffects();
                 if (statusEffects == null)
                         return false;
                 switch (type) {
                         case Health:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Heal, 4, 8);
+                                statusEffects.addStatusEffect(StatusEffects.StatusEffect.Heal, 4, 8);
                                 return true;
                         case Poison:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Poison, 5, 5);
+                                statusEffects.addStatusEffect(StatusEffects.StatusEffect.Poison, 5, 5);
                                 return true;
                         case Invisibility:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Invisibility, 10);
+                                statusEffects.addStatusEffect(StatusEffects.StatusEffect.Invisibility, 10);
                                 return true;
                         case Purity:
                                 statusEffects.removeNegativeStatusEffects();
                                 return true;
                         case Paralyze:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Paralyze, 5);
+                                statusEffects.addStatusEffect(StatusEffects.StatusEffect.Paralyze, 5);
                                 return true;
                         case Blindness:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Blind, 10);
+                                statusEffects.addStatusEffect(StatusEffects.StatusEffect.Blind, 10);
                                 return true;
                         case MindVision:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.MindVision, 5);
+                                statusEffects.addStatusEffect(StatusEffects.StatusEffect.MindVision, 5);
                                 return true;
                         case Hallucination:
                                 // TODO: I... forget what this was supposed to do.. I think show loot on the ground that isnt actually there?
@@ -140,7 +140,7 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
                                 // TODO: Attack should check for this, should increase damage dealt and reduce damage received
                                 return true;
                         case Speed:
-                                statusEffects.addStatusEffect(StatusEffects.Effect.Speed, 10, 1);
+                                statusEffects.addStatusEffect(StatusEffects.StatusEffect.Speed, 10, 1);
                                 return true;
                 }
                 throw new AssertionError(type);

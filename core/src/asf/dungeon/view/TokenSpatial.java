@@ -190,7 +190,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
                 // check to see if token spawned with status effects already on, if so then shot their Fx and hud information
                 if(token.getStatusEffects()!= null){
-                        for (StatusEffects.Effect effect : StatusEffects.effectValues) {
+                        for (StatusEffects.StatusEffect effect : StatusEffects.effectValues) {
                                 if(token.getStatusEffects().hasStatusEffect(effect)){
                                         float duration = token.getStatusEffects().getStatusEffectDuration(effect);
                                         onStatusEffectChange(effect, duration);
@@ -220,7 +220,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                 // as is if you are fully visible, then get the invisibility status effct you'll "snap" to visuU = 0.5f
                 if(fogState == FogState.Visible){
                         visU += delta * .65f;
-                        if(token.getStatusEffects() != null && token.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Invisibility)){
+                        if(token.getStatusEffects() != null && token.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Invisibility)){
                                 maxVisU = .5f;
                         }
                 }else{
@@ -348,7 +348,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         @Override
-        public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
+        public void onStatusEffectChange(StatusEffects.StatusEffect effect, float duration) {
 
                 world.fxManager.spawnEffect(world.assetMappings.getStatusEffectFxId(effect), this, duration);
 

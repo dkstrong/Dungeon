@@ -161,11 +161,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 avatarStatusEffectsGroup.align(Align.bottomLeft);
 
 
-                StatusEffects.Effect[] values = StatusEffects.Effect.values();
+                StatusEffects.StatusEffect[] values = StatusEffects.StatusEffect.values();
 
                 statusEffectImage = new Image[values.length];
                 // TODO: need to use texture regions here
-                for (StatusEffects.Effect value : values) {
+                for (StatusEffects.StatusEffect value : values) {
                         int i = value.ordinal();
                         world.assetManager.load(world.assetMappings.getHudStatusEffectIcon(value), Texture.class);
                         world.assetManager.finishLoading();
@@ -640,11 +640,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 sb.append("\n");
 
                 StatusEffects statusEffets = localPlayerToken.get(StatusEffects.class);
-                if (statusEffets.hasStatusEffect(StatusEffects.Effect.Paralyze)) {
+                if (statusEffets.hasStatusEffect(StatusEffects.StatusEffect.Paralyze)) {
                         sb.append("You are paralyzed\n");
                 }
 
-                if (statusEffets.hasStatusEffect(StatusEffects.Effect.Poison)) {
+                if (statusEffets.hasStatusEffect(StatusEffects.StatusEffect.Poison)) {
                         sb.append("You are poisoned\n");
                 }
 
@@ -936,7 +936,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         @Override
-        public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
+        public void onStatusEffectChange(StatusEffects.StatusEffect effect, float duration) {
                 Image statusImage = statusEffectImage[effect.ordinal()];
                 if (duration == 0) {
                         statusImage.remove();

@@ -125,6 +125,33 @@ public class CharacterInventory implements Inventory {
                 if (token.listener != null)
                         token.listener.onInventoryChanged();
         }
+        public int size() {
+                return items.size;
+        }
+
+        public int sizeInBackpack() {
+                int subMax = 0;
+                if (weaponSlot != null) subMax++;
+                if (armorSlot != null) subMax++;
+                if (ringSlot != null) subMax++;
+                for (int i = 0; i < numQuickSlots(); i++) {
+                        if (quickSlots[i] != null) subMax++;
+                }
+                return items.size - subMax;
+
+        }
+
+        public int maxBackpackSlots() {
+                return 16;
+        }
+
+        public boolean isFull() {
+                return sizeInBackpack() >= maxBackpackSlots();
+        }
+
+        protected void resetCombatTimer() {
+                timeSinceComabt = 0;
+        }
 
         public boolean isEquipped(Item item) {
                 if (item == null)
@@ -138,7 +165,16 @@ public class CharacterInventory implements Inventory {
                 return false;
         }
 
-        private boolean canChangeEquipment(EquipmentItem currentSlot, EquipmentItem otherSlot1, EquipmentItem otherSlot2, EquipmentItem item){
+        public boolean canChangeEquipment() {
+                if (token.getAttack() != null && (token.getAttack().isAttacking() || token.getAttack().hasProjectile()))
+                        return false;
+
+                if(token.getStatusEffects() != null && (token.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Paralyze) || token.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Frozen))  )
+                        return false;
+                return timeSinceComabt > 5f;
+        }
+
+        private boolean hasRequiredStatsToChangeEquipment(EquipmentItem currentSlot, EquipmentItem otherSlot1, EquipmentItem otherSlot2, EquipmentItem item){
                 int str = token.getExperience().getStrength();
                 int agi = token.getExperience().getAgility();
                 int ine = token.getExperience().getIntelligence();
@@ -176,15 +212,15 @@ public class CharacterInventory implements Inventory {
                 if (item == null || !canChangeEquipment())
                         return false;
                 if (item instanceof WeaponItem) {
-                        if(!canChangeEquipment(weaponSlot, armorSlot, ringSlot, item)) return false;
+                        if(!hasRequiredStatsToChangeEquipment(weaponSlot, armorSlot, ringSlot, item)) return false;
                         weaponSlot = (WeaponItem) item;
                         token.getExperience().recalcStats();
                 } else if (item instanceof ArmorItem) {
-                        if(!canChangeEquipment(armorSlot, weaponSlot, ringSlot, item)) return false;
+                        if(!hasRequiredStatsToChangeEquipment(armorSlot, weaponSlot, ringSlot, item)) return false;
                         armorSlot = (ArmorItem) item;
                         token.getExperience().recalcStats();
                 } else if (item instanceof RingItem) {
-                        if(!canChangeEquipment(ringSlot, weaponSlot, armorSlot, item)) return false;
+                        if(!hasRequiredStatsToChangeEquipment(ringSlot, weaponSlot, armorSlot, item)) return false;
                         ringSlot = (RingItem) item;
                         token.getExperience().recalcStats();
                 }
@@ -248,15 +284,15 @@ public class CharacterInventory implements Inventory {
                 if(isFull() && !forDiscard) return false;
 
                 if (weaponSlot == item) {
-                        if(!canChangeEquipment(weaponSlot, armorSlot, ringSlot, null)) return false;
+                        if(!hasRequiredStatsToChangeEquipment(weaponSlot, armorSlot, ringSlot, null)) return false;
                         weaponSlot = null;
                         token.getExperience().recalcStats();
                 } else if (armorSlot == item) {
-                        if(!canChangeEquipment(armorSlot, weaponSlot, ringSlot, null)) return false;
+                        if(!hasRequiredStatsToChangeEquipment(armorSlot, weaponSlot, ringSlot, null)) return false;
                         armorSlot = null;
                         token.getExperience().recalcStats();
                 } else if (ringSlot == item) {
-                        if(!canChangeEquipment(ringSlot, weaponSlot, armorSlot, null)) return false;
+                        if(!hasRequiredStatsToChangeEquipment(ringSlot, weaponSlot, armorSlot, null)) return false;
                         ringSlot = null;
                         token.getExperience().recalcStats();
                 } else {
@@ -269,42 +305,6 @@ public class CharacterInventory implements Inventory {
                 if (!forDiscard && token.listener != null)
                         token.listener.onInventoryChanged();
                 return true;
-        }
-
-
-        public int size() {
-                return items.size;
-        }
-
-        public int sizeInBackpack() {
-                int subMax = 0;
-                if (weaponSlot != null) subMax++;
-                if (armorSlot != null) subMax++;
-                if (ringSlot != null) subMax++;
-                for (int i = 0; i < numQuickSlots(); i++) {
-                        if (quickSlots[i] != null) subMax++;
-                }
-                return items.size - subMax;
-
-        }
-
-        public int maxBackpackSlots() {
-                return 16;
-        }
-
-        public boolean isFull() {
-                return sizeInBackpack() >= maxBackpackSlots();
-        }
-
-        protected void resetCombatTimer() {
-                timeSinceComabt = 0;
-        }
-
-        public boolean canChangeEquipment() {
-                if (token.getAttack() != null && (token.getAttack().isAttacking() || token.getAttack().hasProjectile())) {
-                        return false;
-                }
-                return timeSinceComabt > 5f;
         }
 
         public boolean add(Item item) {

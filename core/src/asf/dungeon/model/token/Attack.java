@@ -304,7 +304,7 @@ public class Attack implements TokenComponent{
                                 if(weaponDmg <strength) out.damage = token.dungeon.rand.range(weaponDmg, strength);
                                 else out.damage = weaponDmg;
 
-                                if(token.getStatusEffects() != null && token.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Might)){
+                                if(token.getStatusEffects() != null && token.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Might)){
                                         out.damage = Math.round(out.damage*1.5f);
                                 }
 
@@ -323,6 +323,12 @@ public class Attack implements TokenComponent{
                                 //if(targetToken.getStatusEffects() != null && targetToken.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Might)){
                                 //        armorAbsorb = Math.round(armorAbsorb*1.25f);
                                 //}
+
+                                if(targetToken.getStatusEffects()!= null){
+                                        if(targetToken.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Frozen)){
+                                                armorAbsorb-= out.damage*.15f;
+                                        }
+                                }
 
                                 out.damage-=armorAbsorb;
 

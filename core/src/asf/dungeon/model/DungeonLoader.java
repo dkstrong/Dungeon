@@ -309,7 +309,7 @@ public class DungeonLoader {
                 kryo.register(Loot.class);
                 kryo.register(Move.class);
                 kryo.register(StatusEffects.class);
-                kryo.register(StatusEffects.Effect.class);
+                kryo.register(StatusEffects.StatusEffect.class);
                 kryo.register(Command.class);
                 kryo.register(Token.class);
                 kryo.register(asf.dungeon.model.token.Token[].class);

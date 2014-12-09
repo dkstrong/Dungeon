@@ -2,11 +2,10 @@ package asf.dungeon.model.item;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.ModelId;
-import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Journal;
+import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
-import com.badlogic.gdx.utils.Array;
 
 /**
  * Created by Danny on 11/24/2014.
@@ -26,7 +25,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                 ExtraQuickSlot,
                 AggravateMonsters, // monsters from around the floor come to attack you
                 RemoveCurse,
-                Experience // increases intelligence stat
+                Experience
         }
 
         public static enum Symbol{
@@ -48,15 +47,12 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                                 break;
                         case ItemDetection:
                                 // reveal location of crates
-                                FogMap fogMap = token.getFogMapping().getCurrentFogMap();
-                                Array<Token> crateAndLootTokens = token.getFloorMap().getCrateTokens();
-                                for (Token t : crateAndLootTokens) {
-                                        fogMap.revealLocationWithMagic(t.getLocation().x, t.getLocation().y);
-                                }
+                                token.getStatusEffects().addStatusEffect(StatusEffects.StatusEffect.ItemVision, 15);
                                 out.didSomething = true;
                                 break;
                         case Sleep:
                                 // cause player to fall asleep for period of time
+                                token.getStatusEffects().addStatusEffect(StatusEffects.StatusEffect.Paralyze, 5);
                                 out.didSomething = true;
                                 break;
                         case ExtraQuickSlot:
@@ -69,6 +65,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                                 break;
                         case AggravateMonsters:
                                 // tokens in entire floor immediatly get aggro for player
+                                token.getStatusEffects().addStatusEffect(StatusEffects.StatusEffect.LuresMonsters, 60);
                                 out.didSomething = true;
                                 break;
                         case Experience:
@@ -99,6 +96,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                         targetItem.identifyItem(token);
                 }else if(type == Type.EnchantWeapon){
                         WeaponItem weapon = (WeaponItem) targetItem;
+                        // TODO: only books that i still need to code are the EnchantXXX books
                 }else if(type == Type.EnchantArmor){
                         ArmorItem armor = (ArmorItem) targetItem;
                 }else if(type == Type.EnchantRing){

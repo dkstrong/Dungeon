@@ -344,7 +344,7 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
         }
 
         @Override
-        public void onStatusEffectChange(StatusEffects.Effect effect, float duration) {
+        public void onStatusEffectChange(StatusEffects.StatusEffect effect, float duration) {
 
         }
 

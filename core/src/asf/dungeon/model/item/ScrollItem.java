@@ -6,8 +6,8 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Journal;
+import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -15,12 +15,9 @@ import com.badlogic.gdx.utils.Array;
  */
 public class ScrollItem extends AbstractItem implements QuickItem, ConsumableItem.TargetsTokens,StackableItem{
 
-
-
-
         public static enum Type{
                 Lightning, // casts lightining on nearest monster
-                Fire, // fireball that can be controlled with finger
+                Fire, // controlling fireball with finger was a cool idea, but too much coding, will just be simple targeting scroll
                 Ice, // freeze selected target
                 Teleportation, // teleports you or another target to a random location in the dungeon
                 Confusion, // target monster is confused, may start to attack other monsters
@@ -43,15 +40,15 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                 switch(type){
                         case Lightning:
                                 // cast lightning on nearest monster, if no monster nearby then does nothing
-                                Gdx.app.log("ScrollItem-Lightning","consume(), get visible tokens");
+                                //Gdx.app.log("ScrollItem-Lightning","consume(), get visible tokens");
                                 Array<Token> visibleTokens = token.getFloorMap().getVisibleTokens(token);
-                                Gdx.app.log("ScrollItem-Lightning",String.valueOf(visibleTokens));
+                                //Gdx.app.log("ScrollItem-Lightning",String.valueOf(visibleTokens));
                                 Token closest = null;
                                 int closestDistance = Integer.MAX_VALUE;
                                 for (Token visibleToken : visibleTokens) {
                                         if(visibleToken == token || visibleToken.getDamage() == null || visibleToken.getMove() == null || visibleToken.getDamage().isDead())
                                                 continue;
-                                        Gdx.app.log("ScrollItem-Lightning","testing against:"+visibleToken.getName());
+                                        //Gdx.app.log("ScrollItem-Lightning","testing against:"+visibleToken.getName());
                                         int dist = visibleToken.getLocation().distance(token.getLocation());
                                         if(dist< closestDistance){
                                                 closestDistance = dist;
@@ -68,23 +65,22 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                                 }
                                 break;
                         case Fire:
-                                // fireball that can be controlled with finger
-                                out.didSomething = true;
+                                consume(token, token, out);
                                 break;
                         case Ice:
-                                // freeze yourself
-                                out.didSomething = true;
+                                consume(token, token, out);
                                 break;
                         case Teleportation:
                                 consume(token, token, out);
                                 break;
                         case Confusion:
-                                // does nothing
-                                out.didSomething = false;
+                                consume(token, token, out);
                                 break;
                         case ScareMonsters:
                                 // nearby monsters run away  (may turn this in to a dropable item if i decide to have that)
                                 out.didSomething = true;
+                                StatusEffects statusEffects = token.getStatusEffects();
+                                statusEffects.addStatusEffect(StatusEffects.StatusEffect.ScaresMonsters, 8);
                                 break;
                         default:
                                 throw new AssertionError(type);
@@ -97,12 +93,23 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                 charges--;
                 out.didSomething = true;
                 if(type == Type.Ice){
-                        // freeze target token
+                        // freeze target (or self), disables burning status effect, increases damage received
+                        targetToken.getStatusEffects().addStatusEffect(StatusEffects.StatusEffect.Frozen, 6);
+                        out.targetToken = targetToken;
+                        out.didSomething = true;
+                }else if(type == Type.Fire){
+                        // freeze target (or self), disables burning status effect, increases damage received
+                        targetToken.getStatusEffects().addStatusEffect(StatusEffects.StatusEffect.Burning, 10, 5);
+                        out.targetToken = targetToken;
+                        out.didSomething = true;
                 }else if(type == Type.Teleportation){
                         // teleport target token to random location
                         // TODO: this code allows for teleporting into a locked room
                         // i need to make it so either it wont go into a locked room, or
                         // make it so that when getting locked in is detected that the player dies
+
+                        // TODO: when teleporting Crates, Keys, and NPCs i might want to have additional logic
+                        // here to make this stuff teleport to a desired (reachable) area.
                         int x,y;
                         Dungeon dungeon = token.dungeon;
                         FloorMap floorMap = token.getFloorMap();
@@ -116,6 +123,9 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                         out.didSomething = true;
                 }else if(type == Type.Confusion){
                         // causes target to become confused, may attack other monsters
+                        targetToken.getStatusEffects().addStatusEffect(StatusEffects.StatusEffect.Confused, 20);
+                        out.targetToken = targetToken;
+                        out.didSomething = true;
                 }else{
                         throw new AssertionError(type);
                 }
@@ -127,18 +137,45 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                 switch(type){
 
                         case Lightning:
-                        case Fire:
                         case ScareMonsters:
                                 return false;
-                        case Ice:
                         case Confusion:
-                                if(token == targetToken)
+                                if(targetToken == null || targetToken.getLogic() == null)
                                         return false;
-                        case Teleportation:
-                                if(targetToken == null || targetToken.getDamage() == null || targetToken.getMove() == null)
+                        case Fire:
+                        case Ice:
+                                if(targetToken == null || targetToken.getDamage() == null || targetToken.getMove() == null || targetToken.getStatusEffects() == null)
                                         return false;
                                 if(targetToken.getDamage().isDead())
                                         return false;
+                                // cant consume if target is invisible and not on the same team
+                                if(targetToken.getLogic() != null && targetToken.getLogic().getTeam() != token.getLogic().getTeam()){
+                                        if(targetToken.getStatusEffects() != null && targetToken.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Invisibility)){
+                                                return false;
+                                        }
+                                }
+                                if(token.getFloorMap() != targetToken.getFloorMap())
+                                        return false;
+                                if(token.getFogMapping() != null){
+                                        FogMap fogMap = token.getFogMapping().getCurrentFogMap();
+                                        if(!fogMap.isVisible(targetToken.getLocation().x, targetToken.getLocation().y))
+                                                return false;
+                                }
+                                return true;
+                        case Teleportation:
+                                //Teleportation has similiar rules to the status effect scrolls, however telepotation,
+                                // also works on Crates, Loot, and NPCs, this can be used to access keys that cant
+                                // otherwise be accessed etc etc
+                                if(targetToken == null)
+                                        return false;
+                                if(targetToken.getDamage()!= null && targetToken.getDamage().isDead())
+                                        return false;
+                                // cant consume if target is invisible and not on the same team
+                                if(targetToken.getLogic() != null && targetToken.getLogic().getTeam() != token.getLogic().getTeam()){
+                                        if(targetToken.getStatusEffects() != null && targetToken.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Invisibility)){
+                                                return false;
+                                        }
+                                }
                                 if(token.getFloorMap() != targetToken.getFloorMap())
                                         return false;
                                 if(token.getFogMapping() != null){

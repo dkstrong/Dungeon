@@ -56,7 +56,7 @@ public class Move implements TokenComponent{
                         else
                                 fogMap = null;
 
-                        boolean targetInvisisible = targetToken.getStatusEffects()!=null && targetToken.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Invisibility);
+                        boolean targetInvisisible = targetToken.getStatusEffects()!=null && targetToken.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Invisibility);
 
                         if (!targetInvisisible && (fogMap == null || fogMap.isVisible(targetToken.getLocation().x, targetToken.getLocation().y))) {
                                 targetLocation.set(targetToken.getLocation());

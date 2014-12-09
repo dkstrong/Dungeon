@@ -116,7 +116,7 @@ public class Command implements TokenComponent{
                 }
 
                 if(targetToken.getStatusEffects() != null){
-                        if(targetToken.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Invisibility)){
+                        if(targetToken.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Invisibility)){
                                 this.targetToken = null;
                                 return;
                         }
