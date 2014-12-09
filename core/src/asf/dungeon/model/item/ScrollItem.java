@@ -4,7 +4,7 @@ import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.fogmap.FogMap;
-import asf.dungeon.model.token.Inventory;
+import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.Gdx;
@@ -38,7 +38,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
         }
 
         @Override
-        public void consume(Token token, Inventory.CharacterInventory.UseItemOutcome out) {
+        public void consume(Token token, CharacterInventory.UseItemOutcome out) {
                 charges--;
                 switch(type){
                         case Lightning:
@@ -93,7 +93,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
         }
 
         @Override
-        public void consume(Token token, Token targetToken, Inventory.CharacterInventory.UseItemOutcome out) {
+        public void consume(Token token, Token targetToken, CharacterInventory.UseItemOutcome out) {
                 charges--;
                 out.didSomething = true;
                 if(type == Type.Ice){

@@ -3,12 +3,13 @@ package asf.dungeon.model;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.Attack;
+import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Command;
+import asf.dungeon.model.token.CrateInventory;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.FogMapping;
 import asf.dungeon.model.token.Interactor;
-import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.Move;
@@ -133,7 +134,7 @@ public class Dungeon {
                 t.add(new FogMapping(t));
                 t.add(experience);
                 t.add(new Journal(t));
-                t.add(new Inventory.CharacterInventory(t));
+                t.add(new CharacterInventory(t));
                 t.add(new StatusEffects(t));
                 t.add(new Damage(t));
                 t.add(new Attack(t));
@@ -158,7 +159,7 @@ public class Dungeon {
                 //t.add(new FogMapping(t));
                 //t.add(new Journal());
                 t.add(experience);
-                t.add(new Inventory.CharacterInventory(t));
+                t.add(new CharacterInventory(t));
                 t.add(new StatusEffects(t));
                 t.add(new Damage(t));
                 t.add(new Attack(t));
@@ -181,7 +182,7 @@ public class Dungeon {
                 t.add(logic);
                 t.add(new Command(t));
                 t.add(quest);
-                t.add(new Inventory.CharacterInventory(t));
+                t.add(new CharacterInventory(t));
                 t.add(new StatusEffects(t));
                 t.add(new Damage(t));
                 t.add(new Move(t));
@@ -206,7 +207,7 @@ public class Dungeon {
         public Token newCrateToken(FloorMap fm, String name, ModelId modelId, Item item, int x, int y) {
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 Token t = new Token(this,  nextTokenId++, name, modelId);
-                t.add(new Inventory.CrateInventory(t, item));
+                t.add(new CrateInventory(t, item));
                 t.add(new Damage(t));
                 t.getDamage().setMaxHealth(1);
                 t.getDamage().setDeathDuration(2.5f);

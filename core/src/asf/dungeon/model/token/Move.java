@@ -90,14 +90,11 @@ public class Move implements TokenComponent{
 
                 moveU += delta * (token.direction.isDiagonal() ? moveSpeedDiagonal : moveSpeed);
 
+
                 FloorMap floorMap = token.getFloorMap();
                 Pair location = token.getLocation();
 
                 if (moveU > 1) {
-
-                        if (path.size > 0)  // check for loot as long as not idle in square. TODO: when path is blocked and stuff in the "chilling" state, pickUpLoot will get spammed, but its better than always spamming it
-                                pickUpLoot(); // we check for loot before applying moveU because we want to pick up loot only when fully in the tile and not when just entering a new one
-
                         if (path.size > 1) {
                                 Pair nextLocation = path.get(1);
                                 // if there are more pairs to move to, then move towards it
@@ -158,9 +155,16 @@ public class Move implements TokenComponent{
                                         return true;
                                 }
                                 moveU = 1;
+                                //pickUpLoot();
                         } else {
                                 moveU = 1;
                         }
+
+
+                }
+
+                if(moveU > .9f && path.size > 0){
+                        pickUpLoot();
                 }
                 updateFloatLocation();
                 return false;

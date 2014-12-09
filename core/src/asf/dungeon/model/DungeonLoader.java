@@ -22,7 +22,9 @@ import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Attack;
+import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Command;
+import asf.dungeon.model.token.CrateInventory;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.FogMapping;
@@ -266,6 +268,7 @@ public class DungeonLoader {
                 kryo.register(ModelId.class);
                 kryo.register(asf.dungeon.model.SfxId.class);
                 kryo.register(asf.dungeon.model.FxId.class);
+                kryo.register(asf.dungeon.model.SongId.class);
                 kryo.register(Pair.class);
                 kryo.register(Pair[].class);
                 kryo.register(Pair[][].class);
@@ -300,8 +303,8 @@ public class DungeonLoader {
                 kryo.register(asf.dungeon.model.token.Fountain.class);
                 kryo.register(asf.dungeon.model.token.Interactor.class);
                 kryo.register(Inventory.class);
-                kryo.register(Inventory.CharacterInventory.class);
-                kryo.register(Inventory.CrateInventory.class);
+                kryo.register(CharacterInventory.class);
+                kryo.register(CrateInventory.class);
                 kryo.register(Journal.class);
                 kryo.register(Loot.class);
                 kryo.register(Move.class);

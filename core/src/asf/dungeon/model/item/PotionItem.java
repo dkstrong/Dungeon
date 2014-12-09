@@ -3,7 +3,7 @@ package asf.dungeon.model.item;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.ModelId;
-import asf.dungeon.model.token.Inventory;
+import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
@@ -101,7 +101,7 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         }
 
         @Override
-        public void consume(Token token, Inventory.CharacterInventory.UseItemOutcome out) {
+        public void consume(Token token, CharacterInventory.UseItemOutcome out) {
                 out.didSomething = doPotionEffects(token, type);
                 charges--;
                 identifyItem(token);

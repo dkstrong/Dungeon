@@ -145,6 +145,7 @@ public class PotionQuest extends Quest {
                                                         WeaponItem weapon = new WeaponItem(ModelId.Sword, "Traveler's Sword", chanceCursed ? 1 : 3);
                                                         weapon.setCursed(chanceCursed);
                                                         interactor.chattingWith.getInventory().add(weapon);
+                                                        interactor.chattingWith.getInventory().setItemToDrop(weapon);
 
                                                         interactor.chattingWith.getCommand().consumeItem(givePotion);
 

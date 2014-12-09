@@ -14,9 +14,9 @@ import asf.dungeon.model.item.RingItem;
 import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Attack;
+import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
-import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
@@ -873,7 +873,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         @Override
-        public void onUseItem(Item item, Inventory.CharacterInventory.UseItemOutcome out) {
+        public void onUseItem(Item item, CharacterInventory.UseItemOutcome out) {
                 if (!out.didSomething) {
                         this.appendToGameLog("A bright light flashed, but nothing happened.");
                         return;

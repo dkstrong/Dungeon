@@ -3,7 +3,7 @@ package asf.dungeon.model.item;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.fogmap.FogMap;
-import asf.dungeon.model.token.Inventory;
+import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
@@ -38,7 +38,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
         }
 
         @Override
-        public void consume(Token token, Inventory.CharacterInventory.UseItemOutcome out) {
+        public void consume(Token token, CharacterInventory.UseItemOutcome out) {
 
                 switch(type){
                         case MagicMapping:
@@ -61,7 +61,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                                 break;
                         case ExtraQuickSlot:
                                 // adds an extra quick slot to the players inventory
-                                Inventory.CharacterInventory inventory = token.getInventory();
+                                CharacterInventory inventory = token.getInventory();
                                 int numSlots = inventory.numQuickSlots();
                                 out.didSomething = numSlots < 3;
                                 if(out.didSomething)
@@ -93,7 +93,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
         }
 
         @Override
-        public void consume(Token token, Item targetItem, Inventory.CharacterInventory.UseItemOutcome out) {
+        public void consume(Token token, Item targetItem, CharacterInventory.UseItemOutcome out) {
                 out.didSomething = true;
                 if(type == Type.Identify){
                         targetItem.identifyItem(token);

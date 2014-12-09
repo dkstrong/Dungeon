@@ -45,8 +45,8 @@ public class Token {
         private Move move;
         private Damage damage;
         private Attack attack;
-        private Inventory.CharacterInventory inventory;
-        private Inventory.CrateInventory crateInventory;
+        private CharacterInventory inventory;
+        private CrateInventory crateInventory;
         private FogMapping fogMapping;
         private StatusEffects statusEffects;
 
@@ -105,10 +105,10 @@ public class Token {
                         this.fogMapping = (FogMapping) component;
                 } else if (component instanceof Command) {
                         this.command = (Command) component;
-                } else if (component instanceof Inventory.CharacterInventory) {
-                        this.inventory = (Inventory.CharacterInventory) component;
-                } else if (component instanceof Inventory.CrateInventory) {
-                        this.crateInventory = (Inventory.CrateInventory) component;
+                } else if (component instanceof CharacterInventory) {
+                        this.inventory = (CharacterInventory) component;
+                } else if (component instanceof CrateInventory) {
+                        this.crateInventory = (CrateInventory) component;
                 } else if (component instanceof Attack) {
                         this.attack = (Attack) component;
                 } else if (component instanceof Move) {
@@ -235,7 +235,7 @@ public class Token {
                 return attack;
         }
 
-        public Inventory.CharacterInventory getInventory() {
+        public CharacterInventory getInventory() {
                 return inventory;
         }
 
@@ -247,7 +247,7 @@ public class Token {
                 return experience;
         }
 
-        public Inventory.CrateInventory getCrateInventory() {
+        public CrateInventory getCrateInventory() {
                 return crateInventory;
         }
 
@@ -290,7 +290,7 @@ public class Token {
 
                 public void onInventoryChanged();
 
-                public void onUseItem(Item item, Inventory.CharacterInventory.UseItemOutcome out);
+                public void onUseItem(Item item, CharacterInventory.UseItemOutcome out);
 
                 public void onStatusEffectChange(StatusEffects.Effect effect, float duration);
 
