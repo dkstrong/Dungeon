@@ -11,7 +11,7 @@ import asf.dungeon.model.token.logic.Logic;
 /**
  * Created by Danny on 11/20/2014.
  */
-public class FSMLogic implements Logic {
+public class FsmLogic implements Logic {
         private State initialState;
         protected Token token;
         protected DungeonRand rand;
@@ -22,7 +22,7 @@ public class FSMLogic implements Logic {
         protected Pair pair = new Pair();
         private State currentState;
 
-        public FSMLogic(int team, Sector sector, State initialState) {
+        public FsmLogic(int team, Sector sector, State initialState) {
                 this.team = team;
                 this.sector = sector;
                 this.initialState = initialState;

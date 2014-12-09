@@ -1,6 +1,7 @@
 package asf.dungeon;
 
 
+import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.math.MathUtils;
@@ -8,7 +9,7 @@ import com.badlogic.gdx.utils.Disposable;
 
 /**
  * A music manager that is more or less a virtual jukebox. Music is loaded and disposed one at a time
- * as needed to play the desired songs.
+ * as needed to play the desired songs. Music is faded out to change songs as needed
  * <p/>
  * use setPlayList() then playNextSong() to begin playing the playlist songs in random order.
  * <p/>
@@ -45,69 +46,82 @@ public class MusicManager implements Music.OnCompletionListener, Disposable {
         private Music currentMusic;
         private SongInfo nextSong;
         private boolean loopNextSong;
+        private float fadeU;
 
-
-
-        public void update(float delta){
-
-        }
-
-        /**
-         * set a list of songs that the jukebox should play at random once the current song
-         * is finished playing. if no song is currently playing then you need to call playNextSong()
-         * to start hearing music.
-         * @param songs
-         */
-        public void setPlaylist(SongInfo... songs) {
-                playlist = songs;
-        }
-/*
         public void update(float delta) {
 
-                if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
-                        playSong(Song.MainTheme);
+                /*if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
+                        playSong(SongId.MainTheme);
                 }else if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)){
-                        playSong(Song.MainTheme1);
+                        playSong(SongId.MainTheme,false, true);
                 }else if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
-                        playSong(Song.MainTheme2);
+                        playSong(SongId.Arabesque, false, true);
                 }else if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
-                        playSong(Song.MainTheme3);
+                        playSong(SongId.RitualNorm, false, true);
                 }else if(Gdx.input.isKeyJustPressed(Input.Keys.N)){
                         playNextSong();
                 }else if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
                         setPaused(!isPaused());
                 }else if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
                         setMusicEnabled(!isMusicEnabled());
+                }else if(Gdx.input.isKeyJustPressed(Input.Keys.S)){
+                        stopSong();
+                }*/
+
+                if(fadeU>0 ){
+                        fadeU -=delta;
+                        currentMusic.setVolume(UtMath.largest(currentSong.getVolume() *masterVolume* fadeU,0));
+                        if(fadeU <=0)
+                                playSong(nextSong, loopNextSong, false);
+                        else if(!Gdx.graphics.isContinuousRendering())
+                                Gdx.graphics.requestRendering();
+
                 }
         }
-*/
+
         @Override
         public void onCompletion(Music music) {
-                if (music == currentMusic) {
-                        playNextSong();
+                if (music == currentMusic && nextSong == null) {
+                        // dont try to change the song if the song is already in the process of being changed
+                        playNextSong(false);
                 }
 
         }
 
+        public void playNextSong() {
+                playNextSong(true);
+        }
         /**
          * choses another song by random from the playlist and play it
+         * @param fade whether or not the current playing song should fade out first (default = true)
          */
-        public void playNextSong() {
+        public void playNextSong(boolean fade) {
                 if (playlist == null) return;
+                SongInfo song=null;
                 for (int tries = 0; tries < 10; ++tries) {
-                        nextSong = playlist[MathUtils.random.nextInt(playlist.length)];
-                        if (nextSong != currentSong) break;
+                        song = playlist[MathUtils.random.nextInt(playlist.length)];
+                        if (song != currentSong) break;
                 }
 
-                playSong(nextSong);
+                playSong(song, false, fade);
         }
 
         /**
          * Stops playing the current song
          */
         public void stopSong(){
-                playSong(null);
+                playSong(null, false, true);
         }
+
+        /**
+         * stops playing the current song
+         * @param fade whether or not the current playing song should fade out first (default = true)
+         */
+        public void stopSong(boolean fade){
+                playSong(null,false, fade);
+        }
+
+
 
         /**
          * plays the specified song once (does not need to be on the playlist),
@@ -117,8 +131,10 @@ public class MusicManager implements Music.OnCompletionListener, Disposable {
          * @param song
          */
         public void playSong(SongInfo song) {
-                playSong(song, false);
+                playSong(song, false, true);
         }
+
+
 
         /**
          * plays the specified song once (does not need to be on the playlist)
@@ -127,29 +143,34 @@ public class MusicManager implements Music.OnCompletionListener, Disposable {
          *
          * @param song
          * @param loop
+         * @param fade whether or not the current playing song should fade out first (default = true)
          */
-        public void playSong(SongInfo song, boolean loop) {
+        public void playSong(SongInfo song, boolean loop, boolean fade) {
                 if (!musicEnabled) {
                         currentSong = song;
                         nextSong = null;
                         loopNextSong = loop;
+                        fadeU=0;
+                        return;
+                }else if(fade && !paused && currentMusic != null){
+                        nextSong = song;
+                        loopNextSong = loop;
+                        fadeU = 1;
                         return;
                 }
 
-                nextSong = song;
-
-                if (nextSong != currentSong) {
+                if (song != currentSong) {
                         if (currentMusic != null) {
                                 currentMusic.stop();
                                 currentMusic.dispose();
                                 currentMusic = null;
                         }
 
-                        if (nextSong != null) {
-                                currentMusic = Gdx.audio.newMusic(Gdx.files.internal(nextSong.getAssetLocation()));
+                        if (song != null) {
+                                currentMusic = Gdx.audio.newMusic(Gdx.files.internal(song.getAssetLocation()));
                                 currentMusic.setOnCompletionListener(this);
                                 currentMusic.setLooping(loop);
-                                currentMusic.setVolume(nextSong.getVolume() * masterVolume);
+                                currentMusic.setVolume(song.getVolume() * masterVolume);
                                 if (!paused)
                                         currentMusic.play();
                         }
@@ -158,31 +179,17 @@ public class MusicManager implements Music.OnCompletionListener, Disposable {
                         // playing the current song, start it over
                         currentMusic.stop();
                         currentMusic.setLooping(loop);
+                        currentMusic.setVolume(song.getVolume() * masterVolume);
                         if (!paused)
                                 currentMusic.play();
                 }
-                currentSong = nextSong;
+                currentSong = song;
                 nextSong = null;
                 loopNextSong = false;
+                fadeU=0;
 
         }
 
-        public float getMasterVolume() {
-                return masterVolume;
-        }
-
-        /**
-         * all music that is played will be scaled by this value. To mute/disable music
-         * setMusicEnable(false) should be used isntead as it will unload the music
-         * from memory.
-         * @param masterVolume how loud the music should be, [0,1]
-         */
-        public void setMasterVolume(float masterVolume) {
-                if (currentMusic != null) {
-                        currentMusic.setVolume(currentSong.getVolume() / this.masterVolume * masterVolume);
-                }
-                this.masterVolume = masterVolume;
-        }
 
         public boolean isMusicEnabled() {
                 return musicEnabled;
@@ -199,9 +206,9 @@ public class MusicManager implements Music.OnCompletionListener, Disposable {
                 if (this.musicEnabled == musicEnabled) return;
                 this.musicEnabled = musicEnabled;
                 if (musicEnabled) {
-                        nextSong = currentSong;
+                        SongInfo song = currentSong;
                         currentSong = null;
-                        playSong(nextSong, loopNextSong);
+                        playSong(song, loopNextSong, false);
                 } else {
                         if (currentMusic != null) {
                                 currentMusic.stop();
@@ -213,6 +220,7 @@ public class MusicManager implements Music.OnCompletionListener, Disposable {
                                 currentSong = nextSong;
                                 nextSong = null;
                         }
+                        fadeU=0;
 
                 }
         }
@@ -242,15 +250,36 @@ public class MusicManager implements Music.OnCompletionListener, Disposable {
                 } else {
                         if (currentMusic != null) {
                                 currentMusic.play();
-                        } else if (currentSong != null) {
-                                // song was changed during pause, need to start it from the beginning
-                                nextSong = currentSong;
-                                currentSong = null;
-                                playSong(nextSong, loopNextSong);
                         }
-
                 }
 
+        }
+
+        /**
+         * set a list of songs that the jukebox should play at random once the current song
+         * is finished playing. if no song is currently playing then you need to call playNextSong()
+         * to start hearing music.
+         * @param songs
+         */
+        public void setPlaylist(SongInfo... songs) {
+                playlist = songs;
+        }
+
+        public float getMasterVolume() {
+                return masterVolume;
+        }
+
+        /**
+         * all music that is played will be scaled by this value. To mute/disable music
+         * setMusicEnable(false) should be used isntead as it will unload the music
+         * from memory.
+         * @param masterVolume how loud the music should be, [0,1]
+         */
+        public void setMasterVolume(float masterVolume) {
+                if (currentMusic != null) {
+                        currentMusic.setVolume(currentSong.getVolume() / this.masterVolume * masterVolume);
+                }
+                this.masterVolume = masterVolume;
         }
 
         @Override

@@ -70,6 +70,7 @@ public class DungeonApp implements ApplicationListener {
         public void render() {
                 //System.out.println("render "+Gdx.graphics.getDeltaTime()+", raw: "+Gdx.graphics.getRawDeltaTime());
                 float delta = Gdx.graphics.getDeltaTime();
+                if(delta>0.06f) delta = 0.06f;
                 if (dungeonWorld != null)
                         dungeonWorld.render(delta);
                 if (screen != null)
