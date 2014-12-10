@@ -93,10 +93,10 @@ public class DungeonLoader {
                         playerLogic = new FullAgroLogic(0);
                 } else {
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new RandomWalkGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
-                                new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
+                                new ConnectedRoomsGen(), new ConnectedRoomsGen(), new MazeGen(7, 4), new DirectionalCaveHallGen(),
+                                new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
-                                new ConnectedRoomsGen(), new MazeGen(7, 4), new ConnectedRoomsGen(), new MazeGen(15, 18)
+                                new ConnectedRoomsGen(), new MazeGen(7, 4)
                         }, new FloorMapGenerator[]{
                                 new ConnectedRoomsGen(), new MazeGen(10, 10)
                         });
@@ -117,21 +117,15 @@ public class DungeonLoader {
 
 
                         //token.getStatusEffects().addStatusEffect(StatusEffects.Effect.Blind);
-                        token.getInventory().setNumQuickSlots(2);
+                        token.getInventory().setNumQuickSlots(1);
 
                         ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 4);
-                        potion.identifyItem(token);
                         token.getInventory().add(potion);
-                        token.getInventory().equip(potion);
 
-                        ScrollItem health = new ScrollItem(dungeon, ScrollItem.Type.Fire, 4);
+                        PotionItem health = new PotionItem(dungeon, PotionItem.Type.Speed, 4);
                         health.identifyItem(token);
                         token.getInventory().add(health);
-                        token.getInventory().equip(health);
-
-                        BookItem book = new BookItem(dungeon, BookItem.Type.AggravateMonsters);
-                        token.getInventory().add(book);
-                        book.identifyItem(token);
+                        token.getInventory().unequip(potion);
 
                         ArmorItem armor = new ArmorItem(ModelId.Sword, "Simple Armor", 1);
                         armor.identifyItem(token);

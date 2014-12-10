@@ -37,11 +37,11 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
                  minRoomSize = 6;
                  maxRoomSize = 9;
-                 minFloorWidth = 25;
-                 maxFloorWidth = 30;
-                 minFloorHeight = 25;
-                 maxFloorHeight = 30;
-                 maxRooms = 2;
+                 minFloorWidth = 40;
+                 maxFloorWidth = 50;
+                 minFloorHeight = 30;
+                 maxFloorHeight = 50;
+                 maxRooms = 8;
                 int floorWidth = dungeon.rand.range(minFloorWidth, maxFloorWidth);
                 int floorHeight = dungeon.rand.range(minFloorHeight, maxFloorHeight);
 
@@ -77,16 +77,22 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 valid = Room.spawnKeys(dungeon, floorMap, rooms);
                 if(!valid) throw new Error("could not generate valid key locations, need to regenrate");
 
-                Room roomEnd = rooms.get(rooms.size-1);
-                Token traveler = new Token(dungeon, "Traveler", ModelId.Priest);
-                Pair loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
-                dungeon.newQuestCharacterToken(traveler, new FsmLogic(2,roomEnd, QuestNPC.PauseThenMove), new PotionQuest(), floorMap, loc.x, loc.y);
+                if(floorIndex ==0){
+                        Room roomEnd = rooms.get(rooms.size-1);
+                        Token traveler = new Token(dungeon, "Traveler", ModelId.Priest);
+                        Pair loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
+                        dungeon.newQuestCharacterToken(traveler, new FsmLogic(2,roomEnd, QuestNPC.PauseThenMove), new PotionQuest(), floorMap, loc.x, loc.y);
+                }else{
+                        Room roomEnd = rooms.get(dungeon.rand.random.nextInt(rooms.size));
+                        Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
+                        fountainToken.add(new Fountain(fountainToken, PotionItem.Type.Health));
+                        Pair loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
+                        dungeon.newToken(fountainToken, floorMap, loc.x, loc.y);
+                        //Gdx.app.log("ConnectedRoomGen","fountain at: "+loc);
+                }
 
-                Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
-                fountainToken.add(new Fountain(fountainToken, PotionItem.Type.Health));
-                loc = Room.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
-                dungeon.newToken(fountainToken, floorMap, loc.x, loc.y);
-                //Gdx.app.log("ConnectedRoomGen","fountain at: "+loc);
+
+
 
 
 

@@ -1,12 +1,12 @@
 package asf.dungeon;
 
 import asf.dungeon.model.Dungeon;
-import asf.dungeon.model.ModelId;
 import asf.dungeon.model.SongId;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -21,6 +21,8 @@ import java.util.Locale;
  */
 public class DungeonApp implements ApplicationListener {
 
+
+        public Preferences prefs;
         public final MusicManager music = new MusicManager();
         private Screen screen;
         private DungeonWorld dungeonWorld;
@@ -29,17 +31,21 @@ public class DungeonApp implements ApplicationListener {
         protected Skin skin;
         protected I18NBundle i18n;
 
+
+
         @Override
         public void create() {
                 Gdx.input.setCatchMenuKey(true);
                 Gdx.input.setCatchBackKey(true);
+                prefs = Gdx.app.getPreferences("Dungeon");
+                music.setMusicEnabled(prefs.getBoolean("musicEnabled", true));
+                music.setMasterVolume(prefs.getFloat("masterVolume", 1f));
+                returnToMainMenu();
 
-                //returnToMainMenu();
-
-                DungeonWorld.Settings settings = new DungeonWorld.Settings();
-                settings.playerModel = ModelId.Knight;
+                //DungeonWorld.Settings settings = new DungeonWorld.Settings();
+                //settings.playerModel = ModelId.Knight;
                 //settings.startDebugSession = true;
-                loadWorld(settings);
+                //loadWorld(settings);
 
         }
 

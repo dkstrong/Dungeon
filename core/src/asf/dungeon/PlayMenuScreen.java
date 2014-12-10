@@ -38,7 +38,7 @@ public class PlayMenuScreen implements Screen {
 
         private Preferences prefs;
         private Table table;
-        private Button knightButton, rogueButton, mageButton, monsterButton, backButton;
+        private Button knightButton, rogueButton, mageButton, backButton;
         private Label descriptionLabel;
         private HorizontalGroup horizontalGroup;
         private Button loadButton, newGameButton;
@@ -46,6 +46,7 @@ public class PlayMenuScreen implements Screen {
         @Override
         public void show() {
 
+                prefs =app.prefs;
                 stage = app.stage;
                 skin = app.skin;
                 i18n = app.i18n;
@@ -86,24 +87,18 @@ public class PlayMenuScreen implements Screen {
                 mageButton.add(i18n.get("mage"));
                 mageButton.addListener(internalListener);
 
-                monsterButton = new Button(skin);
-                table.add(monsterButton).minSize(100,100);
-                monsterButton.add(i18n.get("monster"));
-                monsterButton.addListener(internalListener);
-
-
 
                 table.row();
 
                 descriptionLabel = new Label("Description", skin);
                 descriptionLabel.setWrap(true);
                 ScrollPane scrollPane = new ScrollPane(descriptionLabel, skin);
-                table.add(scrollPane).colspan(4).minSize(400,300).maxSize(400,300);
+                table.add(scrollPane).colspan(3).minSize(400,300).maxSize(400,300);
 
 
                 table.row();
                 horizontalGroup=  new HorizontalGroup();
-                table.add(horizontalGroup).colspan(4);
+                table.add(horizontalGroup).colspan(3);
                 horizontalGroup.pad(10).space(10);
 
 
@@ -119,20 +114,16 @@ public class PlayMenuScreen implements Screen {
 
 
 
-                buttonGroup = new ButtonGroup(knightButton,rogueButton,mageButton,monsterButton);
+                buttonGroup = new ButtonGroup(knightButton,rogueButton,mageButton);
                 buttonGroup.setMaxCheckCount(1);
                 buttonGroup.setMinCheckCount(1);
                 //buttonGroup.setUncheckLast(true);
 
-
-                prefs = Gdx.app.getPreferences("Dungeon");
                 int selectedHero = prefs.getInteger("selectedHero" ,0);
                 if(selectedHero == 1){
                         rogueButton.setChecked(true);
                 }else if(selectedHero == 2){
                         mageButton.setChecked(true);
-                }else if(selectedHero == 3){
-                        monsterButton.setChecked(true);
                 }else{
                         knightButton.setChecked(true);
                 }
@@ -202,9 +193,6 @@ public class PlayMenuScreen implements Screen {
                                 }else if(buttonGroup.getChecked() == mageButton){
                                         settings.playerModel = ModelId.Mage;
                                         prefs.putInteger("selectedHero" ,2);
-                                }else if(buttonGroup.getChecked() == monsterButton){
-                                        settings.playerModel = ModelId.Diablous;
-                                        prefs.putInteger("selectedHero" ,3);
                                 }else{
                                       throw new AssertionError(buttonGroup.getChecked());
                                 }
@@ -223,8 +211,6 @@ public class PlayMenuScreen implements Screen {
                                 descriptionLabel.setText(i18n.get("rogueDescription"));
                         }else if(settings.playerModel == ModelId.Mage){
                                 descriptionLabel.setText(i18n.get("mageDescription"));
-                        }else if(settings.playerModel == ModelId.Diablous){
-                                descriptionLabel.setText(i18n.get("monsterDescription"));
                         }
 
                 }
