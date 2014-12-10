@@ -1,19 +1,18 @@
-The Dungeon
-=======
+# The Dungeon
 
-A 3D android/ios game about exploring a dungeon. Includes 3 hero character classes to play as (Knight, Rogue, Mage). 
 
-Like other roguelikes, each floor of the dungeon and its items and quests are randomly generated.  This creates a unique experience for the player each time.
+Dungeon is a dungeon crawler/exploration game with roguelike elements. randomly generated levels, randomized loot and quests, and lots of risky items that are "unidentified" until you try them. The goal of the game is to get to the bottom of the dungeon and meet NPC's along the way to get the full story about the dungeon and learn why you are there.
 
-The Dungeon is still a work in progress.
+Like other roguelikes, each floor of the dungeon and its items and quests are randomly generated.  This creates a unique experience for the player each time they play.
 
-Art Credits
-==================
+The Dungeon is looking for 3D artists, Sound artists, and Programmers to help make Dungeon awesome. See the wiki [here](https://github.com/ASneakyFox/Dungeon/wiki/1.-Contributing) for more info.
+
+### Art Credits
+
 
 This game contains many art assets created by others, largely from opengameart.org. For a list of art contributors see android/assets/Credits.txt
 
-License
-==================
+### License
 
 Copyright (c) 2014, Daniel Strong
 
