@@ -5,6 +5,8 @@ Dungeon is a dungeon crawler/exploration game with roguelike elements. randomly 
 
 Like other roguelikes, each floor of the dungeon and its items and quests are randomly generated.  This creates a unique experience for the player each time they play.
 
+### Contributing
+
 The Dungeon is looking for 3D artists, Sound artists, and Programmers to help make Dungeon awesome. See the wiki [here](https://github.com/ASneakyFox/Dungeon/wiki/1.-Contributing) for more info.
 
 ### Art Credits
