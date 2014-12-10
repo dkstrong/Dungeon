@@ -72,9 +72,10 @@ public class FxManager implements Disposable {
                 ParticleEffectLoader.ParticleEffectLoadParameter loadParam =
                         new ParticleEffectLoader.ParticleEffectLoadParameter(particleBatches);
 
-                loadedParticleEffects = new ParticleEffect[2];
+                loadedParticleEffects = new ParticleEffect[3];
                 world.assetManager.load("ParticleEffects/ConsumeHealth.pfx", ParticleEffect.class, loadParam);
                 world.assetManager.load("ParticleEffects/PlasmaBall.pfx", ParticleEffect.class, loadParam);
+                world.assetManager.load("ParticleEffects/Burning.pfx", ParticleEffect.class, loadParam);
 
                 fxMappings = new FxMapping[loaded3dModels.length+loadedDecalAnimations.length+loadedParticleEffects.length];
         }
@@ -101,6 +102,7 @@ public class FxManager implements Disposable {
                 // particle effects
                 loadedParticleEffects[0] = world.assetManager.get("ParticleEffects/ConsumeHealth.pfx", ParticleEffect.class);
                 loadedParticleEffects[1] = world.assetManager.get("ParticleEffects/PlasmaBall.pfx", ParticleEffect.class);
+                loadedParticleEffects[2] = world.assetManager.get("ParticleEffects/Burning.pfx", ParticleEffect.class);
 
                 // Fx Pools
 
@@ -109,6 +111,7 @@ public class FxManager implements Disposable {
                 fxMappings[FxId.Lightning.ordinal()] = new FxMapping(PooledAnimatedDecalSpatial.class, 0);
                 fxMappings[FxId.HealAura.ordinal()] = new FxMapping(PooledParticleEffectSpatial.class, 0);
                 fxMappings[FxId.PlasmaBall.ordinal()] = new FxMapping(PooledParticleEffectSpatial.class, 1);
+                fxMappings[FxId.Burning.ordinal()] = new FxMapping(PooledParticleEffectSpatial.class, 2);
 
                 // all animated decal Fx can share the same pool, all other Fx need their own pools
                 Array<PooledFx> decalsPool = new Array<PooledFx>(false, 16, PooledFx.class);

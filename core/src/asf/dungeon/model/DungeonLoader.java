@@ -93,7 +93,7 @@ public class DungeonLoader {
                         playerLogic = new FullAgroLogic(0);
                 } else {
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new ConnectedRoomsGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
+                                new RandomWalkGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(), new MazeGen(7, 4), new ConnectedRoomsGen(), new MazeGen(15, 18)
@@ -119,12 +119,12 @@ public class DungeonLoader {
                         //token.getStatusEffects().addStatusEffect(StatusEffects.Effect.Blind);
                         token.getInventory().setNumQuickSlots(2);
 
-                        PotionItem potion = new PotionItem(dungeon, PotionItem.Type.Paralyze, 4);
+                        ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 4);
                         potion.identifyItem(token);
                         token.getInventory().add(potion);
                         token.getInventory().equip(potion);
 
-                        ScrollItem health = new ScrollItem(dungeon, ScrollItem.Type.Confusion, 4);
+                        ScrollItem health = new ScrollItem(dungeon, ScrollItem.Type.Fire, 4);
                         health.identifyItem(token);
                         token.getInventory().add(health);
                         token.getInventory().equip(health);

@@ -32,14 +32,14 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
 
         @Override
         public boolean isPrimarilySelfConsume() {
-                return type == Type.Lightning || type == Type.Fire || type == Type.ScareMonsters;
+                return type == Type.Lightning ||  type == Type.ScareMonsters;
         }
 
         @Override
         public void consume(Token token, CharacterInventory.UseItemOutcome out) {
-                charges--;
                 switch(type){
                         case Lightning:
+                                charges--;
                                 // cast lightning on nearest monster, if no monster nearby then does nothing
                                 //Gdx.app.log("ScrollItem-Lightning","consume(), get visible tokens");
                                 Array<Token> visibleTokens = token.getFloorMap().getVisibleTokens(token);
@@ -78,6 +78,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                                 consume(token, token, out);
                                 break;
                         case ScareMonsters:
+                                charges--;
                                 // nearby monsters run away  (may turn this in to a dropable item if i decide to have that)
                                 out.didSomething = true;
                                 StatusEffects statusEffects = token.getStatusEffects();
@@ -91,6 +92,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
 
         @Override
         public void consume(Token token, Token targetToken, CharacterInventory.UseItemOutcome out) {
+                //Gdx.app.log("Scroll Item",token+" targeted "+ targetToken+" with "+this+", num charges: "+charges);
                 charges--;
                 out.didSomething = true;
                 if(type == Type.Ice){
@@ -278,5 +280,10 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                         return type == otherScroll.type;
                 }
                 return false;
+        }
+
+        @Override
+        public String toString() {
+                return "Scroll{"+type +"}";
         }
 }

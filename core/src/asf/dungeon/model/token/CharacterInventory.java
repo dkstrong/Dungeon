@@ -421,6 +421,7 @@ public class CharacterInventory implements Inventory {
 
 
                         if (!hasConsumed) {
+                                //Gdx.app.log("CharacterInventory",token.getName()+" uses "+consumableItem);
                                 out.targetItem = null;
                                 out.targetToken = null;
                                 consumableItem.consume(token, out);

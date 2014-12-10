@@ -70,7 +70,7 @@ public class AssetMappings {
                 statusEffectsFxIds[StatusEffect.Heal.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffect.Poison.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffect.Frozen.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffect.Burning.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.Burning.ordinal()] = FxId.Burning;
                 statusEffectsFxIds[StatusEffect.Paralyze.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffect.Invisibility.ordinal()] = FxId.HealAura;
                 statusEffectsFxIds[StatusEffect.MindVision.ordinal()] = FxId.HealAura;

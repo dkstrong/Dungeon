@@ -80,6 +80,7 @@ public class Command implements TokenComponent{
         public boolean consumeItem(ConsumableItem item){
                 if (consumeItem != null || token.getDamage().isDead())
                         return false; // already consuming an item, or dead
+                //Gdx.app.log("Command",token+" consume "+item);
                 consumeItem = (ConsumableItem) item;
                 return true;
 
@@ -97,6 +98,7 @@ public class Command implements TokenComponent{
                 if(valid){
                         setTargetToken(targetToken);
                 }
+                //Gdx.app.log("Command",token+" consume "+item+" on target "+targetToken);
                 return valid;
         }
 

@@ -6,6 +6,7 @@ package asf.dungeon.model;
 public enum FxId {
         Arrow,
         HealAura,
+        Burning,
         Lightning,
         PlasmaBall
 

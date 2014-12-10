@@ -6,7 +6,6 @@ import asf.dungeon.model.DungeonLoader;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
-import asf.dungeon.model.SongId;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.ModelFactory;
@@ -234,8 +233,8 @@ public class DungeonWorld implements Disposable {
                                         Gdx.input.setInputProcessor(inputMultiplexer);
                                         setPaused(false); // call this to apply the gameplay input processors
 
-                                        dungeonApp.music.setPlaylist(SongId.MainTheme, SongId.Arabesque, SongId.RitualNorm);
-                                        dungeonApp.music.playSong(SongId.RitualNorm);
+                                        //dungeonApp.music.setPlaylist(SongId.MainTheme, SongId.Arabesque, SongId.RitualNorm);
+                                        //dungeonApp.music.playSong(SongId.RitualNorm);
                                 }
 
                                 Iterator<LoadedNotifyable> i = loadables.iterator();
