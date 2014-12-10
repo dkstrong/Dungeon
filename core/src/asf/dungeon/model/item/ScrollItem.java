@@ -6,6 +6,7 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Journal;
+import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
@@ -80,7 +81,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                                 // nearby monsters run away  (may turn this in to a dropable item if i decide to have that)
                                 out.didSomething = true;
                                 StatusEffects statusEffects = token.getStatusEffects();
-                                statusEffects.addStatusEffect(StatusEffects.StatusEffect.ScaresMonsters, 8);
+                                statusEffects.add(StatusEffect.ScaresMonsters, 8);
                                 break;
                         default:
                                 throw new AssertionError(type);
@@ -94,12 +95,12 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                 out.didSomething = true;
                 if(type == Type.Ice){
                         // freeze target (or self), disables burning status effect, increases damage received
-                        targetToken.getStatusEffects().addStatusEffect(StatusEffects.StatusEffect.Frozen, 6);
+                        targetToken.getStatusEffects().add(StatusEffect.Frozen, 6);
                         out.targetToken = targetToken;
                         out.didSomething = true;
                 }else if(type == Type.Fire){
                         // freeze target (or self), disables burning status effect, increases damage received
-                        targetToken.getStatusEffects().addStatusEffect(StatusEffects.StatusEffect.Burning, 10, 5);
+                        targetToken.getStatusEffects().add(StatusEffect.Burning, 10, 5);
                         out.targetToken = targetToken;
                         out.didSomething = true;
                 }else if(type == Type.Teleportation){
@@ -123,7 +124,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                         out.didSomething = true;
                 }else if(type == Type.Confusion){
                         // causes target to become confused, may attack other monsters
-                        targetToken.getStatusEffects().addStatusEffect(StatusEffects.StatusEffect.Confused, 20);
+                        targetToken.getStatusEffects().add(StatusEffect.Confused, 20);
                         out.targetToken = targetToken;
                         out.didSomething = true;
                 }else{
@@ -150,7 +151,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                                         return false;
                                 // cant consume if target is invisible and not on the same team
                                 if(targetToken.getLogic() != null && targetToken.getLogic().getTeam() != token.getLogic().getTeam()){
-                                        if(targetToken.getStatusEffects() != null && targetToken.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Invisibility)){
+                                        if(targetToken.getStatusEffects() != null && targetToken.getStatusEffects().has(StatusEffect.Invisibility)){
                                                 return false;
                                         }
                                 }
@@ -172,7 +173,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                                         return false;
                                 // cant consume if target is invisible and not on the same team
                                 if(targetToken.getLogic() != null && targetToken.getLogic().getTeam() != token.getLogic().getTeam()){
-                                        if(targetToken.getStatusEffects() != null && targetToken.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Invisibility)){
+                                        if(targetToken.getStatusEffects() != null && targetToken.getStatusEffects().has(StatusEffect.Invisibility)){
                                                 return false;
                                         }
                                 }

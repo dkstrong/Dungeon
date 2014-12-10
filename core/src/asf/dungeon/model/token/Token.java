@@ -292,7 +292,7 @@ public class Token {
 
                 public void onUseItem(Item item, CharacterInventory.UseItemOutcome out);
 
-                public void onStatusEffectChange(StatusEffects.StatusEffect effect, float duration);
+                public void onStatusEffectChange(StatusEffect effect, float duration);
 
                 /**
                  * @param journalObject can be PotionItem.Type, ScrollItem.Type, BookItem.Type, or EquipmentItem

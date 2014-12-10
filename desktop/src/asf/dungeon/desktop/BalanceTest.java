@@ -9,7 +9,7 @@ import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.CharacterInventory;
-import asf.dungeon.model.token.StatusEffects;
+import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.State;
@@ -344,7 +344,7 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
         }
 
         @Override
-        public void onStatusEffectChange(StatusEffects.StatusEffect effect, float duration) {
+        public void onStatusEffectChange(StatusEffect effect, float duration) {
 
         }
 

@@ -9,7 +9,7 @@ import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.token.Fountain;
-import asf.dungeon.model.token.StatusEffects;
+import asf.dungeon.model.token.StatusEffect;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
@@ -67,20 +67,20 @@ public class AssetMappings {
                 potionDisplayColors[PotionItem.Color.Silver.ordinal()] = com.badlogic.gdx.graphics.Color.GRAY;
 
                 statusEffectsFxIds = new FxId[14];
-                statusEffectsFxIds[StatusEffects.StatusEffect.Heal.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.Poison.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.Frozen.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.Frozen.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.Burning.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.Invisibility.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.MindVision.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.ItemVision.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.Blind.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.Might.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.Speed.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.Confused.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.ScaresMonsters.ordinal()] = FxId.HealAura;
-                statusEffectsFxIds[StatusEffects.StatusEffect.LuresMonsters.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.Heal.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.Poison.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.Frozen.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.Burning.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.Paralyze.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.Invisibility.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.MindVision.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.ItemVision.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.Blind.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.Might.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.Speed.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.Confused.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.ScaresMonsters.ordinal()] = FxId.HealAura;
+                statusEffectsFxIds[StatusEffect.LuresMonsters.ordinal()] = FxId.HealAura;
 
                 soundLocations = new String[3][];
                 soundLocations[SfxId.AlertMonster.ordinal()] = new String[]{"Sounds/monster-alert.ogg"};
@@ -112,7 +112,7 @@ public class AssetMappings {
                 return assetLocations[modelId.ordinal()];
         }
 
-        protected String getHudStatusEffectIcon(StatusEffects.StatusEffect effect){
+        protected String getHudStatusEffectIcon(StatusEffect effect){
                 return "Interface/Hud/health.png";
         }
 
@@ -152,7 +152,7 @@ public class AssetMappings {
 
 
 
-        protected FxId getStatusEffectFxId(StatusEffects.StatusEffect effect) {
+        protected FxId getStatusEffectFxId(StatusEffect effect) {
                 return statusEffectsFxIds[effect.ordinal()];
         }
 }

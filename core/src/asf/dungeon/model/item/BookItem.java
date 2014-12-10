@@ -4,7 +4,7 @@ import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Journal;
-import asf.dungeon.model.token.StatusEffects;
+import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.Token;
 
 /**
@@ -47,12 +47,12 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                                 break;
                         case ItemDetection:
                                 // reveal location of crates
-                                token.getStatusEffects().addStatusEffect(StatusEffects.StatusEffect.ItemVision, 15);
+                                token.getStatusEffects().add(StatusEffect.ItemVision, 15);
                                 out.didSomething = true;
                                 break;
                         case Sleep:
                                 // cause player to fall asleep for period of time
-                                token.getStatusEffects().addStatusEffect(StatusEffects.StatusEffect.Paralyze, 5);
+                                token.getStatusEffects().add(StatusEffect.Paralyze, 5);
                                 out.didSomething = true;
                                 break;
                         case ExtraQuickSlot:
@@ -65,7 +65,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                                 break;
                         case AggravateMonsters:
                                 // tokens in entire floor immediatly get aggro for player
-                                token.getStatusEffects().addStatusEffect(StatusEffects.StatusEffect.LuresMonsters, 60);
+                                token.getStatusEffects().add(StatusEffect.LuresMonsters, 60);
                                 out.didSomething = true;
                                 break;
                         case Experience:

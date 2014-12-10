@@ -17,6 +17,7 @@ import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Experience;
+import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
@@ -161,11 +162,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 avatarStatusEffectsGroup.align(Align.bottomLeft);
 
 
-                StatusEffects.StatusEffect[] values = StatusEffects.StatusEffect.values();
+                StatusEffect[] values = StatusEffect.values();
 
                 statusEffectImage = new Image[values.length];
                 // TODO: need to use texture regions here
-                for (StatusEffects.StatusEffect value : values) {
+                for (StatusEffect value : values) {
                         int i = value.ordinal();
                         world.assetManager.load(world.assetMappings.getHudStatusEffectIcon(value), Texture.class);
                         world.assetManager.finishLoading();
@@ -640,11 +641,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 sb.append("\n");
 
                 StatusEffects statusEffets = localPlayerToken.get(StatusEffects.class);
-                if (statusEffets.hasStatusEffect(StatusEffects.StatusEffect.Paralyze)) {
+                if (statusEffets.has(StatusEffect.Paralyze)) {
                         sb.append("You are paralyzed\n");
                 }
 
-                if (statusEffets.hasStatusEffect(StatusEffects.StatusEffect.Poison)) {
+                if (statusEffets.has(StatusEffect.Poison)) {
                         sb.append("You are poisoned\n");
                 }
 
@@ -936,7 +937,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         @Override
-        public void onStatusEffectChange(StatusEffects.StatusEffect effect, float duration) {
+        public void onStatusEffectChange(StatusEffect effect, float duration) {
                 Image statusImage = statusEffectImage[effect.ordinal()];
                 if (duration == 0) {
                         statusImage.remove();

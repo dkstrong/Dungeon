@@ -155,7 +155,7 @@ public class Experience implements TokenComponent{
                 else token.getMove().setMoveSpeed(UtMath.scalarLimitsInterpolation(agility,20f,100f,1.7f,3f));
 
                 if(token.getStatusEffects() != null){
-                        if(token.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Speed)){
+                        if(token.getStatusEffects().has(StatusEffect.Speed)){
                                 token.getMove().setMoveSpeed(token.getMove().getMoveSpeed()*1.3f);
                         }
                 }
@@ -163,7 +163,7 @@ public class Experience implements TokenComponent{
 
                 // intelligence
 
-                if(token.getStatusEffects() != null && token.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Blind)){
+                if(token.getStatusEffects() != null && token.getStatusEffects().has(StatusEffect.Blind)){
                         token.getDamage().setSightRadius(1);
                 }else{
                         token.getDamage().setSightRadius(Math.round(UtMath.scalarLimitsInterpolation(intelligence, 1f, 40f, 4f, 10f))); // default is 6

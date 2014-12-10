@@ -203,8 +203,11 @@ public class Attack implements TokenComponent{
                 if(target == null || target.getDamage() == null || !target.getDamage().isAttackable())
                         return false;
 
-                if(token.getLogic()!=null && target.getLogic() != null&&token.getLogic().getTeam() == target.getLogic().getTeam())
-                        return false;
+                if(token.getStatusEffects()==null || !token.getStatusEffects().has(StatusEffect.Confused)){
+                        if(token.getLogic()!=null && target.getLogic() != null&&token.getLogic().getTeam() == target.getLogic().getTeam())
+                                return false;
+                }
+
 
                 float distance = token.getDistance(target);
                 // not sure why i need distance-1, but in order to actually have the right range i have to subtract 1
@@ -249,8 +252,11 @@ public class Attack implements TokenComponent{
                 if(target == null || target.getDamage() == null || !target.getDamage().isAttackable())
                         return false;
 
-                if(token.getLogic()!=null && target.getLogic() != null&&token.getLogic().getTeam() == target.getLogic().getTeam())
-                        return false;
+                if(token.getStatusEffects()==null || !token.getStatusEffects().has(StatusEffect.Confused)){
+                        if(token.getLogic()!=null && target.getLogic() != null&&token.getLogic().getTeam() == target.getLogic().getTeam())
+                                return false;
+                }
+
 
                 float distance = token.getDistance(target);
                 if(distance > 1f)
@@ -304,7 +310,7 @@ public class Attack implements TokenComponent{
                                 if(weaponDmg <strength) out.damage = token.dungeon.rand.range(weaponDmg, strength);
                                 else out.damage = weaponDmg;
 
-                                if(token.getStatusEffects() != null && token.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Might)){
+                                if(token.getStatusEffects() != null && token.getStatusEffects().has(StatusEffect.Might)){
                                         out.damage = Math.round(out.damage*1.5f);
                                 }
 
@@ -325,7 +331,7 @@ public class Attack implements TokenComponent{
                                 //}
 
                                 if(targetToken.getStatusEffects()!= null){
-                                        if(targetToken.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Frozen)){
+                                        if(targetToken.getStatusEffects().has(StatusEffect.Frozen)){
                                                 armorAbsorb-= out.damage*.15f;
                                         }
                                 }

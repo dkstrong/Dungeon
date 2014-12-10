@@ -217,7 +217,15 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                 return tokensAt;
         }
 
-        public Array<Token> getMonsterTokens(int notOnTeam) {
+        /**
+         * DO NOT MODIFY
+         * @return
+         */
+        public Array<Token> getTokens() {
+                return tokens;
+        }
+
+        public Array<Token> getAttackableTokens(int notOnTeam) {
                 tokensAt.clear();
                 for (Token t : tokens) {
                         if(t.getLogic() != null && t.getLogic().getTeam() != notOnTeam
@@ -248,7 +256,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         }
 
         /**
-         * the array that is returned shoudlnt be stored as ti wil be reused next time this method is called
+         * this is here for the use the dungeon debug session window.
          * @return
          */
         public Array<Token> getTokensOnFloor(Array<Token> store){

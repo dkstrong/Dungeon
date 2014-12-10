@@ -169,7 +169,7 @@ public class CharacterInventory implements Inventory {
                 if (token.getAttack() != null && (token.getAttack().isAttacking() || token.getAttack().hasProjectile()))
                         return false;
 
-                if(token.getStatusEffects() != null && (token.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Paralyze) || token.getStatusEffects().hasStatusEffect(StatusEffects.StatusEffect.Frozen))  )
+                if(token.getStatusEffects() != null && (token.getStatusEffects().has(StatusEffect.Paralyze) || token.getStatusEffects().has(StatusEffect.Frozen))  )
                         return false;
                 return timeSinceComabt > 5f;
         }

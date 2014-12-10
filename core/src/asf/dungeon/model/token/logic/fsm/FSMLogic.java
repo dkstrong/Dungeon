@@ -34,6 +34,10 @@ public class FsmLogic implements Logic {
                 currentState.begin(this, token, token.getCommand());
         }
 
+        protected State getCurrentState() {
+                return currentState;
+        }
+
         @Override
         public void setToken(Token token) {
                 this.token = token;

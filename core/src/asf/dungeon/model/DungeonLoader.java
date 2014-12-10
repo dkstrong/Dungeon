@@ -32,6 +32,7 @@ import asf.dungeon.model.token.Inventory;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.Move;
+import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.TokenComponent;
@@ -92,7 +93,7 @@ public class DungeonLoader {
                         playerLogic = new FullAgroLogic(0);
                 } else {
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new DirectionalCaveHallGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
+                                new ConnectedRoomsGen(), new RandomWalkGen(), new DirectionalCaveHallGen(), new BinarySpaceGen(),
                                 new DirectionalCaveHallGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(), new MazeGen(7, 4), new ConnectedRoomsGen(), new MazeGen(15, 18)
@@ -118,17 +119,17 @@ public class DungeonLoader {
                         //token.getStatusEffects().addStatusEffect(StatusEffects.Effect.Blind);
                         token.getInventory().setNumQuickSlots(2);
 
-                        PotionItem potion = new PotionItem(dungeon, PotionItem.Type.MindVision, 4);
+                        PotionItem potion = new PotionItem(dungeon, PotionItem.Type.Paralyze, 4);
                         potion.identifyItem(token);
                         token.getInventory().add(potion);
                         token.getInventory().equip(potion);
 
-                        PotionItem health = new PotionItem(dungeon, PotionItem.Type.Invisibility, 4);
+                        ScrollItem health = new ScrollItem(dungeon, ScrollItem.Type.Confusion, 4);
                         health.identifyItem(token);
                         token.getInventory().add(health);
                         token.getInventory().equip(health);
 
-                        BookItem book = new BookItem(dungeon, BookItem.Type.ExtraQuickSlot);
+                        BookItem book = new BookItem(dungeon, BookItem.Type.AggravateMonsters);
                         token.getInventory().add(book);
                         book.identifyItem(token);
 
@@ -309,7 +310,7 @@ public class DungeonLoader {
                 kryo.register(Loot.class);
                 kryo.register(Move.class);
                 kryo.register(StatusEffects.class);
-                kryo.register(StatusEffects.StatusEffect.class);
+                kryo.register(StatusEffect.class);
                 kryo.register(Command.class);
                 kryo.register(Token.class);
                 kryo.register(asf.dungeon.model.token.Token[].class);
@@ -321,6 +322,7 @@ public class DungeonLoader {
                 kryo.register(asf.dungeon.model.token.logic.FullAgroLogic.class);
                 kryo.register(FsmLogic.class);
                 kryo.register(asf.dungeon.model.token.logic.fsm.Monster.class);
+                kryo.register(asf.dungeon.model.token.logic.fsm.QuestNPC.class);
 
                 kryo.register(Quest.class);
                 kryo.register(asf.dungeon.model.token.quest.PotionQuest.class);
