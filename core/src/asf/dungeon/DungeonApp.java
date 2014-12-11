@@ -9,6 +9,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.I18NBundle;
@@ -29,6 +30,7 @@ public class DungeonApp implements ApplicationListener {
         private Resolver platformActionResolver;
         protected Stage stage;
         protected Skin skin;
+        protected TextureAtlas pack;
         protected I18NBundle i18n;
 
 
@@ -120,6 +122,7 @@ public class DungeonApp implements ApplicationListener {
                         if (stage == null) {
                                 stage = new Stage(new ScreenViewport());
                                 skin = new Skin(Gdx.files.internal("Skins/BasicSkin/uiskin.json"));
+                                pack = new TextureAtlas(Gdx.files.internal("Packs/Menu.atlas"));
                                 FileHandle baseFileHandle = Gdx.files.internal("i18n/Menu");
                                 Locale locale = new Locale("en");
                                 i18n = I18NBundle.createBundle(baseFileHandle, locale);
@@ -132,6 +135,8 @@ public class DungeonApp implements ApplicationListener {
                                 stage = null;
                                 skin.dispose();
                                 skin = null;
+                                pack.dispose();
+                                pack = null;
                                 i18n = null; // does not need to be disposed
                         }
                 }

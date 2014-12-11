@@ -30,7 +30,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
@@ -168,9 +167,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 // TODO: need to use texture regions here
                 for (StatusEffect value : values) {
                         int i = value.ordinal();
-                        world.assetManager.load(world.assetMappings.getHudStatusEffectIcon(value), Texture.class);
-                        world.assetManager.finishLoading();
-                        statusEffectImage[i] = new Image(world.assetManager.get(world.assetMappings.getHudStatusEffectIcon(value), Texture.class));
+                        statusEffectImage[i] = new Image(world.pack.findRegion(world.assetMappings.getHudStatusEffectIcon(value)));
                         //statusEffectImage[i].setScaling(Scaling.fit);
                         statusEffectImage[i].setScaling(Scaling.fillY);
                         statusEffectImage[i].setAlign(Align.bottomLeft);

@@ -50,15 +50,13 @@ public class FxManager implements Disposable {
                         BillboardParticleBatch billboardParticleBatch = new BillboardParticleBatch();
                         billboardParticleBatch.setCamera(world.cam);
                         particleBatches.add(billboardParticleBatch);
-
                         ParticleEffectLoader pfxLoader = new ParticleEffectLoader(new InternalFileHandleResolver());
                         world.assetManager.setLoader(ParticleEffect.class, pfxLoader);
                 }
 
 
-
                 // Preload assets
-
+                world.assetManager.load("ParticleEffects/Particle.png", Texture.class);
 
                 // 3d models
                 loaded3dModels = new Model[1];
@@ -84,6 +82,7 @@ public class FxManager implements Disposable {
         public void init() {
 
 
+                ((BillboardParticleBatch)particleBatches.get(1)).setTexture(world.assetManager.get("ParticleEffects/Particle.png", Texture.class));
                 // 3d models
                 loaded3dModels[0] = world.assetManager.get("Models/Projectiles/Arrow.g3db", Model.class);
 

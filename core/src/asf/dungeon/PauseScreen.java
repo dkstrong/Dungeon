@@ -10,10 +10,12 @@ import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.I18NBundle;
 
 
@@ -30,6 +32,7 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
 
         private Window window;
         private Button resumeButton, returnToMainMenuButton;
+        private ImageButton soundButton;
         @Override
         public void show() {
                 stage = app.stage;
@@ -37,6 +40,14 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
                 Skin skin = app.skin;
                 I18NBundle i18n = app.i18n;
                 stage.clear();
+
+                soundButton = new ImageButton(skin);
+                ImageButton.ImageButtonStyle style = soundButton.getStyle();
+                style.imageUp = new TextureRegionDrawable(app.pack.findRegion("Volume"));
+                style.imageChecked = new TextureRegionDrawable(app.pack.findRegion("VolumeMuted"));
+                stage.addActor(soundButton);
+                soundButton.addCaptureListener(this);
+                soundButton.setChecked(!app.music.isMusicEnabled());
 
                 Table table = new Table(skin);
                 stage.addActor(table);
@@ -71,7 +82,10 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
 
         @Override
         public void resize(int width, int height) {
-
+                soundButton.setBounds(
+                        Gdx.graphics.getWidth() - 110,
+                        Gdx.graphics.getHeight() - 110,
+                        100,100);
         }
 
         @Override
@@ -131,6 +145,10 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
                         return true;
                 }else if(event.getListenerActor() == returnToMainMenuButton){
                         app.returnToMainMenu();
+                }else if(event.getListenerActor() == soundButton){
+                        app.music.setMusicEnabled(!soundButton.isChecked());
+                        app.prefs.putBoolean("musicEnabled",app.music.isMusicEnabled() );
+                        app.prefs.flush();
                 }
 
                 return false;

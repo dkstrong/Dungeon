@@ -113,11 +113,11 @@ public class AssetMappings {
         }
 
         protected String getHudStatusEffectIcon(StatusEffect effect){
-                return "Interface/Hud/health.png";
+                return "Interface/Hud/health";
         }
 
         protected String getInventoryItemTextureAssetLocation(Item item){
-                return "Interface/Loot/Potion/Potion-Amber-Transparent.png";
+                return "Interface/Loot/Potion/Potion-Amber-Transparent";
         }
 
         protected String getPotionTextureAssetLocation(PotionItem potionItem) {

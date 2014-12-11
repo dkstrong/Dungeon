@@ -3,12 +3,15 @@ package asf.dungeon;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.I18NBundle;
 
 
@@ -27,6 +30,9 @@ public class MainMenuScreen implements Screen {
         }
 
         private Button playButton, leaderBoardsButton, settingsButton, aboutButton, quitButton;
+        private ImageButton soundButton;
+        private Texture volumeTex, volumeMutedTex;
+
         @Override
         public void show() {
                 i18n = app.i18n;
@@ -65,16 +71,29 @@ public class MainMenuScreen implements Screen {
                 quitButton = new Button(skin);
                 stage.addActor(quitButton);
                 quitButton.add(i18n.get("quit"));
-
                 quitButton.addCaptureListener(internalListener);
+
+                soundButton = new ImageButton(skin);
+                ImageButton.ImageButtonStyle style = soundButton.getStyle();
+                style.imageUp = new TextureRegionDrawable(app.pack.findRegion("Volume"));
+                style.imageChecked = new TextureRegionDrawable(app.pack.findRegion("VolumeMuted"));
+                stage.addActor(soundButton);
+                soundButton.addCaptureListener(internalListener);
+                soundButton.setChecked(!app.music.isMusicEnabled());
+
 
         }
 
         @Override
         public void resize(int width, int height) {
-                quitButton.setBounds(
+                soundButton.setBounds(
                         Gdx.graphics.getWidth() - 110,
                         Gdx.graphics.getHeight() - 110,
+                        100,100);
+
+                quitButton.setBounds(
+                        Gdx.graphics.getWidth() - 110,
+                        10,
                         100,100);
         }
 
@@ -108,14 +127,18 @@ public class MainMenuScreen implements Screen {
         public void dispose() {
         }
 
-        private class InternalListener extends ClickListener {
+        private class InternalListener extends ChangeListener {
                 @Override
-                public void clicked(InputEvent event, float x, float y) {
-                        if(event.getListenerActor() == playButton){
+                public void changed(ChangeEvent event, Actor actor) {
+                        if(actor == playButton){
                                 app.setScreen(new PlayMenuScreen(app));
 
-                        }else if(event.getListenerActor() == quitButton){
+                        }else if(actor == quitButton){
                                 app.exitApp();
+                        } else if(actor == soundButton){
+                                app.music.setMusicEnabled(!soundButton.isChecked());
+                                app.prefs.putBoolean("musicEnabled",app.music.isMusicEnabled() );
+                                app.prefs.flush();
                         }
                 }
         }

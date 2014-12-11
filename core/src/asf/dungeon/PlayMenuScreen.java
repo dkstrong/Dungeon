@@ -12,12 +12,14 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.I18NBundle;
 
 
@@ -39,6 +41,7 @@ public class PlayMenuScreen implements Screen {
         private Preferences prefs;
         private Table table;
         private Button knightButton, rogueButton, mageButton, backButton;
+        private ImageButton soundButton;
         private Label descriptionLabel;
         private HorizontalGroup horizontalGroup;
         private Button loadButton, newGameButton;
@@ -63,6 +66,14 @@ public class PlayMenuScreen implements Screen {
                 stage.addActor(backButton);
                 backButton.add(i18n.get("back"));
                 backButton.addCaptureListener(internalListener);
+
+                soundButton = new ImageButton(skin);
+                ImageButton.ImageButtonStyle style = soundButton.getStyle();
+                style.imageUp = new TextureRegionDrawable(app.pack.findRegion("Volume"));
+                style.imageChecked = new TextureRegionDrawable(app.pack.findRegion("VolumeMuted"));
+                stage.addActor(soundButton);
+                soundButton.addCaptureListener(internalListener);
+                soundButton.setChecked(!app.music.isMusicEnabled());
 
                 table = new Table(skin);
                 stage.addActor(table);
@@ -139,10 +150,15 @@ public class PlayMenuScreen implements Screen {
 
         @Override
         public void resize(int width, int height) {
-                backButton.setBounds(
+                soundButton.setBounds(
                         Gdx.graphics.getWidth() - 110,
                         Gdx.graphics.getHeight() - 110,
-                        100, 100);
+                        100,100);
+
+                backButton.setBounds(
+                        Gdx.graphics.getWidth() - 110,
+                        10,
+                        100,100);
         }
 
         @Override
@@ -227,13 +243,18 @@ public class PlayMenuScreen implements Screen {
                         }else if(actor == backButton){
                                 prefs.flush();
                                 app.setScreen(new MainMenuScreen(app));
+                        }else if(actor == soundButton){
+                                app.music.setMusicEnabled(!soundButton.isChecked());
+                                app.prefs.putBoolean("musicEnabled",app.music.isMusicEnabled() );
+                                app.prefs.flush();
+                        }else{
+                                Button heroButton = (Button) actor;
+                                if(heroButton.isChecked()){
+                                        makeSettings();
+                                }
                         }
 
 
-                        Button heroButton = (Button) actor;
-                        if(heroButton.isChecked()){
-                                makeSettings();
-                        }
                 }
         }
 }

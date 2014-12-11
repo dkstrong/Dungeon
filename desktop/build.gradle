@@ -44,3 +44,15 @@ task afterEclipseImport(description: "Post processing after project generation",
     printer.print(classpath)
   }
 }
+
+task packImages(type: JavaExec){
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'asf.dungeon.desktop.Packer'
+    args = []
+}
+
+task flame(type: JavaExec){
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.badlogic.gdx.tools.flame.FlameMain'
+    args = []
+}

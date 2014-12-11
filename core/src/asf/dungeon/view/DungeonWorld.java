@@ -19,6 +19,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
@@ -66,6 +67,7 @@ public class DungeonWorld implements Disposable {
 
         protected final CamControl camControl;
         protected final AssetMappings assetMappings;
+        protected TextureAtlas pack;
         protected I18NBundle i18n;
         protected final FloorSpatial floorSpatial;
         protected final SelectionMark selectionMark;
@@ -85,12 +87,14 @@ public class DungeonWorld implements Disposable {
                 decalBatch = new DecalBatch(1000, new CameraGroupStrategy(camControl.cam));
                 modelBatch = new ModelBatch();
                 assetManager = new AssetManager();
+                assetManager.load("Packs/Game.atlas", TextureAtlas.class);
                 loadables = new ObjectSet<LoadedNotifyable>(24);
                 spatials = new Array<Spatial>(true, 16, Spatial.class);
                 assetMappings = new AssetMappings();
                 sounds = new SfxManager(this);
                 fxManager = new FxManager(this);
                 loading = true;
+
 
                 //FileHandle baseFileHandle = Gdx.files.internal("i18n/Game/Game");
                 //Locale locale = new Locale("en");
@@ -226,6 +230,7 @@ public class DungeonWorld implements Disposable {
                                         }
                                         Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
                                         //Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                                        pack =  assetManager.get("Packs/Game.atlas", TextureAtlas.class);
                                         sounds.init();
                                         fxManager.init();
                                         simulationStarted = true;

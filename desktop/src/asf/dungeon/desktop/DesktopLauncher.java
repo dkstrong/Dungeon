@@ -6,6 +6,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
 public class DesktopLauncher implements DungeonApp.Resolver{
 	public static void main (String[] arg) {
+
                 LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
                 config.title = "Dungeon";
 
@@ -27,9 +28,7 @@ public class DesktopLauncher implements DungeonApp.Resolver{
                 config.b = 5;
                 config.a = 0;
 
-
                 DesktopLauncher launcher = new DesktopLauncher();
-
                 DungeonApp dungeonGame = new DungeonApp();
                 dungeonGame.setPlatformActionResolver(launcher);
 

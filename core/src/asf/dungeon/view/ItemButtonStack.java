@@ -2,9 +2,6 @@ package asf.dungeon.view;
 
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.StackableItem;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -43,20 +40,11 @@ public class ItemButtonStack extends Stack implements DungeonWorld.LoadedNotifya
 
         @Override
         public boolean onLoaded() {
-                String assetLocation = hud.world.assetMappings.getInventoryItemTextureAssetLocation(item);
-                if(!hud.world.assetManager.isLoaded(assetLocation, Texture.class)){
-                        Gdx.app.error("ItemButton","onLoaded()... but not this item's texture.");
-                        return false;
-                }
 
-                clearChildren();
-                add(button);
-                add(getImage());
-                add(getTable());
 
-                Texture itemTex = hud.world.assetManager.get(assetLocation, Texture.class);
-                TextureRegion tr = new TextureRegion(itemTex);
-                itemImage.setDrawable(new TextureRegionDrawable(tr));
+
+
+
 
                 return true;
         }
@@ -71,18 +59,12 @@ public class ItemButtonStack extends Stack implements DungeonWorld.LoadedNotifya
                         }
 
                 }else{
+                        clearChildren();
+                        add(button);
+                        add(getImage());
+                        add(getTable());
                         String assetLocation = hud.world.assetMappings.getInventoryItemTextureAssetLocation(item);
-                        if(!hud.world.assetManager.isLoaded(assetLocation, Texture.class)){
-                                hud.world.assetManager.load(assetLocation, Texture.class);
-                                hud.world.notifyOnLoaded(this);
-                                clearChildren();
-                                add(button);
-                                add(getTable());
-                        }else{
-                                onLoaded();
-                        }
-
-
+                        itemImage.setDrawable(new TextureRegionDrawable(hud.world.pack.findRegion(assetLocation)));
 
                         SnapshotArray<Actor> children = labelsTable.getChildren();
                         for (int i = 0; i < children.size; i++) {
