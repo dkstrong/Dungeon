@@ -36,7 +36,7 @@ public class HtmlLauncher extends GwtApplication implements DungeonApp.Resolver 
         }
 
         @Override
-        public void getDebugSession() {
+        public void showDebugWindow() {
 
         }
 }

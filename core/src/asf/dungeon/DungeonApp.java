@@ -1,6 +1,5 @@
 package asf.dungeon;
 
-import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.SongId;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.Application;
@@ -26,14 +25,12 @@ public class DungeonApp implements ApplicationListener {
         public Preferences prefs;
         public final MusicManager music = new MusicManager();
         private Screen screen;
-        private DungeonWorld dungeonWorld;
+        public DungeonWorld dungeonWorld;
         private Resolver platformActionResolver;
         protected Stage stage;
         protected Skin skin;
         protected TextureAtlas pack;
         protected I18NBundle i18n;
-
-
 
         @Override
         public void create() {
@@ -231,10 +228,7 @@ public class DungeonApp implements ApplicationListener {
 
                 public void showInterstitialAd();
 
-                public DebugSession getDebugSession();
+                public void showDebugWindow();
         }
 
-        public interface DebugSession{
-                public void updateDebugInfo(Dungeon dungeon);
-        }
 }

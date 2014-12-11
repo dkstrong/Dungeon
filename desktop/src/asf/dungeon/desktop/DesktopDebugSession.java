@@ -6,6 +6,7 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.TokenComponent;
 import asf.dungeon.utility.UtDebugPrint;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 
 import javax.swing.JButton;
@@ -31,23 +32,51 @@ import java.awt.event.ActionEvent;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Danny on 12/3/2014.
  */
-public class DesktopDebugSession implements DungeonApp.DebugSession{
+public class DesktopDebugSession {
         private JFrame frame;
+        ScheduledExecutorService exec;
+        final DungeonApp app;
 
-        public DesktopDebugSession() {
+        public DesktopDebugSession(DungeonApp dungeonApp) {
+                app = dungeonApp;
 
                 EventQueue.invokeLater(new Runnable() {
                         @Override
                         public void run() {
+
                                 createFrame();
                                 showWindow();
+                                exec =Executors.newSingleThreadScheduledExecutor();
+                                exec.scheduleAtFixedRate(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                                Gdx.app.postRunnable(postRunnable);
+                                        }
+                                },1000,15, TimeUnit.MILLISECONDS);
                         }
                 });
         }
+
+
+        private final Runnable postRunnable = new Runnable() {
+                @Override
+                public void run() {
+                        // search for valid instance of Dungeon, then call
+                        // TODO: app.dungeonWorld used to be private, dungeonworld.dungeon used to be protected i kind of want to move back to those permission levels
+                        if(app.dungeonWorld != null && app.dungeonWorld.dungeon != null){
+                                updateDebugInfo(app.dungeonWorld.dungeon);
+                        }
+                }
+        };
+
+
 
         public void showWindow(){
                 EventQueue.invokeLater(new Runnable() {
@@ -343,8 +372,6 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
 
         }
 
-
-        @Override
         public void updateDebugInfo(final Dungeon dungeon) {
                 EventQueue.invokeLater(new Runnable() {
                         @Override
@@ -396,6 +423,8 @@ public class DesktopDebugSession implements DungeonApp.DebugSession{
                 }
                 setTabs(tabs);
         }
+
+
 
         private static class DungeonTreeModel extends DefaultTreeModel {
 

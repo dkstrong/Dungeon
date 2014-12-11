@@ -29,11 +29,12 @@ public class DesktopLauncher implements DungeonApp.Resolver{
                 config.a = 0;
 
                 DesktopLauncher launcher = new DesktopLauncher();
-                DungeonApp dungeonGame = new DungeonApp();
-                dungeonGame.setPlatformActionResolver(launcher);
+                dungeonApp = new DungeonApp();
+                dungeonApp.setPlatformActionResolver(launcher);
 
-                new LwjglApplication(dungeonGame, config);
+                new LwjglApplication(dungeonApp, config);
 	}
+        private static DungeonApp dungeonApp;
 
         @Override
         public int getInterstitialAdState() {
@@ -53,12 +54,11 @@ public class DesktopLauncher implements DungeonApp.Resolver{
         private DesktopDebugSession debugSession;
 
         @Override
-        public DungeonApp.DebugSession getDebugSession() {
+        public void showDebugWindow() {
                 if(debugSession == null)
-                        debugSession = new DesktopDebugSession();
+                        debugSession = new DesktopDebugSession(dungeonApp);
                 else
                         debugSession.showWindow();
-                return debugSession;
 
         }
 }

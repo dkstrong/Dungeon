@@ -61,9 +61,8 @@ public class DungeonWorld implements Disposable {
         private boolean simulationStarted = false;
         private boolean paused = false;
         private final InputMultiplexer inputMultiplexer;
-        private static DungeonApp.DebugSession debugSession;
         // game stuff
-        protected final Dungeon dungeon;
+        public final Dungeon dungeon;
 
         protected final CamControl camControl;
         protected final AssetMappings assetMappings;
@@ -226,7 +225,7 @@ public class DungeonWorld implements Disposable {
                                 loading = false;
                                 if (!simulationStarted) {
                                         if (settings.startDebugSession) {
-                                                debugSession = dungeonApp.getPlatformActionResolver().getDebugSession();
+                                                dungeonApp.getPlatformActionResolver().showDebugWindow();
                                         }
                                         Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
                                         //Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -299,8 +298,6 @@ public class DungeonWorld implements Disposable {
 
                 }
 
-                if (debugSession != null) debugSession.updateDebugInfo(dungeon);
-
         }
 
         /**
@@ -372,7 +369,7 @@ public class DungeonWorld implements Disposable {
                                 dungeonApp.setAppPaused(true);
                                 return true;
                         } else if (keycode == Input.Keys.F12) {
-                                debugSession = dungeonApp.getPlatformActionResolver().getDebugSession();
+                                dungeonApp.getPlatformActionResolver().showDebugWindow();
                                 return true;
                         }
                         return false;

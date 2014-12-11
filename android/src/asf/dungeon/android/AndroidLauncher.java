@@ -57,8 +57,8 @@ public class AndroidLauncher extends AndroidApplication implements DungeonApp.Re
         }
 
         @Override
-        public DungeonApp.DebugSession getDebugSession() {
-                return null;
+        public void showDebugWindow() {
+
         }
 
         private void makeInterstitalAd() {
