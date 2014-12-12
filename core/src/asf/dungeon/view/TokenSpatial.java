@@ -27,6 +27,7 @@ import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -34,6 +35,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
@@ -51,6 +53,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
         private boolean initialized = false;
         private ModelInstance modelInstance;
         private AnimationController animController;
+        private Decal shadowDecal;
         private final Vector3 translationBase = new Vector3();
         protected final Vector3 translation = new Vector3();
         protected final Quaternion rotation = new Quaternion();
@@ -115,7 +118,14 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         modelInstance = new ModelInstance(model);
                 }
 
+                shadowDecal = Decal.newDecal(
+                        world.floorSpatial.tileDimensions.x,
+                        world.floorSpatial.tileDimensions.z,
+                        world.pack.findRegion("Textures/TokenShadow"),
+                        GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
+                shadowDecal.rotateX(-90);
+                shadowDecal.setColor(1,1,1,0.5f);
 
 
                 //if (shape != null)
@@ -441,8 +451,15 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         scale.x, scale.y, scale.z
                 );
 
-                if (visU > 0 && world.floorSpatial.tileSphere.isVisible(modelInstance.transform, world.cam))
+
+
+                if (visU > 0 && world.floorSpatial.tileSphere.isVisible(modelInstance.transform, world.cam)){
                         world.modelBatch.render(modelInstance, world.environment);
+                        shadowDecal.setPosition(translation);
+                        shadowDecal.translateY(0.1f);
+                        world.decalBatch.add(shadowDecal);
+                }
+
 
         }
 

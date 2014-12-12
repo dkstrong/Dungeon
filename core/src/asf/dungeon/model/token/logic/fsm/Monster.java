@@ -211,6 +211,9 @@ public enum Monster implements State {
                                         continue;
                         }
 
+                        // TODO: use distance and LOS alternative instead of fogmapping
+                        // otherwise monster wont attack player when he is blinded
+
                         if ((sector != null && sector.contains(t.getLocation())) ||
                                 token.getDistance(t) <= token.getDamage().getSightRadius()) {
                                 if (t.getFogMapping() == null) {
