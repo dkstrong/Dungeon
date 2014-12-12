@@ -10,6 +10,9 @@ import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.StatusEffect;
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
@@ -35,7 +38,7 @@ public class AssetMappings {
                 rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
                 rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
 
-                assetLocations = new String[17];
+                assetLocations = new String[18];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
                 assetLocations[ModelId.Cerberus.ordinal()] = "Models/Characters/cerberus.g3db";
@@ -45,6 +48,7 @@ public class AssetMappings {
                 assetLocations[ModelId.Mage.ordinal()] = "Models/Characters/mage.g3db";
                 assetLocations[ModelId.Priest.ordinal()] = "Models/Characters/priest.g3db";
                 assetLocations[ModelId.Skeleton.ordinal()] = "Models/Characters/Skeleton.g3db";
+                assetLocations[ModelId.UserMonster.ordinal()] = "";
                 assetLocations[ModelId.CeramicPitcher.ordinal()] = "Models/Crates/CeramicPitcher.g3db";
                 assetLocations[ModelId.Fountain.ordinal()] = "Models/Crates/Fountain/Fountain.g3db";
                 assetLocations[ModelId.Potion.ordinal()] = "Models/Loot/Potion/PotionSmall.g3db";
@@ -89,6 +93,17 @@ public class AssetMappings {
 
         }
 
+        public static FileHandle getUserMonsterLocation(){
+                if(Gdx.app.getType() != Application.ApplicationType.Desktop)
+                        return null;
+
+                FileHandle fileHandle = Gdx.files.local("Models");
+                FileHandle[] list = fileHandle.list(".g3db");
+                if(list.length > 0)
+                        return list[list.length-1];
+                return null;
+
+        }
 
         public String[][] getSoundLocations(){
                 return soundLocations;

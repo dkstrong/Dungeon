@@ -25,6 +25,8 @@ import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.model.token.quest.Quest;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.ModelLoader;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -32,12 +34,14 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.utils.UBJsonReader;
 
 /**
  * Created by danny on 10/20/14.
@@ -64,8 +68,9 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
         public void preload(DungeonWorld world) {
 
-
-                world.assetManager.load(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
+                if(token.getModelId() != ModelId.UserMonster){
+                        world.assetManager.load(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
+                }
 
                 Loot loot = token.get(Loot.class);
                 if (loot != null) {
@@ -100,11 +105,18 @@ public class TokenSpatial implements Spatial, Token.Listener {
         public void init(AssetManager assetManager) {
                 initialized = true;
 
-                if (!assetManager.isLoaded(world.assetMappings.getAssetLocation(token.getModelId()), Model.class))
-                        throw new Error("asset not loaded");
+                if(token.getModelId() != ModelId.UserMonster){
+                        Model model = assetManager.get(world.assetMappings.getAssetLocation(token.getModelId()));
+                        modelInstance = new ModelInstance(model);
+                }else{
+                        FileHandle fileHandle = AssetMappings.getUserMonsterLocation();
+                        ModelLoader loader = new G3dModelLoader(new UBJsonReader());
+                        Model model = loader.loadModel(fileHandle);
+                        modelInstance = new ModelInstance(model);
+                }
 
-                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.getModelId()));
-                modelInstance = new ModelInstance(model);
+
+
 
                 //if (shape != null)
                 //        shape.setFromModelInstance(modelInstance);
@@ -159,7 +171,6 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         if(token.getModelId() != ModelId.Skeleton){
                                 float s = .45f;
                                 scale.set(s, s, s);
-
                                 translationBase.set(0, (world.floorSpatial.tileBox.getDimensions().y / 2f) + 1.45f, 0);
                         }
                 }
@@ -452,6 +463,10 @@ public class TokenSpatial implements Spatial, Token.Listener {
         public void dispose() {
                 if (this.token != null)
                         this.token.setListener(null);
+
+                if(this.token.getModelId() == ModelId.UserMonster){
+                        modelInstance.model.dispose();
+                }
                 initialized = false;
         }
 

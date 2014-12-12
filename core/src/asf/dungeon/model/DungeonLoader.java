@@ -8,6 +8,7 @@ import asf.dungeon.model.floorgen.DirectionalCaveHallGen;
 import asf.dungeon.model.floorgen.FloorMapGenMultiplexer;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.MazeGen;
+import asf.dungeon.model.floorgen.TestAssetsFloorGen;
 import asf.dungeon.model.floorgen.PreBuiltFloorGen;
 import asf.dungeon.model.floorgen.RandomWalkGen;
 import asf.dungeon.model.floorgen.Room;
@@ -68,6 +69,8 @@ public class DungeonLoader {
 
         }
 
+
+
         public static Dungeon createDungeon(DungeonWorld.Settings settings) {
 
                 FloorMapGenerator floorMapGenerator;
@@ -92,7 +95,9 @@ public class DungeonLoader {
                         floorMapGenerator = new BalanceTestFloorGen();
                         playerLogic = new FullAgroLogic(0);
                 } else {
+
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
+                                new TestAssetsFloorGen(),
                                 new ConnectedRoomsGen(), new ConnectedRoomsGen(), new MazeGen(7, 4), new DirectionalCaveHallGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
@@ -161,6 +166,7 @@ public class DungeonLoader {
                 return dungeon;
 
         }
+
 
 
         // https://github.com/EsotericSoftware/kryo
