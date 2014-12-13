@@ -18,7 +18,8 @@ public class FogMap {
         private transient int radius; // not statis for effecient resue of stepResult
         private transient byte[][] stepResult; // not statis for effecient resue of stepResult
         private static final transient Array<Step> pending = new Array<Step>(true, 64, Step.class);
-        // TODO: could make tstatic final transient pool for Step, though the pool overhead might not be worth it
+        private static final transient Array<Step> stepPool = new Array<Step>(false, 64, Step.class);
+
 
 
         public FogMap(FloorMap floorMap, Token token) {
@@ -95,10 +96,11 @@ public class FogMap {
                 }
 
                 pending.clear();
-                pending.add(new Step(xCenter, yCenter, 0));
+                pending.add(obtainStep(xCenter, yCenter, 0));
 
                 while (pending.size > 0) {
                         Step step = pending.removeIndex(0);
+                        freeStep(step);
                         calcStep(step.x, step.y, step.depth);
                 }
 
@@ -201,21 +203,27 @@ public class FogMap {
                         }
                 }
 
-                pending.add(new Step(stepX, stepY + 1, stepDepth + 1)); // North
-                pending.add(new Step(stepX, stepY - 1, stepDepth + 1)); // South
-                pending.add(new Step(stepX + 1, stepY, stepDepth + 1)); // East
-                pending.add(new Step(stepX - 1, stepY, stepDepth + 1)); // West
+                pending.add(obtainStep(stepX, stepY + 1, stepDepth + 1)); // North
+                pending.add(obtainStep(stepX, stepY - 1, stepDepth + 1)); // South
+                pending.add(obtainStep(stepX + 1, stepY, stepDepth + 1)); // East
+                pending.add(obtainStep(stepX - 1, stepY, stepDepth + 1)); // West
 
+        }
+
+        private Step obtainStep(int x, int y, int depth){
+                Step step = stepPool.size == 0 ? new Step() : stepPool.pop();
+                step.x= x;
+                step.y = y;
+                step.depth = depth;
+                return step;
+        }
+
+        private void freeStep(Step step){
+                stepPool.add(step);
         }
 
         private static class Step {
                 int x, y, depth;
-
-                private Step(int x, int y, int depth) {
-                        this.x = x;
-                        this.y = y;
-                        this.depth = depth;
-                }
         }
 
 

@@ -2,7 +2,7 @@ package asf.dungeon.model.token.logic.fsm;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.Sector;
+import asf.dungeon.model.fogmap.LOS;
 import asf.dungeon.model.token.Command;
 import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.Token;
@@ -185,8 +185,6 @@ public enum Monster implements State {
         }
 
         private static boolean checkForTargets(FsmLogic fsm, Token token, Command command) {
-
-                Sector sector = fsm.sector != null && fsm.sector.contains(token.getLocation()) ? fsm.sector : null;
                 FloorMap fm = token.getFloorMap();
 
                 Array<Token> attackableTokens = fm.getTokens();
@@ -211,26 +209,17 @@ public enum Monster implements State {
                                         continue;
                         }
 
-                        // TODO: use distance and LOS alternative instead of fogmapping
-                        // otherwise monster wont attack player when he is blinded
+                        float distance = token.distance(t);
+                        // TODO: sight radius is an integer/manhatten value, not sure if ill want to alter this check any.
+                        if(distance > token.getDamage().getSightRadius())
+                                continue;
 
-                        if ((sector != null && sector.contains(t.getLocation())) ||
-                                token.getDistance(t) <= token.getDamage().getSightRadius()) {
-                                if (t.getFogMapping() == null) {
-                                        // target does not have fogmapping, assume vision is possible
-                                        fsm.target = t;
-                                        fsm.setState(Chase);
-                                        return true;
-                                } else {
-                                        // target has fogmapping, so use it to ensure vision is possible
-                                        boolean canSeeMe = t.getFogMapping().getCurrentFogMap().isVisible(token.getLocation().x, token.getLocation().y);
-                                        if (canSeeMe) {
-                                                fsm.target = t;
-                                                fsm.setState(Chase);
-                                                return true;
-                                        }
-                                }
-                        }
+                        if(distance > 1 && !LOS.hasLineOfSight(token.getFloorMap(), token.getLocation().x, token.getLocation().y, t.getLocation().x, t.getLocation().y))
+                                continue;
+
+                        fsm.target = t;
+                        fsm.setState(Chase);
+
                 }
                 return false;
         }
@@ -243,7 +232,7 @@ public enum Monster implements State {
                 //
                 // TODO: when backed in to a corner the mosnter can kind of "flicker" inbetween two states, i think
                 // this is caused by ChaseKeepDistance toggling between targeting and untargetting the player.
-                float distance = token.getDistance(fsm.target);
+                float distance = token.distance(fsm.target);
 
                 if (distance > safeDistance - .25f) {
                         return;

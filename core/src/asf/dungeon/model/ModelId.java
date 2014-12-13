@@ -15,6 +15,7 @@ public enum ModelId {
         Fountain,
         Potion,
         Scroll,
+        Book,
         Key,
         Key2,
         Key3,

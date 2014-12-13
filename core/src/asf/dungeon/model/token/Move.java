@@ -55,7 +55,9 @@ public class Move implements TokenComponent{
                                 fogMap = token.getFogMapping().getFogMap(token.getFloorMap());
                         else
                                 fogMap = null;
-
+                        // TODO: how this is configured is that if fogmapping is turned off, then the target
+                        // can not be lost in to the fog, Instead I should do it based on range as  a back up
+                        // I may need to modify the monster ai to allow for this
                         boolean targetInvisisible = targetToken.getStatusEffects()!=null && targetToken.getStatusEffects().has(StatusEffect.Invisibility);
 
                         if (!targetInvisisible && (fogMap == null || fogMap.isVisible(targetToken.getLocation().x, targetToken.getLocation().y))) {

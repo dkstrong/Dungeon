@@ -13,6 +13,7 @@ import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.State;
 import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.model.token.quest.Quest;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -93,6 +94,7 @@ public class Token {
                 // though common componnets typicallly wouldnt be removed
                 components.removeValue(component, true);
         }
+
         public void add(TokenComponent component) {
                 if(component == null) return;
                 components.add(component);
@@ -156,7 +158,6 @@ public class Token {
                 }
         }
 
-
         /**
          * DO NOT MODIFY
          *
@@ -174,14 +175,30 @@ public class Token {
                 return location.x == x && location.y == y;
         }
 
-        public float getDistance(Token other){
+        public float distance(Token other){
                 if(move == null){
-                        if(other.move == null) return location.distance(other.location);
+                        if(other.move == null) return distance(other.location);
                         return other.move.getFloatLocation().dst(location.x, location.y);
                 }else{
                         if(other.move == null) return move.getFloatLocation().dst(other.location.x, other.location.y);
                         return move.getFloatLocation().dst(other.move.getFloatLocation());
                 }
+        }
+
+        public float distance(Pair loc){
+                float x = getFloatLocationX();
+                float y = getFloatLocationY();
+                final float x_d = x - loc.x;
+                final float y_d = y - loc.y;
+                return (float)Math.sqrt(x_d * x_d + y_d * y_d);
+        }
+
+        public float distance(Vector2 loc){
+                float x = getFloatLocationX();
+                float y = getFloatLocationY();
+                final float x_d = x - loc.x;
+                final float y_d = y - loc.y;
+                return (float)Math.sqrt(x_d * x_d + y_d * y_d);
         }
 
         public float getFloatLocationX(){
@@ -312,7 +329,6 @@ public class Token {
 
                 public void onFsmStateChange(FsmLogic fsm, State oldState, State newState);
         }
-
 
         @Override
         public boolean equals(Object o) {

@@ -65,9 +65,8 @@ public class StatusEffects implements TokenComponent{
                 }
 
                 if(has(StatusEffect.ItemVision)){
-                        // TODO: and loot tiles?
                         FogMap fogMap = token.getFogMapping().getCurrentFogMap();
-                        Array<Token> crateAndLootTokens = token.getFloorMap().getCrateTokens();
+                        Array<Token> crateAndLootTokens = token.getFloorMap().getCrateAndLootTokens();
                         for (Token t : crateAndLootTokens) {
                                 fogMap.revealLocationWithMagic(t.getLocation().x, t.getLocation().y);
                         }

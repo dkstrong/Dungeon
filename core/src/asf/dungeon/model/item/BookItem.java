@@ -147,10 +147,9 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                 this.type = type;
         }
 
-        // TODO: this needs to be ModelId.Rune
         @Override
         public ModelId getModelId() {
-                return ModelId.Scroll;
+                return ModelId.Book;
         }
 
         @Override

@@ -193,7 +193,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
          */
         public Array<Token> getVisibleTokens(Token token){
                 if(token.getFogMapping() == null){
-                        return getTokensInExtent(token.getLocation(), token.getDamage() == null ? 3 : token.getDamage().getSightRadius());
+                       throw new IllegalArgumentException("the token must have fog mapping enabled");
                 }
                 FogMap fogMap = token.getFogMapping().getCurrentFogMap();
 
@@ -207,10 +207,10 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                 return tokensAt;
         }
 
-        public Array<Token> getCrateTokens() {
+        public Array<Token> getCrateAndLootTokens() {
                 tokensAt.clear();
                 for (Token t : tokens) {
-                        if(t.getCrateInventory() != null){
+                        if(t.getCrateInventory() != null || t.getLoot() != null){
                                 tokensAt.add(t);
                         }
                 }

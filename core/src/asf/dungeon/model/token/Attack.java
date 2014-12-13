@@ -173,13 +173,12 @@ public class Attack implements TokenComponent{
                 if(rangedAttack){
                         if(inAttackRangeOfCommandTarget){ // target is still in range, were going to hit him
                                 projectileAttackCoord.set(meleeAttackTarget.getLocation());
-                                // TODO: this is an awful way to calculate the duration of the projecctile
-                                attackProjectileMaxU = token.getLocation().distance(projectileAttackCoord) / weapon.getProjectileSpeed();
+                                attackProjectileMaxU =  token.distance(projectileAttackCoord) / weapon.getProjectileSpeed();
                                 projectileAttackTarget = meleeAttackTarget;
                                 meleeAttackTarget.getDamage().setHitDuration(attackProjectileMaxU, token);
                         }else{ // target got out of range, were going to gurantee miss
                                 token.getFloorMap().getNextClosestLegalLocation(token.getLocation(), meleeAttackTarget.getLocation(), projectileAttackCoord);
-                                attackProjectileMaxU = token.getLocation().distance(projectileAttackCoord) / weapon.getProjectileSpeed();
+                                attackProjectileMaxU =  token.distance(projectileAttackCoord) / weapon.getProjectileSpeed();
                                 projectileAttackTarget = null;
                         }
                         attackProjectileU = 0;
@@ -209,7 +208,7 @@ public class Attack implements TokenComponent{
                 }
 
 
-                float distance = token.getDistance(target);
+                float distance = token.distance(target);
                 // not sure why i need distance-1, but in order to actually have the right range i have to subtract 1
 
                 if(distance > weapon.getRange())
@@ -258,7 +257,7 @@ public class Attack implements TokenComponent{
                 }
 
 
-                float distance = token.getDistance(target);
+                float distance = token.distance(target);
                 if(distance > 1f)
                         return false;
 

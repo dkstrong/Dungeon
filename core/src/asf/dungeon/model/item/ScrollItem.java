@@ -45,12 +45,12 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                                 Array<Token> visibleTokens = token.getFloorMap().getVisibleTokens(token);
                                 //Gdx.app.log("ScrollItem-Lightning",String.valueOf(visibleTokens));
                                 Token closest = null;
-                                int closestDistance = Integer.MAX_VALUE;
+                                float closestDistance = Float.MAX_VALUE;
                                 for (Token visibleToken : visibleTokens) {
                                         if(visibleToken == token || visibleToken.getDamage() == null || visibleToken.getMove() == null || visibleToken.getDamage().isDead())
                                                 continue;
                                         //Gdx.app.log("ScrollItem-Lightning","testing against:"+visibleToken.getName());
-                                        int dist = visibleToken.getLocation().distance(token.getLocation());
+                                        float dist = token.distance(visibleToken);
                                         if(dist< closestDistance){
                                                 closestDistance = dist;
                                                 closest = visibleToken;
@@ -106,6 +106,10 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                         out.targetToken = targetToken;
                         out.didSomething = true;
                 }else if(type == Type.Teleportation){
+                        // TODO: because loot can not be targeted, i cant teleport it. I need to modify
+                        // how canConsume and how selecting tokens works in HudSpatial so loot
+                        // can be teleported
+
                         // teleport target token to random location
                         // TODO: this code allows for teleporting into a locked room
                         // i need to make it so either it wont go into a locked room, or
@@ -159,6 +163,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                                 }
                                 if(token.getFloorMap() != targetToken.getFloorMap())
                                         return false;
+                                // TODO: need to include LOS check if fogmapping is turned off
                                 if(token.getFogMapping() != null){
                                         FogMap fogMap = token.getFogMapping().getCurrentFogMap();
                                         if(!fogMap.isVisible(targetToken.getLocation().x, targetToken.getLocation().y))
@@ -181,6 +186,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                                 }
                                 if(token.getFloorMap() != targetToken.getFloorMap())
                                         return false;
+                                // TODO: need to include LOS check if fogmapping is turned off
                                 if(token.getFogMapping() != null){
                                         FogMap fogMap = token.getFogMapping().getCurrentFogMap();
                                         if(!fogMap.isVisible(targetToken.getLocation().x, targetToken.getLocation().y))

@@ -55,6 +55,16 @@ public class Pair {
                 return null;
         }
 
+        /**
+         * distance between these two tile locations
+         * note that distance is determind as number of moves to go from location A to location B with diagonal turned on
+         * <p/>
+         * this is often a different distance value than what is conventionally known as "distance"
+         *
+         * @param targetX
+         * @param targetY
+         * @return
+         */
         public int distance(Pair targetLocation) {
                 return distance(targetLocation.x, targetLocation.y);
         }

@@ -50,7 +50,9 @@ public class Pathfinder {
 
         }
 
-        public static Pair toPair(int i, int j) {
+        // TODO: to pool pairs id need to use free() within Move. I'd also need to ensure Im not accidently
+        // using the tokens actual location pair or the command pair or anything in pathfinding..
+        private static Pair toPair(int i, int j) {
                 return new Pair(i, j);
         }
 

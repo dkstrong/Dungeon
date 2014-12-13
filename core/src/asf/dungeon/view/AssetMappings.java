@@ -38,7 +38,7 @@ public class AssetMappings {
                 rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
                 rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
 
-                assetLocations = new String[18];
+                assetLocations = new String[19];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
                 assetLocations[ModelId.Cerberus.ordinal()] = "Models/Characters/cerberus.g3db";
@@ -53,6 +53,7 @@ public class AssetMappings {
                 assetLocations[ModelId.Fountain.ordinal()] = "Models/Crates/Fountain/Fountain.g3db";
                 assetLocations[ModelId.Potion.ordinal()] = "Models/Loot/Potion/PotionSmall.g3db";
                 assetLocations[ModelId.Scroll.ordinal()] = "Models/Loot/Scroll/Scroll.g3db";
+                assetLocations[ModelId.Book.ordinal()] = "Models/Loot/Book/Book.g3db";
                 assetLocations[ModelId.Key.ordinal()] = "Models/Loot/Key/Key.g3db";
                 assetLocations[ModelId.Key2.ordinal()] = "Models/Loot/Key/Key2.g3db";
                 assetLocations[ModelId.Key3.ordinal()] = "Models/Loot/Key/Key3.g3db";
