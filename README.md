@@ -12,7 +12,7 @@ The Dungeon is looking for 3D artists, Sound artists, and Programmers to help ma
 ### Art Credits
 
 
-This game contains many art assets submitters/created by users of opengameart.org. For a list of art contributors from opengameart.org see android/assets/Credits.txt
+This game contains many art assets submitted/created by users of opengameart.org. For a list of art contributors from opengameart.org see android/assets/Credits.txt
 
 ### License
 
