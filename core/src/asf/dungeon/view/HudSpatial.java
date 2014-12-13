@@ -30,6 +30,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
@@ -81,6 +83,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private Image[] statusEffectImage;
         private Label renderingStats;
         private final Array<DamageLabel> damageInfoLabels = new Array<DamageLabel>(false, 8, DamageLabel.class);
+        private final Decal moveCommandDecal = new Decal();
+        private final Decal targetCommandDecal = new Decal();
         //inventory hud
         private Table inventoryWindow;
         private HorizontalGroup inputModeHorizontalGroup;
@@ -324,6 +328,19 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 refreshInventoryElements();
 
+
+                moveCommandDecal.setTextureRegion(world.pack.findRegion("Textures/MoveCommandMarker"));
+                moveCommandDecal.setBlending(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+                moveCommandDecal.setDimensions(world.floorSpatial.tileDimensions.x, world.floorSpatial.tileDimensions.z);
+                moveCommandDecal.setColor(1,1,1,1);
+                moveCommandDecal.rotateX(-90);
+
+                targetCommandDecal.setTextureRegion(world.pack.findRegion("Textures/TargetCommandMarker"));
+                targetCommandDecal.setBlending(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+                targetCommandDecal.setDimensions(world.floorSpatial.tileDimensions.x*1.1f, world.floorSpatial.tileDimensions.z*1.1f);
+                targetCommandDecal.setColor(1,1,1,1);
+                targetCommandDecal.rotateX(-90);
+
         }
 
         protected void resize(int width, int height) {
@@ -529,6 +546,19 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         @Override
         public void render(float delta) {
+                if(localPlayerToken!= null){
+                        if(localPlayerToken.getCommand().getTargetToken() != null){
+                                moveCommandDecalCount = 0;
+                                float x= localPlayerToken.getCommand().getTargetToken().getFloatLocationX();
+                                float y = localPlayerToken.getCommand().getTargetToken().getFloatLocationY();
+                                targetCommandDecal.setPosition(world.getWorldCoords(x,y,targetCommandDecal.getPosition()));
+                                targetCommandDecal.translateY(0.2f);
+                                world.decalBatch.add(targetCommandDecal);
+                        }else if(moveCommandDecalCount >0){
+                                moveCommandDecalCount-=delta;
+                                world.decalBatch.add(moveCommandDecal);
+                        }
+                }
 
         }
 
@@ -1283,6 +1313,17 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 return true;
         }
+        private float moveCommandDecalCount = Float.NaN;
+
+        private void setMoveCommandMark(Pair location){
+
+                moveCommandDecal.setPosition(world.getWorldCoords(location, moveCommandDecal.getPosition()));
+                moveCommandDecal.translateY(0.2f);
+                moveCommandDecalCount = 2;
+
+
+
+        }
 
         private boolean touchCommand(int screenX, int screenY) {
                 if (localPlayerToken.getDamage().isDead()) return false;
@@ -1291,11 +1332,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 // attempt to target specificaly clicked token
                 if (targetToken != null) {
                         localPlayerToken.getCommand().setTargetToken(targetToken);
-                        if (localPlayerToken.getCommand().getTargetToken() != null) {
-                                world.selectionMark.mark(targetToken.getLocation());
-                                return true;
-                        }
-
                 }
 
                 final float distance = -ray.origin.y / ray.direction.y;
@@ -1303,7 +1339,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 world.getMapCoords(tempWorldCoords, tempMapCoords);
                 localPlayerToken.getCommand().setUseKeyOnTile(tempMapCoords);
                 if (localPlayerToken.getCommand().isUseKey()) {
-                        world.selectionMark.mark(tempMapCoords);
+                        setMoveCommandMark(tempMapCoords);
                         return true;
                 }
 
@@ -1318,7 +1354,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 world.getMapCoords(tempWorldCoords, tempMapCoords);
                 if (localPlayerToken.getFloorMap().getTile(tempMapCoords) != null) {
                         localPlayerToken.getCommand().setLocation(tempMapCoords);
-                        world.selectionMark.mark(tempMapCoords);
+                        setMoveCommandMark(tempMapCoords);
                         return true;
                 }
                 return false;

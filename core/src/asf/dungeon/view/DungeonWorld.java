@@ -9,20 +9,16 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.SongId;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.utility.ModelFactory;
-import asf.dungeon.view.shape.Box;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
@@ -69,7 +65,6 @@ public class DungeonWorld implements Disposable {
         protected TextureAtlas pack;
         protected I18NBundle i18n;
         protected final FloorSpatial floorSpatial;
-        protected final SelectionMark selectionMark;
         protected final HudSpatial hudSpatial;
         protected final SfxManager sounds;
         protected final FxManager fxManager;
@@ -109,10 +104,7 @@ public class DungeonWorld implements Disposable {
                 floorSpatial = new FloorSpatial();
                 addSpatial(floorSpatial);
 
-
-                //addSpatial(new ActorSpatial("Models/skydome.g3db", null, null));
-
-                selectionMark = addSpatial(new GenericSpatial(new ModelInstance(ModelFactory.box(5, 1, 5, Color.RED)), new Box(), environment)).setControl(new SelectionMark(this));
+                //addSpatial(new SkyboxSpatial());
 
                 if (settings.loadedDungeon != null) {
                         dungeon = settings.loadedDungeon;
