@@ -49,6 +49,7 @@ public class Token {
         private CrateInventory crateInventory;
         private FogMapping fogMapping;
         private StatusEffects statusEffects;
+        private Loot loot;
 
 
         public Token(Dungeon dungeon, int id, String name, ModelId modelId) {
@@ -117,6 +118,8 @@ public class Token {
                         this.experience = (Experience) component;
                 } else if(component instanceof StatusEffects){
                         this.statusEffects = (StatusEffects)component;
+                }else if(component instanceof Loot){
+                        this.loot = (Loot) component;
                 }
         }
 
@@ -253,6 +256,10 @@ public class Token {
 
         public StatusEffects getStatusEffects() {
                 return statusEffects;
+        }
+
+        public Loot getLoot() {
+                return loot;
         }
 
         /**

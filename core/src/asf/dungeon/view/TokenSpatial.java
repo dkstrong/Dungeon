@@ -23,6 +23,7 @@ import asf.dungeon.model.token.logic.fsm.Monster;
 import asf.dungeon.model.token.logic.fsm.State;
 import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.model.token.quest.Quest;
+import asf.dungeon.utility.AnimFactory;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
@@ -118,21 +119,17 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         modelInstance = new ModelInstance(model);
                 }
 
-                shadowDecal = Decal.newDecal(
-                        world.floorSpatial.tileDimensions.x,
-                        world.floorSpatial.tileDimensions.z,
-                        world.pack.findRegion("Textures/TokenShadow"),
-                        GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-                shadowDecal.rotateX(-90);
-                shadowDecal.setColor(1,1,1,0.5f);
-
-
                 //if (shape != null)
                 //        shape.setFromModelInstance(modelInstance);
 
                 if (modelInstance.animations.size > 0)
                         animController = new AnimationController(modelInstance);
+                else if(token.getLoot() != null){
+                        AnimFactory.createAnim(AnimFactory.dropped(), modelInstance);
+                        AnimFactory.createIdleAnim(modelInstance);
+                        animController = new AnimationController(modelInstance);
+
+                }
 
                 //for (Material material : modelInstance.materials) {
                         //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
@@ -193,7 +190,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                 }
 
 
-                for (Animation animation : modelInstance.model.animations) {
+                for (Animation animation : modelInstance.animations) {
                         if (animation.id.equals("Walk")) {
                                 walk = animation;
                         } else if (animation.id.equals("Idle")) {
@@ -206,6 +203,8 @@ public class TokenSpatial implements Spatial, Token.Listener {
                                 hit = animation;
                         } else if (animation.id.equals("Die")) {
                                 die = animation;
+                        } else if(animation.id.equals("Dropped")){
+                                dropped = animation;
                         }
 
                 }
@@ -219,11 +218,19 @@ public class TokenSpatial implements Spatial, Token.Listener {
                                 }
                         }
                 }
+                shadowDecal = Decal.newDecal(
+                        world.floorSpatial.tileDimensions.x,
+                        world.floorSpatial.tileDimensions.z,
+                        world.pack.findRegion("Textures/TokenShadow"),
+                        GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+                shadowDecal.rotateX(-90);
+                shadowDecal.setColor(1,1,1,0.5f);
 
 
         }
 
-        private Animation current, idle, walk, attack, hit, die;
+        private Animation current, idle, walk, attack, hit, die, dropped;
 
 
         public void update(final float delta) {
@@ -279,6 +286,14 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         updateIfNotFogBlocked(delta);
 
 
+                if(token.getLoot() != null){
+                        if(current != dropped){
+                                animController.animate(dropped.id, 1, 1, null, 0);
+                                animController.queue(idle.id,-1,1,null,.015f*dropped.duration);
+                                current = dropped;
+                        }
+                }
+
                 if (animController != null) {
                         animController.update(delta);
                 }
@@ -305,44 +320,54 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
                 }
 
-                if (token.getDamage() != null && token.getDamage().isDead()) {
-                        if (current != die) {
-                                animController.animate(die.id, 1, die.duration / token.getDamage().getDeathDuration(), null, .2f);
-                                current = die;
-                                world.sounds.play(token.getDamage().getDeathSfx());
-                        }
-
-                } else if (token.getAttack() != null && token.getAttack().isAttacking()) {
-                        if (current != attack) {
-                                animController.animate(attack.id, 1, attack.duration / token.getAttack().getWeapon().getAttackDuration(), null, .2f);
-
-                                current = attack;
-                        }
-                } else if (token.getDamage() != null && token.getDamage().isHit()) {
-                        if (current != hit) {
-                                if (world.hudSpatial.localPlayerToken == token){
-                                        world.hudSpatial.setMapViewMode(false); // if being attacked, force out of map view mode to make it easier to respond
+                if(token.getLogic() != null){
+                        // Character
+                        if (token.getDamage() != null && token.getDamage().isDead()) {
+                                if (current != die) {
+                                        animController.animate(die.id, 1, die.duration / token.getDamage().getDeathDuration(), null, .2f);
+                                        current = die;
+                                        world.sounds.play(token.getDamage().getDeathSfx());
                                 }
 
-                                if (hit == null) {
-                                        throw new Error(token.getName());
+                        } else if (token.getAttack() != null && token.getAttack().isAttacking()) {
+                                if (current != attack) {
+                                        animController.animate(attack.id, 1, attack.duration / token.getAttack().getWeapon().getAttackDuration(), null, .2f);
+                                        current = attack;
                                 }
-                                animController.animate(hit.id, 1, hit.duration / token.getDamage().getHitDuration(), null, .2f);
-                                current = hit;
-                                world.sounds.play(token.getDamage().getHitSfx());
+                        } else if (token.getDamage() != null && token.getDamage().isHit()) {
+                                if (current != hit) {
+                                        if (world.hudSpatial.localPlayerToken == token){
+                                                world.hudSpatial.setMapViewMode(false); // if being attacked, force out of map view mode to make it easier to respond
+                                        }
+
+                                        if (hit == null) {
+                                                throw new Error(token.getName());
+                                        }
+                                        animController.animate(hit.id, 1, hit.duration / token.getDamage().getHitDuration(), null, .2f);
+                                        current = hit;
+                                        world.sounds.play(token.getDamage().getHitSfx());
+                                }
+                        } else if (token.getMove() != null && token.getMove().isMoving() && !(token.getAttack() != null && token.getAttack().isInRangeOfAttackTarget())) {
+                                if (current != walk) {
+                                        float v = UtMath.scalarLimitsInterpolation(token.getMove().getMoveSpeed(), 1, 10, 0.25f, 1f);
+                                        animController.animate(walk.id, -1, v, null, .2f);
+                                        current = walk;
+                                }
+                        } else {
+                                if (current != idle) {
+                                        animController.animate(idle.id, -1, .25f, null, .2f);
+                                        current = idle;
+                                }
                         }
-                } else if (token.getMove() != null && token.getMove().isMoving() && !(token.getAttack() != null && token.getAttack().isInRangeOfAttackTarget())) {
-                        if (current != walk) {
-                                float v = UtMath.scalarLimitsInterpolation(token.getMove().getMoveSpeed(), 1, 10, 0.25f, 1f);
-                                animController.animate(walk.id, -1, v, null, .2f);
-                                current = walk;
-                        }
-                } else {
-                        if (current != idle) {
-                                animController.animate(idle.id, -1, .25f, null, .2f);
-                                current = idle;
-                        }
+                }else{
+
+
                 }
+
+
+
+
+
 
 
 

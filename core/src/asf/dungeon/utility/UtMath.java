@@ -120,6 +120,51 @@ public class UtMath {
                 store.z = interpolateLinear(scale, startValue.z, endValue.z);
         }
 
+        public static void interpolateLinear(float scale, Quaternion q1, Quaternion q2, Quaternion store) {
+                // Create a local quaternion to store the interpolated quaternion
+                if (q1.x == q2.x && q1.y == q2.y && q1.z == q2.z && q1.w == q2.w) {
+                        store.set(q1);
+                        return;
+                }
+
+                float result = (q1.x * q2.x) + (q1.y * q2.y) + (q1.z * q2.z) + (q1.w * q2.w);
+
+                if (result < 0.0f) {
+                        // Negate the second quaternion and the result of the dot product
+                        q2.x = -q2.x;
+                        q2.y = -q2.y;
+                        q2.z = -q2.z;
+                        q2.w = -q2.w;
+                        result = -result;
+                }
+
+                // Set the first and second scale for the interpolation
+                float scale0 = 1 - scale;
+                float scale1 = scale;
+
+                // Check if the angle between the 2 quaternions was big enough to
+                // warrant such calculations
+                if ((1 - result) > 0.1f) {// Get the angle between the 2 quaternions,
+                        // and then store the sin() of that angle
+                        final double angle = Math.acos(result);
+                        final double invSinTheta = 1f / Math.sin(angle);
+
+                        // Calculate the scale for q1 and q2, according to the angle and
+                        // it's sine value
+                        scale0 = (float)(Math.sin((1 - scale) * angle) * invSinTheta);
+                        scale1 = (float)(Math.sin((scale * angle)) * invSinTheta);
+                }
+
+                // Calculate the x, y, z and w values for the quaternion by using a
+                // special
+                // form of linear interpolation for quaternions.
+                store.x = (scale0 * q1.x) + (scale1 * q2.x);
+                store.y = (scale0 * q1.y) + (scale1 * q2.y);
+                store.z = (scale0 * q1.z) + (scale1 * q2.z);
+                store.w = (scale0 * q1.w) + (scale1 * q2.w);
+
+        }
+
         public static void interpolate(Interpolation interpolation,
                                        float scale,
                                        Vector3 startValue, Vector3 endValue, Vector3 store){
@@ -356,6 +401,7 @@ public class UtMath {
 
         private UtMath() {
         }
+
 
 
 }

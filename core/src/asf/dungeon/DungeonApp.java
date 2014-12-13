@@ -1,5 +1,6 @@
 package asf.dungeon;
 
+import asf.dungeon.model.ModelId;
 import asf.dungeon.model.SongId;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.Application;
@@ -39,12 +40,12 @@ public class DungeonApp implements ApplicationListener {
                 prefs = Gdx.app.getPreferences("Dungeon");
                 music.setMusicEnabled(prefs.getBoolean("musicEnabled", true));
                 music.setMasterVolume(prefs.getFloat("masterVolume", 1f));
-                returnToMainMenu();
+                //returnToMainMenu();
 
-                //DungeonWorld.Settings settings = new DungeonWorld.Settings();
-                //settings.playerModel = ModelId.Knight;
+                DungeonWorld.Settings settings = new DungeonWorld.Settings();
+                settings.playerModel = ModelId.Knight;
                 //settings.startDebugSession = true;
-                //loadWorld(settings);
+                loadWorld(settings);
 
         }
 
