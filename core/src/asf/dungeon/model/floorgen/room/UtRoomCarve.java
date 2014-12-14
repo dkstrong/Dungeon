@@ -134,12 +134,12 @@ public class UtRoomCarve {
         public static void carveDoors(Dungeon dungeon, int floorIndex, Tile[][] tiles, Array<Room> rooms) {
                 for (int i = 0; i < rooms.size; i++) {
                         Room room = rooms.get(i);
-                        carveDoorsInRoom(dungeon, floorIndex, tiles, room);
+                        carveDoorsInRoom(dungeon, floorIndex, tiles, rooms, room);
 
                 }
         }
 
-        public static void carveDoorsInRoom(Dungeon dungeon, int floorIndex, Tile[][] tiles, Room room) {
+        public static void carveDoorsInRoom(Dungeon dungeon, int floorIndex, Tile[][] tiles,  Array<Room> rooms, Room room) {
                 // should be called after fillRoom() and fillTunnel()
                 // This is a lot of code for a seemingly simple thing. but it checks to ensure
                 // that these scenarios do not happen
@@ -167,7 +167,8 @@ public class UtRoomCarve {
                                                 tiles[x][y] = door;
                                         }
                                         doorCount++; // this is still a "doorway" as in a hole in the room
-                                        room.doorways.add(new Doorway(x,y,room,tiles[x][y].isDoor())); // TODO: for cases of hallways cutting through the side of a room, this will create a lot of doorways
+                                        // TODO: for cases of hallways cutting through the side of a room, this will create a lot of doorways
+                                        placeDoorway(dungeon, rooms, x,y, tiles[x][y].isDoor());
                                 }
                         }
                 }
@@ -182,7 +183,8 @@ public class UtRoomCarve {
                                                 tiles[x][y] = door;
                                         }
                                         doorCount++; // this is still a "doorway" as in a hole in the room
-                                        room.doorways.add(new Doorway(x,y,room,tiles[x][y].isDoor())); // TODO: for cases of hallways cutting through the side of a room, this will create a lot of doorways
+                                        // TODO: for cases of hallways cutting through the side of a room, this will create a lot of doorways
+                                        placeDoorway(dungeon, rooms, x,y, tiles[x][y].isDoor());
                                 }
                         }
                 }
@@ -194,6 +196,18 @@ public class UtRoomCarve {
                 }
 
 
+        }
+
+        private static void placeDoorway(Dungeon dungeon, Array<Room> rooms, int x, int y, boolean lockable){
+                Doorway doorway = new Doorway(x,y, lockable);
+                for (Room room : rooms) {
+                        if(room.contains(x,y)){
+                             room.doorways.add(doorway);
+                             doorway.destinations.add(room);
+                        }
+                }
+                // TODO: if this doorway leads to a hallway, then the room at the other end of the hallway needs to be added as a destination
+                // (but that room does get the doorway added to its list)
         }
 
         public static boolean carveStairs(Dungeon dungeon, int floorIndex, Tile[][] tiles, Array<Room> rooms) {

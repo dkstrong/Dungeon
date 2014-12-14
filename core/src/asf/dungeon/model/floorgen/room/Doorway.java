@@ -9,16 +9,14 @@ import com.badlogic.gdx.utils.Array;
 public class Doorway {
         int x;
         int y;
-        protected Room start;
         protected boolean lockable; // if the door is not lockable this means its actually a floor tile, the layout of the room is preventing the doorway from actually containing a door
-        protected Array<Room> destinations =new Array<Room>(true, 4, Room.class);
+        protected Array<Room> destinations =new Array<Room>(true, 4, Room.class); // list of rooms you can travel to from this point without passing through another door way
         protected KeyItem.Type requiresKey = null;
 
 
-        public Doorway(int x, int y, Room start, boolean lockable) {
+        public Doorway(int x, int y, boolean lockable) {
                 this.x = x;
                 this.y = y;
-                this.start = start;
                 this.lockable = lockable;
         }
 }

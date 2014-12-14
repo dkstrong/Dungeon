@@ -17,6 +17,122 @@ import java.util.Iterator;
  */
 public class UtRoomSpawn {
 
+        public static void generateDoorGraph(Dungeon dungeon, FloorMap floorMap, Array<Room> rooms){
+                Room startRoom=null;
+                Array<Room> endRooms = new Array<Room>(true, 4, Room.class);
+
+                for (Room room : rooms) {
+                        if(room.isStartRoom(floorMap.index))
+                                startRoom = room;
+                        else if(room.isGoalRoom(floorMap.index) || room.isDeadEnd())
+                                endRooms.add(room);
+                }
+
+                if(startRoom == null || endRooms.size <= 0)
+                        throw new IllegalStateException("Floor must have an up stairs and a down stairs");
+                Pair startLoc = new Pair(startRoom.getCenterX(), startRoom.getCenterY());
+                Pair endLoc = new Pair();
+                Array<Pair> path = new Array<Pair>(true, 64, Pair.class);
+                Array<Room> currentRooms = new Array<Room>(true, 2, Room.class);
+                Array<Room> lockedRooms = new Array<Room>(true, 8, Room.class);
+                Array<Room> lootRooms = new Array<Room>(true, 8, Room.class);
+                KeyItem.Type nextKey = KeyItem.Type.Silver;
+                for (Room endRoom : endRooms) {
+                        endLoc.set(endRoom.getCenterX(), endRoom.getCenterY());
+                        boolean valid = floorMap.pathfinder.generate(null, startLoc, endLoc,path, Pathfinder.PathingPolicy.Manhattan, false, Integer.MAX_VALUE);
+                        if(!valid) throw new IllegalStateException("there is no valid path between start and end stairs");
+
+                        // step through the path from start room to this end room
+                        // randomly create locked doors along the way
+                        Doorway lastDoorWay;
+                        while(path.size >0){
+                                Pair pair = path.pop();
+                                getRooms(rooms, pair, currentRooms);
+
+                                for (Room currentRoom : currentRooms) {
+                                       if(currentRoom == null)
+                                                continue; // moving along a hallway
+                                        Doorway nextDoorway=null;
+                                        for (Doorway doorway : currentRoom.doorways) {
+                                                if(pair.equals(doorway.x, doorway.y)){
+                                                        nextDoorway = doorway;
+                                                        break;
+                                                }
+                                        }
+
+                                        if(nextDoorway!=null && nextDoorway.lockable && currentRoom.isDeadEnd() && !currentRoom.isStartRoom(floorMap.index)){
+                                                nextDoorway.requiresKey = nextKey;
+                                                lockedRooms.add(currentRoom);
+                                                currentRoom.difficulty += (nextKey.ordinal()/10f);
+                                                if(nextKey == KeyItem.Type.Silver) nextKey = KeyItem.Type.Gold;
+                                                else nextKey = KeyItem.Type.Red;
+                                        }
+
+                                        if(nextDoorway!= null)
+                                                lastDoorWay = nextDoorway;
+                                }
+
+
+
+                        }
+                }
+
+
+                for (Room lockedRoom : lockedRooms) { // for each room marked to be locked
+                        for (Doorway lockedDoorway : lockedRoom.doorways) { // for each doorway in this room that is locked
+                                if(lockedDoorway.requiresKey == null) continue;
+                                if(floorMap.getTile(lockedDoorway.x, lockedDoorway.y).isDoorLocked()) continue; // already locked
+                                lootRooms.clear();
+                                Room lastLootRoom = null;
+                                for (Room room : rooms) { // search for a room to place loot in, must have a valid path
+                                        if(room == lockedRoom) continue;
+                                        if(room.containsKey != null) continue;
+                                        startLoc.set(lockedRoom.getCenterX(), lockedRoom.getCenterY());
+                                        endLoc.set(room.getCenterX(), room.getCenterY());
+                                        boolean valid = floorMap.pathfinder.generate(null, startLoc, endLoc,path, Pathfinder.PathingPolicy.Manhattan, false, Integer.MAX_VALUE);
+                                        if(!valid) continue; // cant reach this room, so cant place the key in here!
+                                        while(path.size > 0){
+                                                Pair pair = path.pop();
+                                                getRooms(rooms, pair, currentRooms);
+                                                for (Room currentRoom : currentRooms) {
+                                                        if(currentRoom == lockedRoom || currentRoom==lastLootRoom) continue;
+                                                        lastLootRoom = currentRoom;
+                                                        lootRooms.add(currentRoom);
+
+                                                }
+                                        }
+
+                                }
+                                if(lootRooms.size<=0) // if there are no valid rooms to palce key then this floor is invalid
+                                        throw new IllegalStateException("no valid room to plae key in");
+
+                                Room lootRoom = lootRooms.get(dungeon.rand.random.nextInt(lootRooms.size));
+                                boolean spawnInsideCrate = dungeon.rand.random.nextBoolean();
+                                lootRoom.containsKey = lockedDoorway.requiresKey;
+                                boolean valid = spawnLootInRoom(dungeon, floorMap, lootRoom, spawnInsideCrate ? ModelId.CeramicPitcher: null,new KeyItem(dungeon, lockedDoorway.requiresKey) );
+                                floorMap.getTile(lockedDoorway.x, lockedDoorway.y).setDoorLocked(true, lockedDoorway.requiresKey);
+
+                        }
+
+
+
+                }
+
+
+        }
+
+
+
+        private static void getRooms(Array<Room> rooms, Pair pair, Array<Room> storeRoomsOnPair){
+                storeRoomsOnPair.clear();
+                for (int i = 0; i < rooms.size; i++) {
+                        Room room = rooms.get(i);
+                        if(room.contains(pair)){
+                                storeRoomsOnPair.add(room);
+                        }
+                }
+        }
+
         public  static boolean spawnKeys(Dungeon dungeon, FloorMap floorMap, Array<Room> rooms){
                 // this basic spawner logic ensures that all rooms can be opened using the keys
                 // from this floor, there will also be exactly the same number as keys as doors.

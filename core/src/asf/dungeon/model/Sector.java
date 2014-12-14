@@ -43,7 +43,7 @@ public class Sector {
 
         public boolean contains(Pair loc){ return contains(loc.x,loc.y); }
 
-        public boolean contains(int x, int y){ return x >=x1 && x<=x2 && y>=y1 && y>=y2; }
+        public boolean contains(int x, int y){ return x >=x1 && x<=x2 && y>=y1 && y<=y2; }
 
         public int getRandomX(DungeonRand rand){ return rand.range(x1,x2); }
 

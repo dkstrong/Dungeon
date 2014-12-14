@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.Locale;
+import java.util.Random;
 
 /**
  * the skin used for the stages is loaded and stored and dungeon app for effecient reuse as its also used by the in game hud.
@@ -45,6 +46,7 @@ public class DungeonApp implements ApplicationListener {
                 DungeonWorld.Settings settings = new DungeonWorld.Settings();
                 settings.playerModel = ModelId.Knight;
                 settings.startDebugSession = true;
+                settings.random = new Random(1);
                 loadWorld(settings);
 
         }

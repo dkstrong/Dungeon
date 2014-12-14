@@ -12,6 +12,7 @@ public class Room extends Sector {
         protected Array<Doorway> doorways = new Array<Doorway>(true, 4, Doorway.class);
         protected KeyItem.Type containsKey = null; // used by key spawner
         protected int containsStairsTo = -2;
+        protected float difficulty  =0f;
 
 
         public Room(int x1, int y1, int x2, int y2) {
@@ -25,6 +26,10 @@ public class Room extends Sector {
 
         public boolean isStartRoom(int floorIndex){
                 return containsStairsTo >=-1 && containsStairsTo < floorIndex;
+        }
+
+        public boolean isDeadEnd(){
+                return doorways.size <=1;
         }
 
 
