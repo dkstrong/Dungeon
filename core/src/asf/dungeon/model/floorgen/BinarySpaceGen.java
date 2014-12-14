@@ -3,6 +3,9 @@ package asf.dungeon.model.floorgen;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.floorgen.room.Room;
+import asf.dungeon.model.floorgen.room.UtRoomSpawn;
+import asf.dungeon.model.floorgen.room.UtRoomCarve;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
@@ -44,15 +47,16 @@ public class BinarySpaceGen implements FloorMapGenerator{
                 Array<Room> rooms = new Array<Room>(true, UtMath.pow(2, numberOfSubdivisions), Room.class);
                 addToArray(baseRoomCell, rooms);
 
-                Room.fillRooms(tiles, rooms);
+                UtRoomCarve.fillRooms(tiles, rooms);
                 fillTunnels(tiles, baseRoomCell.childCell1, baseRoomCell.childCell2);
-                boolean valid = Room.carveDoorsKeysStairs(dungeon, floorIndex, tiles, rooms, true, true);
-                if(!valid) throw new Error("could not generate valid stairs locations, need to regenrate");
+                UtRoomCarve.carveDoors(dungeon, floorIndex, tiles, rooms);
+                UtRoomCarve.carveStairs(dungeon, floorIndex, tiles, rooms);
+
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
-                valid = Room.spawnKeys(dungeon, floorMap, rooms);
+                boolean valid = UtRoomSpawn.spawnKeys(dungeon, floorMap, rooms);
                 if(!valid) throw new Error("could not generate valid key locations, need to regenrate");
                 return floorMap;
         }
@@ -68,7 +72,7 @@ public class BinarySpaceGen implements FloorMapGenerator{
 
         private void fillTunnels(Tile[][] tiles, RoomCell cell1, RoomCell cell2){
 
-                Room.fillTunnel(dungeon, tiles, cell1.getEndLeaf().getInnerRoom(), cell2.getEndLeaf().getInnerRoom(), false);
+                UtRoomCarve.fillTunnel(dungeon, tiles, cell1.getEndLeaf().getInnerRoom(), cell2.getEndLeaf().getInnerRoom(), false);
                 if(cell1.childCell1 != null)
                         fillTunnels(tiles, cell1.childCell1, cell1.childCell2);
                 if(cell2.childCell1 != null)

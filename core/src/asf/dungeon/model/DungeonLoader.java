@@ -8,10 +8,11 @@ import asf.dungeon.model.floorgen.DirectionalCaveHallGen;
 import asf.dungeon.model.floorgen.FloorMapGenMultiplexer;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.MazeGen;
-import asf.dungeon.model.floorgen.TestAssetsFloorGen;
 import asf.dungeon.model.floorgen.PreBuiltFloorGen;
 import asf.dungeon.model.floorgen.RandomWalkGen;
-import asf.dungeon.model.floorgen.Room;
+import asf.dungeon.model.floorgen.room.Room;
+import asf.dungeon.model.floorgen.TestAssetsFloorGen;
+import asf.dungeon.model.floorgen.ZeldaGen;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.item.ArmorItem;
@@ -97,7 +98,7 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new CellularAutomataGen(), new TestAssetsFloorGen(),
+                                new ZeldaGen(), new TestAssetsFloorGen(),
                                 new ConnectedRoomsGen(), new ConnectedRoomsGen(), new MazeGen(7, 4), new DirectionalCaveHallGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
@@ -253,7 +254,7 @@ public class DungeonLoader {
                 kryo.register(com.badlogic.gdx.utils.FloatArray[].class);
                 kryo.register(Object[].class);
                 kryo.register(int[].class);
-                kryo.register(int[][].class);
+                //kryo.register(int[][].class);
                 kryo.register(byte[].class);
                 kryo.register(byte[][].class);
                 kryo.register(float[].class);
@@ -291,6 +292,8 @@ public class DungeonLoader {
                 kryo.register(PreBuiltFloorGen.class);
                 kryo.register(RandomWalkGen.class);
                 kryo.register(Room.class);
+                kryo.register(asf.dungeon.model.floorgen.ZeldaGen.class);
+                kryo.register(asf.dungeon.model.floorgen.TestAssetsFloorGen.class);
 
                 kryo.register(FogMap.class);
                 kryo.register(FogState.class);

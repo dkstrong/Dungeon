@@ -28,8 +28,8 @@ public class Pathfinder {
         }
 
         private final FloorMap floorMap;
+        private Tile[][] map;
         // transient variables that can only be used on this pathfinder
-        private transient Tile[][] map;
         private transient int[][] gScore; // cost from start to current
         private transient int[][] hScore; // cost form current to goal
         private transient int[][] fScore;
@@ -45,9 +45,24 @@ public class Pathfinder {
         private static transient int maxPathSize;
 
 
+        /**
+         * usual constructor for a pathfinder for calculating paths for game charaters
+         * @param floorMap
+         */
         public Pathfinder(FloorMap floorMap) {
                 this.floorMap = floorMap;
+                this.map = this.floorMap.tiles;
 
+        }
+
+        /**
+         * if this constructor is used then Mover must be null when doing pathfinding
+         * This is useful for testing for valid paths, though actual movement costs will not be calculated
+         * @param map
+         */
+        public Pathfinder(Tile[][] map) {
+                this.floorMap = null;
+                this.map = map;
         }
 
         // TODO: to pool pairs id need to use free() within Move. I'd also need to ensure Im not accidently
@@ -97,8 +112,7 @@ public class Pathfinder {
                 openNodes.clear();
                 closedNodes.clear();
                 end = finish;
-                if(map == null){
-                        map = this.floorMap.tiles;
+                if(gScore == null){
                         gScore = new int[map.length][map[0].length];
                         fScore = new int[map.length][map[0].length];
                         hScore = new int[map.length][map[0].length];
@@ -178,6 +192,9 @@ public class Pathfinder {
                         return false;
                 }
 
+                // TODO: I may want to extend this to include other types of movment blockers
+                // like a stationary token standing in the way.
+
                 Tile tile = map[x][y];
                 return tile!= null && !tile.isBlockMovement();
         }
@@ -222,7 +239,7 @@ public class Pathfinder {
 
 
                 int movementCost = map[n1.x][n1.y].getMovementCost();
-                if(!n1.equals(end) && (closedNodes.size < 5 || mover.getInteractor() == null) ){
+                if(mover!=null&&!n1.equals(end) && (closedNodes.size < 5 || mover.getInteractor() == null) ){
                         // NPCs - we check all their nodes because they dont frequently repath
                         // players - only check the first 5 nodes because they frequently repath
 

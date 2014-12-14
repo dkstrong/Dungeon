@@ -22,6 +22,7 @@ public class CellularAutomataGen implements FloorMapGenerator{
         private int maxFloorHeight = 65;
 
         private double chanceToStartAlive = 0.2d;
+        private double featureSize = 4d;
         private int numberOfGenerations = 2; // the more generations, the more smooth and open the floor becomes
         private int wallLimit = 4; // higher number means more floors  [0,9]
         private int floorLimit = 4; // lower number means more walls [4,8].
@@ -43,7 +44,7 @@ public class CellularAutomataGen implements FloorMapGenerator{
 
                 for (int x = 0; x < tiles.length; x++){
                         for (int y = 0; y < tiles[0].length; y++){
-                                if(noise.eval(x/4d , y/4d) > 0.2d){
+                                if(noise.eval(x/featureSize , y/featureSize) > chanceToStartAlive){
                                         tiles[x][y] = Tile.makeWall();
                                 }else{
                                         tiles[x][y] = Tile.makeFloor();

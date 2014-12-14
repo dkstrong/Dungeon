@@ -157,19 +157,19 @@ public class UtFloorGen {
         }
 
 
-        protected static boolean isWall(Tile[][] tiles, int x, int y){
+        public static boolean isWall(Tile[][] tiles, int x, int y){
                 if(x <0 || x>= tiles.length || y < 0 || y>=tiles[0].length)
                         return true;
                 return tiles[x][y]==null || tiles[x][y].isWall();
         }
 
-        protected static boolean isDoor(Tile[][] tiles, int x, int y){
+        public static boolean isDoor(Tile[][] tiles, int x, int y){
                 if(x <0 || x>= tiles.length || y < 0 || y>=tiles[0].length)
                         return false;
                 return tiles[x][y]!=null && tiles[x][y].isDoor();
         }
 
-        protected static boolean isFloor(Tile[][] tiles, int x, int y){
+        public static boolean isFloor(Tile[][] tiles, int x, int y){
                 if(x <0 || x>= tiles.length || y < 0 || y>=tiles[0].length)
                         return false;
                 return tiles[x][y]!=null && tiles[x][y].isFloor();
@@ -182,7 +182,7 @@ public class UtFloorGen {
          * @param y
          * @return
          */
-        protected static int countWalls(Tile[][] tiles, int x, int y){
+        public static int countWalls(Tile[][] tiles, int x, int y){
                 int numWalls = 0;
                 if(isWall(tiles,x-1,y)) numWalls++;
                 if(isWall(tiles,x+1,y)) numWalls++;
@@ -195,7 +195,7 @@ public class UtFloorGen {
                 return numWalls;
         }
 
-        protected static int countDoors(Tile[][] tiles, int x, int y){
+        public static int countDoors(Tile[][] tiles, int x, int y){
                 int numDoors = 0;
                 if(isDoor(tiles,x-1,y)) numDoors++;
                 if(isDoor(tiles,x+1,y)) numDoors++;
@@ -210,7 +210,7 @@ public class UtFloorGen {
 
 
 
-        protected static void ensureEdgesAreWalls(Tile[][] tiles){
+        public static void ensureEdgesAreWalls(Tile[][] tiles){
                 for (int x = 0; x < tiles.length; x++){
                         for (int y = 0; y < tiles[0].length; y++){
                                 if (x == 0) tiles[x][y] = Tile.makeWall();
@@ -268,5 +268,7 @@ public class UtFloorGen {
                         return;
                 }while(true);
         }
+
+
 
 }

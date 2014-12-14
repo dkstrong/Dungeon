@@ -18,7 +18,7 @@ public class OpenSimplexNoise {
                 int WIDTH = 512;
                 int HEIGHT = 512;
                 double FEATURE_SIZE = 24;
-                OpenSimplexNoise noise = new OpenSimplexNoise();
+                OpenSimplexNoise noise = new OpenSimplexNoise(0);
                 BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
                 for (int y = 0; y < HEIGHT; y++)
                 {
@@ -43,14 +43,8 @@ public class OpenSimplexNoise {
         private static final double NORM_CONSTANT_3D = 103;
         private static final double NORM_CONSTANT_4D = 30;
 
-        private static final long DEFAULT_SEED = 0;
-
         private short[] perm;
         private short[] permGradIndex3D;
-
-        public OpenSimplexNoise() {
-                this(DEFAULT_SEED);
-        }
 
         public OpenSimplexNoise(short[] perm) {
                 this.perm = perm;
