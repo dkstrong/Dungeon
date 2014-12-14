@@ -106,7 +106,7 @@ public class UtRoomSpawn {
                                 if(lootRooms.size<=0) // if there are no valid rooms to palce key then this floor is invalid
                                         throw new IllegalStateException("no valid room to plae key in");
 
-                                Room lootRoom = lootRooms.get(dungeon.rand.random.nextInt(lootRooms.size));
+                                Room lootRoom = chooseRoomByWeight(dungeon, lootRooms);
                                 boolean spawnInsideCrate = dungeon.rand.random.nextBoolean();
                                 lootRoom.containsKey = lockedDoorway.requiresKey;
                                 boolean valid = spawnLootInRoom(dungeon, floorMap, lootRoom, spawnInsideCrate ? ModelId.CeramicPitcher: null,new KeyItem(dungeon, lockedDoorway.requiresKey) );
@@ -121,7 +121,20 @@ public class UtRoomSpawn {
 
         }
 
-
+        private static Room chooseRoomByWeight(Dungeon dungeon, Array<Room> lootRooms){
+                float totalDifficulty = 0f;
+                for (Room lootRoom : lootRooms) {
+                        totalDifficulty += lootRoom.difficulty;
+                }
+                float rand = dungeon.rand.random.nextFloat() * totalDifficulty;
+                float curDifficulty=0f;
+                for (Room lootRoom : lootRooms) {
+                        curDifficulty+=lootRoom.difficulty;
+                        if(curDifficulty >=rand)
+                                return lootRoom;
+                }
+                throw new AssertionError("no loot room was found");
+        }
 
         private static void getRooms(Array<Room> rooms, Pair pair, Array<Room> storeRoomsOnPair){
                 storeRoomsOnPair.clear();

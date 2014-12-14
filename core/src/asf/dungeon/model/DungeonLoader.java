@@ -10,9 +10,9 @@ import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.MazeGen;
 import asf.dungeon.model.floorgen.PreBuiltFloorGen;
 import asf.dungeon.model.floorgen.RandomWalkGen;
-import asf.dungeon.model.floorgen.room.Room;
 import asf.dungeon.model.floorgen.TestAssetsFloorGen;
 import asf.dungeon.model.floorgen.ZeldaGen;
+import asf.dungeon.model.floorgen.room.Room;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.item.ArmorItem;
@@ -98,7 +98,7 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new ZeldaGen(), new TestAssetsFloorGen(),
+                                new ZeldaGen(),new ConnectedRoomsGen(), new TestAssetsFloorGen(),
                                 new ConnectedRoomsGen(), new ConnectedRoomsGen(), new MazeGen(7, 4), new DirectionalCaveHallGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),

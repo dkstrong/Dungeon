@@ -30,36 +30,45 @@ public class ZeldaGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
 
         @Override
         public FloorMap generate(Dungeon dungeon, int floorIndex) {
-                 minRoomSize = 6;
-                 maxRoomSize = 8;
-                 maxRooms = 12;
+                minRoomSize = 6;
+                maxRoomSize = 8;
+                maxRooms = 12;
                 int roomSize = dungeon.rand.range(minRoomSize, maxRoomSize);
                 int numRooms = maxRooms - dungeon.rand.random.nextInt(Math.round(maxRooms * .25f));
                 int halfRooms = Math.round(numRooms / 2f);
                 Room[][] roomGrid = new Room[halfRooms][halfRooms];
                 Array<Room> rooms = new Array<Room>(true, numRooms, Room.class);
 
-                Pair currentGridLoc =new Pair(Math.round(roomGrid.length / 2f), 0);
+                Pair currentGridLoc = new Pair(Math.round(roomGrid.length / 2f), 0);
                 Pair nextGridLoc = new Pair();
                 // make rooms
                 while (rooms.size < numRooms) {
-                        if(rooms.size > 0){
-                                do{
+                        if (rooms.size > 0) {
+                                int tries = 0;
+                                do {
                                         // pick a random valid direction
-                                        do{
+                                        do {
                                                 Direction dir = dungeon.rand.direction8Axis();
                                                 nextGridLoc.set(currentGridLoc).addFree(dir);
-                                        }while(nextGridLoc.x <0 || nextGridLoc.x >= roomGrid.length || nextGridLoc.y <0 || nextGridLoc.y>=roomGrid[0].length);
+                                        } while (nextGridLoc.x < 0 || nextGridLoc.x >= roomGrid.length || nextGridLoc.y < 0 || nextGridLoc.y >= roomGrid[0].length);
+
+                                        if(numNeighbors(roomGrid, nextGridLoc.x, nextGridLoc.y) >=2
+                                                && dungeon.rand.bool(.75f) && ++tries < 5 ){
+                                                // if it will have 2 or more neighbors here then theres a
+                                                // 75 percent chance to not place the room here
+                                                        continue;
+                                        }
+
                                         currentGridLoc.set(nextGridLoc);
-                                }while(roomGrid[nextGridLoc.x][nextGridLoc.y] != null);
+                                } while (roomGrid[nextGridLoc.x][nextGridLoc.y] != null);
                         }
-                        int x1 = currentGridLoc.x*roomSize;
-                        int y1 = currentGridLoc.y*roomSize;
-                        Room newRoom = new Room(x1,y1,x1+roomSize, y1+roomSize);
+                        int x1 = currentGridLoc.x * roomSize;
+                        int y1 = currentGridLoc.y * roomSize;
+                        Room newRoom = new Room(x1, y1, x1 + roomSize, y1 + roomSize);
                         rooms.add(newRoom);
                         roomGrid[currentGridLoc.x][currentGridLoc.y] = newRoom;
                 }
-                Tile[][] tiles = new Tile[(roomSize*halfRooms)+1][(roomSize*halfRooms)+1];
+                Tile[][] tiles = new Tile[(roomSize * halfRooms) + 1][(roomSize * halfRooms) + 1];
                 UtRoomCarve.fillAndCarve(dungeon, floorIndex, tiles, rooms);
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles, this);
@@ -70,26 +79,34 @@ public class ZeldaGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
                 return floorMap;
         }
 
+        private int numNeighbors(Room[][] roomGrid, int x, int y) {
+                int count = 0;
+                if (x > 0 && roomGrid[x - 1][y] != null) count++;
+                if (x < roomGrid.length - 1 && roomGrid[x + 1][y] != null) count++;
+                if (y > 0 && roomGrid[x][y - 1] != null) count++;
+                if (y < roomGrid[0].length - 1 && roomGrid[x][y + 1] != null) count++;
+                return count;
+        }
 
         @Override
         public void spawnMonsters(Dungeon dungeon, FloorMap floorMap) {
                 int countTeam1 = floorMap.getTokensOnTeam(1).size;
-                if(countTeam1 <2){
+                if (countTeam1 < 2) {
                         int x, y;
                         ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Skeleton : ModelId.Skeleton;
-                        do{
+                        do {
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                        }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
+                        } while (floorMap.getTile(x, y) == null || !floorMap.getTile(x, y).isFloor() || floorMap.hasTokensAt(x, y));
 
                         Token token = dungeon.newCharacterToken(floorMap, modelId.name(),
                                 modelId,
                                 new FsmLogic(1, null, Monster.Sleep),
-                                new Experience(1, 8, 4, 6, 1,1),
-                                x,y);
+                                new Experience(1, 8, 4, 6, 1, 1),
+                                x, y);
 
-                        if(modelId == ModelId.Archer){
-                                WeaponItem weapon = new WeaponItem(ModelId.Sword,"Bow", 1, FxId.Arrow);
+                        if (modelId == ModelId.Archer) {
+                                WeaponItem weapon = new WeaponItem(ModelId.Sword, "Bow", 1, FxId.Arrow);
                                 token.getInventory().add(weapon);
                                 token.getInventory().equip(weapon);
                         }

@@ -73,10 +73,9 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
 
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles, this);
+                UtRoomSpawn.generateDoorGraph(dungeon, floorMap, rooms);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
-                boolean valid = UtRoomSpawn.spawnKeys(dungeon, floorMap, rooms);
-                if(!valid) throw new Error("could not generate valid key locations, need to regenrate");
 
                 if(floorIndex ==0){
                         Room roomEnd = rooms.get(rooms.size-1);
