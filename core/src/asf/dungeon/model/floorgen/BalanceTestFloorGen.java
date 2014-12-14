@@ -7,8 +7,7 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.fsm.FsmLogic;
-import asf.dungeon.model.token.logic.fsm.Monster;
+import asf.dungeon.model.token.logic.FullAgroLogic;
 
 /**
  * Created by Danny on 11/4/2014.
@@ -47,12 +46,12 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
-                        ModelId modelId = ModelId.Archer;
+                        ModelId modelId = ModelId.Berzerker;
 
                         Token token = dungeon.newCharacterToken(floorMap, "Monster",
                                 modelId,
-                                new FsmLogic(1, null, Monster.Sleep),
-                                //new FullAgroLogic(1),
+                                //new FsmLogic(1, null, Monster.Sleep),
+                                new FullAgroLogic(1),
                                 new Experience(
                                         1,  // level
                                         8,  // vitality

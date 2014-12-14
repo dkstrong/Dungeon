@@ -50,7 +50,7 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
         }
 
         public BalanceTest() throws NoSuchFieldException, IllegalAccessException{
-                numSimulations = 1500;
+                numSimulations = 1;
                 settings = new DungeonWorld.Settings();
                 settings.playerModel = ModelId.Knight;
                 settings.balanceTest = true;

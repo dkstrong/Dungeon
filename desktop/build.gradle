@@ -45,6 +45,16 @@ task afterEclipseImport(description: "Post processing after project generation",
   }
 }
 
+task runBalanceTest(type: JavaExec){
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'asf.dungeon.desktop.BalanceTest'
+    args = []
+    standardInput = System.in
+    workingDir = project.assetsDir
+    ignoreExitValue = true
+
+}
+
 task packImages(type: JavaExec){
     classpath = sourceSets.main.runtimeClasspath
     main = 'asf.dungeon.desktop.Packer'
