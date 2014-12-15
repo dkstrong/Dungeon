@@ -469,6 +469,10 @@ public class TokenSpatial implements Spatial, Token.Listener {
         }
 
         public void render(float delta) {
+                if(visU <=0)return;
+                if(world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getLocation().distance(token.getLocation()) > 16) return;
+                if(world.hudSpatial.isMapViewMode() && !world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+
 
                 modelInstance.transform.set(
                         translation.x + translationBase.x, translation.y + translationBase.y, translation.z + translationBase.z,
@@ -476,14 +480,10 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         scale.x, scale.y, scale.z
                 );
 
-
-
-                if (visU > 0 && world.floorSpatial.tileSphere.isVisible(modelInstance.transform, world.cam)){
-                        world.modelBatch.render(modelInstance, world.environment);
-                        shadowDecal.setPosition(translation);
-                        shadowDecal.translateY(0.1f);
-                        world.decalBatch.add(shadowDecal);
-                }
+                world.modelBatch.render(modelInstance, world.environment);
+                shadowDecal.setPosition(translation);
+                shadowDecal.translateY(0.1f);
+                world.decalBatch.add(shadowDecal);
 
 
         }
@@ -498,6 +498,10 @@ public class TokenSpatial implements Spatial, Token.Listener {
          * object and the point on the ray closest to this object when there is intersection.
          */
         public float intersects(Ray ray) {
+                // TODO: character tokens actually need a taller box for accurate collision detection
+                //  TODO: model instance transofrm is only updated if it is not culled
+                // tihs might lead to invalid intersections
+                //return Intersector.intersectRayBoundsFast(ray, translation, world.floorSpatial.tileDimensions) ? 1 : -1;
                 return world.floorSpatial.tileBox.intersects(modelInstance.transform, ray);
         }
 

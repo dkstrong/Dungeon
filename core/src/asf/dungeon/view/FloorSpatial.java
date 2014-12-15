@@ -43,11 +43,12 @@ public class FloorSpatial implements Spatial {
         /**
          * a box that represents the shape size of a tile on the screen
          */
-        public final Box tileBox = new Box(new Vector3(-tileDimensions.x / 2f, 0, -tileDimensions.z / 2f), new Vector3(tileDimensions.x / 2f, tileDimensions.y, tileDimensions.z / 2f));
+        public final Box tileBox = new Box(new Vector3(-tileDimensions.x / 2f, 0, -tileDimensions.z / 2f),
+                new Vector3(tileDimensions.x / 2f, tileDimensions.y, tileDimensions.z / 2f));
         /**
          * a sphere that represents the size of a tile on the screen
          */
-        public final Shape tileSphere = new Sphere(5.75f);
+        public final Shape tileSphere = new Sphere(5.75f); // TODO: this sphere's center should be 0,2.875,0 like the tilebox
         private DungeonWorld world;
         private FloorMap floorMap;
         private FogMap fogMap;
@@ -143,7 +144,9 @@ public class FloorSpatial implements Spatial {
                         FogState fogState = fogMap.getFogState(decalNode.x, decalNode.y);
                         float fog = MathUtils.lerp(color.g, fogAlpha[fogState.ordinal()], delta);
 
-                        boolean renderDecal = fog > 0 && world.cam.frustum.sphereInFrustumWithoutNearFar(decalNode.decal.getPosition(), 5);
+                        boolean renderDecal = fog > 0 && (world.hudSpatial.isMapViewMode() || world.getLocalPlayerToken().getLocation().distance(decalNode.x, decalNode.y) < 16);
+                        // && world.cam.frustum.sphereInFrustumWithoutNearFar(decalNode.decal.getPosition(), 5)
+
                         if(renderDecal){
                                 if(fogState != FogState.Dark && decalNode.decal.getPosition().y != decalNode.visibleY){
                                         decalNode.decal.getPosition().y = decalNode.visibleY; // if this is the first time this decal tile is "visited" then it needs to "pop up" in to position
