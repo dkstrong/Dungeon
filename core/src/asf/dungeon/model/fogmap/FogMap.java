@@ -20,8 +20,6 @@ public class FogMap {
         private static final transient Array<Step> pending = new Array<Step>(true, 64, Step.class);
         private static final transient Array<Step> stepPool = new Array<Step>(false, 64, Step.class);
 
-
-
         public FogMap(FloorMap floorMap, Token token) {
                 this.floorMap = floorMap;
                 this.token = token;
@@ -29,6 +27,16 @@ public class FogMap {
                 for(int x=0; x<fog.length; x++){
                         for(int y=0; y<fog[x].length; y++){
                                 fog[x][y] = FogState.Dark;
+                        }
+                }
+        }
+
+        public void revealMap(){
+                for(int x=0; x<fog.length; x++){
+                        for(int y=0; y<fog[x].length; y++){
+                                if(fog[x][y] == FogState.Dark ){
+                                        fog[x][y] = FogState.Visible;
+                                }
                         }
                 }
         }

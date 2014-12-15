@@ -5,12 +5,14 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
+import asf.dungeon.model.fogmap.FogMapNull;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Box;
 import asf.dungeon.view.shape.Shape;
 import asf.dungeon.view.shape.Sphere;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -85,7 +87,10 @@ public class FloorSpatial implements Spatial {
                                 throw new AssertionError("should not be null");
                         }
                 }else{
-                        fogMap = null;
+                        //fogMap = null;
+                        // creating a dummy fogmap, this case should only happen
+                        Gdx.app.error("FloorSpatial","no fog map, creating a dummy fog map");
+                        fogMap = new FogMapNull(floorMap, null);
                 }
 
                 fogAlpha[FogState.Dark.ordinal()] = 0;
@@ -132,30 +137,30 @@ public class FloorSpatial implements Spatial {
         @Override
         public void render(float delta) {
                 for (int i = 0; i < decalNodes.size; i++) {
-                        DecalNode decalNode = decalNodes.get(i);
+                        DecalNode decalNode = decalNodes.items[i];
 
-                        Decal decal = decalNode.decal;
-                        Color color = decal.getColor();
+                        Color color = decalNode.decal.getColor();
+                        FogState fogState = fogMap.getFogState(decalNode.x, decalNode.y);
+                        float fog = MathUtils.lerp(color.g, fogAlpha[fogState.ordinal()], delta);
 
-                        FogState fogState = fogMap != null ? fogMap.getFogState(decalNode.x, decalNode.y) : FogState.Visible;
-                        boolean tileVisited = fogState != FogState.Dark;
-                        float fog = fogAlpha[fogState.ordinal()];
+                        boolean renderDecal = fog > 0 && world.cam.frustum.sphereInFrustumWithoutNearFar(decalNode.decal.getPosition(), 5);
+                        if(renderDecal){
+                                if(fogState != FogState.Dark && decalNode.decal.getPosition().y != decalNode.visibleY){
+                                        decalNode.decal.getPosition().y = decalNode.visibleY; // if this is the first time this decal tile is "visited" then it needs to "pop up" in to position
+                                        decalNode.decal.setPosition(decalNode.decal.getPosition());
+                                }
 
-                        if(tileVisited && decal.getPosition().y != decalNode.visibleY){
-                                decal.getPosition().y = decalNode.visibleY; // if this is the first time this decal tile is "visited" then it needs to "pop up" in to position
-                                decal.setPosition(decal.getPosition());
-                        }
+                                if(fogState == FogState.MagicMapped){
+                                        color.set(fog*0.9f,fog,fog*1.2f,1);
+                                }else{
+                                        color.set(fog,fog,fog,1);
+                                }
 
-                        fog = MathUtils.lerp(color.g, fog, delta);
-                        if(fogState == FogState.MagicMapped){
-                                color.set(fog*0.9f,fog,fog*1.2f,1);
+                                decalNode.decal.setColor(color);
+                                world.decalBatch.add(decalNode.decal);
                         }else{
-                                color.set(fog,fog,fog,1);
+                                color.g = fog;
                         }
-                        decal.setColor(color);
-
-                        boolean renderDecal = fog > 0 && tileSphere.isVisible(decalNode.decal.getPosition(), world.cam);
-                        if(renderDecal) world.decalBatch.add(decalNode.decal);
 
                         DecalNodeProp prop = decalNode.prop;
                         if(prop != null){
@@ -168,28 +173,32 @@ public class FloorSpatial implements Spatial {
                                                 }
                                         }
 
-                                        if(decalNode.tile.isDoorOpened()){
-                                                prop.animController.setAnimation("Open",1);
-                                        }else{
-                                                prop.animController.setAnimation("Open",1,-1,null);
+                                        if(decalNode.tile.isDoorOpened() && !prop.animToggle){
+                                                prop.animController.setAnimation("Open",1,1,prop);
+                                                prop.animController.paused = false;
+                                                prop.animToggle = true;
+                                        }else if(!decalNode.tile.isDoorOpened() && prop.animToggle){
+                                                prop.animController.setAnimation("Open",1,-1,prop);
+                                                prop.animController.paused = false;
+                                                prop.animToggle = false;
                                         }
+                                        prop.animController.update(delta);
                                 }
 
-                                if(prop.animController != null)
-                                        prop.animController.update(delta);
-
                                 // props need to be a little more visible than tiles
-                                prop.colorAttribute.color.r = UtMath.clamp(color.r+.1f, 0f,1f);
-                                prop.colorAttribute.color.g = UtMath.clamp(color.g+.1f, 0f,1f);
-                                prop.colorAttribute.color.b = UtMath.clamp(color.b+.1f, 0f,1f);
+                                if(renderDecal){
+                                        prop.colorAttribute.color.r = UtMath.clamp(color.r+.1f, 0f,1f);
+                                        prop.colorAttribute.color.g = UtMath.clamp(color.g+.1f, 0f,1f);
+                                        prop.colorAttribute.color.b = UtMath.clamp(color.b+.1f, 0f,1f);
+                                        world.modelBatch.render(prop.modelInstance, world.environment);
+                                }
 
-                               //prop.colorAttribute.color.a = fog;
-
-                                if(renderDecal) world.modelBatch.render(prop.modelInstance, world.environment);
                         }
 
 
                 }
+
+
         }
 
         @Override
@@ -223,9 +232,9 @@ public class FloorSpatial implements Spatial {
         private void initCommonAssets(){
 
                 fogAlpha = new float[5];
-                decalNodes = new Array<DecalNode>(128);
-                decalNodeProps = new Array<DecalNodeProp>(8);
-                decalNodePropsTemp = new Array<DecalNodeProp>(8);
+                decalNodes = new Array<DecalNode>(false, 128, DecalNode.class);
+                decalNodeProps = new Array<DecalNodeProp>(false, 8, DecalNodeProp.class);
+                decalNodePropsTemp = new Array<DecalNodeProp>(false, 8, DecalNodeProp.class);
 
                 Texture  floorTex = world.assetManager.get("Textures/Dungeon/floorTiles.png", Texture.class);
                 floorTexRegions = TextureRegion.split(floorTex, 128, 128);
@@ -443,14 +452,39 @@ public class FloorSpatial implements Spatial {
                 }
         }
 
-        private static class DecalNodeProp {
+        private static class DecalNodeProp implements AnimationController.AnimationListener {
                 public final String assetLocation;
                 public ModelInstance modelInstance;
                 public AnimationController animController;
                 public ColorAttribute colorAttribute;
+                private boolean animToggle;
 
                 private DecalNodeProp(String assetLocation) {
                         this.assetLocation = assetLocation;
+                }
+
+                private void activate(){
+                        if(assetLocation.contains("Door.g3db")){
+                                if(animToggle){
+                                        animController.setAnimation("Open",1,-50,this);
+                                        animController.paused = false;
+                                        animToggle = false;
+                                }else{
+                                        animController.paused = true;
+                                }
+
+
+                        }
+                }
+
+                @Override
+                public void onEnd(AnimationController.AnimationDesc animation) {
+                        animController.paused = true;
+                }
+
+                @Override
+                public void onLoop(AnimationController.AnimationDesc animation) {
+
                 }
         }
 
@@ -460,6 +494,7 @@ public class FloorSpatial implements Spatial {
                         DecalNodeProp next = i.next();
                         if(assetLocation.equals(next.assetLocation)){
                                 i.remove();
+                                next.activate();
                                 return next;
                         }
                 }
@@ -467,6 +502,7 @@ public class FloorSpatial implements Spatial {
                 DecalNodeProp prop = new DecalNodeProp(assetLocation);
 
                 prop.modelInstance = new ModelInstance(world.assetManager.get(assetLocation, Model.class));
+
                 if(prop.modelInstance.model.animations.size >0){
                         prop.animController = new AnimationController(prop.modelInstance);
                 }
@@ -477,7 +513,7 @@ public class FloorSpatial implements Spatial {
                 prop.colorAttribute = (ColorAttribute)material.get(ColorAttribute.Diffuse);
 
 
-
+                prop.activate();
 
                 return prop;
 

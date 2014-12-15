@@ -90,12 +90,12 @@ public class AnimFactory {
                                 throw new IllegalArgumentException("target does not have any nodes");
                         }
                         for (final NodeKeyframe kf : na.keyframes) {
-                                NodeKeyframe cloneKeyframe = new NodeKeyframe();
-                                cloneKeyframe.keytime = kf.keytime;
-                                cloneKeyframe.rotation.set(kf.rotation);
-                                cloneKeyframe.scale.set(kf.scale);
-                                cloneKeyframe.translation.set(kf.translation);
-                                cloneNa.keyframes.add(cloneKeyframe);
+//                                NodeKeyframe cloneKeyframe = new NodeKeyframe();
+//                                cloneKeyframe.keytime = kf.keytime;
+//                                cloneKeyframe.rotation.set(kf.rotation);
+//                                cloneKeyframe.scale.set(kf.scale);
+//                                cloneKeyframe.translation.set(kf.translation);
+                                cloneNa.keyframes.add(kf);
                         }
                         cloneAnim.nodeAnimations.add(cloneNa);
                 }
