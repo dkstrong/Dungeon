@@ -61,8 +61,7 @@ public class Pair {
          * <p/>
          * this is often a different distance value than what is conventionally known as "distance"
          *
-         * @param targetX
-         * @param targetY
+         * @param targetLocation
          * @return
          */
         public int distance(Pair targetLocation) {
