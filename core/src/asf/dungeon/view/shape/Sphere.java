@@ -21,8 +21,17 @@ public final class Sphere  implements Shape{
                 set(radius);
         }
 
+        public Sphere(float radius, float xCenter, float yCenter, float zCenter) {
+                set(radius, xCenter, yCenter, zCenter);
+        }
+
         public void set(float radius){
                 center.set(0,0,0);
+                dimensions.set(radius*2f,radius*2f, radius*2f);
+                this.radius = radius;
+        }
+        public void set(float radius, float xCenter, float yCenter, float zCenter){
+                center.set(xCenter,yCenter,zCenter);
                 dimensions.set(radius*2f,radius*2f, radius*2f);
                 this.radius = radius;
         }

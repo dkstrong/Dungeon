@@ -455,6 +455,7 @@ public class FloorSpatial implements Spatial {
                 }
         }
 
+
         private static class DecalNodeProp implements AnimationController.AnimationListener {
                 public final String assetLocation;
                 public ModelInstance modelInstance;

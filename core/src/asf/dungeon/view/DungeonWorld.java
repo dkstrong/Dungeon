@@ -9,6 +9,7 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.SongId;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
@@ -64,7 +65,7 @@ public class DungeonWorld implements Disposable {
         protected final AssetMappings assetMappings;
         protected TextureAtlas pack;
         protected I18NBundle i18n;
-        protected final FloorSpatial floorSpatial;
+        protected final FastFloorSpatial floorSpatial;
         protected final HudSpatial hudSpatial;
         protected final SfxManager sounds;
         protected final FxManager fxManager;
@@ -101,7 +102,7 @@ public class DungeonWorld implements Disposable {
                 inputMultiplexer = new InputMultiplexer(internalInput, stage);
                 Gdx.input.setInputProcessor(internalInput);
 
-                floorSpatial = new FloorSpatial();
+                floorSpatial = new FastFloorSpatial();
                 addSpatial(floorSpatial);
 
                 //addSpatial(new SkyboxSpatial());
@@ -136,21 +137,25 @@ public class DungeonWorld implements Disposable {
                 spatial.dispose();
         }
 
-
         public Pair getMapCoords(Vector3 worldCoords, Pair storeMapCoords) {
-                return floorSpatial.getMapCoords(worldCoords, storeMapCoords);
-        }
-
-        public Vector3 getWorldCoords(Vector2 mapCoords, Vector3 storeWorldCoords) {
-                return floorSpatial.getWorldCoords(mapCoords.x, mapCoords.y, storeWorldCoords);
+                storeMapCoords.x = (int)((worldCoords.x ) / floorSpatial.tileDimensions.x);
+                storeMapCoords.y = (int)((UtMath.abs(worldCoords.z)) / floorSpatial.tileDimensions.z);
+                return storeMapCoords;
         }
 
         public Vector3 getWorldCoords(float mapCoordsX, float mapCoordsY, Vector3 storeWorldCoords) {
-                return floorSpatial.getWorldCoords(mapCoordsX, mapCoordsY, storeWorldCoords);
+                storeWorldCoords.x =( (mapCoordsX * floorSpatial.tileDimensions.x) ) + (floorSpatial.tileDimensions.x /2f);
+                storeWorldCoords.y = 0;
+                storeWorldCoords.z =(-(mapCoordsY * floorSpatial.tileDimensions.z) ) - (floorSpatial.tileDimensions.z/2f);
+                return storeWorldCoords;
+        }
+
+        public Vector3 getWorldCoords(Vector2 mapCoords, Vector3 storeWorldCoords) {
+                return getWorldCoords(mapCoords.x, mapCoords.y, storeWorldCoords);
         }
 
         public Vector3 getWorldCoords(Pair mapCoords, Vector3 storeWorldCoords) {
-                return floorSpatial.getWorldCoords(mapCoords, storeWorldCoords);
+                return getWorldCoords(mapCoords.x, mapCoords.y, storeWorldCoords);
         }
 
         public void getScreenCoords(Vector2 mapCoords, Vector3 storeScreenCoords) {

@@ -55,6 +55,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SnapshotArray;
+import com.badlogic.gdx.utils.StringBuilder;
 
 import java.util.Arrays;
 
@@ -474,7 +475,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         public void update(float delta) {
 
                 if (renderingStats != null) {
-                        renderingStats.setText("FPS : " + Gdx.graphics.getFramesPerSecond());
+                        renderingStats.getText().setLength(0);
+                        renderingStats.getText().append("FPS : ").append(Gdx.graphics.getFramesPerSecond());
+                        renderingStats.invalidateHierarchy();
                 }
 
                 if (localPlayerToken != null) {
@@ -482,13 +485,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         healthProgressBar.setValue(localPlayerToken.getDamage().getHealth());
                         healthProgressBar.act(delta);
 
-                        String s = String.format("%s / %s\n Level %s (XP: %s / %s)",
-                                localPlayerToken.getDamage().getHealth(),
-                                localPlayerToken.getDamage().getMaxHealth(),
-                                localPlayerToken.getExperience().getLevel(),
-                                localPlayerToken.getExperience().getXp(),
-                                localPlayerToken.getExperience().getRequiredXpToLevelUp());
-                        avatarLabel.setText(s);
+                        StringBuilder sb = avatarLabel.getText();
+                        sb.setLength(0);
+                        sb.append(localPlayerToken.getDamage().getHealth()).append(" / ").append(localPlayerToken.getDamage().getMaxHealth()).append("\n")
+                                .append(" Level ").append(localPlayerToken.getExperience().getLevel()).append(" (XP: ").append(localPlayerToken.getExperience().getXp())
+                                .append(" / ").append(localPlayerToken.getExperience().getRequiredXpToLevelUp());
+
 
                         if (localPlayerToken.getDamage().isDead()) {
                                 targetInfoLabel.setText("GAME OVER!");
@@ -647,11 +649,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         }
                 }
 
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = heroStatsLabel.getText();
+                sb.setLength(0);
                 Damage damage = localPlayerToken.get(Damage.class);
                 Experience experience = localPlayerToken.get(Experience.class);
-                sb.append(String.format("%s\nLevel %s\n\n", localPlayerToken.getName(), localPlayerToken.getExperience().getLevel()));
-                sb.append(String.format("HP: %s / %s\n\n", damage.getHealth(), damage.getMaxHealth()));
+                sb.append(localPlayerToken.getName()).append("\n").append("Level ").append(localPlayerToken.getExperience().getLevel()).append("\n\n");
+                sb.append("HP: ").append(damage.getHealth()).append(" / ").append(damage.getMaxHealth()).append("\n\n");
 
                 String vit = experience.getVitalityBase() + (experience.getVitalityMod() > 0 ? " + " + experience.getVitalityMod() : "");
                 String str = experience.getStrengthBase() + (experience.getStrengthMod() > 0 ? " + " + experience.getStrengthMod() : "");
@@ -659,11 +662,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 String inte = experience.getIntelligenceBase() + (experience.getIntelligenceMod() > 0 ? " + " + experience.getIntelligenceMod() : "");
                 String lck = experience.getLuckBase() + (experience.getLuckMod() > 0 ? " + " + experience.getLuckMod() : "");
 
-                sb.append(String.format("Vit: %s \n", vit));
-                sb.append(String.format("Str: %s \n", str));
-                sb.append(String.format("Agi: %s \n", agi));
-                sb.append(String.format("Int: %s \n", inte));
-                sb.append(String.format("Luck: %s \n", lck));
+                sb.append("Vit: ").append(vit).append("\n");
+                sb.append("Str: ").append(str).append("\n");
+                sb.append("Agi: ").append(agi).append("\n");
+                sb.append("Int: ").append(inte).append("\n");
+                sb.append("Luck: ").append(lck).append("\n");
+
 
                 sb.append("\n");
 
