@@ -7,6 +7,8 @@ import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogMapNull;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.item.KeyItem;
+import asf.dungeon.utility.BetterAnimationController;
+import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Box;
 import asf.dungeon.view.shape.Shape;
@@ -18,12 +20,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalMaterial;
-import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -184,8 +184,8 @@ public class FastFloorSpatial implements Spatial {
                 if(tile.isDoor()){
                         DecalNodeDoor door = new DecalNodeDoor();
                         decalNode=  door;
-                        door.modelInstance = new ModelInstance(world.assetManager.get("Models/Dungeon/Door/Door.g3db", Model.class));
-                        door.animController = new AnimationController(door.modelInstance);
+                        door.modelInstance = new BetterModelInstance(world.assetManager.get("Models/Dungeon/Door/Door.g3db", Model.class));
+                        door.animController = new BetterAnimationController(door.modelInstance);
                         door.animController.paused = true;
                         Material material = door.modelInstance.materials.get(0);
                         //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
@@ -197,18 +197,18 @@ public class FastFloorSpatial implements Spatial {
                                 1,1,1
                         );
                 }else if(tile.isStairs()){
-                        ModelInstance modelInstance;
+                        BetterModelInstance modelInstance;
                         if(tile.isStairsUp(floorMap.index)){
                                 DecalNodeStairsUp stairsUp = new DecalNodeStairsUp();
                                 decalNode = stairsUp;
-                                stairsUp.modelInstance = new ModelInstance(world.assetManager.get("Models/Dungeon/Stairs/StairsUp.g3db", Model.class));
+                                stairsUp.modelInstance = new BetterModelInstance(world.assetManager.get("Models/Dungeon/Stairs/StairsUp.g3db", Model.class));
                                 Material material = stairsUp.modelInstance.materials.get(0);
                                 stairsUp.colorAttribute = (ColorAttribute)material.get(ColorAttribute.Diffuse);
                                 modelInstance = stairsUp.modelInstance;
                         }else{
                                 DecalNodeStairsDown stairsDown = new DecalNodeStairsDown();
                                 decalNode = stairsDown;
-                                stairsDown.modelInstance = new ModelInstance(world.assetManager.get("Models/Dungeon/Stairs/StairsDown.g3db", Model.class));
+                                stairsDown.modelInstance = new BetterModelInstance(world.assetManager.get("Models/Dungeon/Stairs/StairsDown.g3db", Model.class));
                                 Material material = stairsDown.modelInstance.materials.get(0);
                                 stairsDown.colorAttribute = (ColorAttribute)material.get(ColorAttribute.Diffuse);
                                 modelInstance = stairsDown.modelInstance;
@@ -335,8 +335,8 @@ public class FastFloorSpatial implements Spatial {
         private static class DecalNodeWall extends DecalNode{
                 public Decal decal; // top decal
                 public Decal[] decals; // side wall decals
-                private static float topWallVisibleY;
-                private static float sideWallVisibleY;
+                public static float topWallVisibleY;
+                public static float sideWallVisibleY;
 
                 @Override
                 protected void render(FastFloorSpatial floor, float delta) {
@@ -367,7 +367,7 @@ public class FastFloorSpatial implements Spatial {
         }
 
         private static class DecalNodeStairsUp extends DecalNodeFloor{
-                public ModelInstance modelInstance;
+                public BetterModelInstance modelInstance;
                 public ColorAttribute colorAttribute;
 
                 @Override
@@ -394,9 +394,9 @@ public class FastFloorSpatial implements Spatial {
         }
 
         private static class DecalNodeStairsDown extends DecalNodeFloor{
-                public ModelInstance modelInstance;
+                public BetterModelInstance modelInstance;
                 public ColorAttribute colorAttribute;
-                private static float visibleY = -3.753f;
+                public static float visibleY = -3.753f;
 
                 @Override
                 protected void render(FastFloorSpatial floor, float delta) {
@@ -425,11 +425,11 @@ public class FastFloorSpatial implements Spatial {
                 }
         }
 
-        private static class DecalNodeDoor extends DecalNodeFloor implements AnimationController.AnimationListener{
-                public ModelInstance modelInstance;
+        private static class DecalNodeDoor extends DecalNodeFloor implements BetterAnimationController.AnimationListener{
+                public BetterModelInstance modelInstance;
                 public ColorAttribute colorAttribute;
-                AnimationController animController;
-                boolean animToggle;
+                public BetterAnimationController animController;
+                public boolean animToggle;
 
                 @Override
                 protected void render(FastFloorSpatial floor, float delta) {
@@ -473,12 +473,12 @@ public class FastFloorSpatial implements Spatial {
                 }
 
                 @Override
-                public void onEnd(AnimationController.AnimationDesc animation) {
+                public void onEnd(BetterAnimationController.AnimationDesc animation) {
                         animController.paused = true;
                 }
 
                 @Override
-                public void onLoop(AnimationController.AnimationDesc animation) {
+                public void onLoop(BetterAnimationController.AnimationDesc animation) {
 
                 }
         }

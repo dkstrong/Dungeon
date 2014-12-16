@@ -24,6 +24,8 @@ import asf.dungeon.model.token.logic.fsm.State;
 import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.model.token.quest.Quest;
 import asf.dungeon.utility.AnimFactory;
+import asf.dungeon.utility.BetterAnimationController;
+import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
@@ -32,14 +34,12 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
-import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -52,8 +52,8 @@ import com.badlogic.gdx.utils.UBJsonReader;
 public class TokenSpatial implements Spatial, Token.Listener {
 
         private boolean initialized = false;
-        private ModelInstance modelInstance;
-        private AnimationController animController;
+        private BetterModelInstance modelInstance;
+        private BetterAnimationController animController;
         private Decal shadowDecal;
         private final Vector3 translationBase = new Vector3();
         protected final Vector3 translation = new Vector3();
@@ -111,23 +111,23 @@ public class TokenSpatial implements Spatial, Token.Listener {
 
                 if(token.getModelId() != ModelId.UserMonster){
                         Model model = assetManager.get(world.assetMappings.getAssetLocation(token.getModelId()));
-                        modelInstance = new ModelInstance(model);
+                        modelInstance = new BetterModelInstance(model);
                 }else{
                         FileHandle fileHandle = AssetMappings.getUserMonsterLocation();
                         ModelLoader loader = new G3dModelLoader(new UBJsonReader());
                         Model model = loader.loadModel(fileHandle);
-                        modelInstance = new ModelInstance(model);
+                        modelInstance = new BetterModelInstance(model);
                 }
 
                 //if (shape != null)
                 //        shape.setFromModelInstance(modelInstance);
 
                 if (modelInstance.animations.size > 0)
-                        animController = new AnimationController(modelInstance);
+                        animController = new BetterAnimationController(modelInstance);
                 else if(token.getLoot() != null){
                         AnimFactory.createAnim(AnimFactory.dropped(), modelInstance);
                         AnimFactory.createIdleAnim(modelInstance);
-                        animController = new AnimationController(modelInstance);
+                        animController = new BetterAnimationController(modelInstance);
 
                 }
 

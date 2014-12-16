@@ -1,6 +1,5 @@
 package asf.dungeon.utility;
 
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.model.NodeAnimation;
 import com.badlogic.gdx.graphics.g3d.model.NodeKeyframe;
@@ -17,7 +16,7 @@ import com.badlogic.gdx.math.Vector3;
  */
 public class AnimFactory {
 
-        public static void createIdleAnim(ModelInstance target) {
+        public static void createIdleAnim(BetterModelInstance target) {
                 Animation anim = new Animation();
                 anim.id = "Idle";
                 anim.duration = 1f;
@@ -77,7 +76,7 @@ public class AnimFactory {
                 return dropped;
         }
 
-        public static void createAnim(Animation anim, ModelInstance target) {
+        public static void createAnim(Animation anim, BetterModelInstance target) {
                 Animation cloneAnim = new Animation();
                 cloneAnim.id = anim.id;
                 cloneAnim.duration = anim.duration;

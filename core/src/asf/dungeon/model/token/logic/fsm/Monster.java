@@ -214,7 +214,7 @@ public enum Monster implements State {
                         if(distance > token.getDamage().getSightRadius())
                                 continue;
 
-                        if(distance > 1 && !LOS.hasLineOfSight(token.getFloorMap(), token.getLocation().x, token.getLocation().y, t.getLocation().x, t.getLocation().y))
+                        if(distance > 1.5f && !LOS.hasLineOfSight(token.getFloorMap(), token.getLocation().x, token.getLocation().y, t.getLocation().x, t.getLocation().y))
                                 continue;
 
                         fsm.target = t;
