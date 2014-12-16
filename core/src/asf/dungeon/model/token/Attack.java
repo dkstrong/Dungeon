@@ -235,7 +235,7 @@ public class Attack implements TokenComponent{
 
                         // TODO: i should change the logic here to always use the alternate LOS algorithm for range
                         // or i need to figure out how to use the same LOS algorithm that fogmapping uses
-                        if(distance > 1 && !LOS.hasLineOfSightAlternate(token.getFloorMap(), token.location.x, token.location.y, target.location.x, target.location.y))
+                        if(!LOS.hasLineOfSightManual(token.getFloorMap(), token.location.x, token.location.y, target.location.x, target.location.y))
                                 return false;
                 }
 

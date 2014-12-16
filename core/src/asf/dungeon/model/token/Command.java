@@ -133,8 +133,7 @@ public class Command implements TokenComponent{
                         }
                 }else{
                         // same LOS fallback used in Attack
-                        float distance = token.distance(targetToken);
-                        if(distance > 1 && !LOS.hasLineOfSightAlternate(token.getFloorMap(), token.location.x, token.location.y, targetToken.location.x, targetToken.location.y)){
+                        if(!LOS.hasLineOfSightManual(token.getFloorMap(), token.location.x, token.location.y, targetToken.location.x, targetToken.location.y)){
                                 this.targetToken = null;
                                 return ;
                         }

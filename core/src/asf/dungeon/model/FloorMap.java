@@ -334,6 +334,10 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         /**
          * determines if this tile blocks vision, the location of the mover (vantage point) must also be provided
          * because some tiles block vision if standing outside the tile, but once standing in the tile they do not
+         *
+         * NOTE: THIS DOES NOT CHECK FOR LOS OF SIGHT, USE LOS.hasLineOfSigh() to check for sight!, this only
+         * checks for visibility of this tile assuming not obstacles.
+         *
          * @param vantageX
          * @param vantageY
          * @param x

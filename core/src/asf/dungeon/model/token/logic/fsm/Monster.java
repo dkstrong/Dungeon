@@ -210,11 +210,11 @@ public enum Monster implements State {
                         }
 
                         float distance = token.distance(t);
-                        // TODO: sight radius is an integer/manhatten value, not sure if ill want to alter this check any.
+                        // TODO: sight radius is an integer/manhatten value, may want to alter this check some..
                         if(distance > token.getDamage().getSightRadius())
                                 continue;
 
-                        if(distance > 1.5f && !LOS.hasLineOfSight(token.getFloorMap(), token.getLocation().x, token.getLocation().y, t.getLocation().x, t.getLocation().y))
+                        if(!LOS.hasLineOfSightManual(token.getFloorMap(), token.getLocation().x, token.getLocation().y, t.getLocation().x, t.getLocation().y))
                                 continue;
 
                         fsm.target = t;

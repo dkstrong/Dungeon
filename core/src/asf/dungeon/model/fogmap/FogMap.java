@@ -203,7 +203,7 @@ public class FogMap {
                 } else if (yDelta == 0 && stepDepth == Math.abs(xDelta)) {
                         stepResult[xLocal][yLocal]= 1; // We are exactly east or west by depth so tile must be visible
                 } else {
-                        if (LOS.hasLineOfSight(floorMap, xCenter, yCenter, stepX, stepY)) {
+                        if (LOS.hasLineOfSightFogMap(floorMap, xCenter, yCenter, stepX, stepY)) {
                                 stepResult[xLocal][yLocal]= 1; // raycast determined that this tile is visible
                         } else {
                                 stepResult[xLocal][yLocal]= -1;

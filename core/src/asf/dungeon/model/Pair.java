@@ -84,6 +84,12 @@ public class Pair {
                 return xDistance + yDistance;
         }
 
+        public static int distance(int startX, int startY, int targetX, int targetY){
+                int xDistance = Math.abs(targetX - startX);
+                int yDistance = Math.abs(targetY - startY);
+                return xDistance + yDistance;
+        }
+
         /**
          * adds directions to this coordinate with the rules of manhatten distance (going diagonal takes two moves).
          *

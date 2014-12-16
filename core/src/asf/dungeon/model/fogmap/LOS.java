@@ -1,15 +1,15 @@
 package asf.dungeon.model.fogmap;
 
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.Pair;
 
 /**
  * Created by Danny on 11/23/2014.
  */
 public class LOS {
-
         /**
-         * checks for LOS between two points of a floormap, only considers vision blocking
-         * by vision blocking tiles, does not consider vision radius of the vanatage point or anything else
+         * will only work properly if used with fogmapping (eg checks all tiles starting from xVantage and moves out)
+         *
          * @param floorMap
          * @param xVantage
          * @param yVantage
@@ -17,7 +17,7 @@ public class LOS {
          * @param yTarget
          * @return
          */
-        public static boolean hasLineOfSight(FloorMap floorMap, int xVantage, int yVantage, int xTarget, int yTarget) {
+        protected static boolean hasLineOfSightFogMap(FloorMap floorMap, int xVantage, int yVantage, int xTarget, int yTarget) {
                 float xDelta = xTarget - xVantage;
                 float yDelta = yTarget - yVantage;
                 if (xDelta == 0 || yDelta == 0) {
@@ -51,7 +51,24 @@ public class LOS {
                 return true;
         }
 
-        public static boolean hasLineOfSightAlternate(FloorMap floorMap, int xVantage, int yVantage, int xTarget, int yTarget) {
+        /**
+         * used to do a manual LOS check between two points. only considers vision blocking by tiles
+         * on the floor map.
+         *
+         * This is a similiar permissive algorithm that is used for fogmapping, but givea  little bit different
+         * results when standing in a hallway and looking in to a room.
+         *
+         * TODO: I need to work on fixing this so that monster vision matches the kind of vision the player gets
+         * @param floorMap
+         * @param xVantage
+         * @param yVantage
+         * @param xTarget
+         * @param yTarget
+         * @return
+         */
+        public static boolean hasLineOfSightManual(FloorMap floorMap, int xVantage, int yVantage, int xTarget, int yTarget) {
+                if(floorMap.isLocationVisionBlocked(xVantage, yVantage, xTarget, yTarget)) return false;
+                if(Pair.distance(xVantage, yVantage, xTarget, yTarget) <=1) return true;
                 int sx, sy, xNext, yNext;
                 float denom, dist;
                 float xDelta = xTarget - xVantage;
