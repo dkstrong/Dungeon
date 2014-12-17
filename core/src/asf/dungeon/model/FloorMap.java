@@ -1,8 +1,8 @@
 package asf.dungeon.model;
 
-import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.ConsumableItem;
+import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtDebugPrint;
 import asf.dungeon.utility.UtMath;
@@ -10,6 +10,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.SnapshotArray;
 
 import java.util.List;
+
+import static asf.dungeon.utility.UtDebugPrint.out;
 
 /**
  * A single floor of the dungeon. contains information about the tiles that make up the floor
@@ -398,9 +400,56 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         @Override
         public List<String> toDebugInfo() {
                 List<String> out= UtDebugPrint.object(this);
-                List<String> out2 = UtFloorGen.outFloorTiles(tiles);
+                List<String> out2 = toTileStrings();
                 out.add("");
                 out.addAll(out2);
+                return out;
+        }
+
+        public List<String> toTileStrings(){
+                List<String> out = out();
+                for (int y = tiles[0].length - 1; y >= 0; y--) {
+                        String s = "";
+                        for (int x = 0; x < tiles.length; x++) {
+                                Tile tile = tiles[x][y];
+                                if (tile == null)
+                                        s += " ";
+                                else if(tile.isFloor()){
+                                        boolean printedToken = false;
+                                        for(int i=0; i < tokens.size; i++){
+                                                Token token = tokens.items[i];
+                                                if(token.getLocation().x != x || token.getLocation().y != y) continue;
+                                                KeyItem.Type keyItem = null;
+                                                if(token.getLoot() != null){
+                                                        if(token.getLoot().getItem() instanceof KeyItem){
+                                                                keyItem = ((KeyItem) token.getLoot().getItem()).getType();
+                                                        }
+                                                }else if(token.getCrateInventory() != null ){
+                                                        if(token.getCrateInventory().getItemToDrop() instanceof KeyItem){
+                                                                keyItem = ((KeyItem) token.getCrateInventory().getItemToDrop()).getType();
+                                                        }
+                                                }
+                                                if(keyItem != null){
+                                                        if(keyItem == KeyItem.Type.Silver)
+                                                                s += "s";
+                                                        else if(keyItem == KeyItem.Type.Gold)
+                                                                s += "g";
+                                                        else if(keyItem == KeyItem.Type.Red)
+                                                                s += "r";
+                                                        else
+                                                                s +="?";
+                                                        printedToken = true;
+                                                        break;
+                                                }
+                                        }
+                                        if(!printedToken)
+                                                s += String.valueOf(tile);
+                                }
+                                else
+                                        s += String.valueOf(tile);
+                        }
+                        out.add(s);
+                }
                 return out;
         }
 

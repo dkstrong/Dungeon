@@ -55,6 +55,16 @@ task runBalanceTest(type: JavaExec){
 
 }
 
+task runFloorGenTest(type: JavaExec){
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'asf.dungeon.desktop.FloorGenTest'
+    args = []
+    standardInput = System.in
+    workingDir = project.assetsDir
+    ignoreExitValue = true
+
+}
+
 task packImages(type: JavaExec){
     classpath = sourceSets.main.runtimeClasspath
     main = 'asf.dungeon.desktop.Packer'

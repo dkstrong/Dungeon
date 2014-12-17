@@ -73,7 +73,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
 
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles, this);
-                UtRoomSpawn.generateDoorGraph(dungeon, floorMap, rooms);
+                UtRoomSpawn.carveLockedDoorsAndSpawnKeys(dungeon, floorMap, rooms);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
 

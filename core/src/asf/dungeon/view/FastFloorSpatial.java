@@ -134,8 +134,7 @@ public class FastFloorSpatial implements Spatial {
 
         @Override
         public void render(float delta) {
-                for (int i = 0; i < decalNodes.size; i++) {
-                        DecalNode decalNode = decalNodes.items[i];
+                for (DecalNode decalNode : decalNodes) {
                         decalNode.render(this, delta);
                 }
         }
@@ -311,6 +310,9 @@ public class FastFloorSpatial implements Spatial {
 
         }
 
+        // TODO: could do a small optimzation by not calling decal.setColor() when the color hasnt actually changed.
+        // decal.setColor calls native code which should be avoided on android
+
         private static class DecalNodeFloor extends DecalNode{
                 public Decal decal;
 
@@ -346,9 +348,8 @@ public class FastFloorSpatial implements Spatial {
                         if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().getLocation().distance(x,y)<16)){
                                 if(decal.getPosition().y != topWallVisibleY){
                                         decal.setY(topWallVisibleY);
-                                        for (int i = 0; i < decals.length; i++)
-                                                decals[i].setY(sideWallVisibleY);
-
+                                        for (Decal wallDecal : decals)
+                                                wallDecal.setY(sideWallVisibleY);
                                 }
                                 if(fogState == FogState.MagicMapped)
                                         color.set(fog * 0.9f, fog, fog * 1.2f, 1);
@@ -356,9 +357,9 @@ public class FastFloorSpatial implements Spatial {
                                         color.set(fog,fog,fog,1);
                                 decal.setColor(color);
                                 floor.world.decalBatch.add(decal);
-                                for (int i = 0; i < decals.length; i++){
-                                        decals[i].setColor(color);
-                                        floor.world.decalBatch.add(decals[i]);
+                                for (Decal wallDecal : decals) {
+                                        wallDecal.setColor(color);
+                                        floor.world.decalBatch.add(wallDecal);
                                 }
                         }else{
                                 color.g = fog;

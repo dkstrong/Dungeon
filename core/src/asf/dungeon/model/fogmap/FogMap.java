@@ -108,7 +108,7 @@ public class FogMap {
 
                 while (pending.size > 0) {
                         Step step = pending.removeIndex(0);
-                        freeStep(step);
+                        stepPool.add(step); // free the step to be obtained again
                         calcStep(step.x, step.y, step.depth);
                 }
 
@@ -224,10 +224,6 @@ public class FogMap {
                 step.y = y;
                 step.depth = depth;
                 return step;
-        }
-
-        private void freeStep(Step step){
-                stepPool.add(step);
         }
 
         private static class Step {

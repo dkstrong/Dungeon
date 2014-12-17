@@ -27,6 +27,25 @@ import static asf.dungeon.utility.UtDebugPrint.out;
  */
 public class UtFloorGen {
 
+        public static void printFloorTile(Tile[][] tiles, Pair markLoc) {
+
+                for (int y = tiles[0].length - 1; y >= 0; y--) {
+                        for (int x = 0; x < tiles.length; x++) {
+                                if(x == markLoc.x && y == markLoc.y){
+                                        System.out.print("*");
+                                }else{
+                                        Tile tile = tiles[x][y];
+                                        if (tile == null)
+                                                System.out.print(" ");
+                                        else
+                                                System.out.print(tile);
+                                }
+
+                        }
+                        System.out.println();
+                }
+        }
+
         public static void printFloorTile(Tile[][] tiles) {
 
                 for (int y = tiles[0].length - 1; y >= 0; y--) {
@@ -259,7 +278,7 @@ public class UtFloorGen {
          * @param y
          * @return number of tiles that were converted to null
          */
-        private static int floodFill(Tile[][] tiles, int x, int y) {
+        public static int floodFill(Tile[][] tiles, int x, int y) {
                 if (x < 0 || x > tiles.length || y < 0 || y > tiles[0].length) return 0;
                 if (tiles[x][y] == null || tiles[x][y].isWall()) return 0;
                 tiles[x][y] = null;

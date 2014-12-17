@@ -54,10 +54,9 @@ public class BinarySpaceGen implements FloorMapGenerator{
 
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles);
+                UtRoomSpawn.carveLockedDoorsAndSpawnKeys(dungeon, floorMap, rooms);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
-                boolean valid = UtRoomSpawn.spawnKeys(dungeon, floorMap, rooms);
-                if(!valid) throw new Error("could not generate valid key locations, need to regenrate");
                 return floorMap;
         }
 
