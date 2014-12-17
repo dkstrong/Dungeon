@@ -1,4 +1,4 @@
-package asf.dungeon.model.floorgen;
+package asf.dungeon.model.floorgen.room;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
@@ -6,9 +6,8 @@ import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.floorgen.room.Room;
-import asf.dungeon.model.floorgen.room.UtRoomSpawn;
-import asf.dungeon.model.floorgen.room.UtRoomCarve;
+import asf.dungeon.model.floorgen.FloorMapGenerator;
+import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;

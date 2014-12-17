@@ -8,6 +8,8 @@ import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtDebugPrint;
 import asf.dungeon.view.DungeonWorld;
 
+import java.util.Random;
+
 /**
  * Created by Danny on 11/16/2014.
  */
@@ -23,7 +25,7 @@ public class FloorGenTest implements Dungeon.Listener {
 
                 settings = new DungeonWorld.Settings();
                 settings.playerModel = ModelId.Knight;
-                //settings.random =  new Random(3);  // 2
+                settings.random =  new Random(3);  // 2
 
                 dungeon = DungeonLoader.createDungeon(settings);
                 dungeon.setListener(this);

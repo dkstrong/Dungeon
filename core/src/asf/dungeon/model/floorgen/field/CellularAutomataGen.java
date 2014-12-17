@@ -1,8 +1,10 @@
-package asf.dungeon.model.floorgen;
+package asf.dungeon.model.floorgen.field;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.floorgen.FloorMapGenerator;
+import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.utility.OpenSimplexNoise;
 
 /**
@@ -13,7 +15,7 @@ import asf.dungeon.utility.OpenSimplexNoise;
  *
  * Created by Danny on 11/4/2014.
  */
-public class CellularAutomataGen implements FloorMapGenerator{
+public class CellularAutomataGen implements FloorMapGenerator {
 
 
         private int minFloorWidth = 45;
@@ -57,18 +59,11 @@ public class CellularAutomataGen implements FloorMapGenerator{
                 }
 
                 UtFloorGen.ensureEdgesAreWalls(tiles);
-
                 UtFloorGen.floodFillSmallerAreas(tiles);
-
                 UtFloorGen.placeUpStairs(dungeon, tiles, floorIndex);
                 UtFloorGen.placeDownStairs(dungeon, tiles, floorIndex);
-                UtFloorGen.printFloorTile(tiles);
-
-                // TODO: use pathfinding to ensure there is a valid path betwen stairs
-                // (and all other important level objects)
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles);
-
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnTreasuresNearWalls(dungeon, floorMap, maxCrates, cratePlacementLimit);
                 return floorMap;

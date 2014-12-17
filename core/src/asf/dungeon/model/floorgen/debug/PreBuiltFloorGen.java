@@ -1,14 +1,16 @@
-package asf.dungeon.model.floorgen;
+package asf.dungeon.model.floorgen.debug;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.floorgen.FloorMapGenerator;
+import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.model.item.KeyItem;
 
 /**
  * Created by Danny on 11/4/2014.
  */
-public class PreBuiltFloorGen implements FloorMapGenerator{
+public class PreBuiltFloorGen implements FloorMapGenerator {
 
         public FloorMap generate(Dungeon dungeon, int floorIndex){
                 FloorMap floorMap;

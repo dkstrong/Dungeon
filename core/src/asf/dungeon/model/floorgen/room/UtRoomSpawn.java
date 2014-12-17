@@ -6,6 +6,7 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Pathfinder;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.floorgen.InvalidGenerationException;
 import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
@@ -17,7 +18,7 @@ import com.badlogic.gdx.utils.ObjectSet;
  */
 public class UtRoomSpawn {
 
-        public static void carveLockedDoorsAndSpawnKeys(Dungeon dungeon, FloorMap floorMap, Array<Room> rooms){
+        public static void carveLockedDoorsAndSpawnKeys(Dungeon dungeon, FloorMap floorMap, Array<Room> rooms) throws InvalidGenerationException{
                 // this algorithm works by making a path between each end room and the start room
                 // and analyzing its doorways using floodfill to determine if they should be locked
                 // then puts a key somewhere on the level on the other side of the door
@@ -36,9 +37,9 @@ public class UtRoomSpawn {
                 }
                 // TODO: ensure goal room is at the top of the endRooms list
                 if(startRoom == null || endRooms.size <= 0)
-                        throw new IllegalStateException("Floor must have an up stairs and a down stairs");
+                        throw new InvalidGenerationException("Floor must have an up stairs and a down stairs");
 
-                startRoom.difficulty = -1f;
+                //startRoom.difficulty = -1f;
                 // iterator over each end room, path is created from start to end, but we iterate over it
                 // from end to beginning for effeciency
                 Pair startLoc = new Pair(startRoom.getCenterX(), startRoom.getCenterY());
@@ -55,19 +56,27 @@ public class UtRoomSpawn {
                         // generate a path from
                         endLoc.set(endRoom.getCenterX(), endRoom.getCenterY());
                         boolean valid = floorMap.pathfinder.generate(null, startLoc, endLoc, path, Pathfinder.PathingPolicy.Manhattan, false, Integer.MAX_VALUE);
-                        if(!valid) throw new IllegalStateException("there is no valid path between start and end rooms");
+                        if(!valid){
+                                continue endRoomLoop;
+                        }
                         Room lastRoom = null; // need to store the last room, when going throgh hallways we use last room instead of currentroom
 
                         while(path.size > 2){ // if the path is less than 3 units then theres no way there are valid doors
                                 Pair lastLoc = path.pop();
                                 Pair currentLoc = path.get(path.size-1);
 
-                                if(!floorMap.getTile(currentLoc).isDoor())
+                                if(!floorMap.getTile(currentLoc).isDoor()){
+                                        // were not interested in this door, but we save the room as lastRoom still
+                                        Room currentRoom = getRoom(rooms, currentLoc);
+                                        if(currentRoom != null) lastRoom = currentRoom;
                                         continue;
+                                }
+
                                 Room currentRoom = getRoomOfDoorLocation(rooms, currentLoc, lastLoc, lastRoom);
                                 lastRoom = currentRoom;
                                 if(currentRoom == null){
-                                        throw new AssertionError("a door with no room? oh my! currentLoc: "+currentLoc+", lastLoc: "+lastLoc);
+                                        //UtFloorGen.printFloorTile(floorMap.tiles, currentLoc);
+                                        throw new InvalidGenerationException("a door with no room? oh my! currentLoc: "+currentLoc+", lastLoc: "+lastLoc);
                                 }
                                 Doorway currentDoorway = getDoorway(rooms, currentLoc);
                                 if(currentDoorway.requiresKey != null)
@@ -90,7 +99,7 @@ public class UtRoomSpawn {
                                         // this is to make it more likely for keys to spawn in silver rooms
                                         // TODO: but i may want to tweak this as better loot and stronger mosnters should already spawn in red rooms..
                                         currentRoom.difficulty += (3-currentDoorway.requiresKey.ordinal()) / 10f;
-                                        Room lootRoom = findRoomToPlaceKeyBetter(lootPath, lootRooms,
+                                        Room lootRoom = findRoomToPlaceKey(lootPath, lootRooms,
                                                 dungeon, floorMap, rooms, currentLoc,
                                                 currentRoom, currentDoorway, tilesCopy);
 
@@ -116,8 +125,9 @@ public class UtRoomSpawn {
                 }
         }
 
-        private static Room findRoomToPlaceKeyBetter(Array<Pair> lootPath ,ObjectSet<Room> lootRooms, Dungeon dungeon, FloorMap floorMap, Array<Room> rooms, Pair currentLoc,Room currentRoom, Doorway currentDoorway, Tile[][] validLocations){
+        private static Room findRoomToPlaceKey(Array<Pair> lootPath, ObjectSet<Room> lootRooms, Dungeon dungeon, FloorMap floorMap, Array<Room> rooms, Pair currentLoc, Room currentRoom, Doorway currentDoorway, Tile[][] validLocations){
                 lootRooms.clear();
+                // first we make a list of candiadte loot rooms based on information from flood filling (valid locations)
                 for(int x=0; x < validLocations.length; x++){
                         for(int y=0; y<validLocations[0].length; y++){
                                 Tile tile = validLocations[x][y];
@@ -131,6 +141,11 @@ public class UtRoomSpawn {
                         }
                 }
 
+                // next we sanitize the candiadate loot rooms by remoing rooms with any one the following conditions
+                // 1. already contains some other special loot
+                // 2. has no path from the currentRoom (room being locked) to the lootRoom
+                // 3. has a path, but involves going through a locked door whose key is contained in the current room (this would create a circular dependency and it wouldnt be impossible to solve the floor)
+                // 4. the loot room and the current room are the same to prevent locking the key in its own room.
                 Pair endLoc = new Pair();
                 ObjectSet.ObjectSetIterator<Room> i = lootRooms.iterator();
                 roomLoop:
@@ -167,13 +182,18 @@ public class UtRoomSpawn {
                         }
                 }
 
-                // TODO: instead of using just difficulty, need to also factor distance from currentRoom (the room being locked)
-                // and/or other factors. RIght now keys tend to spawn in uninteresting places
-                if(lootRooms.size <=0)
+                // Now that we have a list of ideal candidate rooms to place the key in, now we pick one
+
+                if(lootRooms.size <=0){
+                        //UtFloorGen.printFloorTile(validLocations, currentLoc);
                         throw new IllegalStateException("no valid room to place key in");
-                // now pick a room from the lootRooms set to be the room that will contain the key
-                // we will choose the room using a weighted random algorithm so that the
-                // key is more likely to spawn in more difficult rooms
+                }
+
+                // currently the room is selected using a weighted random selection to prefer rooms with higher difficulty
+                // TODO: instead of using just difficulty, need to also factor distance from currentRoom (the room being locked) and/or other factors. Right now keys tend to spawn in uninteresting places
+
+                // TODO: the start and goal rooms should have an even more decreased chance to contain the key
+                // than any other room. They should mainly just be a fall back if other rooms will not work
                 float totalDifficulty = 0f;
                 for (Room lootRoom : lootRooms) {
                         totalDifficulty+=lootRoom.difficulty;
@@ -185,6 +205,7 @@ public class UtRoomSpawn {
                         if(curDifficulty >= rand)
                                 return lootRoom;
                 }
+                //UtFloorGen.printFloorTile(validLocations, currentLoc);
                 throw new AssertionError("not loot room was found");
         }
 
@@ -219,6 +240,20 @@ public class UtRoomSpawn {
                 }
                 return null;
         }
+
+        private static Room getRoom(Array<Room> rooms, Pair currentLoc){
+                // returns the first room found at this location
+                // WARNING this method should not be used on edge tiles of rooms
+                // (such as doorways) because rooms can overlap on edges. For those cases
+                // use getRoomOfDoorLocation() instead!
+                for (Room room : rooms) {
+                        if(room.contains(currentLoc)){
+                                 return room;
+                        }
+                }
+                return null;
+        }
+
         private static Room getRoomOfDoorLocation(Array<Room> rooms, Pair currentLoc, Pair lastLoc, Room lastRoom){
                 // finds out what room currentLoc is in
                 // some rooms can overlap on their borders, for those cases we look at both

@@ -1,9 +1,10 @@
-package asf.dungeon.model.floorgen;
+package asf.dungeon.model.floorgen.debug;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Sector;
+import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;

@@ -76,7 +76,7 @@ public class UtFloorGen {
                 return out;
         }
 
-        protected static void spawnCharacters(Dungeon dungeon, FloorMap floorMap) {
+        public static void spawnCharacters(Dungeon dungeon, FloorMap floorMap) {
                 ModelId[] characters;
                 if (floorMap.index == 0)
                         characters = new ModelId[]{ModelId.Skeleton, ModelId.Berzerker, ModelId.Archer};
@@ -113,7 +113,7 @@ public class UtFloorGen {
 
         }
 
-        protected static void spawnRandomCrates(Dungeon dungeon, FloorMap floorMap) {
+        public static void spawnRandomCrates(Dungeon dungeon, FloorMap floorMap) {
                 int x, y;
                 Item item;
                 for (int i = 0; i < 5; i++) {
@@ -152,7 +152,7 @@ public class UtFloorGen {
          * @param maxTreasures          maximum amount of treasures to place
          * @param treasurePlacementLimt the quality of the location to place tresure (lower number makes more crates) [0-8]
          */
-        protected static void spawnTreasuresNearWalls(Dungeon dungeon, FloorMap floorMap, int maxTreasures, int treasurePlacementLimt) {
+        public static void spawnTreasuresNearWalls(Dungeon dungeon, FloorMap floorMap, int maxTreasures, int treasurePlacementLimt) {
                 ModelId modelId = ModelId.CeramicPitcher;
                 int countSpawn = 0;
                 for (int x = 0; x < floorMap.getWidth(); x++) {
@@ -240,7 +240,7 @@ public class UtFloorGen {
                 }
         }
 
-        protected static void floodFillSmallerAreas(Tile[][] tiles) {
+        public static void floodFillSmallerAreas(Tile[][] tiles) {
 
                 // first clone the tiles array to do the initial flood filling with and find all floodable zones
                 Tile [][] tilesClone = new Tile[tiles.length][];
@@ -297,7 +297,7 @@ public class UtFloorGen {
          * @param tiles
          * @param floorIndex
          */
-        protected static void placeUpStairs(Dungeon dungeon, Tile[][] tiles, int floorIndex) {
+        public static void placeUpStairs(Dungeon dungeon, Tile[][] tiles, int floorIndex) {
                 do {
                         int x = dungeon.rand.range(0, tiles.length - 1);
                         int y = dungeon.rand.range(0, tiles[0].length - 1);
@@ -320,7 +320,7 @@ public class UtFloorGen {
          * @param tiles
          * @param floorIndex
          */
-        protected static void placeDownStairs(Dungeon dungeon, Tile[][] tiles, int floorIndex) {
+        public static void placeDownStairs(Dungeon dungeon, Tile[][] tiles, int floorIndex) {
                 do {
                         int x = dungeon.rand.range(0, tiles.length - 1);
                         int y = dungeon.rand.range(0, tiles[0].length - 1);

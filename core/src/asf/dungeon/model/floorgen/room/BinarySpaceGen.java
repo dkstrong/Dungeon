@@ -1,11 +1,10 @@
-package asf.dungeon.model.floorgen;
+package asf.dungeon.model.floorgen.room;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.floorgen.room.Room;
-import asf.dungeon.model.floorgen.room.UtRoomSpawn;
-import asf.dungeon.model.floorgen.room.UtRoomCarve;
+import asf.dungeon.model.floorgen.FloorMapGenerator;
+import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
@@ -21,7 +20,7 @@ import com.badlogic.gdx.utils.Array;
  *
  * Created by Danny on 11/4/2014.
  */
-public class BinarySpaceGen implements FloorMapGenerator{
+public class BinarySpaceGen implements FloorMapGenerator {
 
 
         private int minFloorWidth = 30;
@@ -51,7 +50,6 @@ public class BinarySpaceGen implements FloorMapGenerator{
                 fillTunnels(tiles, baseRoomCell.childCell1, baseRoomCell.childCell2);
                 UtRoomCarve.carveDoors(dungeon, floorIndex, tiles, rooms);
                 UtRoomCarve.carveStairs(dungeon, floorIndex, tiles, rooms);
-
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles);
                 UtRoomSpawn.carveLockedDoorsAndSpawnKeys(dungeon, floorMap, rooms);

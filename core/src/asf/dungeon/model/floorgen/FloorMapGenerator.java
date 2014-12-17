@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 public interface FloorMapGenerator extends Serializable {
 
-        public FloorMap generate(Dungeon dungeon, int floorIndex);
+        public FloorMap generate(Dungeon dungeon, int floorIndex) throws InvalidGenerationException;
 
 
 }

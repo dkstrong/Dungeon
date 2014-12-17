@@ -1,9 +1,11 @@
-package asf.dungeon.model.floorgen;
+package asf.dungeon.model.floorgen.field;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.floorgen.FloorMapGenerator;
+import asf.dungeon.model.floorgen.UtFloorGen;
 
 /**
  * makes a floor that is similiar to the classic "Rouge" maps where

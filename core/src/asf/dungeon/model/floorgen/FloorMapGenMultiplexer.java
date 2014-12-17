@@ -19,13 +19,20 @@ public class FloorMapGenMultiplexer implements FloorMapGenerator{
 
         public FloorMap generate(Dungeon dungeon, int floorIndex){
 
-                FloorMap floorMap;
-                if(floorIndex < factories.length){
-                        floorMap = factories[floorIndex].generate(dungeon, floorIndex);
-                }else{
-                        floorMap = randomFactories[dungeon.rand.random.nextInt(randomFactories.length)].generate(dungeon, floorIndex);
-                }
-
+                FloorMap floorMap = null;
+                int tries = 0;
+                do{
+                        try{
+                                if(floorIndex < factories.length){
+                                        floorMap = factories[floorIndex].generate(dungeon, floorIndex);
+                                }else{
+                                        floorMap = randomFactories[dungeon.rand.random.nextInt(randomFactories.length)].generate(dungeon, floorIndex);
+                                }
+                        }catch(InvalidGenerationException ex){
+                                System.err.println("FloorMapGenMultiplexer: Unable to generate floor index: "+floorIndex);
+                                if(++tries > 0) throw ex;
+                        }
+                }while(floorMap == null);
 
                 return floorMap;
         }

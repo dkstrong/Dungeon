@@ -1,14 +1,16 @@
-package asf.dungeon.model.floorgen;
+package asf.dungeon.model.floorgen.field;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.floorgen.FloorMapGenerator;
+import asf.dungeon.model.floorgen.UtFloorGen;
 
 
 /**
  * Created by Danny on 11/4/2014.
  */
-public class MazeGen implements FloorMapGenerator{
+public class MazeGen implements FloorMapGenerator {
 
         private int width;
         private int height;

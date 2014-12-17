@@ -1,17 +1,17 @@
 package asf.dungeon.model;
 
-import asf.dungeon.model.floorgen.BalanceTestFloorGen;
-import asf.dungeon.model.floorgen.BinarySpaceGen;
-import asf.dungeon.model.floorgen.CellularAutomataGen;
-import asf.dungeon.model.floorgen.ConnectedRoomsGen;
-import asf.dungeon.model.floorgen.DirectionalCaveHallGen;
+import asf.dungeon.model.floorgen.debug.BalanceTestFloorGen;
+import asf.dungeon.model.floorgen.room.BinarySpaceGen;
+import asf.dungeon.model.floorgen.field.CellularAutomataGen;
+import asf.dungeon.model.floorgen.room.ConnectedRoomsGen;
+import asf.dungeon.model.floorgen.field.DirectionalCaveHallGen;
 import asf.dungeon.model.floorgen.FloorMapGenMultiplexer;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
-import asf.dungeon.model.floorgen.MazeGen;
-import asf.dungeon.model.floorgen.PreBuiltFloorGen;
-import asf.dungeon.model.floorgen.RandomWalkGen;
-import asf.dungeon.model.floorgen.TestAssetsFloorGen;
-import asf.dungeon.model.floorgen.ZeldaGen;
+import asf.dungeon.model.floorgen.field.MazeGen;
+import asf.dungeon.model.floorgen.debug.PreBuiltFloorGen;
+import asf.dungeon.model.floorgen.field.RandomWalkGen;
+import asf.dungeon.model.floorgen.debug.TestAssetsFloorGen;
+import asf.dungeon.model.floorgen.room.ZeldaGen;
 import asf.dungeon.model.floorgen.room.Room;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
@@ -98,7 +98,7 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new ConnectedRoomsGen(),new ZeldaGen(), new TestAssetsFloorGen(),
+                                new CellularAutomataGen(),new ZeldaGen(), new TestAssetsFloorGen(),
                                 new ConnectedRoomsGen(), new ConnectedRoomsGen(), new MazeGen(7, 4), new DirectionalCaveHallGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
@@ -283,7 +283,7 @@ public class DungeonLoader {
                 kryo.register(FloorMapGenerator.class);
                 kryo.register(asf.dungeon.model.floorgen.FloorMapGenerator[].class);
                 kryo.register(FloorMapGenMultiplexer.class);
-                kryo.register(asf.dungeon.model.floorgen.BalanceTestFloorGen.class);
+                kryo.register(BalanceTestFloorGen.class);
                 kryo.register(BinarySpaceGen.class);
                 kryo.register(CellularAutomataGen.class);
                 kryo.register(ConnectedRoomsGen.class);
@@ -292,8 +292,8 @@ public class DungeonLoader {
                 kryo.register(PreBuiltFloorGen.class);
                 kryo.register(RandomWalkGen.class);
                 kryo.register(Room.class);
-                kryo.register(asf.dungeon.model.floorgen.ZeldaGen.class);
-                kryo.register(asf.dungeon.model.floorgen.TestAssetsFloorGen.class);
+                kryo.register(ZeldaGen.class);
+                kryo.register(TestAssetsFloorGen.class);
 
                 kryo.register(FogMap.class);
                 kryo.register(FogState.class);
