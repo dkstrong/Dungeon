@@ -326,7 +326,6 @@ public class Token {
                  */
                 public void onLearned(Object journalObject, boolean study);
 
-
                 public void onInteract(Quest quest, Dialouge dialouge);
 
                 public void onFsmStateChange(FsmLogic fsm, State oldState, State newState);

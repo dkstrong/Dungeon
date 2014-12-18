@@ -1,6 +1,6 @@
 package asf.dungeon.model.floorgen.room;
 
-import asf.dungeon.model.floorgen.Symbol;
+import asf.dungeon.model.Symbol;
 
 /**
  * Created by Daniel Strong on 12/13/2014.

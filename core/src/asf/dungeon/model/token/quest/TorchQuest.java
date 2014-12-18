@@ -38,6 +38,7 @@ public class TorchQuest extends Quest{
                                         @Override
                                         public void exec(Interactor interactor) {
                                                 interactor.chattingWith.get(Torch.class).toggleIgnited();
+
                                         }
                                 });
                                 Choice c1 = new Choice("Leave it");

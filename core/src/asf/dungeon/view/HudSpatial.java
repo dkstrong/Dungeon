@@ -2,8 +2,6 @@ package asf.dungeon.view;
 
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.floorgen.KeySymbol;
-import asf.dungeon.model.floorgen.PuzzleSymbol;
 import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.ConsumableItem;
@@ -22,6 +20,7 @@ import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.Torch;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.State;
 import asf.dungeon.model.token.quest.Choice;
@@ -893,16 +892,13 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
         }
 
-
         @Override
         public void onPathBlocked(Pair nextLocation, Tile nextTile) {
                 if (nextTile.isDoor() && nextTile.isDoorLocked()) {
-                        if(nextTile.getDoorSymbol() instanceof PuzzleSymbol){
+                        if(nextTile.getDoorSymbol() instanceof Torch.CombinationDoorPuzzle){
                                 this.appendToGameLog("The door is shut tight.");
-                        }else if(nextTile.getDoorSymbol() instanceof KeySymbol){
-                                KeySymbol keySymbol = (KeySymbol) nextTile.getDoorSymbol();
-                                KeyItem key = localPlayerToken.getInventory().getKeyItem(keySymbol.type);
-                                if (key != null) {
+                        }else if(nextTile.getDoorSymbol() instanceof KeyItem){
+                                if (localPlayerToken.getInventory().hasKey((KeyItem) nextTile.getDoorSymbol())) {
                                         this.appendToGameLog("Tap on door again to unlock door.");
                                 } else {
                                         this.appendToGameLog("You do not have the key to unlock this door.");
@@ -1483,7 +1479,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 this.setInventoryWindowVisible(true);
                         }
                 }else if (event.getListenerActor() instanceof Button) {
-                        // a chat choice button
+                        // an inventory, quick slot, or chat choice button
                         Button button = (Button) event.getListenerActor();
                         Object uo = button.getUserObject();
                         if(uo instanceof ItemButtonStack){

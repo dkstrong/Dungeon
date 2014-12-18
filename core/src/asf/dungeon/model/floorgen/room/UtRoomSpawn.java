@@ -7,9 +7,7 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Pathfinder;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.InvalidGenerationException;
-import asf.dungeon.model.floorgen.KeySymbol;
-import asf.dungeon.model.floorgen.PuzzleSymbol;
-import asf.dungeon.model.floorgen.Symbol;
+import asf.dungeon.model.Symbol;
 import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
@@ -98,7 +96,7 @@ public class UtRoomSpawn {
                                 if(isChokepoint && dungeon.rand.bool(.45f)){
                                         currentSymbol = nextSymbol(currentSymbol, currentTile);
                                         currentDoorway.requiresSymbol = currentSymbol;
-                                        int numKeys = currentSymbol instanceof PuzzleSymbol ? 2 : 1;
+                                        int numKeys = currentSymbol instanceof Torch.CombinationDoorPuzzle ? 2 : 1;
                                         for(int i=0; i < numKeys; i++){
                                                 Room lootRoom = findRoomToPlaceKey(lootPath, lootRooms,
                                                         dungeon, floorMap, rooms, currentLoc,
@@ -126,13 +124,13 @@ public class UtRoomSpawn {
 
         private static Symbol nextSymbol(Symbol currentSymbol, Tile currentTile){
                 if(currentSymbol == null)
-                        return new PuzzleSymbol(new Torch.CombinationDoorPuzzle(currentTile));
-                else if(currentSymbol instanceof PuzzleSymbol){
-                        return new KeySymbol(KeyItem.Type.Red);
-                }else if(currentSymbol instanceof KeySymbol){
-                        return new KeySymbol(KeyItem.Type.Gold);
+                        return new Torch.CombinationDoorPuzzle(currentTile);
+                else if(currentSymbol instanceof Torch.CombinationDoorPuzzle){
+                        return new KeyItem(KeyItem.Type.Red);
+                }else if(currentSymbol instanceof KeyItem){
+                        return new KeyItem(KeyItem.Type.Gold);
                 }else{
-                        return new KeySymbol(KeyItem.Type.Silver);
+                        return new KeyItem(KeyItem.Type.Silver);
                 }
 
         }

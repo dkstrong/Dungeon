@@ -1,8 +1,7 @@
 package asf.dungeon.model;
 
 
-import asf.dungeon.model.floorgen.KeySymbol;
-import asf.dungeon.model.floorgen.Symbol;
+import asf.dungeon.model.item.KeyItem;
 
 /**
  * Created by danny on 10/26/14.
@@ -143,7 +142,7 @@ public class Tile {
 
                 if (isDoor())
                         if(isDoorLocked())
-                                if(getDoorSymbol() instanceof KeySymbol)
+                                if(getDoorSymbol() instanceof KeyItem)
                                         return '/';
                                 else
                                         return '\\';

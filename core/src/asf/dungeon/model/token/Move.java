@@ -4,7 +4,6 @@ import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.floorgen.KeySymbol;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.KeyItem;
 import com.badlogic.gdx.math.MathUtils;
@@ -241,13 +240,13 @@ public class Move implements TokenComponent{
         private boolean useKey(Pair nextLocation) {
                 Tile nextTile = token.floorMap.getTile(nextLocation);
                 if (nextTile.isDoor() && nextTile.isDoorLocked()) {
-                        KeyItem key = null;
-                        if(nextTile.getDoorSymbol() instanceof KeySymbol){
-                                key = token.getInventory().getKeyItem(((KeySymbol) nextTile.getDoorSymbol()).type);
+                        boolean key = false;
+                        if(nextTile.getDoorSymbol() instanceof KeyItem){
+                                key = token.getInventory().hasKey((KeyItem) nextTile.getDoorSymbol());
                         }
                         if (token.getCommand().isUseKey() && nextTile == token.getCommand().getUseKeyOnTile()) {
                                 //token.getTarget().setUseKey(false);
-                                if (key == null) {
+                                if (!key) {
                                         //Gdx.app.log("Move","Try to use key but do not have a key");
                                         //token.getCommand().setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
                                         //if(token.listener != null)
@@ -257,7 +256,7 @@ public class Move implements TokenComponent{
                                 } else {
                                         //Gdx.app.log("Move","Unlocking door");
                                         nextTile.setDoorLocked(false);
-                                        token.getInventory().useKey(key);
+                                        token.getInventory().useKey((KeyItem) nextTile.getDoorSymbol());
                                         //token.getCommand().setLocation(token.location);
                                         return true;
 

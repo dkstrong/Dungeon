@@ -1,7 +1,7 @@
 package asf.dungeon.model.floorgen.room;
 
 import asf.dungeon.model.Sector;
-import asf.dungeon.model.floorgen.Symbol;
+import asf.dungeon.model.Symbol;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -33,7 +33,7 @@ public class Room extends Sector {
 
         public float getIntensity(int floorIndex){
                 float intensity = 0.5f;
-                if(containsSymbol !=null) intensity+=containsSymbol.intensity;
+                if(containsSymbol !=null) intensity+=containsSymbol.getIntensity();
                 if(isStartRoom(floorIndex)) intensity -= 0.4f;
                 if(isGoalRoom(floorIndex)) intensity -= 0.2f;
                 if(isDeadEnd()) intensity += 0.2f;

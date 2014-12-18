@@ -54,16 +54,15 @@ public class CharacterInventory implements Inventory {
                 return null;
         }
 
-        public KeyItem getKeyItem(KeyItem.Type keyType) {
+        public boolean hasKey(KeyItem key){
                 for (Item item : items) {
-                        if (item instanceof KeyItem) {
-                                KeyItem key = (KeyItem) item;
-                                if (key.getType() == keyType) {
-                                        return key;
-                                }
+                        if(item instanceof KeyItem){
+                                KeyItem k = (KeyItem) item;
+                                if(k.equals(key)) // TODO: or should i do k.getType == key.getType?
+                                        return true;
                         }
                 }
-                return null;
+                return false;
         }
 
         public PotionItem getPotionItem(PotionItem.Type potionType) {
@@ -457,13 +456,23 @@ public class CharacterInventory implements Inventory {
          * @param key
          */
         protected void useKey(KeyItem key) {
+                KeyItem actualKey = null;
+                for (Item item : items) {
+                        if(item instanceof KeyItem){
+                                KeyItem k = (KeyItem) item;
+                                if(k.equals(key)){  // TODO: or should i do k.getType == key.getType?
+                                        actualKey = k;
+                                        break;
+                                }
+                        }
+                }
 
                 out.targetItem = null;
                 out.targetToken = null;
                 out.didSomething = true;
                 if (token.listener != null)
-                        token.listener.onUseItem(key, out);
-                discard(key);
+                        token.listener.onUseItem(actualKey, out);
+                discard(actualKey);
         }
 
 

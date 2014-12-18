@@ -6,7 +6,6 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.token.quest.Choice;
 import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.model.token.quest.Quest;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectIntMap;
 
@@ -52,7 +51,7 @@ public class Interactor implements TokenComponent{
                 if(!isInteracting()) return false;
 
                 Choice chatChoice = token.getCommand().getChatChoice();
-                Gdx.app.log("Interactor","received chat choice: "+chatChoice);
+                //Gdx.app.log("Interactor","received chat choice: "+chatChoice);
                 if(chatChoice !=null){
                         Quest quest = chattingWith.get(Quest.class);
                         Dialouge currentDialogue = quest.makeChoice(this, chatChoice);
@@ -61,7 +60,7 @@ public class Interactor implements TokenComponent{
                                         token.listener.onInteract(quest, currentDialogue);
                                 return true;
                         }else{
-                                Gdx.app.log("Interactor","done interacting with "+chattingWith.getName());
+                                //Gdx.app.log("Interactor","done interacting with "+chattingWith.getName());
                                 chattingWith = null;
                                 //token.getCommand().setLocation(token.getLocation());
                                 return true;
