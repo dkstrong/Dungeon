@@ -5,6 +5,7 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.UtFloorGen;
+import asf.dungeon.model.floorgen.KeySymbol;
 import asf.dungeon.model.item.KeyItem;
 
 /**
@@ -130,7 +131,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                 } else if(charAt == '+'){ // Door
                                         tiles[x][y] = Tile.makeDoor();
                                 } else if(charAt == '/'){ // Locked Door
-                                        tiles[x][y] = Tile.makeDoor(KeyItem.Type.Silver);
+                                        tiles[x][y] = Tile.makeDoor(new KeySymbol(KeyItem.Type.Silver));
                                 } else if(charAt == '^'){ // Stairs Up
                                         tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
                                 } else if(charAt == '&'){ // Stairs Down

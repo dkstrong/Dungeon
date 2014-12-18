@@ -11,10 +11,6 @@ import java.util.Random;
 public class DungeonRand {
         public final Random random;
 
-        public DungeonRand() {
-                random = new Random();
-        }
-
         public DungeonRand(Random random) {
                 if(random == null){
                         this.random = new Random();

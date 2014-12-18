@@ -8,6 +8,8 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.Item;
+import asf.dungeon.model.item.KeyItem;
+import asf.dungeon.model.token.logic.LocalPlayerLogic;
 import asf.dungeon.model.token.logic.Logic;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.State;
@@ -350,5 +352,39 @@ public class Token {
         @Override
         public String toString() {
                 return getName();
+        }
+
+        public char toCharacter(){
+                if(getLogic() != null){
+                        if(getLogic() instanceof LocalPlayerLogic) return '@';
+                        if(get(Quest.class) != null) return 'q';
+                        return '#';
+                }
+                if(getLoot()!= null){
+                        if(getLoot().getItem() instanceof KeyItem){
+                                KeyItem.Type keyType = ((KeyItem) getLoot().getItem()).getType();
+                                if(keyType == KeyItem.Type.Red) return 'r';
+                                else if(keyType == KeyItem.Type.Gold) return 'g';
+                                else if(keyType == KeyItem.Type.Silver) return 's';
+                                else return '?';
+                        }
+                        return '$';
+                }
+                if(getCrateInventory() != null){
+                        if(getCrateInventory().getItemToDrop() instanceof KeyItem){
+                                KeyItem.Type keyType = ((KeyItem) getCrateInventory().getItemToDrop()).getType();
+                                if(keyType == KeyItem.Type.Red) return 'r';
+                                else if(keyType == KeyItem.Type.Gold) return 'g';
+                                else if(keyType == KeyItem.Type.Silver) return 's';
+                                else return '?';
+                        }
+                        return '$';
+                }
+
+                if(get(Torch.class) != null) return 't';
+
+                if(get(Fountain.class) != null) return 'f';
+
+                return '?';
         }
 }

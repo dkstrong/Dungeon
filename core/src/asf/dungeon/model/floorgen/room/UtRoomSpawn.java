@@ -7,11 +7,16 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Pathfinder;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.InvalidGenerationException;
+import asf.dungeon.model.floorgen.KeySymbol;
+import asf.dungeon.model.floorgen.PuzzleSymbol;
+import asf.dungeon.model.floorgen.Symbol;
 import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
+import asf.dungeon.model.token.Torch;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectSet;
+
+import java.util.Iterator;
 
 /**
  * Created by Daniel Strong on 12/13/2014.
@@ -39,17 +44,17 @@ public class UtRoomSpawn {
                 if(startRoom == null || endRooms.size <= 0)
                         throw new InvalidGenerationException("Floor must have an up stairs and a down stairs");
 
-                //startRoom.difficulty = -1f;
+                //startRoom.intensity = -1f;
                 // iterator over each end room, path is created from start to end, but we iterate over it
                 // from end to beginning for effeciency
                 Pair startLoc = new Pair(startRoom.getCenterX(), startRoom.getCenterY());
                 Pair endLoc = new Pair();
                 Array<Pair> path = new Array<Pair>(true, 128, Pair.class);
                 Array<Pair> lootPath = new Array<Pair>(true, 128, Pair.class); // reusable temp array is passed to findRoomToPlaceKey
-                ObjectSet<Room> lootRooms = new ObjectSet <Room>(8); // reusable temp set is passed to findRoomToPlaceKey
+                Array<Room> lootRooms = new Array <Room>(true, 8, Room.class); // reusable temp set is passed to findRoomToPlaceKey
                 // TODO: need to come up with a system for when red/gold/silver keys should appear
                 // this will  also be mixed into other types of "keys" such as levers and mini puzzles, quest npcs, etc
-                KeyItem.Type currentKey = KeyItem.Type.Red;
+                Symbol currentSymbol=null;
 
                 endRoomLoop:
                 for (Room endRoom : endRooms) {
@@ -64,8 +69,8 @@ public class UtRoomSpawn {
                         while(path.size > 2){ // if the path is less than 3 units then theres no way there are valid doors
                                 Pair lastLoc = path.pop();
                                 Pair currentLoc = path.get(path.size-1);
-
-                                if(!floorMap.getTile(currentLoc).isDoor()){
+                                Tile currentTile = floorMap.getTile(currentLoc);
+                                if(!currentTile.isDoor()){
                                         // were not interested in this door, but we save the room as lastRoom still
                                         Room currentRoom = getRoom(rooms, currentLoc);
                                         if(currentRoom != null) lastRoom = currentRoom;
@@ -79,7 +84,7 @@ public class UtRoomSpawn {
                                         throw new InvalidGenerationException("a door with no room? oh my! currentLoc: "+currentLoc+", lastLoc: "+lastLoc);
                                 }
                                 Doorway currentDoorway = getDoorway(rooms, currentLoc);
-                                if(currentDoorway.requiresKey != null)
+                                if(currentDoorway.requiresSymbol != null)
                                         continue endRoomLoop; // this pathway is already pretty well locked off, no need for any more locked doors here..
 
                                 boolean isChokepoint = isDoorwayToDeadEnd(floorMap.tiles, tilesCopy, currentLoc, lastLoc);
@@ -91,25 +96,17 @@ public class UtRoomSpawn {
                                 // are now null tiles in the copy.)
 
                                 if(isChokepoint && dungeon.rand.bool(.45f)){
-                                        currentDoorway.requiresKey = currentKey;
-                                        if(currentKey == KeyItem.Type.Red) currentKey = KeyItem.Type.Gold;
-                                        else currentKey = KeyItem.Type.Silver;
-                                        // this increments the difficult more for silver rooms than red rooms
-                                        // this is to make it more likely for keys to spawn in silver rooms
-                                        // TODO: but i may want to tweak this as better loot and stronger mosnters should already spawn in red rooms..
-                                        currentRoom.difficulty += (3-currentDoorway.requiresKey.ordinal()) / 10f;
-                                        Room lootRoom = findRoomToPlaceKey(lootPath, lootRooms,
-                                                dungeon, floorMap, rooms, currentLoc,
-                                                currentRoom, currentDoorway, tilesCopy);
-
-                                        lootRoom.containsKey = currentDoorway.requiresKey;
-                                        Pair pair = getRandomLocToSpawnCharacter(dungeon, floorMap, lootRoom, tilesCopy);
-                                        KeyItem keyItem = new KeyItem(dungeon, lootRoom.containsKey);
-                                        if(dungeon.rand.random.nextBoolean()){
-                                                dungeon.newCrateToken(floorMap,ModelId.CeramicPitcher.name(), ModelId.CeramicPitcher, keyItem, pair.x, pair.y);
-                                        }else{
-                                                dungeon.newLootToken(floorMap, keyItem, pair.x, pair.y);
+                                        currentSymbol = nextSymbol(currentSymbol, currentTile);
+                                        currentDoorway.requiresSymbol = currentSymbol;
+                                        int numKeys = currentSymbol instanceof PuzzleSymbol ? 2 : 1;
+                                        for(int i=0; i < numKeys; i++){
+                                                Room lootRoom = findRoomToPlaceKey(lootPath, lootRooms,
+                                                        dungeon, floorMap, rooms, currentLoc,
+                                                        currentRoom, currentDoorway, tilesCopy);
+                                                lootRoom.containsSymbol = currentSymbol;
+                                                lootRoom.containsSymbol.spawnToken(dungeon, floorMap, lootRoom, tilesCopy);
                                         }
+
                                         continue endRoomLoop;
                                 }
 
@@ -120,14 +117,27 @@ public class UtRoomSpawn {
                 // now we actually lock the doors on the actual floormap that were flagged to be locked
                 for (Room room : rooms) {
                         for (Doorway doorway : room.doorways) {
-                                if(doorway.requiresKey == null) continue;
+                                if(doorway.requiresSymbol == null) continue;
                                 Tile tile = floorMap.getTile(doorway.x, doorway.y);
-                                tile.setDoorLocked(true, doorway.requiresKey);
+                                doorway.requiresSymbol.lockDoor(dungeon, floorMap, doorway, tile);
                         }
                 }
         }
 
-        private static Room findRoomToPlaceKey(Array<Pair> lootPath, ObjectSet<Room> lootRooms, Dungeon dungeon, FloorMap floorMap, Array<Room> rooms, Pair currentLoc, Room currentRoom, Doorway currentDoorway, Tile[][] validLocations){
+        private static Symbol nextSymbol(Symbol currentSymbol, Tile currentTile){
+                if(currentSymbol == null)
+                        return new PuzzleSymbol(new Torch.CombinationDoorPuzzle(currentTile));
+                else if(currentSymbol instanceof PuzzleSymbol){
+                        return new KeySymbol(KeyItem.Type.Red);
+                }else if(currentSymbol instanceof KeySymbol){
+                        return new KeySymbol(KeyItem.Type.Gold);
+                }else{
+                        return new KeySymbol(KeyItem.Type.Silver);
+                }
+
+        }
+
+        private static Room findRoomToPlaceKey(Array<Pair> lootPath, Array<Room> lootRooms, Dungeon dungeon, FloorMap floorMap, Array<Room> rooms, Pair currentLoc, Room currentRoom, Doorway currentDoorway, Tile[][] validLocations){
                 lootRooms.clear();
                 // first we make a list of candiadte loot rooms based on information from flood filling (valid locations)
                 for(int x=0; x < validLocations.length; x++){
@@ -136,7 +146,7 @@ public class UtRoomSpawn {
                                 if(tile == null || !tile.isFloor())
                                         continue;
                                 for (Room room : rooms) {
-                                        if(room.contains(x,y)){
+                                        if(!lootRooms.contains(room, true) && room.contains(x,y)){
                                                 lootRooms.add(room);
                                         }
                                 }
@@ -149,11 +159,11 @@ public class UtRoomSpawn {
                 // 3. has a path, but involves going through a locked door whose key is contained in the current room (this would create a circular dependency and it wouldnt be impossible to solve the floor)
                 // 4. the loot room and the current room are the same to prevent locking the key in its own room.
                 Pair endLoc = new Pair();
-                ObjectSet.ObjectSetIterator<Room> i = lootRooms.iterator();
+                Iterator<Room> i = lootRooms.iterator();
                 roomLoop:
-                while(i.hasNext){
+                while(i.hasNext()){
                         Room r = i.next();
-                        if(r == currentRoom || r.containsKey != null){
+                        if(r == currentRoom || r.containsSymbol != null){
                                 i.remove();
                                 continue roomLoop;
                         }
@@ -163,7 +173,7 @@ public class UtRoomSpawn {
                                 i.remove();
                                 continue roomLoop;
                         }
-                        if(currentRoom.containsKey == null)
+                        if(currentRoom.containsSymbol == null)
                                 continue roomLoop; // room doesnt contain a key, as long as theres a path to the loot room then its a valid candidate
 
                         while(lootPath.size >0){
@@ -173,7 +183,7 @@ public class UtRoomSpawn {
                                         continue;
                                 for (Room roomWithDoors : rooms) {
                                         for (Doorway doorway : roomWithDoors.doorways) {
-                                                if(doorway.requiresKey == currentRoom.containsKey && doorway.x == lootCurrentLoc.x && doorway.y == lootCurrentLoc.y){
+                                                if(doorway.requiresSymbol == currentRoom.containsSymbol && doorway.x == lootCurrentLoc.x && doorway.y == lootCurrentLoc.y){
                                                         // invalid room to place key, lets continue to the next
                                                         // room on the list
                                                         i.remove();
@@ -191,19 +201,17 @@ public class UtRoomSpawn {
                         throw new InvalidGenerationException("no valid room to place key in");
                 }
 
-                // currently the room is selected using a weighted random selection to prefer rooms with higher difficulty
-                // TODO: instead of using just difficulty, need to also factor distance from currentRoom (the room being locked) and/or other factors. Right now keys tend to spawn in uninteresting places
 
-                // TODO: the start and goal rooms should have an even more decreased chance to contain the key
-                // than any other room. They should mainly just be a fall back if other rooms will not work
+                // TODO: the start and goal rooms should have an even more decreased chance to contain the key than any other room.
+                // They should mainly just be a fall back if other rooms will not work
                 float totalDifficulty = 0f;
                 for (Room lootRoom : lootRooms) {
-                        totalDifficulty+=lootRoom.difficulty;
+                        totalDifficulty+=lootRoom.getIntensity(floorMap.index);
                 }
                 float rand = dungeon.rand.random.nextFloat() * totalDifficulty;
                 float curDifficulty = 0f;
                 for (Room lootRoom : lootRooms) {
-                        curDifficulty+=lootRoom.difficulty;
+                        curDifficulty+=lootRoom.getIntensity(floorMap.index);
                         if(curDifficulty >= rand)
                                 return lootRoom;
                 }
@@ -272,15 +280,15 @@ public class UtRoomSpawn {
                 return lastRoom;
         }
 
-        private static Room chooseRoomByWeight(Dungeon dungeon, Array<Room> lootRooms){
+        private static Room chooseRoomByWeight(Dungeon dungeon, FloorMap floorMap, Array<Room> lootRooms){
                 float totalDifficulty = 0f;
                 for (Room lootRoom : lootRooms) {
-                        totalDifficulty += lootRoom.difficulty;
+                        totalDifficulty += lootRoom.getIntensity(floorMap.index);
                 }
                 float rand = dungeon.rand.random.nextFloat() * totalDifficulty;
                 float curDifficulty=0f;
                 for (Room lootRoom : lootRooms) {
-                        curDifficulty+=lootRoom.difficulty;
+                        curDifficulty+=lootRoom.getIntensity(floorMap.index);
                         if(curDifficulty >=rand)
                                 return lootRoom;
                 }

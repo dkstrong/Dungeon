@@ -49,4 +49,27 @@ public class Sector {
 
         public int getRandomY(DungeonRand rand){ return rand.range(y1,y2); }
 
+        @Override
+        public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+
+                Sector sector = (Sector) o;
+
+                if (x1 != sector.x1) return false;
+                if (x2 != sector.x2) return false;
+                if (y1 != sector.y1) return false;
+                if (y2 != sector.y2) return false;
+
+                return true;
+        }
+
+        @Override
+        public int hashCode() {
+                int result = x1;
+                result = 31 * result + y1;
+                result = 31 * result + x2;
+                result = 31 * result + y2;
+                return result;
+        }
 }

@@ -2,7 +2,6 @@ package asf.dungeon.model;
 
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.ConsumableItem;
-import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtDebugPrint;
 import asf.dungeon.utility.UtMath;
@@ -419,34 +418,18 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                                         for(int i=0; i < tokens.size; i++){
                                                 Token token = tokens.items[i];
                                                 if(token.getLocation().x != x || token.getLocation().y != y) continue;
-                                                KeyItem.Type keyItem = null;
-                                                if(token.getLoot() != null){
-                                                        if(token.getLoot().getItem() instanceof KeyItem){
-                                                                keyItem = ((KeyItem) token.getLoot().getItem()).getType();
-                                                        }
-                                                }else if(token.getCrateInventory() != null ){
-                                                        if(token.getCrateInventory().getItemToDrop() instanceof KeyItem){
-                                                                keyItem = ((KeyItem) token.getCrateInventory().getItemToDrop()).getType();
-                                                        }
-                                                }
-                                                if(keyItem != null){
-                                                        if(keyItem == KeyItem.Type.Silver)
-                                                                s += "s";
-                                                        else if(keyItem == KeyItem.Type.Gold)
-                                                                s += "g";
-                                                        else if(keyItem == KeyItem.Type.Red)
-                                                                s += "r";
-                                                        else
-                                                                s +="?";
+                                                char c= token.toCharacter();
+                                                if(Character.isLetter(c)){
+                                                        s+= c;
                                                         printedToken = true;
                                                         break;
                                                 }
+
                                         }
-                                        if(!printedToken)
-                                                s += String.valueOf(tile);
+                                        if(!printedToken) s += tile.toCharacter();
                                 }
                                 else
-                                        s += String.valueOf(tile);
+                                        s += tile.toCharacter();
                         }
                         out.add(s);
                 }

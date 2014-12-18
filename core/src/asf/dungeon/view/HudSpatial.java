@@ -2,6 +2,8 @@ package asf.dungeon.view;
 
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.floorgen.KeySymbol;
+import asf.dungeon.model.floorgen.PuzzleSymbol;
 import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.ConsumableItem;
@@ -895,15 +897,18 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         @Override
         public void onPathBlocked(Pair nextLocation, Tile nextTile) {
                 if (nextTile.isDoor() && nextTile.isDoorLocked()) {
-                        if(nextTile.getKeyType() == null){
+                        if(nextTile.getDoorSymbol() instanceof PuzzleSymbol){
                                 this.appendToGameLog("The door is shut tight.");
-                        }else{
-                                KeyItem key = localPlayerToken.getInventory().getKeyItem(nextTile.getKeyType());
+                        }else if(nextTile.getDoorSymbol() instanceof KeySymbol){
+                                KeySymbol keySymbol = (KeySymbol) nextTile.getDoorSymbol();
+                                KeyItem key = localPlayerToken.getInventory().getKeyItem(keySymbol.type);
                                 if (key != null) {
                                         this.appendToGameLog("Tap on door again to unlock door.");
                                 } else {
                                         this.appendToGameLog("You do not have the key to unlock this door.");
                                 }
+                        }else{
+                                throw new AssertionError(nextTile.getDoorSymbol());
                         }
 
                 }

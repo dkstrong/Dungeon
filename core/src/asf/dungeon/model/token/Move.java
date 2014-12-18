@@ -4,6 +4,7 @@ import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.floorgen.KeySymbol;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.KeyItem;
 import com.badlogic.gdx.math.MathUtils;
@@ -240,7 +241,10 @@ public class Move implements TokenComponent{
         private boolean useKey(Pair nextLocation) {
                 Tile nextTile = token.floorMap.getTile(nextLocation);
                 if (nextTile.isDoor() && nextTile.isDoorLocked()) {
-                        KeyItem key = token.getInventory().getKeyItem(nextTile.getKeyType());
+                        KeyItem key = null;
+                        if(nextTile.getDoorSymbol() instanceof KeySymbol){
+                                key = token.getInventory().getKeyItem(((KeySymbol) nextTile.getDoorSymbol()).type);
+                        }
                         if (token.getCommand().isUseKey() && nextTile == token.getCommand().getUseKeyOnTile()) {
                                 //token.getTarget().setUseKey(false);
                                 if (key == null) {

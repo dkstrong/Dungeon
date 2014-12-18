@@ -169,11 +169,11 @@ public class FloorSpatial implements Spatial {
                         if(prop != null){
                                 if(decalNode.tile.isDoor()){
                                         if(renderDecal){
-                                                if(decalNode.tile.isDoorLocked()){
-                                                        prop.modelInstance.materials.get(0).set(doorLockedTexAttribute[decalNode.tile.getKeyType().ordinal()]);
-                                                }else{
-                                                        prop.modelInstance.materials.get(0).set(doorTexAttribute);
-                                                }
+//                                                if(decalNode.tile.isDoorLocked()){
+//                                                        prop.modelInstance.materials.get(0).set(doorLockedTexAttribute[decalNode.tile.getDoorSymbol().ordinal()]);
+//                                                }else{
+//                                                        prop.modelInstance.materials.get(0).set(doorTexAttribute);
+//                                                }
                                         }
 
                                         if(decalNode.tile.isDoorOpened() && !prop.animToggle){

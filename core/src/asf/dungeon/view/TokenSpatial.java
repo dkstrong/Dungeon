@@ -23,7 +23,7 @@ import asf.dungeon.model.token.logic.fsm.Monster;
 import asf.dungeon.model.token.logic.fsm.State;
 import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.model.token.quest.Quest;
-import asf.dungeon.model.token.quest.Torch;
+import asf.dungeon.model.token.Torch;
 import asf.dungeon.utility.AnimFactory;
 import asf.dungeon.utility.BetterAnimationController;
 import asf.dungeon.utility.BetterModelInstance;
@@ -391,11 +391,13 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         Direction dir = token.getLocation().direction(token.getAttack().getAttackTarget().getLocation());
                         Quaternion tokenDirRot = world.assetMappings.getRotation(dir);
                         rotation.slerp(tokenDirRot, rotSpeed);
-                }else{
+                }else if(token.getMove() != null){
                         float rotMoveSpeed = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7f);
                         float rotSpeed = delta * (rotMoveSpeed + 0.5f);
                         Quaternion tokenDirRot = world.assetMappings.getRotation(token.getDirection());
                         rotation.slerp(tokenDirRot, rotSpeed);
+                }else{
+                        rotation.set(world.assetMappings.getRotation(token.getDirection()));
                 }
 
 

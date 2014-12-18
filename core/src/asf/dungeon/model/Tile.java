@@ -1,7 +1,8 @@
 package asf.dungeon.model;
 
 
-import asf.dungeon.model.item.KeyItem;
+import asf.dungeon.model.floorgen.KeySymbol;
+import asf.dungeon.model.floorgen.Symbol;
 
 /**
  * Created by danny on 10/26/14.
@@ -15,7 +16,7 @@ public class Tile {
         private boolean blockVision;
         private int stairsTo;
         private boolean door;
-        private KeyItem.Type keyType;
+        private Symbol doorSymbol;
         private boolean doorForcedOpen;
 
         private Tile(boolean blockMovement, boolean blockVision) {
@@ -30,11 +31,11 @@ public class Tile {
                 this.stairsTo = stairsTo;
         }
 
-        private Tile(boolean doorLocked, KeyItem.Type keyType) {
+        private Tile(boolean doorLocked, Symbol doorSymbol) {
                 this.door = true;
                 this.blockVision = true;
                 this.blockMovement = doorLocked;
-                this.keyType = keyType;
+                this.doorSymbol = doorSymbol;
                 this.stairsTo = -2;
         }
 
@@ -67,8 +68,8 @@ public class Tile {
          * if this door is unlocked by some other means than a key (such as a puzzle) then this value should be null
          * @return
          */
-        public KeyItem.Type getKeyType() {
-                return keyType;
+        public Symbol getDoorSymbol() {
+                return doorSymbol;
         }
 
         public void setDoorOpened(boolean opened) { blockVision = !opened && !doorForcedOpen; }
@@ -77,9 +78,9 @@ public class Tile {
                 blockMovement = locked;
         }
 
-        public void setDoorLocked(boolean locked, KeyItem.Type keyType) {
+        public void setDoorLocked(boolean locked, Symbol doorSymbol) {
                 blockMovement = locked;
-                this.keyType = keyType;
+                this.doorSymbol = doorSymbol;
         }
 
         public boolean isDoorForcedOpen() { return doorForcedOpen; }
@@ -115,7 +116,7 @@ public class Tile {
 
         public static Tile makeDoor() { return new Tile(false, null); }
 
-        public static Tile makeDoor(KeyItem.Type keyType) { return new Tile(true, keyType); }
+        public static Tile makeDoor(Symbol keyType) { return new Tile(true, keyType); }
 
         public static Tile makeStairs(int currentFloorIndex, int stairsTo) {
                 return new Tile(stairsTo < currentFloorIndex, stairsTo);
@@ -123,25 +124,32 @@ public class Tile {
 
         @Override
         public String toString() {
+                return String.valueOf(toCharacter());
+        }
+
+        public char toCharacter(){
                 if (isFloor())
-                        return ".";
+                        return '.';
 
                 if (isWall())
-                        return "|";
+                        return '|';
 
                 if (isStairs()) {
                         if (isBlockVision())
-                                return "^";
+                                return '^';
                         else
-                                return "&";
+                                return '&';
                 }
 
                 if (isDoor())
                         if(isDoorLocked())
-                                return "/";
+                                if(getDoorSymbol() instanceof KeySymbol)
+                                        return '/';
+                                else
+                                        return '\\';
                         else
-                                return "+";
+                                return '+';
 
-                return "?";
+                return '?';
         }
 }

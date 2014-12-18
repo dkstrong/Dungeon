@@ -1,11 +1,9 @@
-package asf.dungeon.model.token.quest;
+package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.TokenComponent;
 import com.badlogic.gdx.utils.IdentityMap;
 
 /**
@@ -61,7 +59,6 @@ public class Torch implements TokenComponent {
                         Torch t = token.get(Torch.class);
                         if(t == null) throw new IllegalArgumentException("token must have a torch");
                         torches.put(t, ignited);
-                        checkPuzzle(token.dungeon);
                 }
                 @Override
                 public void checkPuzzle(Dungeon dungeon) {
@@ -95,7 +92,7 @@ public class Torch implements TokenComponent {
 
                 @Override
                 protected void onUnsolved() {
-                        doorTile.setDoorLocked(true, null);
+                        doorTile.setDoorLocked(true);
                         doorTile.setDoorForcedOpen(false);
                 }
         }

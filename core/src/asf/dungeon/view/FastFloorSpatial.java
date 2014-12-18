@@ -455,15 +455,15 @@ public class FastFloorSpatial implements Spatial {
                                 floor.world.decalBatch.add(decal);
 
                                 if(tile.isDoorLocked())
-                                        if(tile.getKeyType() != null)
-                                                modelInstance.materials.get(0).set(floor.doorLockedTexAttribute[tile.getKeyType().ordinal()]);
-                                        else
-                                                modelInstance.materials.get(0).set(floor.doorLockedTexAttribute[floor.doorLockedTexAttribute.length-2]);
-                                else
+                                        modelInstance.materials.get(0).set(tile.getDoorSymbol().getDoorTexAttribute(floor.doorLockedTexAttribute));
+                                else{
+                                        // TODO: locked doors should have a "used to be locked but not anymore" texture theyll use after being unlocked
                                         if(!tile.isDoorForcedOpen())
                                                 modelInstance.materials.get(0).set(floor.doorLockedTexAttribute[floor.doorLockedTexAttribute.length-1]);
                                         else
-                                                modelInstance.materials.get(0).set(floor.doorLockedTexAttribute[floor.doorLockedTexAttribute.length-2]);
+                                                modelInstance.materials.get(0).set(tile.getDoorSymbol().getDoorTexAttribute(floor.doorLockedTexAttribute));
+                                }
+
 
                                 colorAttribute.color.r = UtMath.clamp(color.r+.1f, 0f,1f);
                                 colorAttribute.color.g = UtMath.clamp(color.g+.1f, 0f,1f);

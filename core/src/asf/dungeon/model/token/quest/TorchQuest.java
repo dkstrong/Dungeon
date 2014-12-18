@@ -1,6 +1,7 @@
 package asf.dungeon.model.token.quest;
 
 import asf.dungeon.model.token.Interactor;
+import asf.dungeon.model.token.Torch;
 
 /**
  * Created by Danny on 12/1/2014.
