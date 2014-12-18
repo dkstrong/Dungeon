@@ -44,7 +44,6 @@ public class FastFloorSpatial implements Spatial {
         private Array<DecalNode> decalNodes;
         private TextureRegion[][] floorTexRegions;
         private TextureRegion[] wallTexRegions, wallDarkTexRegions;
-        private TextureAttribute doorTexAttribute;
         private TextureAttribute[] doorLockedTexAttribute;
         private float[] fogAlpha;
         private static Vector3 worldCoordsTemp = new Vector3();
@@ -58,10 +57,6 @@ public class FastFloorSpatial implements Spatial {
                 world.assetManager.load("Models/Dungeon/Stairs/StairsDown.g3db", Model.class);
 
                 world.assetManager.load("Models/Dungeon/Door/Door.g3db", Model.class);
-                world.assetManager.load("Models/Dungeon/Door/Door.png", Texture.class);
-                world.assetManager.load("Models/Dungeon/Door/DoorLockedSilver.png", Texture.class);
-                world.assetManager.load("Models/Dungeon/Door/DoorLockedGold.png", Texture.class);
-                world.assetManager.load("Models/Dungeon/Door/DoorLockedRed.png", Texture.class);
         }
 
         @Override
@@ -78,11 +73,14 @@ public class FastFloorSpatial implements Spatial {
                 wallTexRegions = tr2[0];
                 wallDarkTexRegions = tr2[1];
 
-                doorTexAttribute = TextureAttribute.createDiffuse(world.assetManager.get("Models/Dungeon/Door/Door.png", Texture.class));
-                doorLockedTexAttribute = new TextureAttribute[3];
-                doorLockedTexAttribute[KeyItem.Type.Silver.ordinal()] = TextureAttribute.createDiffuse(world.assetManager.get("Models/Dungeon/Door/DoorLockedSilver.png", Texture.class));
-                doorLockedTexAttribute[KeyItem.Type.Gold.ordinal()] = TextureAttribute.createDiffuse(world.assetManager.get("Models/Dungeon/Door/DoorLockedGold.png", Texture.class));
-                doorLockedTexAttribute[KeyItem.Type.Red.ordinal()] = TextureAttribute.createDiffuse(world.assetManager.get("Models/Dungeon/Door/DoorLockedRed.png", Texture.class));
+                doorLockedTexAttribute = new TextureAttribute[5];
+                // locked by key
+
+                doorLockedTexAttribute[KeyItem.Type.Silver.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedSilver"));
+                doorLockedTexAttribute[KeyItem.Type.Gold.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedGold"));
+                doorLockedTexAttribute[KeyItem.Type.Red.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedRed"));
+                doorLockedTexAttribute[doorLockedTexAttribute.length-2] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLocked"));
+                doorLockedTexAttribute[doorLockedTexAttribute.length-1] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/Door"));
 
                 setFloorMap(floorMap);
         }
@@ -457,10 +455,15 @@ public class FastFloorSpatial implements Spatial {
                                 floor.world.decalBatch.add(decal);
 
                                 if(tile.isDoorLocked())
-                                        modelInstance.materials.get(0).set(floor.doorLockedTexAttribute[tile.getKeyType().ordinal()]);
+                                        if(tile.getKeyType() != null)
+                                                modelInstance.materials.get(0).set(floor.doorLockedTexAttribute[tile.getKeyType().ordinal()]);
+                                        else
+                                                modelInstance.materials.get(0).set(floor.doorLockedTexAttribute[floor.doorLockedTexAttribute.length-2]);
                                 else
-                                        modelInstance.materials.get(0).set(floor.doorTexAttribute);
-
+                                        if(!tile.isDoorForcedOpen())
+                                                modelInstance.materials.get(0).set(floor.doorLockedTexAttribute[floor.doorLockedTexAttribute.length-1]);
+                                        else
+                                                modelInstance.materials.get(0).set(floor.doorLockedTexAttribute[floor.doorLockedTexAttribute.length-2]);
 
                                 colorAttribute.color.r = UtMath.clamp(color.r+.1f, 0f,1f);
                                 colorAttribute.color.g = UtMath.clamp(color.g+.1f, 0f,1f);

@@ -17,6 +17,8 @@ import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
 import asf.dungeon.model.token.logic.fsm.QuestNPC;
 import asf.dungeon.model.token.quest.PotionQuest;
+import asf.dungeon.model.token.quest.Torch;
+import asf.dungeon.model.token.quest.TorchQuest;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -79,13 +81,34 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 if(floorIndex ==0){
                         Room roomEnd = rooms.get(rooms.size-1);
                         Token traveler = new Token(dungeon, "Traveler", ModelId.Priest);
-                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
+                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
                         dungeon.newQuestCharacterToken(traveler, new FsmLogic(2,roomEnd, QuestNPC.PauseThenMove), new PotionQuest(), floorMap, loc.x, loc.y);
+
+                        if(roomEnd.doorways.size > 0){
+                                Doorway dw = roomEnd.doorways.items[0];
+                                Torch.CombinationDoorPuzzle puzzle = new Torch.CombinationDoorPuzzle(floorMap.getTile(dw.x,dw.y));
+
+                                Token torchToken = new Token(dungeon, "Torch", ModelId.Torch);
+                                torchToken.add(new Torch(torchToken, false, puzzle));
+                                torchToken.add(new TorchQuest());
+                                loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd,null);
+                                dungeon.newToken(torchToken, floorMap, loc.x, loc.y);
+                                puzzle.putTorch(torchToken, true);
+
+                                torchToken = new Token(dungeon, "Torch", ModelId.Torch);
+                                torchToken.add(new Torch(torchToken, false, puzzle));
+                                torchToken.add(new TorchQuest());
+                                loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
+                                dungeon.newToken(torchToken, floorMap, loc.x, loc.y);
+                                puzzle.putTorch(torchToken, true);
+                        }
+
+
                 }else{
                         Room roomEnd = rooms.get(dungeon.rand.random.nextInt(rooms.size));
                         Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
                         fountainToken.add(new Fountain(fountainToken, PotionItem.Type.Health));
-                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd);
+                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
                         dungeon.newToken(fountainToken, floorMap, loc.x, loc.y);
                         //Gdx.app.log("ConnectedRoomGen","fountain at: "+loc);
                 }

@@ -16,6 +16,7 @@ public class Tile {
         private int stairsTo;
         private boolean door;
         private KeyItem.Type keyType;
+        private boolean doorForcedOpen;
 
         private Tile(boolean blockMovement, boolean blockVision) {
                 this.blockMovement = blockMovement;
@@ -62,15 +63,31 @@ public class Tile {
                 return blockMovement;
         }
 
+        /**
+         * if this door is unlocked by some other means than a key (such as a puzzle) then this value should be null
+         * @return
+         */
         public KeyItem.Type getKeyType() {
                 return keyType;
         }
 
-        public void setDoorOpened(boolean opened) { blockVision = !opened; }
+        public void setDoorOpened(boolean opened) { blockVision = !opened && !doorForcedOpen; }
 
-        public void setDoorLocked(boolean locked) { blockMovement = locked; }
+        public void setDoorLocked(boolean locked) {
+                blockMovement = locked;
+        }
 
-        public void setDoorLocked(boolean locked, KeyItem.Type keyType) { blockMovement = locked; this.keyType = keyType; }
+        public void setDoorLocked(boolean locked, KeyItem.Type keyType) {
+                blockMovement = locked;
+                this.keyType = keyType;
+        }
+
+        public boolean isDoorForcedOpen() { return doorForcedOpen; }
+
+        public void setDoorForcedOpen(boolean doorForcedOpen) {
+                this.doorForcedOpen = doorForcedOpen;
+                blockVision = !doorForcedOpen;
+        }
 
         public boolean isStairs() {
                 return stairsTo >= -1;

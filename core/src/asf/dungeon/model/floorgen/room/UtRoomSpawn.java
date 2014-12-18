@@ -81,8 +81,7 @@ public class UtRoomSpawn {
                                 Doorway currentDoorway = getDoorway(rooms, currentLoc);
                                 if(currentDoorway.requiresKey != null)
                                         continue endRoomLoop; // this pathway is already pretty well locked off, no need for any more locked doors here..
-                                if(!currentDoorway.lockable)
-                                        continue;
+
                                 boolean isChokepoint = isDoorwayToDeadEnd(floorMap.tiles, tilesCopy, currentLoc, lastLoc);
                                 // if this is a chokepoint then this could be an ideal door location, this means
                                 // that you cant get to the other side of the door through another room or hallway.
@@ -103,13 +102,16 @@ public class UtRoomSpawn {
                                                 dungeon, floorMap, rooms, currentLoc,
                                                 currentRoom, currentDoorway, tilesCopy);
 
-                                        boolean spawnInsideCrate = dungeon.rand.random.nextBoolean();
                                         lootRoom.containsKey = currentDoorway.requiresKey;
-                                        spawnLootInRoom(dungeon, floorMap, lootRoom, spawnInsideCrate ? ModelId.CeramicPitcher: null,new KeyItem(dungeon, lootRoom.containsKey),tilesCopy );
+                                        Pair pair = getRandomLocToSpawnCharacter(dungeon, floorMap, lootRoom, tilesCopy);
+                                        KeyItem keyItem = new KeyItem(dungeon, lootRoom.containsKey);
+                                        if(dungeon.rand.random.nextBoolean()){
+                                                dungeon.newCrateToken(floorMap,ModelId.CeramicPitcher.name(), ModelId.CeramicPitcher, keyItem, pair.x, pair.y);
+                                        }else{
+                                                dungeon.newLootToken(floorMap, keyItem, pair.x, pair.y);
+                                        }
                                         continue endRoomLoop;
                                 }
-
-
 
 
                         }
@@ -185,8 +187,8 @@ public class UtRoomSpawn {
                 // Now that we have a list of ideal candidate rooms to place the key in, now we pick one
 
                 if(lootRooms.size <=0){
-                        //UtFloorGen.printFloorTile(validLocations, currentLoc);
-                        throw new IllegalStateException("no valid room to place key in");
+                        UtFloorGen.printFloorTile(validLocations, currentLoc);
+                        throw new InvalidGenerationException("no valid room to place key in");
                 }
 
                 // currently the room is selected using a weighted random selection to prefer rooms with higher difficulty
@@ -206,7 +208,7 @@ public class UtRoomSpawn {
                                 return lootRoom;
                 }
                 //UtFloorGen.printFloorTile(validLocations, currentLoc);
-                throw new AssertionError("not loot room was found");
+                throw new InvalidGenerationException("not loot room was found");
         }
 
         private static boolean isDoorwayToDeadEnd(Tile[][] tiles, Tile[][] storeTiles, Pair currentLoc, Pair lastLoc){
@@ -285,39 +287,32 @@ public class UtRoomSpawn {
                 throw new AssertionError("no loot room was found");
         }
 
-        public  static boolean spawnLootInRoom(Dungeon dungeon, FloorMap floorMap, Room room, ModelId spawnInCrate, Item item, Tile[][] validLocations) {
-                for (int i = 0; i < 20; i++) {
-                        int x = dungeon.rand.range(room.x1 + 1, room.x2 - 1);
-                        int y = dungeon.rand.range(room.y1 + 1, room.y2 - 1);
-                        if(validLocations != null){
-                                if(validLocations[x][y] == null)
-                                        continue;
-                        }
-                        Tile tile = floorMap.getTile(x,y);
-                        if(!tile.isFloor()){
-                                continue;
-                        }
-                        if(floorMap.hasTokensAt(x,y))
-                                continue;
+        public static void spawnLootInRoom(Dungeon dungeon, FloorMap floorMap, Room room, ModelId spawnInCrate, Item item, Tile[][] validLocations) {
 
-                        if(spawnInCrate != null){
-                                dungeon.newCrateToken(floorMap,spawnInCrate.name(), spawnInCrate, item, x, y);
-                                return true;
-                        }else{
-                                dungeon.newLootToken(floorMap, item, x, y);
-                                return true;
-                        }
-                }
-                return false;
+                Pair pair = getRandomLocToSpawnCharacter(dungeon, floorMap, room, validLocations);
+                if(spawnInCrate != null)
+                        dungeon.newCrateToken(floorMap,spawnInCrate.name(), spawnInCrate, item, pair.x, pair.y);
+                else
+                        dungeon.newLootToken(floorMap, item, pair.x, pair.y);
+
         }
 
-        public static Pair getRandomLocToSpawnCharacter(Dungeon dungeon, FloorMap floorMap, Room room){
-                int x,y;
-                do{
+        public static Pair getRandomLocToSpawnCharacter(Dungeon dungeon, FloorMap floorMap, Room room, Tile[][] validLocations){
+                Pair pair = new Pair();
+                for(int tries= 0; tries < 20; ++tries){
+                        pair.x = dungeon.rand.range(room.x1, room.x2);
+                        pair.y = dungeon.rand.range(room.y1, room.y2);
+                        if(validLocations != null && validLocations[pair.x][pair.y] == null) continue;
+                        Tile tile = floorMap.getTile(pair.x, pair.y);
+                        if(tile == null || !tile.isFloor()) continue;
+                        if(floorMap.getTile(pair.x+1,pair.y).isDoor()) continue;
+                        if(floorMap.getTile(pair.x-1,pair.y).isDoor()) continue;
+                        if(floorMap.getTile(pair.x,pair.y+1).isDoor()) continue;
+                        if(floorMap.getTile(pair.x,pair.y-1).isDoor()) continue;
+                        if(floorMap.hasTokensAt(pair.x, pair.y)) continue;
+                        return pair;
 
-                        x = dungeon.rand.range(room.x1, room.x2);
-                        y = dungeon.rand.range(room.y1, room.y2);
-                }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
-                return new Pair(x,y);
+                }
+                throw new InvalidGenerationException("There is nowhere to spawn token in this room");
         }
 }

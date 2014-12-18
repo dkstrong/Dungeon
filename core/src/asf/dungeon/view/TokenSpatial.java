@@ -23,6 +23,7 @@ import asf.dungeon.model.token.logic.fsm.Monster;
 import asf.dungeon.model.token.logic.fsm.State;
 import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.model.token.quest.Quest;
+import asf.dungeon.model.token.quest.Torch;
 import asf.dungeon.utility.AnimFactory;
 import asf.dungeon.utility.BetterAnimationController;
 import asf.dungeon.utility.BetterModelInstance;
@@ -135,7 +136,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
                 //}
 
-                Loot loot = token.get(Loot.class);
+                Loot loot = token.getLoot();
                 if (loot != null) {
                         if (loot.getItem() instanceof PotionItem) {
                                 PotionItem potion = (PotionItem) loot.getItem();
@@ -182,7 +183,8 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         }
                 }
 
-                if (token.getModelId() == ModelId.Diablous || token.getModelId() == ModelId.Berzerker || token.getModelId() == ModelId.Priest || token.getModelId() == ModelId.Scroll) {
+                if (token.getModelId() == ModelId.Diablous || token.getModelId() == ModelId.Berzerker || token.getModelId() == ModelId.Priest
+                        || token.getModelId() == ModelId.Scroll || token.getModelId() == ModelId.Torch) {
                         for (Material mat : modelInstance.materials) {
                                 //GdxInfo.material(mat);
                                 mat.set(new IntAttribute(IntAttribute.CullFace, 0));
@@ -318,6 +320,18 @@ public class TokenSpatial implements Spatial, Token.Listener {
                         }
 
 
+                }
+
+                Torch torch = token.get(Torch.class);
+                if(torch != null){
+                        if(texToggle != torch.isIgnited()){
+                                texToggle = torch.isIgnited();
+                                if(torch.isIgnited()){
+                                        world.fxManager.spawnEffect(FxId.Burning, this, Float.NaN);
+                                }else{
+                                        world.fxManager.spawnEffect(FxId.Burning, this, 0f);
+                                }
+                        }
                 }
 
                 if(token.getLogic() != null){

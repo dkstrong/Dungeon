@@ -13,6 +13,8 @@ public class Packer {
         public static void main (String[] arg) {
                 // https://github.com/libgdx/libgdx/wiki/Texture-packer#settings
                 TexturePacker.Settings packerSettings = new TexturePacker.Settings();
+                packerSettings.minWidth = 512;
+                packerSettings.minHeight = 512;
                 packerSettings.maxWidth = 512;
                 packerSettings.maxHeight = 512;
                 packerSettings.pot = true;
@@ -20,15 +22,20 @@ public class Packer {
                 TexturePacker.processIfModified(packerSettings, "../images/Menu", "../android/assets/Packs","Menu");
 
                 TexturePacker.Settings packerSettings2 = new TexturePacker.Settings();
-                packerSettings2.maxWidth = 1024;
-                packerSettings2.maxHeight = 1024;
+                packerSettings2.minWidth = 512;
+                packerSettings2.minHeight = 512;
+                packerSettings2.maxWidth = 512;
+                packerSettings2.maxHeight = 512;
+                packerSettings2.edgePadding = false;
+                packerSettings2.paddingX = 0;
+                packerSettings2.paddingY=0;
                 packerSettings2.pot = true;
                 packerSettings2.square = true;
                 TexturePacker.processIfModified(packerSettings2, "../images/Game", "../android/assets/Packs","Game");
 
                 TexturePacker.Settings packerSettings3 = new TexturePacker.Settings();
                 packerSettings3.minWidth = 512;
-                packerSettings3.maxHeight = 512;
+                packerSettings3.minHeight = 512;
                 packerSettings3.maxWidth = 512;
                 packerSettings3.maxHeight = 512;
                 packerSettings3.paddingX = 0;

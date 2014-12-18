@@ -12,8 +12,10 @@ import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.StatusEffect;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 
@@ -38,7 +40,7 @@ public class AssetMappings {
                 rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
                 rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
 
-                assetLocations = new String[19];
+                assetLocations = new String[20];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
                 assetLocations[ModelId.Cerberus.ordinal()] = "Models/Characters/cerberus.g3db";
@@ -48,9 +50,10 @@ public class AssetMappings {
                 assetLocations[ModelId.Mage.ordinal()] = "Models/Characters/mage.g3db";
                 assetLocations[ModelId.Priest.ordinal()] = "Models/Characters/priest.g3db";
                 assetLocations[ModelId.Skeleton.ordinal()] = "Models/Characters/Skeleton.g3db";
-                assetLocations[ModelId.UserMonster.ordinal()] = "";
+                assetLocations[ModelId.UserMonster.ordinal()] = null;
                 assetLocations[ModelId.CeramicPitcher.ordinal()] = "Models/Crates/CeramicPitcher.g3db";
                 assetLocations[ModelId.Fountain.ordinal()] = "Models/Crates/Fountain/Fountain.g3db";
+                assetLocations[ModelId.Torch.ordinal()] = "Models/Crates/Torch/Torch.g3db";
                 assetLocations[ModelId.Potion.ordinal()] = "Models/Loot/Potion/PotionSmall.g3db";
                 assetLocations[ModelId.Scroll.ordinal()] = "Models/Loot/Scroll/Scroll.g3db";
                 assetLocations[ModelId.Book.ordinal()] = "Models/Loot/Book/Book.g3db";
@@ -94,6 +97,13 @@ public class AssetMappings {
 
         }
 
+        public void preload3dModels(AssetManager assetManager){
+                for (String assetLocation : assetLocations) {
+                        if(assetLocation == null) continue;
+                        assetManager.load(assetLocation, Model.class);
+                }
+        }
+
         public static FileHandle getUserMonsterLocation(){
                 if(Gdx.app.getType() != Application.ApplicationType.Desktop)
                         return null;
@@ -104,6 +114,10 @@ public class AssetMappings {
                         return list[list.length-1];
                 return null;
 
+        }
+
+        protected String getAssetLocation(ModelId modelId) {
+                return assetLocations[modelId.ordinal()];
         }
 
         public String[][] getSoundLocations(){
@@ -124,9 +138,7 @@ public class AssetMappings {
                 return rotations[dir.ordinal()];
         }
 
-        protected String getAssetLocation(ModelId modelId) {
-                return assetLocations[modelId.ordinal()];
-        }
+
 
         protected String getHudStatusEffectIcon(StatusEffect effect){
                 return "Interface/Hud/health";

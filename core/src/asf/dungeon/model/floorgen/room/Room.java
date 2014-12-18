@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.Array;
  */
 public class Room extends Sector {
 
-        protected Array<Doorway> doorways = new Array<Doorway>(true, 4, Doorway.class);
+        protected Array<Doorway> doorways = new Array<Doorway>(true, 2, Doorway.class);
         protected KeyItem.Type containsKey = null; // used by key spawner
         protected int containsStairsTo = -2;
         protected float difficulty  =0f;

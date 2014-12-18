@@ -45,9 +45,16 @@ Fountains, Chests, Barrels
 Danimal
 http://opengameart.org/content/pixel-dungeons-set1-props-and-stuff
 
+Torch
+cemkalyoncu
+p0ss
+Tapio
+Yughues
+http://opengameart.org/content/izchaks-torches
+
 ===Misc Dungeon Assets===
 Stairs
-CLint Bellanger
+Clint Bellanger
 URL: http://opengameart.org/content/low-poly-stairs
 
 ===Textures===

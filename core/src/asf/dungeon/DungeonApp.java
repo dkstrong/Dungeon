@@ -47,7 +47,7 @@ public class DungeonApp implements ApplicationListener {
                 settings.playerModel = ModelId.Knight;
 
                 //settings.startDebugSession = true;
-                settings.random = new Random(2);
+                settings.random = new Random(4);
                 loadWorld(settings);
 
         }

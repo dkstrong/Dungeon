@@ -13,6 +13,7 @@ public enum ModelId {
         UserMonster,
         CeramicPitcher,
         Fountain,
+        Torch,
         Potion,
         Scroll,
         Book,

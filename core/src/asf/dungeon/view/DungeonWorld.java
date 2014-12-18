@@ -237,6 +237,8 @@ public class DungeonWorld implements Disposable {
 
                                         dungeonApp.music.setPlaylist(SongId.MainTheme, SongId.Arabesque, SongId.RitualNorm);
                                         dungeonApp.music.playSong(SongId.RitualNorm);
+
+                                        assetMappings.preload3dModels(assetManager); // load the remaining assets while we play the game
                                 }
 
                                 Iterator<LoadedNotifyable> i = loadables.iterator();

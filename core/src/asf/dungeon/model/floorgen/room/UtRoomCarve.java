@@ -133,9 +133,7 @@ public class UtRoomCarve {
 
         public static void carveDoors(Dungeon dungeon, int floorIndex, Tile[][] tiles, Array<Room> rooms) {
                 for (int i = 0; i < rooms.size; i++) {
-                        Room room = rooms.get(i);
-                        carveDoorsInRoom(dungeon, floorIndex, tiles, rooms, room);
-
+                        carveDoorsInRoom(dungeon, floorIndex, tiles, rooms, rooms.items[i]);
                 }
         }
 
@@ -147,15 +145,6 @@ public class UtRoomCarve {
                 // 2 - prevent the scenario of a tunnel going through a wall "long ways" causing the entire wall becoming a string of doors
                 // 3 - prevent a door to be placed at the ends of double wide halls
 
-
-                int doorCount = 0;
-                Tile door = null;
-
-                // TODO: door count needs to increment even on situations
-                // where a door could not be created. for instance:
-                //   - when a door wasnt spawned because itd be put next to another door
-                //   - when a door wasnt spawned because it was extended through a hall skimming it (? i beleive i need this?)
-
                 // top and bottom of room
                 for (int y = room.y1; y <= room.y2; y += room.getHeight()) {
                         for (int x = room.x1; x <= room.x2; x++) {
@@ -163,12 +152,11 @@ public class UtRoomCarve {
                                         if (UtFloorGen.countDoors(tiles, x, y) == 0
                                                 && UtFloorGen.isWall(tiles, x + 1, y)
                                                 && UtFloorGen.isWall(tiles, x - 1, y)) {
-                                                door = Tile.makeDoor();
-                                                tiles[x][y] = door;
+                                                tiles[x][y] = Tile.makeDoor();
+                                                placeDoorway(dungeon, rooms, x,y);
                                         }
-                                        doorCount++; // this is still a "doorway" as in a hole in the room
-                                        // TODO: for cases of hallways cutting through the side of a room, this will create a lot of doorways
-                                        placeDoorway(dungeon, rooms, x,y, tiles[x][y].isDoor());
+                                        // this is still a "doorway" as in a hole in the room, just the wall
+                                        // was modified by a hallway such that an actual door doesnt make sense
                                 }
                         }
                 }
@@ -179,35 +167,24 @@ public class UtRoomCarve {
                                         if (UtFloorGen.countDoors(tiles, x, y) == 0
                                                 && UtFloorGen.isWall(tiles, x, y - 1)
                                                 && UtFloorGen.isWall(tiles, x, y + 1)) {
-                                                door = Tile.makeDoor();
-                                                tiles[x][y] = door;
+                                                tiles[x][y] = Tile.makeDoor();
+                                                placeDoorway(dungeon, rooms, x,y);
                                         }
-                                        doorCount++; // this is still a "doorway" as in a hole in the room
-                                        // TODO: for cases of hallways cutting through the side of a room, this will create a lot of doorways
-                                        placeDoorway(dungeon, rooms, x,y, tiles[x][y].isDoor());
+                                        // this is still a "doorway" as in a hole in the room, just the wall
+                                        // was modified by a hallway such that an actual door doesnt make sense
                                 }
                         }
                 }
-
-                if(doorCount ==1 && door != null){
-                        // this room is a dead end, with only one entrance,
-                        // may want to store this value and use this info later..
-                        // because this room would make a good treasure room
-                }
-
-
         }
 
-        private static void placeDoorway(Dungeon dungeon, Array<Room> rooms, int x, int y, boolean lockable){
-                Doorway doorway = new Doorway(x,y, lockable);
+        private static void placeDoorway(Dungeon dungeon, Array<Room> rooms, int x, int y){
+                Doorway doorway = new Doorway(x,y);
                 for (Room room : rooms) {
                         if(room.contains(x,y)){
                              room.doorways.add(doorway);
-                             doorway.destinations.add(room);
                         }
                 }
-                // TODO: if this doorway leads to a hallway, then the room at the other end of the hallway needs to be added as a destination
-                // (but that room does get the doorway added to its list)
+
         }
 
         public static boolean carveStairs(Dungeon dungeon, int floorIndex, Tile[][] tiles, Array<Room> rooms) {
