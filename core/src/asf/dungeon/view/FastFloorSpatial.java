@@ -73,12 +73,15 @@ public class FastFloorSpatial implements Spatial {
                 wallTexRegions = tr2[0];
                 wallDarkTexRegions = tr2[1];
 
-                doorLockedTexAttribute = new TextureAttribute[5];
+                doorLockedTexAttribute = new TextureAttribute[8];
                 // locked by key
 
                 doorLockedTexAttribute[KeyItem.Type.Silver.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedSilver"));
+                doorLockedTexAttribute[KeyItem.Type.Silver.ordinal()+1] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorSilver"));
                 doorLockedTexAttribute[KeyItem.Type.Gold.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedGold"));
+                doorLockedTexAttribute[KeyItem.Type.Gold.ordinal()+1] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorGold"));
                 doorLockedTexAttribute[KeyItem.Type.Red.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedRed"));
+                doorLockedTexAttribute[KeyItem.Type.Red.ordinal()+1] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorRed"));
                 doorLockedTexAttribute[doorLockedTexAttribute.length-2] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLocked"));
                 doorLockedTexAttribute[doorLockedTexAttribute.length-1] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/Door"));
 
@@ -454,16 +457,9 @@ public class FastFloorSpatial implements Spatial {
                                 decal.setColor(color);
                                 floor.world.decalBatch.add(decal);
 
-                                if(tile.isDoorLocked())
-                                        modelInstance.materials.get(0).set(tile.getDoorSymbol().getDoorTexAttribute(floor.doorLockedTexAttribute));
-                                else{
-                                        // TODO: locked doors should have a "used to be locked but not anymore" texture theyll use after being unlocked
-                                        if(!tile.isDoorForcedOpen())
-                                                modelInstance.materials.get(0).set(floor.doorLockedTexAttribute[floor.doorLockedTexAttribute.length-1]);
-                                        else
-                                                modelInstance.materials.get(0).set(tile.getDoorSymbol().getDoorTexAttribute(floor.doorLockedTexAttribute));
-                                }
 
+                                TextureAttribute doorTexAttribute = getDoorTexAttribute(tile, floor.doorLockedTexAttribute);
+                                modelInstance.materials.get(0).set(doorTexAttribute);
 
                                 colorAttribute.color.r = UtMath.clamp(color.r+.1f, 0f,1f);
                                 colorAttribute.color.g = UtMath.clamp(color.g+.1f, 0f,1f);
@@ -473,6 +469,23 @@ public class FastFloorSpatial implements Spatial {
                                 color.g = fog;
                         }
 
+
+                }
+
+                private TextureAttribute getDoorTexAttribute(Tile doorTile, TextureAttribute[] doorLockedTexAttribute){
+                        if(doorTile.getDoorSymbol() == null){
+                                return doorLockedTexAttribute[doorLockedTexAttribute.length-1];
+                        }
+
+                        if(doorTile.getDoorSymbol() instanceof KeyItem){
+                                KeyItem keyItem = (KeyItem) doorTile.getDoorSymbol();
+                                if(doorTile.isDoorLocked())
+                                        return doorLockedTexAttribute[keyItem.getType().ordinal()];
+                                else
+                                        return doorLockedTexAttribute[keyItem.getType().ordinal()+1];
+                        }else{
+                                return doorLockedTexAttribute[doorLockedTexAttribute.length-2];
+                        }
 
                 }
 
@@ -486,5 +499,7 @@ public class FastFloorSpatial implements Spatial {
 
                 }
         }
+
+
 
 }

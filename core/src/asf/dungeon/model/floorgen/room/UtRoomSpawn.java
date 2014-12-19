@@ -5,13 +5,16 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Pathfinder;
+import asf.dungeon.model.Symbol;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.InvalidGenerationException;
-import asf.dungeon.model.Symbol;
 import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
+import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.Torch;
+import asf.dungeon.model.token.puzzle.CombinationDoorPuzzle;
+import asf.dungeon.model.token.quest.TorchQuest;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.Iterator;
@@ -96,13 +99,16 @@ public class UtRoomSpawn {
                                 if(isChokepoint && dungeon.rand.bool(.45f)){
                                         currentSymbol = nextSymbol(currentSymbol, currentTile);
                                         currentDoorway.requiresSymbol = currentSymbol;
-                                        int numKeys = currentSymbol instanceof Torch.CombinationDoorPuzzle ? 2 : 1;
+                                        int numKeys =1;
+                                        // TODO: in order to generate more than 1 key for this doorway we need to include
+                                        // code that ensures there will be enough loot rooms to contain all the symbols.
+                                        // ie. cant put a torch puzzle wiht 2 torches on the first door.
                                         for(int i=0; i < numKeys; i++){
                                                 Room lootRoom = findRoomToPlaceKey(lootPath, lootRooms,
                                                         dungeon, floorMap, rooms, currentLoc,
                                                         currentRoom, currentDoorway, tilesCopy);
                                                 lootRoom.containsSymbol = currentSymbol;
-                                                lootRoom.containsSymbol.spawnToken(dungeon, floorMap, lootRoom, tilesCopy);
+                                                UtRoomSpawn.spawnTokenForSymbol(dungeon, floorMap, lootRoom, tilesCopy, currentSymbol);
                                         }
 
                                         continue endRoomLoop;
@@ -124,13 +130,33 @@ public class UtRoomSpawn {
 
         private static Symbol nextSymbol(Symbol currentSymbol, Tile currentTile){
                 if(currentSymbol == null)
-                        return new Torch.CombinationDoorPuzzle(currentTile);
-                else if(currentSymbol instanceof Torch.CombinationDoorPuzzle){
+                        return new CombinationDoorPuzzle();
+                else if(currentSymbol instanceof CombinationDoorPuzzle){
                         return new KeyItem(KeyItem.Type.Red);
                 }else if(currentSymbol instanceof KeyItem){
                         return new KeyItem(KeyItem.Type.Gold);
                 }else{
                         return new KeyItem(KeyItem.Type.Silver);
+                }
+
+        }
+
+        public static void spawnTokenForSymbol(Dungeon dungeon, FloorMap floorMap, Room room, Tile[][] validLocations, Symbol symbol){
+                if(symbol instanceof KeyItem){
+                        Pair pair= UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, room, validLocations);
+                        if(dungeon.rand.random.nextBoolean()){
+                                dungeon.newCrateToken(floorMap, ModelId.CeramicPitcher.name(), ModelId.CeramicPitcher, (KeyItem)symbol, pair.x, pair.y);
+                        }else{
+                                dungeon.newLootToken(floorMap, (KeyItem)symbol, pair.x, pair.y);
+                        }
+                }else if(symbol instanceof CombinationDoorPuzzle){
+                        CombinationDoorPuzzle puzzle = (CombinationDoorPuzzle) symbol;
+                        Token torchToken = new Token(dungeon, "Torch", ModelId.Torch);
+                        torchToken.add(new Torch(torchToken, false, puzzle));
+                        torchToken.add(new TorchQuest());
+                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, room, validLocations);
+                        dungeon.newToken(torchToken, floorMap, loc.x, loc.y);
+                        puzzle.addPiece(torchToken, true);
                 }
 
         }
@@ -150,47 +176,50 @@ public class UtRoomSpawn {
                                 }
                         }
                 }
+                if(lootRooms.size > 0){
+                        // next we sanitize the candiadate loot rooms by remoing rooms with any one the following conditions
+                        // 1. already contains some other special loot
+                        // 2. has no path from the currentRoom (room being locked) to the lootRoom
+                        // 3. has a path, but involves going through a locked door whose key is contained in the current room (this would create a circular dependency and it wouldnt be impossible to solve the floor)
+                        // 4. the loot room and the current room are the same to prevent locking the key in its own room.
+                        Pair endLoc = new Pair();
+                        Iterator<Room> i = lootRooms.iterator();
+                        roomLoop:
+                        while(i.hasNext()){
+                                Room r = i.next();
+                                if(r == currentRoom || r.containsSymbol != null){
+                                        i.remove();
+                                        continue roomLoop;
+                                }
+                                endLoc.set(r.getCenterX(), r.getCenterY());
+                                boolean valid = floorMap.pathfinder.generate(null, currentLoc, endLoc, lootPath, Pathfinder.PathingPolicy.Manhattan, false, Integer.MAX_VALUE);
+                                if(!valid) {
+                                        i.remove();
+                                        continue roomLoop;
+                                }
+                                if(currentRoom.containsSymbol == null)
+                                        continue roomLoop; // room doesnt contain a key, as long as theres a path to the loot room then its a valid candidate
 
-                // next we sanitize the candiadate loot rooms by remoing rooms with any one the following conditions
-                // 1. already contains some other special loot
-                // 2. has no path from the currentRoom (room being locked) to the lootRoom
-                // 3. has a path, but involves going through a locked door whose key is contained in the current room (this would create a circular dependency and it wouldnt be impossible to solve the floor)
-                // 4. the loot room and the current room are the same to prevent locking the key in its own room.
-                Pair endLoc = new Pair();
-                Iterator<Room> i = lootRooms.iterator();
-                roomLoop:
-                while(i.hasNext()){
-                        Room r = i.next();
-                        if(r == currentRoom || r.containsSymbol != null){
-                                i.remove();
-                                continue roomLoop;
-                        }
-                        endLoc.set(r.getCenterX(), r.getCenterY());
-                        boolean valid = floorMap.pathfinder.generate(null, currentLoc, endLoc, lootPath, Pathfinder.PathingPolicy.Manhattan, false, Integer.MAX_VALUE);
-                        if(!valid) {
-                                i.remove();
-                                continue roomLoop;
-                        }
-                        if(currentRoom.containsSymbol == null)
-                                continue roomLoop; // room doesnt contain a key, as long as theres a path to the loot room then its a valid candidate
-
-                        while(lootPath.size >0){
-                                Pair lootCurrentLoc = lootPath.pop();
-                                Tile tile = floorMap.getTile(lootCurrentLoc);
-                                if(!tile.isDoor())
-                                        continue;
-                                for (Room roomWithDoors : rooms) {
-                                        for (Doorway doorway : roomWithDoors.doorways) {
-                                                if(doorway.requiresSymbol == currentRoom.containsSymbol && doorway.x == lootCurrentLoc.x && doorway.y == lootCurrentLoc.y){
-                                                        // invalid room to place key, lets continue to the next
-                                                        // room on the list
-                                                        i.remove();
-                                                        continue roomLoop;
+                                while(lootPath.size >0){
+                                        Pair lootCurrentLoc = lootPath.pop();
+                                        Tile tile = floorMap.getTile(lootCurrentLoc);
+                                        if(!tile.isDoor())
+                                                continue;
+                                        for (Room roomWithDoors : rooms) {
+                                                for (Doorway doorway : roomWithDoors.doorways) {
+                                                        if(doorway.requiresSymbol == currentRoom.containsSymbol && doorway.x == lootCurrentLoc.x && doorway.y == lootCurrentLoc.y){
+                                                                // invalid room to place key, lets continue to the next
+                                                                // room on the list
+                                                                i.remove();
+                                                                continue roomLoop;
+                                                        }
                                                 }
                                         }
                                 }
                         }
                 }
+
+
 
                 // Now that we have a list of ideal candidate rooms to place the key in, now we pick one
 
@@ -321,4 +350,6 @@ public class UtRoomSpawn {
                 }
                 throw new InvalidGenerationException("There is nowhere to spawn token in this room");
         }
+
+
 }

@@ -20,9 +20,9 @@ import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.Torch;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.State;
+import asf.dungeon.model.token.puzzle.CombinationDoorPuzzle;
 import asf.dungeon.model.token.quest.Choice;
 import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.model.token.quest.Quest;
@@ -895,7 +895,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         @Override
         public void onPathBlocked(Pair nextLocation, Tile nextTile) {
                 if (nextTile.isDoor() && nextTile.isDoorLocked()) {
-                        if(nextTile.getDoorSymbol() instanceof Torch.CombinationDoorPuzzle){
+                        if(nextTile.getDoorSymbol() instanceof CombinationDoorPuzzle){
                                 this.appendToGameLog("The door is shut tight.");
                         }else if(nextTile.getDoorSymbol() instanceof KeyItem){
                                 if (localPlayerToken.getInventory().hasKey((KeyItem) nextTile.getDoorSymbol())) {
