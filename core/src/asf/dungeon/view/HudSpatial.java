@@ -747,41 +747,59 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         private void setItemWindowContents(Item item) {
                 itemWindow.setTitle(item.getNameFromJournal(localPlayerToken));
-                itemWindowLabel.setText(item.getDescriptionFromJournal(localPlayerToken));
-
                 itemWindow.setUserObject(item);
 
+                StringBuilder description = itemWindowLabel.getText();
+                description.setLength(0);
+                description.append(item.getDescriptionFromJournal(localPlayerToken));
 
                 Label useLabel = (Label) itemWindowUseButton.getChildren().get(0);
                 Label discardLabel = (Label) itemWindowDiscardButton.getChildren().get(0);
-                discardLabel.setText("Discard");
-                itemWindowUseButton.setDisabled(false);
-                itemWindowDiscardButton.setDisabled(false);
-                // TODO: when unable to equip/unequp/discard items due to curse or attack timer
-                // there should be an error dialog that pops up with the relevant message
-                // instead of just disabling the button
 
-                if (item instanceof EquipmentItem || item instanceof QuickItem) {
-                        if (!localPlayerToken.getInventory().canChangeEquipment() || (item instanceof EquipmentItem && ((EquipmentItem) item).isCursed())) {
+                if (item instanceof EquipmentItem ) {
+                        if (!localPlayerToken.getInventory().canChangeEquipment() || ((EquipmentItem) item).isCursed()) {
+                                description.append("\n\nYou can not change Equipment during battle.");
                                 useLabel.setText("");
                                 discardLabel.setText("");
                                 itemWindowUseButton.setDisabled(true);
                                 itemWindowDiscardButton.setDisabled(true);
                         } else if (localPlayerToken.getInventory().isEquipped(item)) {
                                 useLabel.setText("Unequip");
+                                discardLabel.setText("Throw");
+                                itemWindowUseButton.setDisabled(false);
+                                itemWindowDiscardButton.setDisabled(false);
+                        } else {
+                                useLabel.setText("Equip");
+                                discardLabel.setText("Throw");
+                                itemWindowUseButton.setDisabled(false);
+                                itemWindowDiscardButton.setDisabled(false);
+                        }
+                } else if(item instanceof QuickItem){
+                        if (localPlayerToken.getInventory().isEquipped(item)) {
+                                useLabel.setText("Unequip");
                         } else {
                                 useLabel.setText("Equip");
                         }
+                        discardLabel.setText("Throw");
+                        itemWindowUseButton.setDisabled(false);
+                        itemWindowDiscardButton.setDisabled(false);
                 } else if (item instanceof ConsumableItem) {
                         if (item instanceof BookItem) {
                                 useLabel.setText("Read");
                         } else {
                                 useLabel.setText("Use");
                         }
-
+                        discardLabel.setText("Throw");
+                        itemWindowUseButton.setDisabled(false);
+                        itemWindowDiscardButton.setDisabled(false);
+                }else{
+                        useLabel.setText("");
+                        discardLabel.setText("Throw");
+                        itemWindowUseButton.setDisabled(true);
+                        itemWindowDiscardButton.setDisabled(false);
                 }
 
-
+                itemWindowLabel.invalidateHierarchy();
         }
 
         private void setInventoryWindowVisible(boolean visible) {

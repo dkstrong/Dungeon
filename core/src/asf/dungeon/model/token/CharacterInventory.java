@@ -231,7 +231,7 @@ public class CharacterInventory implements Inventory {
         }
 
         public boolean equip(QuickItem item) {
-                if (item == null || !canChangeEquipment())
+                if (item == null )
                         return false;
                 for (int i = 0; i < numQuickSlots(); i++) {
                         if (quickSlots[i] == null) {
@@ -251,7 +251,7 @@ public class CharacterInventory implements Inventory {
         }
 
         public boolean equip(QuickItem item, int index) {
-                if (item == null || !canChangeEquipment() || index < 0 || index >= numQuickSlots())
+                if (item == null || index < 0 || index >= numQuickSlots())
                         return false;
 
                 quickSlots[index] = item;
@@ -261,23 +261,29 @@ public class CharacterInventory implements Inventory {
                 return true;
         }
 
+
+
         public boolean unequip(Item item) {
-                return unequip(item, false, false);
+                if(item instanceof EquipmentItem){
+                        return unequip((EquipmentItem)item, false);
+                }else if(item instanceof QuickItem){
+                        return unequip((QuickItem)item, false);
+                }
+                return false;
         }
 
-        private boolean unequip(Item item, boolean forDiscard, boolean forDrop) {
-                if (item == null )
-                        return false;
-
-                if(!canChangeEquipment()){
-                        if(item instanceof QuickItem){
-                                // quick items can be unequipped during combat if it is was consumed
-                                // (being discard, but not being dropped)
-                                if(forDrop || !forDiscard) return false;
-                        }else{
-                                return false; // non quick items cant be unequipped during combat
-                        }
+        private boolean unequip(Item item, boolean forDiscard) {
+                if(item instanceof EquipmentItem){
+                        return unequip((EquipmentItem)item, forDiscard);
+                }else if(item instanceof QuickItem){
+                        return unequip((QuickItem)item, forDiscard);
                 }
+                return false;
+        }
+
+        private boolean unequip(EquipmentItem item, boolean forDiscard) {
+                if (item == null || !canChangeEquipment())
+                        return false;
 
                 // if unequipping an item and the inventory is full, it can still go through if the item will be discarded
                 if(isFull() && !forDiscard) return false;
@@ -294,12 +300,20 @@ public class CharacterInventory implements Inventory {
                         if(!hasRequiredStatsToChangeEquipment(ringSlot, weaponSlot, armorSlot, null)) return false;
                         ringSlot = null;
                         token.getExperience().recalcStats();
-                } else {
-                        for (int i = 0; i < numQuickSlots(); i++) {
-                                if (quickSlots[i] == item)
-                                        quickSlots[i] = null;
-                        }
-                        ;
+                }
+                if (!forDiscard && token.listener != null)
+                        token.listener.onInventoryChanged();
+                return true;
+        }
+
+        private boolean unequip(QuickItem item, boolean forDiscard){
+                if (item == null )
+                        return false;
+                if(isFull() && !forDiscard) return false;
+
+                for (int i = 0; i < numQuickSlots(); i++) {
+                        if (quickSlots[i] == item)
+                                quickSlots[i] = null;
                 }
                 if (!forDiscard && token.listener != null)
                         token.listener.onInventoryChanged();
@@ -352,7 +366,7 @@ public class CharacterInventory implements Inventory {
                 }
 
                 if (isEquipped(item)) {
-                        boolean valid = unequip(item, true, false);
+                        boolean valid = unequip(item, true);
                         if (!valid) return false;
                 }
 
