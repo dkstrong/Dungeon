@@ -12,6 +12,7 @@ import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Fountain;
+import asf.dungeon.model.token.SpikeTrap;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
@@ -82,27 +83,11 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                         Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
                         dungeon.newQuestCharacterToken(traveler, new FsmLogic(2,roomEnd, QuestNPC.PauseThenMove), new PotionQuest(), floorMap, loc.x, loc.y);
 
-//                        if(roomEnd.doorways.size > 0){
-//                                Doorway dw = roomEnd.doorways.items[0];
-//                                Tile doorTile = floorMap.getTile(dw.x,dw.y);
-//
-//                                Torch.CombinationDoorPuzzle puzzle = new Torch.CombinationDoorPuzzle(doorTile);
-//                                doorTile.setDoorLocked(true, new PuzzleSymbol(puzzle));
-//
-//                                Token torchToken = new Token(dungeon, "Torch", ModelId.Torch);
-//                                torchToken.add(new Torch(torchToken, false, puzzle));
-//                                torchToken.add(new TorchQuest());
-//                                loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd,null);
-//                                dungeon.newToken(torchToken, floorMap, loc.x, loc.y);
-//                                puzzle.putTorch(torchToken, true);
-//
-//                                torchToken = new Token(dungeon, "Torch", ModelId.Torch);
-//                                torchToken.add(new Torch(torchToken, false, puzzle));
-//                                torchToken.add(new TorchQuest());
-//                                loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
-//                                dungeon.newToken(torchToken, floorMap, loc.x, loc.y);
-//                                puzzle.putTorch(torchToken, true);
-//                        }
+
+                        Token spikeTrap = new Token(dungeon, "Spike Trap", ModelId.SpikeTrap);
+                        spikeTrap.add(new SpikeTrap(spikeTrap));
+                        loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
+                        dungeon.newToken(spikeTrap, floorMap, loc.x, loc.y);
 
 
                 }else{

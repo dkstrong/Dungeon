@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.Array;
 /**
  * Created by Danny on 11/11/2014.
  */
-public class Move implements TokenComponent{
+public class Move implements TokenComponent {
         private final Token token;
         private float moveSpeed = 1.5f; // how fast the character moves between tiles, generally a value between 1 and 10, could be higher i suppose.
         private float moveSpeedDiagonal = 1.06066017177f;
@@ -37,7 +37,7 @@ public class Move implements TokenComponent{
                 moveU = 1;
                 path.clear();
                 pathedTarget.set(x, y);
-                floatLocation.set(x,y);
+                floatLocation.set(x, y);
 
         }
 
@@ -58,7 +58,7 @@ public class Move implements TokenComponent{
                         // TODO: how this is configured is that if fogmapping is turned off, then the target
                         // can not be lost in to the fog, Instead I should do it based on range as  a back up
                         // I may need to modify the monster ai to allow for this
-                        boolean targetInvisisible = targetToken.getStatusEffects()!=null && targetToken.getStatusEffects().has(StatusEffect.Invisibility);
+                        boolean targetInvisisible = targetToken.getStatusEffects() != null && targetToken.getStatusEffects().has(StatusEffect.Invisibility);
 
                         if (!targetInvisisible && (fogMap == null || fogMap.isVisible(targetToken.getLocation().x, targetToken.getLocation().y))) {
                                 targetLocation.set(targetToken.getLocation());
@@ -130,9 +130,9 @@ public class Move implements TokenComponent{
                                                 token.direction = newDirection;
 
                                         boolean action;
-                                        if(token.getInteractor() != null){
+                                        if (token.getInteractor() != null) {
                                                 action = token.getInteractor().interact(nextLocation);
-                                        }else{
+                                        } else {
                                                 action = false;
                                         }
 
@@ -165,14 +165,14 @@ public class Move implements TokenComponent{
 
                 }
 
-                if(moveU > .9f && path.size > 0){
+                if (moveU > .9f && path.size > 0) {
                         pickUpLoot();
                 }
                 updateFloatLocation();
                 return false;
         }
 
-        private void updateFloatLocation(){
+        private void updateFloatLocation() {
                 floatLocation.set(getLocationFloatX(), getLocationFloatY());
         }
 
@@ -236,12 +236,11 @@ public class Move implements TokenComponent{
         }
 
 
-
         private boolean useKey(Pair nextLocation) {
                 Tile nextTile = token.floorMap.getTile(nextLocation);
                 if (nextTile.isDoor() && nextTile.isDoorLocked()) {
                         boolean key = false;
-                        if(nextTile.getDoorSymbol() instanceof KeyItem){
+                        if (nextTile.getDoorSymbol() instanceof KeyItem) {
                                 key = token.getInventory().hasKey((KeyItem) nextTile.getDoorSymbol());
                         }
                         if (token.getCommand().isUseKey() && nextTile == token.getCommand().getUseKeyOnTile()) {
@@ -284,7 +283,7 @@ public class Move implements TokenComponent{
                         return;
                 Array<Token> tokensAt = token.floorMap.getTokensAt(token.location);
                 for (Token t : tokensAt) {
-                        Loot loot = t.get(Loot.class);
+                        Loot loot = t.getLoot();
                         if (loot != null) {
                                 if (!loot.isRemoved()) {
                                         boolean valid = token.getInventory().add(loot.getItem());
@@ -294,10 +293,17 @@ public class Move implements TokenComponent{
                                         // TODO: show message saying inventory is full
                                 }
                         }
+
+                        // TODO: i may want to change the qualifier for activating the spike trap to be different form picksUpItems
+                        // generally the trap should be activated by the player and his allies
+                        SpikeTrap spikeTrap = t.get(SpikeTrap.class);
+                        if (spikeTrap != null && spikeTrap.isHidden()) {
+                                spikeTrap.setTriggered();
+                        }
                 }
         }
 
-        public Vector2 getFloatLocation(){
+        public Vector2 getFloatLocation() {
                 return floatLocation;
         }
 

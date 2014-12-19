@@ -8,6 +8,7 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.SongId;
 import asf.dungeon.model.token.Damage;
+import asf.dungeon.model.token.SpikeTrap;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import com.badlogic.gdx.Gdx;
@@ -113,7 +114,7 @@ public class DungeonWorld implements Disposable {
                 } else {
                         dungeon = DungeonLoader.createDungeon(settings);
                         dungeon.setListener(internalInput);
-                        //saveDungeon();
+                        saveDungeon();
                 }
 
 
@@ -170,10 +171,10 @@ public class DungeonWorld implements Disposable {
                 return hudSpatial.localPlayerToken;
         }
 
-        protected TokenSpatial getTokenSpatial(Token token) {
+        protected AbstractTokenSpatial getTokenSpatial(Token token) {
                 for (Spatial spatial : spatials) {
-                        if (spatial instanceof TokenSpatial) {
-                                TokenSpatial ts = (TokenSpatial) spatial;
+                        if (spatial instanceof AbstractTokenSpatial) {
+                                AbstractTokenSpatial ts = (AbstractTokenSpatial) spatial;
                                 if (ts.getToken() == token) {
                                         return ts;
                                 }
@@ -184,13 +185,13 @@ public class DungeonWorld implements Disposable {
 
         public Token getToken(Ray ray, Token ignoreToken) {
                 Token result = null;
-                float distance = -1;
+                float closestDist2 = Float.MAX_VALUE;
 
                 for (Spatial spatial : spatials) {
                         if (!spatial.isInitialized())
                                 continue;
                         if (spatial instanceof TokenSpatial) {
-                                TokenSpatial tokenSpatial = (TokenSpatial) spatial;
+                                AbstractTokenSpatial tokenSpatial = (AbstractTokenSpatial) spatial;
 
                                 if (tokenSpatial.getToken() == ignoreToken) {
                                         continue;
@@ -202,9 +203,9 @@ public class DungeonWorld implements Disposable {
                                                 continue;
 
                                         final float dist2 = tokenSpatial.intersects(ray);
-                                        if (dist2 >= 0f && (distance < 0f || dist2 <= distance)) {
+                                        if (dist2 >= 0f && dist2 < closestDist2) {
                                                 result = tokenSpatial.getToken();
-                                                distance = dist2;
+                                                closestDist2 = dist2;
                                         }
                                 }
 
@@ -394,7 +395,9 @@ public class DungeonWorld implements Disposable {
                 public void onTokenAdded(Token token) {
                         if (token == hudSpatial.localPlayerToken) {
                                 // dont re add the token, he already has a token spatial.
-                        } else {
+                        } else if(token.get(SpikeTrap.class) != null){
+                                addSpatial(new SpikeTrapTokenSpatial(DungeonWorld.this, token));
+                        }else{
                                 addSpatial(new TokenSpatial(DungeonWorld.this, token));
                         }
 
@@ -412,7 +415,7 @@ public class DungeonWorld implements Disposable {
                                 return;
                         }
 
-                        TokenSpatial removeSpatial = getTokenSpatial(token);
+                        AbstractTokenSpatial removeSpatial = getTokenSpatial(token);
 
                         if (removeSpatial != null)
                                 removeSpatial(removeSpatial);

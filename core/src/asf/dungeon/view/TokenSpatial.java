@@ -50,19 +50,17 @@ import com.badlogic.gdx.utils.UBJsonReader;
 /**
  * Created by danny on 10/20/14.
  */
-public class TokenSpatial implements Spatial, Token.Listener {
+public class TokenSpatial extends AbstractTokenSpatial implements Spatial, Token.Listener {
 
         private boolean initialized = false;
         private BetterModelInstance modelInstance;
         private BetterAnimationController animController;
         private Decal shadowDecal;
         private final Vector3 translationBase = new Vector3();
-        protected final Vector3 translation = new Vector3();
-        protected final Quaternion rotation = new Quaternion();
         private final Vector3 scale = new Vector3(1, 1, 1);
         private DungeonWorld world;
         private Token token;
-        protected float visU = 0; // how visible this object is, 0 = not drawn, 1 = fully visible, inbetween for partially visible
+
         private boolean texToggle = false;
 
         public TokenSpatial(DungeonWorld world, Token token) {
@@ -457,7 +455,7 @@ public class TokenSpatial implements Spatial, Token.Listener {
                                 ScrollItem scroll = (ScrollItem ) item;
                                 if(scroll.getType() == ScrollItem.Type.Lightning){
 
-                                        TokenSpatial targetTokenSpatial = world.getTokenSpatial(out.targetToken);
+                                        AbstractTokenSpatial targetTokenSpatial = world.getTokenSpatial(out.targetToken);
 
                                         world.fxManager.spawnEffect(FxId.Lightning, targetTokenSpatial, 3);
                                 }

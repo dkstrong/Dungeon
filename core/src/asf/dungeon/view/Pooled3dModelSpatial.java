@@ -38,7 +38,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
         private float duration;
 
         private Token attackerToken;
-        private TokenSpatial targetTokenSpatial;
+        private AbstractTokenSpatial targetTokenSpatial;
         private final Pair destLoc = new Pair();
         private final Vector3 worldMoveDir = new Vector3(), worldStartLoc = new Vector3(), worldDestLoc = new Vector3();
 
@@ -84,7 +84,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
         }
 
         @Override
-        public void set(FxId fxId, TokenSpatial followTokenSpatial, float duration){
+        public void set(FxId fxId, AbstractTokenSpatial followTokenSpatial, float duration){
                 this.fxId = fxId;
                 setModel();
                 mode = 2;
@@ -245,7 +245,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
         }
 
         @Override
-        public TokenSpatial getTokenSpatial() {
+        public AbstractTokenSpatial getTokenSpatial() {
                 return targetTokenSpatial;
         }
 

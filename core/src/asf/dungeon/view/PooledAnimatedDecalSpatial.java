@@ -33,7 +33,7 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
         private int mode;
         private Animation animation;
         private float time;
-        protected TokenSpatial tokenSpatial;
+        protected AbstractTokenSpatial tokenSpatial;
 
         protected float duration;
 
@@ -89,7 +89,7 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                 decal.setPosition(decal.getPosition());
         }
         @Override
-        public void set(FxId fxId, TokenSpatial followTokenSpatial, float duration) {
+        public void set(FxId fxId, AbstractTokenSpatial followTokenSpatial, float duration) {
                 this.fxId = fxId;
                 setAnimation();
                 mode = 2;
@@ -256,7 +256,7 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
         }
 
         @Override
-        public TokenSpatial getTokenSpatial() {
+        public AbstractTokenSpatial getTokenSpatial() {
                 return tokenSpatial;
         }
 

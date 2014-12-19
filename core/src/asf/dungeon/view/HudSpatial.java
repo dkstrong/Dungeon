@@ -591,7 +591,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         private void spawnDamageInfoLabel(String text, Token token, Color color) {
-                TokenSpatial tokenSpatial = world.getTokenSpatial(token);
+                AbstractTokenSpatial tokenSpatial = world.getTokenSpatial(token);
                 if (tokenSpatial.visU <= 0)
                         return;
                 DamageLabel label = null;
@@ -1550,7 +1550,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private class DamageLabel {
                 Label label;
                 float ttl;
-                TokenSpatial tokenSpatial;
+                AbstractTokenSpatial tokenSpatial;
 
 
         }

@@ -36,7 +36,7 @@ Book
 Aare
 http://opengameart.org/content/old-book
 
-===Crates===
+===Crates, Traps, and Switches===
 Ceramic Pitcher
 Aare
 URL: http://opengameart.org/content/ceramic-bear-mug
@@ -52,10 +52,16 @@ Tapio
 Yughues
 http://opengameart.org/content/izchaks-torches
 
+Spike Trap
+Danimal
+http://opengameart.org/content/spyke-trap-low-poly-updated
+
 ===Misc Dungeon Assets===
 Stairs
 Clint Bellanger
 URL: http://opengameart.org/content/low-poly-stairs
+
+
 
 ===Textures===
 Floor and Wall textures

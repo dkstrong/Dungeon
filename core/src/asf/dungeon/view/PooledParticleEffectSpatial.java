@@ -29,7 +29,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
         //current active
         private FxId fxId;
         private int mode;
-        protected TokenSpatial tokenSpatial;
+        protected AbstractTokenSpatial tokenSpatial;
         private final Matrix4 transformMatrix = new Matrix4();
         private final Vector3 translationBase = new Vector3();
         private final Vector3 translation = new Vector3();
@@ -79,7 +79,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
         }
 
         @Override
-        public void set(FxId fxId, TokenSpatial followTokenSpatial, float duration) {
+        public void set(FxId fxId, AbstractTokenSpatial followTokenSpatial, float duration) {
                 this.fxId = fxId;
                 setEffect();
                 mode = 2;
@@ -143,7 +143,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
         }
 
         @Override
-        public TokenSpatial getTokenSpatial() {
+        public AbstractTokenSpatial getTokenSpatial() {
                 return tokenSpatial;
         }
 

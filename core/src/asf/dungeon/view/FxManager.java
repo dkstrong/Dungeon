@@ -154,7 +154,7 @@ public class FxManager implements Disposable {
         }
 
 
-        public void spawnEffect(FxId fxId, TokenSpatial tokenSpatial, float duration) {
+        public void spawnEffect(FxId fxId, AbstractTokenSpatial tokenSpatial, float duration) {
                 Array<PooledFx> pool = fxMappings[fxId.ordinal()].fxPool;
                 // first try to add duration to any existing effect already on this token spatial
                 for (PooledFx pooledFx : pool) {
@@ -258,7 +258,7 @@ public class FxManager implements Disposable {
                  * @param followTokenSpatial TokenSpatial for the particle effect to follow
                  * @param duration           duration of the particle effect
                  */
-                public void set(FxId fxId, TokenSpatial followTokenSpatial, float duration);
+                public void set(FxId fxId, AbstractTokenSpatial followTokenSpatial, float duration);
 
                 /**
                  * shoots the effect as a projectile
@@ -288,7 +288,7 @@ public class FxManager implements Disposable {
                  *
                  * @return
                  */
-                public TokenSpatial getTokenSpatial();
+                public AbstractTokenSpatial getTokenSpatial();
 
                 /**
                  * 1 = static location on worldDestLoc, 2 =  follow targetTokenSpatial, 3 = projectile

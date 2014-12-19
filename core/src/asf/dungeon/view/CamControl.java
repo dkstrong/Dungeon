@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 public class CamControl {
         protected final PerspectiveCamera cam;
 
-        protected TokenSpatial chaseTarget;
+        protected AbstractTokenSpatial chaseTarget;
         private final Vector3 chaseCamOffset = new Vector3();
 
         private float zoom = 1;
@@ -70,7 +70,7 @@ public class CamControl {
                 cam.update();
         }
 
-        protected void setChaseTarget(TokenSpatial tokenSpatial){
+        protected void setChaseTarget(AbstractTokenSpatial tokenSpatial){
                 chaseTarget = tokenSpatial;
         }
 
