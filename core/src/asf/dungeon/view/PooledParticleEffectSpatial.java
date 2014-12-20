@@ -7,6 +7,7 @@ import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Shape;
 import asf.dungeon.view.shape.Sphere;
+import asf.dungeon.view.token.AbstractTokenSpatial;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;

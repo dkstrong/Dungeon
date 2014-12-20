@@ -1,6 +1,7 @@
 package asf.dungeon.view;
 
 import asf.dungeon.utility.UtMath;
+import asf.dungeon.view.token.AbstractTokenSpatial;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;

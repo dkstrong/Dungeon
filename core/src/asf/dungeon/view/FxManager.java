@@ -3,6 +3,7 @@ package asf.dungeon.view;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.view.token.AbstractTokenSpatial;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -182,7 +183,7 @@ public class FxManager implements Disposable {
 
         }
 
-        protected void shootProjectile(FxId fxId, Token source, Token target, Pair destLoc) {
+        public void shootProjectile(FxId fxId, Token source, Token target, Pair destLoc) {
                 Array<PooledFx> pool = fxMappings[fxId.ordinal()].fxPool;
 
                 // if no effect of this type already exists, then use an inactive one from the pool

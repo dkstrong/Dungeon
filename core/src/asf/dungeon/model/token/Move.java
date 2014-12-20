@@ -284,14 +284,12 @@ public class Move implements TokenComponent {
                 Array<Token> tokensAt = token.floorMap.getTokensAt(token.location);
                 for (Token t : tokensAt) {
                         Loot loot = t.getLoot();
-                        if (loot != null) {
-                                if (!loot.isRemoved()) {
-                                        boolean valid = token.getInventory().add(loot.getItem());
-                                        if (valid)
-                                                loot.becomeRemoved();
-                                        //else
-                                        // TODO: show message saying inventory is full
-                                }
+                        if (loot != null && loot.canbePickedUp()) {
+                                boolean valid = token.getInventory().add(loot.getItem());
+                                if (valid)
+                                        loot.becomeRemoved();
+                                //else
+                                // TODO: show message saying inventory is full
                         }
 
                         // TODO: i may want to change the qualifier for activating the spike trap to be different form picksUpItems
@@ -310,22 +308,22 @@ public class Move implements TokenComponent {
         private float getLocationFloatX() {
                 Direction direction = token.getDirection();
                 if (moveU == 1 || direction == Direction.South || direction == Direction.North)
-                        return token.getLocation().x;
+                        return token.location.x;
                 else if (direction == Direction.East || direction == Direction.NorthEast || direction == Direction.SouthEast)
-                        return MathUtils.lerp(token.getLocation().x - 1, token.getLocation().x, moveU);
+                        return MathUtils.lerp(token.location.x - 1, token.getLocation().x, moveU);
                 else if (direction == Direction.West || direction == Direction.NorthWest || direction == Direction.SouthWest)
-                        return MathUtils.lerp(token.getLocation().x + 1, token.getLocation().x, moveU);
+                        return MathUtils.lerp(token.location.x + 1, token.getLocation().x, moveU);
                 throw new AssertionError("unexpected state");
         }
 
         private float getLocationFloatY() {
                 Direction direction = token.getDirection();
                 if (moveU == 1 || direction == Direction.West || direction == Direction.East)
-                        return token.getLocation().y;
+                        return token.location.y;
                 else if (direction == Direction.North || direction == Direction.NorthEast || direction == Direction.NorthWest)
-                        return MathUtils.lerp(token.getLocation().y - 1, token.getLocation().y, moveU);
+                        return MathUtils.lerp(token.location.y - 1, token.location.y, moveU);
                 else if (direction == Direction.South || direction == Direction.SouthEast || direction == Direction.SouthWest)
-                        return MathUtils.lerp(token.getLocation().y + 1, token.getLocation().y, moveU);
+                        return MathUtils.lerp(token.location.y + 1, token.location.y, moveU);
                 throw new AssertionError("unexpected state");
         }
 

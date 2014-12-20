@@ -123,7 +123,7 @@ public class DungeonLoader {
 
 
                         //token.getStatusEffects().addStatusEffect(StatusEffects.Effect.Blind);
-                        token.getInventory().setNumQuickSlots(1);
+                        token.getInventory().setNumQuickSlots(3);
 
                         ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 4);
                         token.getInventory().add(potion);

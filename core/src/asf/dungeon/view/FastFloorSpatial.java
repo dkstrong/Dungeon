@@ -40,7 +40,7 @@ public class FastFloorSpatial implements Spatial {
         private DungeonWorld world;
         private boolean initialized;
         private FloorMap floorMap;
-        private FogMap fogMap;
+        public FogMap fogMap;
         private Array<DecalNode> decalNodes;
         private TextureRegion[][] floorTexRegions;
         private TextureRegion[] wallTexRegions, wallDarkTexRegions;
@@ -77,11 +77,11 @@ public class FastFloorSpatial implements Spatial {
                 // locked by key
 
                 doorLockedTexAttribute[KeyItem.Type.Silver.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedSilver"));
-                doorLockedTexAttribute[KeyItem.Type.Silver.ordinal()+1] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorSilver"));
+                doorLockedTexAttribute[KeyItem.Type.Silver.ordinal()+3] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorSilver"));
                 doorLockedTexAttribute[KeyItem.Type.Gold.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedGold"));
-                doorLockedTexAttribute[KeyItem.Type.Gold.ordinal()+1] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorGold"));
+                doorLockedTexAttribute[KeyItem.Type.Gold.ordinal()+3] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorGold"));
                 doorLockedTexAttribute[KeyItem.Type.Red.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedRed"));
-                doorLockedTexAttribute[KeyItem.Type.Red.ordinal()+1] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorRed"));
+                doorLockedTexAttribute[KeyItem.Type.Red.ordinal()+3] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorRed"));
                 doorLockedTexAttribute[doorLockedTexAttribute.length-2] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLocked"));
                 doorLockedTexAttribute[doorLockedTexAttribute.length-1] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/Door"));
 
@@ -482,7 +482,7 @@ public class FastFloorSpatial implements Spatial {
                                 if(doorTile.isDoorLocked())
                                         return doorLockedTexAttribute[keyItem.getType().ordinal()];
                                 else
-                                        return doorLockedTexAttribute[keyItem.getType().ordinal()+1];
+                                        return doorLockedTexAttribute[keyItem.getType().ordinal()+3];
                         }else{
                                 return doorLockedTexAttribute[doorLockedTexAttribute.length-2];
                         }

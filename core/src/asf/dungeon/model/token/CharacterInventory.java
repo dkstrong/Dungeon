@@ -2,6 +2,8 @@ package asf.dungeon.model.token;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.Pair;
+import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.item.EquipmentItem;
@@ -352,11 +354,45 @@ public class CharacterInventory implements Inventory {
                 return true;
         }
 
-        public boolean drop(Item item){
+        public boolean dropItem(Item item){
                 boolean valid = discard(item);
                 if(!valid) return false;
-                // TODO: attempt to drop on an empty tiles N,S,E, or W of location firs,t drop on self as last resort
-                token.dungeon.newLootToken(token.getFloorMap(), item, token.getLocation().x, token.getLocation().y);
+                Pair dropLoc = new Pair(token.location);
+                if(token.getMove().isMoving()){
+                        dropLoc.addFree(token.direction.opposite());
+                        Tile tile = token.floorMap.getTile(dropLoc);
+                        if(tile == null || !tile.isFloor() || token.floorMap.hasTokensAt(dropLoc.x,dropLoc.y)){
+                                dropLoc.set(token.location);
+                        }
+                }
+                token.dungeon.newLootToken(token.getFloorMap(), item, dropLoc.x, dropLoc.y);
+                return true;
+        }
+
+        public boolean throwItem(Item item){
+                boolean valid = discard(item);
+                if(!valid) return false;
+                Pair dropLoc = new Pair(token.location);
+                if(token.getMove().isMoving()){
+                        dropLoc.addFree(token.direction.opposite());
+                }else{
+                        dropLoc.addFree(token.direction);
+                }
+
+                Tile tile = token.floorMap.getTile(dropLoc);
+                if(tile == null || !tile.isFloor() || token.floorMap.hasTokensAt(dropLoc.x,dropLoc.y)){
+                        dropLoc.set(token.location);
+                }
+                Token lootToken = token.dungeon.newLootToken(token.getFloorMap(), item, token.location.x, token.location.y);
+                lootToken.getLoot().becomeThrown(dropLoc.x, dropLoc.y);
+                return true;
+        }
+
+        public boolean throwItem(Item item, int targetLocationX, int targetLocationY){
+                boolean valid = discard(item);
+                if(!valid) return false;
+                Token lootToken = token.dungeon.newLootToken(token.getFloorMap(), item, token.getLocation().x, token.getLocation().y);
+                lootToken.getLoot().becomeThrown(targetLocationX, targetLocationY);
                 return true;
         }
 

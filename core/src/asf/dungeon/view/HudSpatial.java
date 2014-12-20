@@ -27,6 +27,7 @@ import asf.dungeon.model.token.quest.Choice;
 import asf.dungeon.model.token.quest.Dialouge;
 import asf.dungeon.model.token.quest.Quest;
 import asf.dungeon.utility.UtMath;
+import asf.dungeon.view.token.AbstractTokenSpatial;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
@@ -67,7 +68,7 @@ import java.util.Arrays;
 public class HudSpatial implements Spatial, EventListener, InputProcessor, Token.Listener {
         private boolean initialized = false;
         protected DungeonWorld world;
-        protected Token localPlayerToken;
+        public Token localPlayerToken;
 
         // TODO: these settings should be stored on an app level object so it can be easily changed in the settings
         private boolean showRenderingStasLabel = true;
@@ -1039,7 +1040,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         }
 
-        protected void setMapViewMode(boolean mapViewMode) {
+        public void setMapViewMode(boolean mapViewMode) {
                 if (this.mapViewMode == mapViewMode)
                         return;
                 this.mapViewMode = mapViewMode;
@@ -1056,7 +1057,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
         }
 
-        protected boolean isMapViewMode() {
+        public boolean isMapViewMode() {
                 return mapViewMode;
         }
 
@@ -1486,7 +1487,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 } else if (event.getListenerActor() == itemWindowDiscardButton) {
                         Item item = (Item) itemWindow.getUserObject();
-                        boolean valid = localPlayerToken.getInventory().drop(item);
+                        boolean valid = localPlayerToken.getInventory().throwItem(item);
                         if (valid)
                                 setItemWindowVisible(false);
                 } else if (event.getListenerActor() == itemWindowBackButton) {

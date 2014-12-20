@@ -220,9 +220,7 @@ public class Dungeon {
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 Token t = new Token(this,  nextTokenId++, item.getName(), item.getModelId());
                 t.add(new Loot(t, item));
-
                 moveToken(t, fm, x,y,Direction.South);
-
                 return t;
         }
 

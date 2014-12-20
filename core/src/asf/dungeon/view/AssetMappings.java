@@ -117,7 +117,7 @@ public class AssetMappings {
 
         }
 
-        protected String getAssetLocation(ModelId modelId) {
+        public String getAssetLocation(ModelId modelId) {
                 return assetLocations[modelId.ordinal()];
         }
 
@@ -135,33 +135,33 @@ public class AssetMappings {
                 return locations[MathUtils.random.nextInt(locations.length)];
         }
 
-        protected Quaternion getRotation(Direction dir){
+        public Quaternion getRotation(Direction dir){
                 return rotations[dir.ordinal()];
         }
 
 
 
-        protected String getHudStatusEffectIcon(StatusEffect effect){
+        public String getHudStatusEffectIcon(StatusEffect effect){
                 return "Interface/Hud/health";
         }
 
-        protected String getInventoryItemTextureAssetLocation(Item item){
+        public String getInventoryItemTextureAssetLocation(Item item){
                 return "Interface/Loot/Potion/Potion-Amber-Transparent";
         }
 
-        protected String getPotionTextureAssetLocation(PotionItem potionItem) {
+        public String getPotionTextureAssetLocation(PotionItem potionItem) {
                 return "Models/Loot/Potion/Potion-"+potionItem.getColor().name()+".png";
         }
 
-        protected Color getPotionColor(PotionItem potionItem) {
+        public Color getPotionColor(PotionItem potionItem) {
                 return potionDisplayColors[potionItem.getColor().ordinal()];
         }
 
-        protected String getScrollTextureAssetLocation(ScrollItem scrollItem){
+        public String getScrollTextureAssetLocation(ScrollItem scrollItem){
                 return "Models/Loot/Scroll/parchment_"+scrollItem.getSymbol().name().toLowerCase()+".png";
         }
 
-        protected String getFountainTextureAssetLocation(Fountain fountain){
+        public String getFountainTextureAssetLocation(Fountain fountain){
                 if(fountain.isConsumed()) return getEmptyFountainTextureAssetLocation(fountain);
                 // TODO: need to create all the various fountain colors, then get rid of this extra if statement
                 if(fountain.getFountainColor().name().equals("Red")){
@@ -171,17 +171,17 @@ public class AssetMappings {
                 }
         }
 
-        protected String getEmptyFountainTextureAssetLocation(Fountain fountain){
+        public String getEmptyFountainTextureAssetLocation(Fountain fountain){
                 return "Models/Crates/Fountain/Fountain-Empty.png";
         }
 
-        protected String getBookTextureAssetLocation(BookItem bookItem){
+        public String getBookTextureAssetLocation(BookItem bookItem){
                 return "Models/Loot/Book/Book.png";
         }
 
 
 
-        protected FxId getStatusEffectFxId(StatusEffect effect) {
+        public FxId getStatusEffectFxId(StatusEffect effect) {
                 return statusEffectsFxIds[effect.ordinal()];
         }
 }

@@ -6,6 +6,7 @@ import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Sphere;
+import asf.dungeon.view.token.AbstractTokenSpatial;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;

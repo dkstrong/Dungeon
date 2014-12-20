@@ -1,4 +1,4 @@
-package asf.dungeon.view;
+package asf.dungeon.view.token;
 
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.SpikeTrap;
@@ -6,6 +6,8 @@ import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.AnimFactory;
 import asf.dungeon.utility.BetterAnimationController;
 import asf.dungeon.utility.BetterModelInstance;
+import asf.dungeon.view.DungeonWorld;
+import asf.dungeon.view.Spatial;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -21,13 +23,10 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
         private boolean initialized = false;
         private BetterModelInstance modelInstance;
         private BetterAnimationController animController;
-        private DungeonWorld world;
-        private Token token;
         private boolean revealed = false;
 
         public SpikeTrapTokenSpatial(DungeonWorld world, Token token) {
-                this.world = world;
-                this.token = token;
+                super(world, token);
         }
 
         public void preload(DungeonWorld world) {
@@ -54,16 +53,9 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
 
         public void update(final float delta) {
                 if(!revealed) return;
-                float minVisU = 0;
+                FogState fogState = world.floorSpatial.fogMap==null ? FogState.Visible : world.floorSpatial.fogMap.getFogState(token.location.x, token.location.y);
+                float minVisU =0;
                 float maxVisU = 1;
-                // if fogmapping is enabled, change its visU value based on the fogstate of the tile its on.
-                FogState fogState;
-                if(world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null){
-                        fogState = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap().getFogState(token.getLocation().x, token.getLocation().y);
-                }else{
-                        fogState = FogState.Visible;
-                }
-
                 if(fogState == FogState.Visible){
                         visU += delta * .65f;
                 }else{
@@ -87,20 +79,30 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
                 world.getWorldCoords(token.getLocation(), translation);
                 rotation.set(world.assetMappings.getRotation(token.getDirection()));
 
-                // changing animations and rotations is not allowed for
-                // objects that modify the minVisU (eg these items are in the fog of war but still visible)
-                if (minVisU == 0 || visU != minVisU)
-                        updateIfNotFogBlocked(delta);
-
-
-        }
-
-        private void updateIfNotFogBlocked(float delta) {
-                if (animController != null) {
+                if (animController != null)
                         animController.update(delta);
-                }
 
         }
+
+        public void render(float delta) {
+                if(!revealed) return;
+                if(visU <=0)return;
+                if(world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
+                if(world.hudSpatial.isMapViewMode() && !world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+
+
+                modelInstance.transform.set(
+                        translation.x, translation.y, translation.z,
+                        rotation.x, rotation.y, rotation.z, rotation.w,
+                        1, 1, 1
+                );
+
+                world.modelBatch.render(modelInstance, world.environment);
+
+
+        }
+
+
 
         @Override
         public void onSpikeTrapHidden() {
@@ -126,23 +128,7 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
 
 
 
-        public void render(float delta) {
-                if(!revealed) return;
-                if(visU <=0)return;
-                if(world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getLocation().distance(token.getLocation()) > 16) return;
-                if(world.hudSpatial.isMapViewMode() && !world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
 
-
-                modelInstance.transform.set(
-                        translation.x, translation.y, translation.z,
-                        rotation.x, rotation.y, rotation.z, rotation.w,
-                        1, 1, 1
-                );
-
-                world.modelBatch.render(modelInstance, world.environment);
-
-
-        }
 
         public Token getToken() {
                 return token;
@@ -161,6 +147,7 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
 
         @Override
         public void dispose() {
+                super.dispose();
                 if (this.token != null){
                         token.get(SpikeTrap.class).setListener(null);
                 }

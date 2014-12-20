@@ -8,9 +8,18 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.SongId;
 import asf.dungeon.model.token.Damage;
+import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.SpikeTrap;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.Torch;
 import asf.dungeon.utility.UtMath;
+import asf.dungeon.view.token.AbstractTokenSpatial;
+import asf.dungeon.view.token.CharacterTokenSpatial;
+import asf.dungeon.view.token.CrateTokenSpatial;
+import asf.dungeon.view.token.FountainTokenSpatial;
+import asf.dungeon.view.token.LootTokenSpatial;
+import asf.dungeon.view.token.SpikeTrapTokenSpatial;
+import asf.dungeon.view.token.TorchTokenSpatial;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
@@ -46,12 +55,12 @@ public class DungeonWorld implements Disposable {
         // shared resources
         protected final DungeonApp dungeonApp;
         protected final Settings settings;
-        protected final Camera cam;
-        protected final Environment environment;
-        protected final Stage stage;
-        protected final DecalBatch decalBatch;
-        protected final ModelBatch modelBatch;
-        protected final AssetManager assetManager;
+        public final Camera cam;
+        public final Environment environment;
+        public final Stage stage;
+        public final DecalBatch decalBatch;
+        public final ModelBatch modelBatch;
+        public final AssetManager assetManager;
         private final ObjectSet<LoadedNotifyable> loadables;
         private final Array<Spatial> spatials;
         private final InternalInputAdapter internalInput;
@@ -63,13 +72,13 @@ public class DungeonWorld implements Disposable {
         public final Dungeon dungeon;
 
         protected final CamControl camControl;
-        protected final AssetMappings assetMappings;
-        protected TextureAtlas pack;
-        protected I18NBundle i18n;
-        protected final FastFloorSpatial floorSpatial;
-        protected final HudSpatial hudSpatial;
-        protected final SfxManager sounds;
-        protected final FxManager fxManager;
+        public final AssetMappings assetMappings;
+        public TextureAtlas pack;
+        public I18NBundle i18n;
+        public final FastFloorSpatial floorSpatial;
+        public final HudSpatial hudSpatial;
+        public final SfxManager sounds;
+        public final FxManager fxManager;
 
         public DungeonWorld(DungeonApp dungeonApp, Settings settings) {
                 this.dungeonApp = dungeonApp;
@@ -171,7 +180,7 @@ public class DungeonWorld implements Disposable {
                 return hudSpatial.localPlayerToken;
         }
 
-        protected AbstractTokenSpatial getTokenSpatial(Token token) {
+        public AbstractTokenSpatial getTokenSpatial(Token token) {
                 for (Spatial spatial : spatials) {
                         if (spatial instanceof AbstractTokenSpatial) {
                                 AbstractTokenSpatial ts = (AbstractTokenSpatial) spatial;
@@ -190,7 +199,7 @@ public class DungeonWorld implements Disposable {
                 for (Spatial spatial : spatials) {
                         if (!spatial.isInitialized())
                                 continue;
-                        if (spatial instanceof TokenSpatial) {
+                        if (spatial instanceof CharacterTokenSpatial) {
                                 AbstractTokenSpatial tokenSpatial = (AbstractTokenSpatial) spatial;
 
                                 if (tokenSpatial.getToken() == ignoreToken) {
@@ -395,10 +404,20 @@ public class DungeonWorld implements Disposable {
                 public void onTokenAdded(Token token) {
                         if (token == hudSpatial.localPlayerToken) {
                                 // dont re add the token, he already has a token spatial.
-                        } else if(token.get(SpikeTrap.class) != null){
+                        } else if(token.getLogic() != null){
+                                addSpatial(new CharacterTokenSpatial(DungeonWorld.this, token));
+                        }else if(token.getLoot() != null){
+                                addSpatial(new LootTokenSpatial(DungeonWorld.this, token));
+                        }else if(token.getCrateInventory() != null){
+                                addSpatial(new CrateTokenSpatial(DungeonWorld.this, token));
+                        }else if(token.get(SpikeTrap.class) != null){
                                 addSpatial(new SpikeTrapTokenSpatial(DungeonWorld.this, token));
+                        }else if(token.get(Fountain.class) != null){
+                                addSpatial(new FountainTokenSpatial(DungeonWorld.this, token));
+                        }else if(token.get(Torch.class) != null){
+                                addSpatial(new TorchTokenSpatial(DungeonWorld.this, token));
                         }else{
-                                addSpatial(new TokenSpatial(DungeonWorld.this, token));
+                                throw new AssertionError(token);
                         }
 
                 }

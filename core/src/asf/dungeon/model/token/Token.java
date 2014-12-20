@@ -35,7 +35,7 @@ public class Token {
         protected boolean blocksPathing = true;
 
         // state variables
-        protected final Pair location = new Pair();                     // the current tile that this token is considered to be standing on
+        public final Pair location = new Pair();                     // the current tile that this token is considered to be standing on
         protected FloorMap floorMap;
         protected Direction direction = Direction.South;          // the direction that this token is facing, this affects certain gameplay mechanics.
         private Array<TokenComponent> components = new Array<TokenComponent>(true, 8, TokenComponent.class);

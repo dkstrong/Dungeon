@@ -1,20 +1,6 @@
 package asf.dungeon.model.token;
 
-import asf.dungeon.model.Direction;
-import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.item.ArmorItem;
-import asf.dungeon.model.item.ConsumableItem;
-import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
-import asf.dungeon.model.item.KeyItem;
-import asf.dungeon.model.item.PotionItem;
-import asf.dungeon.model.item.QuickItem;
-import asf.dungeon.model.item.RingItem;
-import asf.dungeon.model.item.StackableItem;
-import asf.dungeon.model.item.WeaponItem;
-import com.badlogic.gdx.utils.Array;
-
-import java.util.Arrays;
 
 /**
  * Created by Danny on 11/11/2014.
@@ -33,7 +19,7 @@ public interface Inventory extends TokenComponent {
          */
         public boolean add(Item item);
 
-        public boolean drop(Item item);
+        public boolean dropItem(Item item);
 
         /**
          * @param item

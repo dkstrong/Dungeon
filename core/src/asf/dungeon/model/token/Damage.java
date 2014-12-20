@@ -128,7 +128,7 @@ public class Damage implements TokenComponent{
         protected void onDied() {
 
                 if(token.getCrateInventory() != null){
-                        token.getCrateInventory().drop(token.getCrateInventory().getItemToDrop());
+                        token.getCrateInventory().dropItem(token.getCrateInventory().getItemToDrop());
                 }
         }
 
