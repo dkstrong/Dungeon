@@ -89,7 +89,7 @@ public class KeyItem extends AbstractItem implements Item, Symbol {
         }
 
         @Override
-        public void lockDoor(Dungeon dungeon, FloorMap floorMap, Doorway doorwway, Tile tile) {
+        public void lockDoor(Dungeon dungeon, FloorMap floorMap,Tile tile) {
                 tile.setDoorLocked(true, this);
         }
 

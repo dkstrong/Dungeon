@@ -131,7 +131,9 @@ public class Move implements TokenComponent {
 
                                         boolean action;
                                         if (token.getInteractor() != null) {
-                                                action = token.getInteractor().interact(nextLocation);
+                                                action = pushBoulder(nextLocation);
+                                                if (!action)
+                                                        action = token.getInteractor().interact(nextLocation);
                                         } else {
                                                 action = false;
                                         }
@@ -150,7 +152,7 @@ public class Move implements TokenComponent {
                                 path.clear();
                                 pathedTarget.set(location);
                                 Stairs stairs = floorMap.getStairsAt(location.x, location.y);
-                                if(stairs != null){
+                                if (stairs != null) {
                                         token.dungeon.moveToken(token, token.dungeon.generateFloor(stairs.stairsTo));
                                         updateFloatLocation();
                                         return true;
@@ -234,6 +236,17 @@ public class Move implements TokenComponent {
                 }
         }
 
+        private boolean pushBoulder(Pair nextLocation) {
+                Array<Token> tokensAt = token.floorMap.getTokensAt(nextLocation);
+                for (Token t : tokensAt) {
+                        Boulder boulder = t.get(Boulder.class);
+                        if (boulder != null) {
+                                boulder.push(token);
+                                return true;
+                        }
+                }
+                return false;
+        }
 
         private boolean useKey(Pair nextLocation) {
                 Tile nextTile = token.floorMap.getTile(nextLocation);

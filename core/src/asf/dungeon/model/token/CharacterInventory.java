@@ -379,8 +379,7 @@ public class CharacterInventory implements Inventory {
                         dropLoc.addFree(token.direction);
                 }
 
-                Tile tile = token.floorMap.getTile(dropLoc);
-                if(tile == null || !tile.isFloor() || token.floorMap.hasTokensAt(dropLoc.x,dropLoc.y)){
+                if(token.floorMap.isLocationBlocked(dropLoc)){
                         dropLoc.set(token.location);
                 }
                 Token lootToken = token.dungeon.newLootToken(token.getFloorMap(), item, token.location.x, token.location.y);

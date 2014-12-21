@@ -51,7 +51,7 @@ public class FloorSpatial implements Spatial {
         @Override
         public void preload(DungeonWorld world) {
                 this.world = world;
-                world.assetManager.load("Textures/Dungeon/floorTiles.png", Texture.class);
+                world.assetManager.load("Textures/Dungeon/floorTilesPressurePlates.png", Texture.class);
                 world.assetManager.load("Textures/Dungeon/wallTiles.png", Texture.class);
 
                 world.assetManager.load("Models/Dungeon/Door/Door.g3db", Model.class);
@@ -63,7 +63,7 @@ public class FloorSpatial implements Spatial {
                 fogAlpha = new float[5];
                 decalNodes = new Array<DecalNode>(false, 1024, DecalNode.class);
 
-                Texture floorTex = world.assetManager.get("Textures/Dungeon/floorTiles.png", Texture.class);
+                Texture floorTex = world.assetManager.get("Textures/Dungeon/floorTilesPressurePlates.png", Texture.class);
                 floorTexRegions = TextureRegion.split(floorTex, 128, 128);
 
                 Texture  wallTex = world.assetManager.get("Textures/Dungeon/wallTiles.png", Texture.class);
@@ -217,9 +217,18 @@ public class FloorSpatial implements Spatial {
                 decalNode.tile = tile;
                 decalNodes.add(decalNode);
 
+                TextureRegion tr;
+                if(floorMap.getPressurePlateAt(x,y) == null){
+                        // choose a textue region without a pressure plate
+
+                        tr = floorTexRegions[MathUtils.random(1, floorTexRegions.length - 1)][MathUtils.random.nextInt(floorTexRegions[0].length)];
+                }else{
+                        // chose a texture region with a pressure plate
+                        tr = floorTexRegions[0][MathUtils.random.nextInt(floorTexRegions[0].length)];
+                }
 
                 decalNode.decal = new Decal();
-                decalNode.decal.setTextureRegion(floorTexRegions[MathUtils.random.nextInt(floorTexRegions.length)][MathUtils.random.nextInt(floorTexRegions[0].length)]);
+                decalNode.decal.setTextureRegion(tr);
                 decalNode.decal.setBlending(DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                 decalNode.decal.setDimensions(tileDimensions.x, tileDimensions.z);
                 decalNode.decal.setColor(0,0,0,1);

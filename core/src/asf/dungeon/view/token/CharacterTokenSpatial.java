@@ -240,7 +240,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         Quaternion tokenDirRot = world.assetMappings.getRotation(dir);
                         rotation.slerp(tokenDirRot, rotSpeed);
                 }else {
-                        float rotMoveSpeed = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7f);
+                        float rotMoveSpeed =  UtMath.largest(token.getMove().getMoveSpeed(), 7f);
                         float rotSpeed = delta * (rotMoveSpeed + 0.5f);
                         Quaternion tokenDirRot = world.assetMappings.getRotation(token.getDirection());
                         rotation.slerp(tokenDirRot, rotSpeed);

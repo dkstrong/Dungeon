@@ -2,6 +2,7 @@ package asf.dungeon.model;
 
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.ConsumableItem;
+import asf.dungeon.model.token.PressurePlate;
 import asf.dungeon.model.token.Stairs;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtDebugPrint;
@@ -74,6 +75,17 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                         return null;
                 }
                 return tiles[x][y];
+        }
+
+        public PressurePlate getPressurePlateAt(int x, int y){
+                for (Token token : tokens) {
+                        if(token.location.x == x && token.location.y == y){
+                                PressurePlate plate = token.get(PressurePlate.class);
+                                if(plate != null)
+                                        return plate;
+                        }
+                }
+                return null;
         }
 
         public Stairs getStairsAt(int x, int y){

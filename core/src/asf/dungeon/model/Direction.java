@@ -74,7 +74,7 @@ public enum Direction {
         }
 
         public static Direction getDirection(int degrees) {
-                while(degrees >360) degrees-=360;
+                while(degrees >=360) degrees-=360;
                 while(degrees <0) degrees+=360;
 
                 if(degrees == North.degrees) return North;

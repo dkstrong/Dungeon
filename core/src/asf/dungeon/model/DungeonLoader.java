@@ -98,7 +98,7 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new MazeGen(5,5),new TestAssetsFloorGen(), new TestAssetsFloorGen(),
+                                new PreBuiltFloorGen(),new TestAssetsFloorGen(), new TestAssetsFloorGen(),
                                 new ConnectedRoomsGen(), new ConnectedRoomsGen(), new MazeGen(7, 4), new DirectionalCaveHallGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),

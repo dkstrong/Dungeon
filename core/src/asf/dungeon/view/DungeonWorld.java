@@ -7,13 +7,16 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.SongId;
+import asf.dungeon.model.token.Boulder;
 import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.Fountain;
+import asf.dungeon.model.token.PressurePlate;
 import asf.dungeon.model.token.SpikeTrap;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.Torch;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.token.AbstractTokenSpatial;
+import asf.dungeon.view.token.BoulderSpatial;
 import asf.dungeon.view.token.CharacterTokenSpatial;
 import asf.dungeon.view.token.CrateTokenSpatial;
 import asf.dungeon.view.token.FountainTokenSpatial;
@@ -124,7 +127,7 @@ public class DungeonWorld implements Disposable {
                 } else {
                         dungeon = DungeonLoader.createDungeon(settings);
                         dungeon.setListener(internalInput);
-                        saveDungeon();
+                        //saveDungeon();
                 }
 
 
@@ -419,6 +422,10 @@ public class DungeonWorld implements Disposable {
                                 addSpatial(new TorchTokenSpatial(DungeonWorld.this, token));
                         }else if(token.getStairs() != null){
                                 addSpatial(new StairsSpatial(DungeonWorld.this, token));
+                        }else if(token.get(Boulder.class) != null){
+                                addSpatial(new BoulderSpatial(DungeonWorld.this, token));
+                        }else if(token.get(PressurePlate.class) != null){
+                                // Pressure plate has no dedicated spatial,  it is incorporated with FloorSpatial
                         }else{
                                 throw new AssertionError(token);
                         }

@@ -125,7 +125,7 @@ public class UtRoomSpawn {
                         for (Doorway doorway : room.doorways) {
                                 if(doorway.requiresSymbol == null) continue;
                                 Tile tile = floorMap.getTile(doorway.x, doorway.y);
-                                doorway.requiresSymbol.lockDoor(dungeon, floorMap, doorway, tile);
+                                doorway.requiresSymbol.lockDoor(dungeon, floorMap, tile);
                         }
                 }
         }

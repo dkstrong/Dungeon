@@ -1,3 +1,7 @@
+These are the references for all assets from opengameart.org
+
+Other contributors are listed in README.md
+
 ===Characters And Monsters===
 Animated Heroes (Knight, Archer, Mage, ...)
 Clement Wu, Nikolaus, Botanic
@@ -56,6 +60,10 @@ Spike Trap
 Danimal
 http://opengameart.org/content/spyke-trap-low-poly-updated
 
+Boulder
+Duion
+http://opengameart.org/content/uberpack-1
+
 ===Misc Dungeon Assets===
 Stairs
 Clint Bellanger
@@ -67,6 +75,10 @@ URL: http://opengameart.org/content/low-poly-stairs
 Floor and Wall textures
 Spiney
 URL: http://opengameart.org/users/spiney, http://opengameart.org/node/12116
+
+Pressure Plate Texture
+Sindwiller
+http://opengameart.org/content/painted-bolted-metal-tile
 
 ===Interface===
 

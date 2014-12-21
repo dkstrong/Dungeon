@@ -46,8 +46,15 @@ public class TestAssetsFloorGen implements FloorMapGenerator, FloorMap.MonsterSp
 
                 };
 
+
+
                 FloorMap floorMap = new FloorMap(floorIndex, PreBuiltFloorGen.convertTileData(floorIndex, tileData), this);
                 PreBuiltFloorGen.spawnTokensFromTileData(dungeon, floorMap, tileData);
+
+
+
+
+
 
                 PotionItem.Type[] potionValues = PotionItem.Type.values();
                 for(int y = 1; y<=potionValues.length; y++){

@@ -4,7 +4,6 @@ import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Symbol;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.floorgen.room.Doorway;
 
 /**
  * concrete class for combination puzzles that cause a door to lock or unlock
@@ -37,7 +36,7 @@ public class CombinationDoorPuzzle extends CombinationPuzzle implements Symbol {
         }
 
         @Override
-        public void lockDoor(Dungeon dungeon, FloorMap floorMap, Doorway doorwway, Tile tile) {
+        public void lockDoor(Dungeon dungeon, FloorMap floorMap, Tile tile) {
                 doorTile = tile;
                 tile.setDoorLocked(true, this);
                 checkPuzzle(dungeon);

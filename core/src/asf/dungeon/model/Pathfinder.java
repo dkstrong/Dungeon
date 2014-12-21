@@ -1,5 +1,6 @@
 package asf.dungeon.model;
 
+import asf.dungeon.model.token.Boulder;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.quest.Quest;
 import com.badlogic.gdx.utils.Array;
@@ -248,6 +249,9 @@ public class Pathfinder {
                         Array<Token> tokensAt = floorMap.getTokensAt(n1);
                         for (Token t : tokensAt) {
                                 if(!t.isBlocksPathing())
+                                        continue;
+
+                                if(t.get(Boulder.class)!=null)
                                         continue;
 
                                 if(t.getStairs()!=null)
