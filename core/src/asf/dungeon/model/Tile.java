@@ -13,7 +13,6 @@ public class Tile {
         private int movementCost;
         private boolean blockMovement;
         private boolean blockVision;
-        private int stairsTo;
         private boolean door;
         private Symbol doorSymbol;
         private boolean doorForcedOpen;
@@ -21,13 +20,6 @@ public class Tile {
         private Tile(boolean blockMovement, boolean blockVision) {
                 this.blockMovement = blockMovement;
                 this.blockVision = blockVision;
-                this.stairsTo = -2;
-        }
-
-        private Tile(boolean blockVision, int stairsTo) {
-                this.blockMovement = false;
-                this.blockVision = blockVision;
-                this.stairsTo = stairsTo;
         }
 
         private Tile(boolean doorLocked, Symbol doorSymbol) {
@@ -35,7 +27,6 @@ public class Tile {
                 this.blockVision = true;
                 this.blockMovement = doorLocked;
                 this.doorSymbol = doorSymbol;
-                this.stairsTo = -2;
         }
 
 
@@ -47,9 +38,9 @@ public class Tile {
                 return blockVision;
         }
 
-        public boolean isWall() { return !isDoor() && !isStairs() && blockMovement; }
+        public boolean isWall() { return !isDoor()  && blockMovement; }
 
-        public boolean isFloor() { return !isDoor() && !isStairs() && !blockMovement && !blockVision; }
+        public boolean isFloor() { return !isDoor() && !blockMovement && !blockVision; }
 
         public boolean isDoor() {
                 return door;
@@ -63,10 +54,6 @@ public class Tile {
                 return blockMovement;
         }
 
-        /**
-         * if this door is unlocked by some other means than a key (such as a puzzle) then this value should be null
-         * @return
-         */
         public Symbol getDoorSymbol() {
                 return doorSymbol;
         }
@@ -89,18 +76,6 @@ public class Tile {
                 blockVision = !doorForcedOpen;
         }
 
-        public boolean isStairs() {
-                return stairsTo >= -1;
-        }
-
-        public int getStairsTo() {
-                return stairsTo;
-        }
-
-        public boolean isStairsUp(int currentFloorIndex) {
-                return stairsTo < currentFloorIndex;
-        }
-
         public int getMovementCost() {
                 return movementCost;
         }
@@ -117,10 +92,6 @@ public class Tile {
 
         public static Tile makeDoor(Symbol keyType) { return new Tile(true, keyType); }
 
-        public static Tile makeStairs(int currentFloorIndex, int stairsTo) {
-                return new Tile(stairsTo < currentFloorIndex, stairsTo);
-        }
-
         @Override
         public String toString() {
                 return String.valueOf(toCharacter());
@@ -132,13 +103,6 @@ public class Tile {
 
                 if (isWall())
                         return '|';
-
-                if (isStairs()) {
-                        if (isBlockVision())
-                                return '^';
-                        else
-                                return '&';
-                }
 
                 if (isDoor())
                         if(isDoorLocked())

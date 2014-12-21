@@ -5,10 +5,10 @@ import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.debug.BalanceTestFloorGen;
 import asf.dungeon.model.floorgen.debug.PreBuiltFloorGen;
 import asf.dungeon.model.floorgen.debug.TestAssetsFloorGen;
-import asf.dungeon.model.floorgen.field.CellularAutomataGen;
-import asf.dungeon.model.floorgen.field.DirectionalCaveHallGen;
-import asf.dungeon.model.floorgen.field.MazeGen;
-import asf.dungeon.model.floorgen.field.RandomWalkGen;
+import asf.dungeon.model.floorgen.cave.CellularAutomataGen;
+import asf.dungeon.model.floorgen.cave.DirectionalCaveHallGen;
+import asf.dungeon.model.floorgen.cave.MazeGen;
+import asf.dungeon.model.floorgen.cave.RandomWalkGen;
 import asf.dungeon.model.floorgen.room.BinarySpaceGen;
 import asf.dungeon.model.floorgen.room.ConnectedRoomsGen;
 import asf.dungeon.model.floorgen.room.Room;
@@ -98,7 +98,7 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new ConnectedRoomsGen(),new ZeldaGen(), new TestAssetsFloorGen(),
+                                new MazeGen(5,5),new TestAssetsFloorGen(), new TestAssetsFloorGen(),
                                 new ConnectedRoomsGen(), new ConnectedRoomsGen(), new MazeGen(7, 4), new DirectionalCaveHallGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
@@ -282,6 +282,7 @@ public class DungeonLoader {
                 kryo.register(Symbol.class);
                 kryo.register(asf.dungeon.model.Tile[].class);
                 kryo.register(asf.dungeon.model.Tile[][].class);
+                kryo.register(asf.dungeon.model.Sector.class);
 
                 kryo.register(Attack.class);
                 kryo.register(Damage.class);
@@ -291,6 +292,7 @@ public class DungeonLoader {
                 kryo.register(asf.dungeon.model.token.Torch.class);
                 kryo.register(asf.dungeon.model.token.SpikeTrap.class);
                 kryo.register(asf.dungeon.model.token.Interactor.class);
+                kryo.register(asf.dungeon.model.token.Stairs.class);
                 kryo.register(Inventory.class);
                 kryo.register(CharacterInventory.class);
                 kryo.register(CrateInventory.class);

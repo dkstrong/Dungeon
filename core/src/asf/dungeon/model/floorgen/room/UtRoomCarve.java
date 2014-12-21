@@ -15,7 +15,6 @@ public class UtRoomCarve {
                 fillRooms(tiles, rooms);
                 fillTunnels(dungeon, tiles, rooms);
                 carveDoors(dungeon, floorIndex, tiles, rooms);
-                carveStairs(dungeon, floorIndex, tiles, rooms);
         }
 
 
@@ -187,36 +186,5 @@ public class UtRoomCarve {
 
         }
 
-        public static boolean carveStairs(Dungeon dungeon, int floorIndex, Tile[][] tiles, Array<Room> rooms) {
-                int i = 0;
-                boolean valid = false;
-                while (i < rooms.size && !valid) {
-                        valid = carveStairsInRoom(dungeon, tiles, rooms.get(i++), floorIndex, floorIndex + 1);
-                }
-                if (!valid) return false;
-                valid = false;
-                int j = rooms.size - 1;
-                while (j >= i && !valid) {
-                        valid = carveStairsInRoom(dungeon, tiles, rooms.get(j--), floorIndex, floorIndex - 1);
-                }
-                return valid;
-        }
-
-        public static boolean carveStairsInRoom(Dungeon dungeon, Tile[][] tiles, Room room, int floorIndex, int floorIndexTo) {
-                if (room.x1 + 2 >= room.x2 - 2 || room.y1 + 2 >= room.y2 - 2) {
-                        return false; // room too small
-                }
-
-                int x,y;
-                do{
-                        x = dungeon.rand.range(room.x1 + 2, room.x2 - 2);
-                        y = dungeon.rand.range(room.y1 + 2, room.y2 - 2);
-                }while(tiles[x][y]== null || !tiles[x][y].isFloor());
-
-                tiles[x][y] = Tile.makeStairs(floorIndex, floorIndexTo);
-                room.containsStairsTo = floorIndexTo;
-
-                return true;
-        }
 
 }

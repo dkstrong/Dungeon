@@ -23,9 +23,9 @@ import com.badlogic.gdx.files.FileHandle;
  */
 public class TestAssetsFloorGen implements FloorMapGenerator, FloorMap.MonsterSpawner{
 
-        private FileHandle userMonsterLocation;
+
         public FloorMap generate(Dungeon dungeon, int floorIndex){
-                userMonsterLocation = AssetMappings.getUserMonsterLocation();
+
                 String[] tileData = new String[]{
                         "-------------------",
                         "|.................|",
@@ -47,6 +47,7 @@ public class TestAssetsFloorGen implements FloorMapGenerator, FloorMap.MonsterSp
                 };
 
                 FloorMap floorMap = new FloorMap(floorIndex, PreBuiltFloorGen.convertTileData(floorIndex, tileData), this);
+                PreBuiltFloorGen.spawnTokensFromTileData(dungeon, floorMap, tileData);
 
                 PotionItem.Type[] potionValues = PotionItem.Type.values();
                 for(int y = 1; y<=potionValues.length; y++){
@@ -90,6 +91,7 @@ public class TestAssetsFloorGen implements FloorMapGenerator, FloorMap.MonsterSp
                                 y = dungeon.rand.range(6,10);
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
+                        FileHandle userMonsterLocation = AssetMappings.getUserMonsterLocation();
                         ModelId modelId = userMonsterLocation != null ? ModelId.UserMonster : ModelId.Skeleton;
 
                         Token token = dungeon.newCharacterToken(floorMap, "Monster",

@@ -2,6 +2,7 @@ package asf.dungeon.model;
 
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.ConsumableItem;
+import asf.dungeon.model.token.Stairs;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtDebugPrint;
 import asf.dungeon.utility.UtMath;
@@ -75,37 +76,29 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                 return tiles[x][y];
         }
 
-
-        public Pair getLocationOfUpStairs(){
-
-                for(int x=0; x< getWidth(); x++){
-                        for(int y=0; y<getHeight(); y++){
-                                if(tiles[x][y]!=null && tiles[x][y].isStairs()){
-                                        if(tiles[x][y].getStairsTo() < index){
-                                                return new Pair(x,y);
-                                        }
-                                }
-                        }
+        public Stairs getStairsAt(int x, int y){
+                for (Token token : tokens) {
+                        if(token.getStairs() != null && token.location.x == x && token.location.y == y)
+                                return token.getStairs();
                 }
-
                 return null;
         }
 
-        public Pair getLocationOfDownStairs(){
-
-                for(int x=0; x< getWidth(); x++){
-                        for(int y=0; y<getHeight(); y++){
-                                if(tiles[x][y]!=null && tiles[x][y].isStairs()){
-                                        if(tiles[x][y].getStairsTo() > index){
-                                                return new Pair(x,y);
-                                        }
-                                }
-                        }
+        public Stairs getStairsUp(){
+                for (Token token : tokens) {
+                        if(token.getStairs() != null && token.getStairs().isStairsUp())
+                                return token.getStairs();
                 }
-
                 return null;
         }
 
+        public Stairs getStairsDown(){
+                for (Token token : tokens) {
+                        if(token.getStairs() != null && !token.getStairs().isStairsUp())
+                                return token.getStairs();
+                }
+                return null;
+        }
 
         public boolean hasTokensAt(int x, int y){
                 for(Token token : tokens){
@@ -337,7 +330,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
          * because some tiles block vision if standing outside the tile, but once standing in the tile they do not
          *
          * NOTE: THIS DOES NOT CHECK FOR LOS OF SIGHT, USE LOS.hasLineOfSigh() to check for sight!, this only
-         * checks for visibility of this tile assuming not obstacles.
+         * checks for visibility of this tile assuming no obstacles.
          *
          * @param vantageX
          * @param vantageY
@@ -346,12 +339,10 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
          * @return
          */
         public boolean isLocationVisionBlocked(int vantageX, int vantageY, int x, int y){
-                Tile tile = getTile(x, y);
-                if(tile != null && tile.isStairs()){
-                        if(x == vantageX && y == vantageY){
-                                return false;
-                        }
+                if(x == vantageX && y == vantageY){
+                        return false;
                 }
+                Tile tile = getTile(x, y);
                 return tile == null || tile.isBlockVision();
 
         }

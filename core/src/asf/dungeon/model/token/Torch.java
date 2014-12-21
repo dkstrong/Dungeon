@@ -32,7 +32,7 @@ public class Torch implements TokenComponent, PuzzlePiece {
                 ignited = !ignited;
                 if(puzzle!=null)
                         puzzle.checkPuzzle(token.dungeon);
-                // TODO: somehow i need to pass this information on to HudSpatial through a listener so it can output something like "you head a loud clang"
+                // TODO: somehow i need to pass this information on to HudSpatial through a listener so it can output something like "you heard a loud clang"
                 // whenever the puzzle is solved or unsolved. The way to do this might be more obvious after i add pressure switch puzzle
 
         }

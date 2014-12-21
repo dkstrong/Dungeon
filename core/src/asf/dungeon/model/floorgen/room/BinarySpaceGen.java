@@ -49,9 +49,9 @@ public class BinarySpaceGen implements FloorMapGenerator {
                 UtRoomCarve.fillRooms(tiles, rooms);
                 fillTunnels(tiles, baseRoomCell.childCell1, baseRoomCell.childCell2);
                 UtRoomCarve.carveDoors(dungeon, floorIndex, tiles, rooms);
-                UtRoomCarve.carveStairs(dungeon, floorIndex, tiles, rooms);
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles);
+                UtRoomSpawn.spawnStairs(dungeon, floorMap, rooms);
                 UtRoomSpawn.carveLockedDoorsAndSpawnKeys(dungeon, floorMap, rooms);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);

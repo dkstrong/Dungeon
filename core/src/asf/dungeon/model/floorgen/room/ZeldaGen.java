@@ -9,9 +9,6 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.UtFloorGen;
-import asf.dungeon.model.floorgen.room.Room;
-import asf.dungeon.model.floorgen.room.UtRoomCarve;
-import asf.dungeon.model.floorgen.room.UtRoomSpawn;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
@@ -74,6 +71,7 @@ public class ZeldaGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
                 UtRoomCarve.fillAndCarve(dungeon, floorIndex, tiles, rooms);
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles, this);
+                UtRoomSpawn.spawnStairs(dungeon, floorMap, rooms);
                 UtRoomSpawn.carveLockedDoorsAndSpawnKeys(dungeon, floorMap, rooms);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);

@@ -1,4 +1,4 @@
-package asf.dungeon.model.floorgen.field;
+package asf.dungeon.model.floorgen.cave;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
@@ -51,13 +51,10 @@ public class DirectionalCaveHallGen implements FloorMapGenerator {
 
                 UtFloorGen.ensureEdgesAreWalls(tiles);
                 UtFloorGen.floodFillSmallerAreas(tiles);
-                UtFloorGen.placeUpStairs(dungeon, tiles, floorIndex);
-                UtFloorGen.placeDownStairs(dungeon, tiles, floorIndex);
-
-
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles);
-
+                UtFloorGen.placeUpStairs(dungeon, floorMap);
+                UtFloorGen.placeDownStairs(dungeon, floorMap);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
                 return floorMap;

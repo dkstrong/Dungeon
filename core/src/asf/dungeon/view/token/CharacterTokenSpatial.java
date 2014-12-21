@@ -84,7 +84,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
                 //}
 
-                if (world.assetMappings.getAssetLocation(token.getModelId()).contains("Characters")) {
+                if (token.getModelId() != ModelId.UserMonster && world.assetMappings.getAssetLocation(token.getModelId()).contains("Characters")) {
                         if(token.getModelId() != ModelId.Skeleton){
                                 float s = .45f;
                                 scale.set(s, s, s);
@@ -292,7 +292,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         public void dispose() {
                 super.dispose();
 
-                if(this.token.getModelId() == ModelId.UserMonster){
+                if(this.token.getModelId() == ModelId.UserMonster && modelInstance != null){
                         modelInstance.model.dispose();
                 }
                 initialized = false;

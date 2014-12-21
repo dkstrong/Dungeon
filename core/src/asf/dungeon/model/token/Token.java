@@ -53,6 +53,7 @@ public class Token {
         private FogMapping fogMapping;
         private StatusEffects statusEffects;
         private Loot loot;
+        private Stairs stairs;
 
 
         public Token(Dungeon dungeon, int id, String name, ModelId modelId) {
@@ -124,6 +125,8 @@ public class Token {
                         this.statusEffects = (StatusEffects)component;
                 }else if(component instanceof Loot){
                         this.loot = (Loot) component;
+                }else if(component instanceof Stairs){
+                        this.stairs = (Stairs) component;
                 }
         }
 
@@ -281,6 +284,10 @@ public class Token {
                 return loot;
         }
 
+        public Stairs getStairs() {
+                return stairs;
+        }
+
         /**
          * if the token prevents other tokens from sharing the same tile.
          *
@@ -378,6 +385,13 @@ public class Token {
                                 else return '?';
                         }
                         return '$';
+                }
+
+                if(getStairs() != null){
+                        if(getStairs().isStairsUp())
+                                return '^';
+                        else
+                                return '&';
                 }
 
                 if(get(Torch.class) != null) return 't';

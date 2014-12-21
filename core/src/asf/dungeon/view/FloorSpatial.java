@@ -2,6 +2,7 @@ package asf.dungeon.view;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogMapNull;
@@ -32,7 +33,7 @@ import com.badlogic.gdx.utils.Array;
 /**
  * Created by Daniel Strong on 12/15/2014.
  */
-public class FastFloorSpatial implements Spatial {
+public class FloorSpatial implements Spatial {
 
         public final Vector3 tileDimensions = new Vector3(5, 5.75f, 5);
         public final Box tileBox = new Box(new Vector3(-tileDimensions.x / 2f, 0, -tileDimensions.z / 2f),new Vector3(tileDimensions.x / 2f, tileDimensions.y, tileDimensions.z / 2f));
@@ -52,9 +53,6 @@ public class FastFloorSpatial implements Spatial {
                 this.world = world;
                 world.assetManager.load("Textures/Dungeon/floorTiles.png", Texture.class);
                 world.assetManager.load("Textures/Dungeon/wallTiles.png", Texture.class);
-
-                world.assetManager.load("Models/Dungeon/Stairs/StairsUp.g3db", Model.class);
-                world.assetManager.load("Models/Dungeon/Stairs/StairsDown.g3db", Model.class);
 
                 world.assetManager.load("Models/Dungeon/Door/Door.g3db", Model.class);
         }
@@ -112,6 +110,8 @@ public class FastFloorSpatial implements Spatial {
                 DecalNodeWall.topWallVisibleY = tileDimensions.y;
                 DecalNodeWall.sideWallVisibleY = tileDimensions.y/2f;
 
+                Pair stairsDownLoc = floorMap.getStairsDown().getLocation();
+
                 decalNodes.clear();
                 for (int x = 0; x < floorMap.getWidth(); x++) {
                         for (int y = 0; y < floorMap.getHeight(); y++) {
@@ -120,7 +120,7 @@ public class FastFloorSpatial implements Spatial {
                                         if(tile.isWall()){
                                                 makeDecalWall(tile, x, y);
                                         }else{
-                                                makeDecalFloor(tile, x,y);
+                                                makeDecalFloor(tile, x,y, stairsDownLoc);
                                         }
                                 }
                         }
@@ -138,6 +138,15 @@ public class FastFloorSpatial implements Spatial {
                 for (DecalNode decalNode : decalNodes) {
                         decalNode.render(this, delta);
                 }
+        }
+
+        public Color getDecalNodeColorAt(int x, int y){
+                for (DecalNode decalNode : decalNodes) {
+                        if(decalNode.x==x && decalNode.y ==y){
+                                return decalNode.decal.getColor();
+                        }
+                }
+                throw new IllegalArgumentException("No decal node at the coordinates "+x+", "+y);
         }
 
         @Override
@@ -178,7 +187,7 @@ public class FastFloorSpatial implements Spatial {
                 return Direction.West;
         }
 
-        private void makeDecalFloor(Tile tile, int x, int y) {
+        private void makeDecalFloor(Tile tile, int x, int y, Pair stairsDownLoc) {
                 world.getWorldCoords(x, y, worldCoordsTemp);
                 DecalNodeFloor decalNode;
                 if(tile.isDoor()){
@@ -196,38 +205,17 @@ public class FastFloorSpatial implements Spatial {
                                 rot.x,rot.y,rot.z,rot.w,
                                 1,1,1
                         );
-                }else if(tile.isStairs()){
-                        BetterModelInstance modelInstance;
-                        if(tile.isStairsUp(floorMap.index)){
-                                DecalNodeStairsUp stairsUp = new DecalNodeStairsUp();
-                                decalNode = stairsUp;
-                                stairsUp.modelInstance = new BetterModelInstance(world.assetManager.get("Models/Dungeon/Stairs/StairsUp.g3db", Model.class));
-                                Material material = stairsUp.modelInstance.materials.get(0);
-                                stairsUp.colorAttribute = (ColorAttribute)material.get(ColorAttribute.Diffuse);
-                                modelInstance = stairsUp.modelInstance;
-                        }else{
-                                DecalNodeStairsDown stairsDown = new DecalNodeStairsDown();
-                                decalNode = stairsDown;
-                                stairsDown.modelInstance = new BetterModelInstance(world.assetManager.get("Models/Dungeon/Stairs/StairsDown.g3db", Model.class));
-                                Material material = stairsDown.modelInstance.materials.get(0);
-                                stairsDown.colorAttribute = (ColorAttribute)material.get(ColorAttribute.Diffuse);
-                                modelInstance = stairsDown.modelInstance;
-                        }
-                        Quaternion rot = world.assetMappings.getRotation(Direction.East);
-                        modelInstance.transform.set(
-                                worldCoordsTemp.x,worldCoordsTemp.y,worldCoordsTemp.z,
-                                rot.x,rot.y,rot.z,rot.w,
-                                1,1,1
-                        );
-
+                }else if(stairsDownLoc.equals(x,y)){
+                        decalNode = new DecalNodeStairsDown();
                 }else{
                         decalNode = new DecalNodeFloor();
                 }
+
+
                 decalNode.x = x;
                 decalNode.y = y;
                 decalNode.tile = tile;
                 decalNodes.add(decalNode);
-
 
 
                 decalNode.decal = new Decal();
@@ -302,11 +290,12 @@ public class FastFloorSpatial implements Spatial {
 
 
         private abstract static class DecalNode{
+                public Decal decal;
                 public int x;
                 public int y;
                 public Tile tile;
 
-                protected abstract void render(FastFloorSpatial floor, float delta);
+                protected abstract void render(FloorSpatial floor, float delta);
 
 
         }
@@ -315,10 +304,10 @@ public class FastFloorSpatial implements Spatial {
         // decal.setColor calls native code which should be avoided on android
 
         private static class DecalNodeFloor extends DecalNode{
-                public Decal decal;
+
 
                 @Override
-                protected void render(FastFloorSpatial floor, float delta) {
+                protected void render(FloorSpatial floor, float delta) {
                         Color color = decal.getColor();
                         FogState fogState = floor.fogMap.getFogState(x,y);
                         float fog = MathUtils.lerp(color.g, floor.fogAlpha[fogState.ordinal()], delta);
@@ -335,14 +324,41 @@ public class FastFloorSpatial implements Spatial {
                 }
         }
 
+        private static class DecalNodeStairsDown extends DecalNodeFloor{
+                // This DecalNode is bassicaly the same as DecalNodeFloor just it uses VisibleY to make sure that the deacl
+                // is drawn below the stairs model
+                public static float visibleY = -3.753f;
+
+                @Override
+                protected void render(FloorSpatial floor, float delta) {
+                        Color color = decal.getColor();
+                        FogState fogState = floor.fogMap.getFogState(x,y);
+                        float fog = MathUtils.lerp(color.g, floor.fogAlpha[fogState.ordinal()], delta);
+                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().getLocation().distance(x,y)<16)){
+                                if(decal.getPosition().y != visibleY){
+                                        decal.setY(visibleY);
+
+                                }
+                                if(fogState == FogState.MagicMapped)
+                                        color.set(fog * 0.9f, fog, fog * 1.2f, 1);
+                                else
+                                        color.set(fog,fog,fog,1);
+                                decal.setColor(color);
+                                floor.world.decalBatch.add(decal);
+
+                        }else{
+                                color.g = fog;
+                        }
+                }
+        }
+
         private static class DecalNodeWall extends DecalNode{
-                public Decal decal; // top decal
-                public Decal[] decals; // side wall decals
+                public Decal[] decals; // side wall decals, the top wall decal is the superclass decal
                 public static float topWallVisibleY;
                 public static float sideWallVisibleY;
 
                 @Override
-                protected void render(FastFloorSpatial floor, float delta) {
+                protected void render(FloorSpatial floor, float delta) {
                         Color color = decal.getColor();
                         FogState fogState = floor.fogMap.getFogState(x,y);
                         float fog = MathUtils.lerp(color.g, floor.fogAlpha[fogState.ordinal()], delta);
@@ -368,64 +384,8 @@ public class FastFloorSpatial implements Spatial {
                 }
         }
 
-        private static class DecalNodeStairsUp extends DecalNodeFloor{
-                public BetterModelInstance modelInstance;
-                public ColorAttribute colorAttribute;
 
-                @Override
-                protected void render(FastFloorSpatial floor, float delta) {
-                        Color color = decal.getColor();
-                        FogState fogState = floor.fogMap.getFogState(x,y);
-                        float fog = MathUtils.lerp(color.g, floor.fogAlpha[fogState.ordinal()], delta);
-                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().getLocation().distance(x,y)<16)){
-                                if(fogState == FogState.MagicMapped)
-                                        color.set(fog * 0.9f, fog, fog * 1.2f, 1);
-                                else
-                                        color.set(fog,fog,fog,1);
-                                decal.setColor(color);
-                                floor.world.decalBatch.add(decal);
 
-                                colorAttribute.color.r = UtMath.clamp(color.r+.1f, 0f,1f);
-                                colorAttribute.color.g = UtMath.clamp(color.g+.1f, 0f,1f);
-                                colorAttribute.color.b = UtMath.clamp(color.b+.1f, 0f,1f);
-                                floor.world.modelBatch.render(modelInstance, floor.world.environment);
-                        }else{
-                                color.g = fog;
-                        }
-                }
-        }
-
-        private static class DecalNodeStairsDown extends DecalNodeFloor{
-                public BetterModelInstance modelInstance;
-                public ColorAttribute colorAttribute;
-                public static float visibleY = -3.753f;
-
-                @Override
-                protected void render(FastFloorSpatial floor, float delta) {
-                        Color color = decal.getColor();
-                        FogState fogState = floor.fogMap.getFogState(x,y);
-                        float fog = MathUtils.lerp(color.g, floor.fogAlpha[fogState.ordinal()], delta);
-                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().getLocation().distance(x,y)<16)){
-                                if(decal.getPosition().y != visibleY){
-                                        decal.setY(visibleY);
-
-                                }
-                                if(fogState == FogState.MagicMapped)
-                                        color.set(fog * 0.9f, fog, fog * 1.2f, 1);
-                                else
-                                        color.set(fog,fog,fog,1);
-                                decal.setColor(color);
-                                floor.world.decalBatch.add(decal);
-
-                                colorAttribute.color.r = UtMath.clamp(color.r+.1f, 0f,1f);
-                                colorAttribute.color.g = UtMath.clamp(color.g+.1f, 0f,1f);
-                                colorAttribute.color.b = UtMath.clamp(color.b+.1f, 0f,1f);
-                                floor.world.modelBatch.render(modelInstance, floor.world.environment);
-                        }else{
-                                color.g = fog;
-                        }
-                }
-        }
 
         private static class DecalNodeDoor extends DecalNodeFloor implements BetterAnimationController.AnimationListener{
                 public BetterModelInstance modelInstance;
@@ -434,7 +394,7 @@ public class FastFloorSpatial implements Spatial {
                 public boolean animToggle;
 
                 @Override
-                protected void render(FastFloorSpatial floor, float delta) {
+                protected void render(FloorSpatial floor, float delta) {
                         if(tile.isDoorOpened() && !animToggle){
                                 animController.setAnimation("Open",1,1,this);
                                 animController.paused = false;

@@ -149,10 +149,9 @@ public class Move implements TokenComponent {
                                 // idle
                                 path.clear();
                                 pathedTarget.set(location);
-                                Tile tile = floorMap.getTile(location);
-                                if (tile.isStairs() && tile.getStairsTo() >= 0) {
-                                        token.dungeon.moveToken(token, token.dungeon.generateFloor(tile.getStairsTo()));
-                                        //token.teleportToFloor(tile.getStairsTo());
+                                Stairs stairs = floorMap.getStairsAt(location.x, location.y);
+                                if(stairs != null){
+                                        token.dungeon.moveToken(token, token.dungeon.generateFloor(stairs.stairsTo));
                                         updateFloatLocation();
                                         return true;
                                 }

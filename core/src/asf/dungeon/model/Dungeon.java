@@ -13,6 +13,7 @@ import asf.dungeon.model.token.Interactor;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.Move;
+import asf.dungeon.model.token.Stairs;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.Logic;
@@ -146,7 +147,7 @@ public class Dungeon {
                 t.getLogic().setToken(t);
                 localPlayerToken = t;
                 if(fm != null){
-                        moveToken(t, fm, x, y, Direction.South);
+                        moveToken(t, fm, x, y, t.getDirection());
                 }
                 return localPlayerToken;
         }
@@ -171,7 +172,7 @@ public class Dungeon {
                 t.getExperience().setToken(t);
                 if(t.getLogic()!=null)t.getLogic().setToken(t);
 
-                moveToken(t, fm, x,y,Direction.South);
+                moveToken(t, fm, x,y,t.getDirection());
                 return t;
         }
 
@@ -193,14 +194,14 @@ public class Dungeon {
                 t.getDamage().setDeathRemovalDuration(Float.NaN);
                 if(t.getLogic() != null) t.getLogic().setToken(t);
 
-                moveToken(t, fm, x,y,Direction.South);
+                moveToken(t, fm, x,y,t.getDirection());
                 return t;
         }
 
         public Token newToken(Token token, FloorMap fm, int x, int y){
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 token.setId(nextTokenId++);
-                moveToken(token, fm, x,y,Direction.South);
+                moveToken(token, fm, x,y,token.getDirection());
                 return token;
         }
 
@@ -212,7 +213,7 @@ public class Dungeon {
                 t.getDamage().setMaxHealth(1);
                 t.getDamage().setDeathDuration(2.5f);
                 t.getDamage().setDeathRemovalDuration(.25f);
-                moveToken(t, fm, x,y,Direction.South);
+                moveToken(t, fm, x,y,t.getDirection());
                 return t;
         }
 
@@ -220,7 +221,7 @@ public class Dungeon {
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 Token t = new Token(this,  nextTokenId++, item.getName(), item.getModelId());
                 t.add(new Loot(t, item));
-                moveToken(t, fm, x,y,Direction.South);
+                moveToken(t, fm, x,y,t.getDirection());
                 return t;
         }
 
@@ -307,8 +308,8 @@ public class Dungeon {
 
                 FloorMap oldFloorMap = token.getFloorMap();
                 if(oldFloorMap == null){
-                        Pair stairLoc = newFloorMap.getLocationOfUpStairs();
-                        token.teleport(newFloorMap ,stairLoc.x,stairLoc.y,Direction.South); // TODO: should be direction of stairs
+                        Stairs stairs = newFloorMap.getStairsUp();
+                        token.teleport(newFloorMap ,stairs.getLocation().x,stairs.getLocation().y,stairs.getDirection());
                         newFloorMap.tokens.add(token);
                         if (listener != null && newFloorMap == currentFloorMap)
                                 listener.onTokenAdded(token);
@@ -323,10 +324,8 @@ public class Dungeon {
                         boolean valid = oldFloorMap.tokens.removeValue(token, true);
                         if(valid){
                                 boolean down = newFloorMap.index > oldFloorMap.index;
-                                Pair stairLoc;
-                                if (down) stairLoc = newFloorMap.getLocationOfUpStairs();
-                                else stairLoc = newFloorMap.getLocationOfDownStairs();
-                                token.teleport(newFloorMap ,stairLoc.x,stairLoc.y,Direction.South); // TODO: should be direction of stairs
+                                Stairs stairs = down ? newFloorMap.getStairsUp() : newFloorMap.getStairsDown();
+                                token.teleport(newFloorMap ,stairs.getLocation().x,stairs.getLocation().y, down ? stairs.getDirection() : stairs.getDirection().opposite());
                                 newFloorMap.tokens.add(token);
                                 if (listener != null){
                                         if (oldFloorMap == currentFloorMap) {

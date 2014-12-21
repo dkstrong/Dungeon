@@ -245,15 +245,13 @@ public class Pathfinder {
 
                         // if the node is the goal node, dont add extra movement code because its the goal
 
-                        Tile tile = floorMap.getTile(n1);
-                        if(tile.isStairs()){
-                                movementCost+=25;
-                        }
-
                         Array<Token> tokensAt = floorMap.getTokensAt(n1);
                         for (Token t : tokensAt) {
                                 if(!t.isBlocksPathing())
                                         continue;
+
+                                if(t.getStairs()!=null)
+                                        movementCost+=25;
 
                                 if (t.getLogic() != null && t.getLogic().getTeam() == mover.getLogic().getTeam()) {
                                         // walk around tokens on the same team

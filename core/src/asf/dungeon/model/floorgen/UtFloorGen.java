@@ -1,5 +1,6 @@
 package asf.dungeon.model.floorgen;
 
+import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.FxId;
@@ -12,6 +13,7 @@ import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
+import asf.dungeon.model.token.Stairs;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
@@ -293,47 +295,41 @@ public class UtFloorGen {
         }
 
 
-        /**
-         * places "up" stairs in a range location, ensures that it will have atleast 1 buffer square from walls on all sides
-         *
-         * @param tiles
-         * @param floorIndex
-         */
-        public static void placeUpStairs(Dungeon dungeon, Tile[][] tiles, int floorIndex) {
+        public static void placeUpStairs(Dungeon dungeon, FloorMap floorMap) {
                 do {
-                        int x = dungeon.rand.range(0, tiles.length - 1);
-                        int y = dungeon.rand.range(0, tiles[0].length - 1);
+                        int x = dungeon.rand.range(0, floorMap.getWidth()- 1);
+                        int y = dungeon.rand.range(0, floorMap.getHeight() - 1);
 
-                        if (!UtFloorGen.isFloor(tiles, x, y))
+                        if(floorMap.isLocationBlocked(x,y))
                                 continue;
 
-                        int numWalls = countWalls(tiles, x, y);
+                        int numWalls = countWalls(floorMap.tiles, x, y);
                         if (numWalls != 0)
                                 continue;
 
-                        tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex - 1);
+                        Token stairsToken = new Token(dungeon, "Stairs", null);
+                        stairsToken.add(new Stairs(stairsToken, floorMap.index - 1));
+                        stairsToken.setDirection(Direction.East);
+                        dungeon.newToken(stairsToken, floorMap, x,y);
                         return;
                 } while (true);
         }
 
-        /**
-         * places "down" stairs in a range location, ensures that it will have atleast 1 buffer square from walls on all sides
-         *
-         * @param tiles
-         * @param floorIndex
-         */
-        public static void placeDownStairs(Dungeon dungeon, Tile[][] tiles, int floorIndex) {
+        public static void placeDownStairs(Dungeon dungeon, FloorMap floorMap) {
                 do {
-                        int x = dungeon.rand.range(0, tiles.length - 1);
-                        int y = dungeon.rand.range(0, tiles[0].length - 1);
-                        if (!UtFloorGen.isFloor(tiles, x, y))
+                        int x = dungeon.rand.range(0, floorMap.getWidth()- 1);
+                        int y = dungeon.rand.range(0, floorMap.getHeight() - 1);
+                        if(floorMap.isLocationBlocked(x,y))
                                 continue;
 
-                        int numWalls = countWalls(tiles, x, y);
+                        int numWalls = countWalls(floorMap.tiles, x, y);
                         if (numWalls != 0)
                                 continue;
 
-                        tiles[x][y] = Tile.makeStairs(floorIndex, floorIndex + 1);
+                        Token stairsToken = new Token(dungeon, "Stairs", null);
+                        stairsToken.add(new Stairs(stairsToken, floorMap.index + 1));
+                        stairsToken.setDirection(Direction.East);
+                        dungeon.newToken(stairsToken, floorMap, x,y);
                         return;
                 } while (true);
         }

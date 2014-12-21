@@ -19,6 +19,7 @@ import asf.dungeon.view.token.CrateTokenSpatial;
 import asf.dungeon.view.token.FountainTokenSpatial;
 import asf.dungeon.view.token.LootTokenSpatial;
 import asf.dungeon.view.token.SpikeTrapTokenSpatial;
+import asf.dungeon.view.token.StairsSpatial;
 import asf.dungeon.view.token.TorchTokenSpatial;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -75,7 +76,7 @@ public class DungeonWorld implements Disposable {
         public final AssetMappings assetMappings;
         public TextureAtlas pack;
         public I18NBundle i18n;
-        public final FastFloorSpatial floorSpatial;
+        public final FloorSpatial floorSpatial;
         public final HudSpatial hudSpatial;
         public final SfxManager sounds;
         public final FxManager fxManager;
@@ -112,7 +113,7 @@ public class DungeonWorld implements Disposable {
                 inputMultiplexer = new InputMultiplexer(internalInput, stage);
                 Gdx.input.setInputProcessor(internalInput);
 
-                floorSpatial = new FastFloorSpatial();
+                floorSpatial = new FloorSpatial();
                 addSpatial(floorSpatial);
 
                 //addSpatial(new SkyboxSpatial());
@@ -416,6 +417,8 @@ public class DungeonWorld implements Disposable {
                                 addSpatial(new FountainTokenSpatial(DungeonWorld.this, token));
                         }else if(token.get(Torch.class) != null){
                                 addSpatial(new TorchTokenSpatial(DungeonWorld.this, token));
+                        }else if(token.getStairs() != null){
+                                addSpatial(new StairsSpatial(DungeonWorld.this, token));
                         }else{
                                 throw new AssertionError(token);
                         }
