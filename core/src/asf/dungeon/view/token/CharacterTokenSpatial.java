@@ -48,13 +48,13 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         public void preload(DungeonWorld world) {
                 token.setListener(this);
 
-                if(token.getModelId() != ModelId.UserMonster){
+                if (token.getModelId() != ModelId.UserMonster) {
                         world.assetManager.load(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
                 }
 
 
                 // check to see if the token spawned with a projectile, spawn the projectile with it if thats the case
-                if(token.getAttack() != null && token.getAttack().hasProjectile()){
+                if (token.getAttack() != null && token.getAttack().hasProjectile()) {
                         world.fxManager.shootProjectile(token.getAttack().getWeapon().getProjectileFx(), token, token.getAttack().getProjectileAttackTarget(), token.getAttack().getProjectileAttackCoord());
                 }
 
@@ -63,10 +63,10 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         public void init(AssetManager assetManager) {
                 initialized = true;
 
-                if(token.getModelId() != ModelId.UserMonster){
+                if (token.getModelId() != ModelId.UserMonster) {
                         Model model = assetManager.get(world.assetMappings.getAssetLocation(token.getModelId()));
                         modelInstance = new BetterModelInstance(model);
-                }else{
+                } else {
                         FileHandle fileHandle = AssetMappings.getUserMonsterLocation();
                         ModelLoader loader = new G3dModelLoader(new UBJsonReader());
                         Model model = loader.loadModel(fileHandle);
@@ -81,15 +81,15 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
 
                 //for (Material material : modelInstance.materials) {
-                        //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
+                //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
                 //}
 
-                if (token.getModelId() != ModelId.UserMonster && world.assetMappings.getAssetLocation(token.getModelId()).contains("Characters")) {
-                        if(token.getModelId() != ModelId.Skeleton){
-                                float s = .45f;
-                                scale.set(s, s, s);
-                                translationBase.set(0, (world.floorSpatial.tileBox.getDimensions().y / 2f) + 1.45f, 0);
-                        }
+                if (    token.getModelId() != ModelId.UserMonster &&
+                        token.getModelId() != ModelId.Goblin &&
+                        token.getModelId() != ModelId.Skeleton) {
+                        float s = .45f;
+                        scale.set(s, s, s);
+                        translationBase.set(0, (world.floorSpatial.tileBox.getDimensions().y / 2f) + 1.45f, 0);
                 }
 
                 if (token.getModelId() == ModelId.Diablous || token.getModelId() == ModelId.Berzerker || token.getModelId() == ModelId.Priest
@@ -102,28 +102,26 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
 
                 for (Animation animation : modelInstance.animations) {
-                        if (animation.id.equals("Walk")) {
+                        if (animation.id.contains("Walk")) {
                                 walk = animation;
-                        } else if (animation.id.equals("Idle")) {
+                        } else if (animation.id.contains("Idle")) {
                                 idle = animation;
-                        } else if (animation.id.equals("Attack")) {
+                        } else if (animation.id.contains("Attack")) {
                                 attack = animation;
-                        } else if (animation.id.equals("Hit")) {
+                        } else if (animation.id.contains("Hit")) {
                                 hit = animation;
-                        } else if (animation.id.equals("Damaged")) {
+                        } else if (animation.id.contains("Damaged")) {
                                 hit = animation;
-                        } else if (animation.id.equals("Die")) {
+                        } else if (animation.id.contains("Die")) {
                                 die = animation;
-                        } else if(animation.id.equals("Dropped")){
-                                dropped = animation;
                         }
 
                 }
 
                 // check to see if token spawned with status effects already on, if so then shot their Fx and hud information
-                if(token.getStatusEffects()!= null){
+                if (token.getStatusEffects() != null) {
                         for (StatusEffect effect : StatusEffects.effectValues) {
-                                if(token.getStatusEffects().has(effect)){
+                                if (token.getStatusEffects().has(effect)) {
                                         float duration = token.getStatusEffects().getDuration(effect);
                                         onStatusEffectChange(effect, duration);
                                 }
@@ -136,12 +134,12 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
                 shadowDecal.rotateX(-90);
-                shadowDecal.setColor(1,1,1,0.5f);
+                shadowDecal.setColor(1, 1, 1, 0.5f);
 
 
         }
 
-        private Animation current, idle, walk, attack, hit, die, dropped;
+        private Animation current, idle, walk, attack, hit, die;
 
 
         public void update(final float delta) {
@@ -155,8 +153,8 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 if (fogState == FogState.Visible) {
                         visU += delta * .65f;
 
-                        if(token.getStatusEffects().has(StatusEffect.Invisibility)){
-                                if(token == world.hudSpatial.localPlayerToken)
+                        if (token.getStatusEffects().has(StatusEffect.Invisibility)) {
+                                if (token == world.hudSpatial.localPlayerToken)
                                         maxVisU = .5f;
                                 else
                                         maxVisU = .45f;
@@ -171,10 +169,10 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 for (Material material : modelInstance.materials) {
                         ColorAttribute colorAttribute = (ColorAttribute) material.get(ColorAttribute.Diffuse);
                         //colorAttribute.color.a = visU;
-                        if(fogState == FogState.MagicMapped){
-                                colorAttribute.color.set(visU*0.7f,visU*.8f,visU,1);
-                        }else{
-                                colorAttribute.color.set(visU,visU,visU,1);
+                        if (fogState == FogState.MagicMapped) {
+                                colorAttribute.color.set(visU * 0.7f, visU * .8f, visU, 1);
+                        } else {
+                                colorAttribute.color.set(visU, visU, visU, 1);
                         }
                 }
 
@@ -207,7 +205,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         }
                 } else if (token.getDamage() != null && token.getDamage().isHit()) {
                         if (current != hit) {
-                                if (world.hudSpatial.localPlayerToken == token){
+                                if (world.hudSpatial.localPlayerToken == token) {
                                         world.hudSpatial.setMapViewMode(false); // if being attacked, force out of map view mode to make it easier to respond
                                 }
 
@@ -232,15 +230,14 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 }
 
 
-
-                if(token.getDamage() != null && !token.getDamage().isDead() && token.getAttack()!=null &&token.getAttack().isAttackingRanged()){
+                if (token.getDamage() != null && !token.getDamage().isDead() && token.getAttack() != null && token.getAttack().isAttackingRanged()) {
                         float rotMoveSpeed = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7f);
                         float rotSpeed = delta * (rotMoveSpeed + 0.5f);
                         Direction dir = token.getLocation().direction(token.getAttack().getAttackTarget().getLocation());
                         Quaternion tokenDirRot = world.assetMappings.getRotation(dir);
                         rotation.slerp(tokenDirRot, rotSpeed);
-                }else {
-                        float rotMoveSpeed =  UtMath.largest(token.getMove().getMoveSpeed(), 7f);
+                } else {
+                        float rotMoveSpeed = UtMath.largest(token.getMove().getMoveSpeed(), 7f);
                         float rotSpeed = delta * (rotMoveSpeed + 0.5f);
                         Quaternion tokenDirRot = world.assetMappings.getRotation(token.getDirection());
                         rotation.slerp(tokenDirRot, rotSpeed);
@@ -250,11 +247,10 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         }
 
 
-
         public void render(float delta) {
-                if(visU <=0)return;
-                if(world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
-                if(world.hudSpatial.isMapViewMode() && !world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+                if (visU <= 0) return;
+                if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
+                if (world.hudSpatial.isMapViewMode() && !world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
 
 
                 modelInstance.transform.set(
@@ -292,7 +288,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         public void dispose() {
                 super.dispose();
 
-                if(this.token.getModelId() == ModelId.UserMonster && modelInstance != null){
+                if (this.token.getModelId() == ModelId.UserMonster && modelInstance != null) {
                         modelInstance.model.dispose();
                 }
                 initialized = false;

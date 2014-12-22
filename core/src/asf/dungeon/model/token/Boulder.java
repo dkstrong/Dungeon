@@ -56,11 +56,14 @@ public class Boulder implements TokenComponent {
                         moveU = 0;
                         token.location.set(newLoc);
                         token.direction = pushDir;
-                }else if(!token.floorMap.isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(90)))){
+                }else if(token.floorMap.isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(-90))) &&
+                        !token.floorMap.isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(90)))){
                         moveU = 0;
                         token.location.set(newLoc);
                         token.direction = pushDir.rotate(90);
-                }else if(!token.floorMap.isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(-90)))){
+                }else if(
+                        token.floorMap.isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(90))) &&
+                        !token.floorMap.isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(-90)))){
                         moveU = 0;
                         token.location.set(newLoc);
                         token.direction = pushDir.rotate(-90);

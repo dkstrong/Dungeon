@@ -10,6 +10,7 @@ public enum ModelId {
         Mage,
         Priest,
         Skeleton,
+        Goblin,
         UserMonster,
         CeramicPitcher,
         Fountain,

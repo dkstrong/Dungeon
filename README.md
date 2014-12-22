@@ -1,7 +1,7 @@
 # The Dungeon
 
 
-Dungeon is a dungeon crawler/exploration game with roguelike elements. randomly generated levels, randomized loot and quests, and lots of risky items that are "unidentified" until you try them. The goal of the game is to get to the bottom of the dungeon and meet NPC's along the way to get the full story about the dungeon and learn why you are there.
+The Dungeon is a dungeon crawler/exploration game with roguelike elements, randomly generated levels, puzzles, loot, quests, and lots of risky items that are "unidentified" until you try them.
 
 Like other roguelikes, each floor of the dungeon and its items and quests are randomly generated.  This creates a unique experience for the player each time they play.
 
@@ -11,8 +11,13 @@ The Dungeon is looking for 3D artists, Sound artists, and Programmers to help ma
 
 ### Art Credits
 
+Special thanks to these art contributors
 
-This game contains many art assets submitted/created by users of opengameart.org. For a list of art contributors from opengameart.org see android/assets/Credits.txt
+Goblin Monster - Lee Zhi Fei
+
+### Additional Art Credits
+
+This game also contains many art assets submitted/created by users of opengameart.org. For a list of art contributors from opengameart.org see android/assets/Credits.txt
 
 ### License
 

@@ -32,7 +32,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                 }else{
                         floorMap = tinyRoom(dungeon,floorIndex);
                 }
-                //UtFloorGen.spawnCharacters(dungeon, floorMap);
+                UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
                 return floorMap;
         }
