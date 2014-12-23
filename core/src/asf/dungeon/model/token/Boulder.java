@@ -3,6 +3,7 @@ package asf.dungeon.model.token;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
+import asf.dungeon.model.Tile;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
@@ -52,23 +53,34 @@ public class Boulder implements TokenComponent {
                 // Attempt to push the boulder forward, then left, then right, if none of these directions work then it is stuck
                 setMoveSpeed(pushedBy.getMove().getMoveSpeed());
 
-                if(!token.floorMap.isLocationBlocked(newLoc.set(token.location).addFree(pushDir))){
+                if(!isLocationBlocked(newLoc.set(token.location).addFree(pushDir))){
                         moveU = 0;
                         token.location.set(newLoc);
                         token.direction = pushDir;
-                }else if(token.floorMap.isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(-90))) &&
-                        !token.floorMap.isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(90)))){
+                }else if(isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(-90))) &&
+                        !isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(90)))){
                         moveU = 0;
                         token.location.set(newLoc);
                         token.direction = pushDir.rotate(90);
                 }else if(
-                        token.floorMap.isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(90))) &&
-                        !token.floorMap.isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(-90)))){
+                        isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(90))) &&
+                        !isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(-90)))){
                         moveU = 0;
                         token.location.set(newLoc);
                         token.direction = pushDir.rotate(-90);
                 }
 
+        }
+
+        private boolean isLocationBlocked(Pair location){
+                if(token.floorMap.isLocationBlocked(location))
+                        return true;
+
+                Tile t = token.floorMap.getTile(location);
+                if(t.isDoor() && !t.isDoorOpened())
+                        return true;
+
+                return false;
         }
 
         public Vector2 getFloatLocation() {
