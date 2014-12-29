@@ -178,6 +178,10 @@ public class LootTokenSpatial extends AbstractTokenSpatial {
                 );
 
                 world.modelBatch.render(modelInstance, world.environment);
+
+                shadowDecal.setPosition(translation);
+                shadowDecal.translateY(0.1f);
+                world.decalBatch.add(shadowDecal);
         }
 
         @Override

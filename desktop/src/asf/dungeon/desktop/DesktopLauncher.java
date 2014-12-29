@@ -11,7 +11,7 @@ public class DesktopLauncher implements DungeonApp.Resolver{
                 config.title = "Dungeon";
 
                 String osName = System.getProperty("os.name").toLowerCase();
-                if(osName.contains("win")){
+                if(osName.contains("win") || osName.contains("mac")){
                         config.width = 1280;
                         config.height = 720;
                 }else{

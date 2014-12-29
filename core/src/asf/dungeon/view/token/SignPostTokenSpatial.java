@@ -1,9 +1,7 @@
 package asf.dungeon.view.token;
 
-import asf.dungeon.model.FxId;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.Torch;
 import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.assets.AssetManager;
@@ -11,7 +9,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.collision.Ray;
@@ -19,14 +16,12 @@ import com.badlogic.gdx.math.collision.Ray;
 /**
  * Created by Daniel Strong on 12/20/2014.
  */
-public class TorchTokenSpatial extends AbstractTokenSpatial{
+public class SignPostTokenSpatial extends AbstractTokenSpatial{
         private boolean initialized = false;
         private BetterModelInstance modelInstance;
         private Decal shadowDecal;
-        private Torch torch;
-        private boolean texToggle;
 
-        public TorchTokenSpatial(DungeonWorld world, Token token) {
+        public SignPostTokenSpatial(DungeonWorld world, Token token) {
                 super(world, token);
         }
 
@@ -34,7 +29,7 @@ public class TorchTokenSpatial extends AbstractTokenSpatial{
 
                 world.assetManager.load(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
 
-                torch = token.get(Torch.class);
+
 
         }
 
@@ -42,11 +37,6 @@ public class TorchTokenSpatial extends AbstractTokenSpatial{
                 initialized = true;
                 Model model = assetManager.get(world.assetMappings.getAssetLocation(token.getModelId()));
                 modelInstance = new BetterModelInstance(model);
-
-                for (Material mat : modelInstance.materials) {
-                        //GdxInfo.material(mat);
-                        mat.set(new IntAttribute(IntAttribute.CullFace, 0));
-                }
 
                 shadowDecal = Decal.newDecal(
                         world.floorSpatial.tileDimensions.x,
@@ -56,6 +46,7 @@ public class TorchTokenSpatial extends AbstractTokenSpatial{
 
                 shadowDecal.rotateX(-90);
                 shadowDecal.setColor(1,1,1,0.5f);
+
         }
 
         public void update(final float delta) {
@@ -90,14 +81,6 @@ public class TorchTokenSpatial extends AbstractTokenSpatial{
 
                 if (minVisU == 0 || visU != minVisU){
                         // if not fog blocked
-                        if(texToggle != torch.isIgnited()){
-                                texToggle = torch.isIgnited();
-                                if(torch.isIgnited()){
-                                        world.fxManager.spawnEffect(FxId.Burning, this, Float.NaN);
-                                }else{
-                                        world.fxManager.spawnEffect(FxId.Burning, this, 0f);
-                                }
-                        }
                 }
 
         }
@@ -115,6 +98,10 @@ public class TorchTokenSpatial extends AbstractTokenSpatial{
                 );
 
                 world.modelBatch.render(modelInstance, world.environment);
+
+                shadowDecal.setPosition(translation);
+                shadowDecal.translateY(0.1f);
+                world.decalBatch.add(shadowDecal);
         }
 
         @Override

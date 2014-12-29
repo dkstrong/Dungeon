@@ -65,12 +65,9 @@ import java.util.List;
  */
 public class DungeonLoader {
 
-
         private DungeonLoader() {
 
         }
-
-
 
         public static Dungeon createDungeon(DungeonWorld.Settings settings) {
 
@@ -98,7 +95,7 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new PreBuiltFloorGen(),new TestAssetsFloorGen(), new TestAssetsFloorGen(),
+                                new TestAssetsFloorGen(),new TestAssetsFloorGen(), new TestAssetsFloorGen(),
                                 new ConnectedRoomsGen(), new ConnectedRoomsGen(), new MazeGen(7, 4), new DirectionalCaveHallGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),

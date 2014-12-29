@@ -4,10 +4,9 @@ import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.Interactor;
 
 /**
- * Created by Danny on 12/1/2014.
+ * Created by Daniel Strong on 12/1/2014.
  */
 public class FountainQuest extends Quest{
-
 
         @Override
         protected void makeDialouges() {

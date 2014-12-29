@@ -14,6 +14,7 @@ import asf.dungeon.model.token.PressurePlate;
 import asf.dungeon.model.token.SpikeTrap;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.Torch;
+import asf.dungeon.model.token.quest.SignPostQuest;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.token.AbstractTokenSpatial;
 import asf.dungeon.view.token.BoulderSpatial;
@@ -21,6 +22,7 @@ import asf.dungeon.view.token.CharacterTokenSpatial;
 import asf.dungeon.view.token.CrateTokenSpatial;
 import asf.dungeon.view.token.FountainTokenSpatial;
 import asf.dungeon.view.token.LootTokenSpatial;
+import asf.dungeon.view.token.SignPostTokenSpatial;
 import asf.dungeon.view.token.SpikeTrapTokenSpatial;
 import asf.dungeon.view.token.StairsSpatial;
 import asf.dungeon.view.token.TorchTokenSpatial;
@@ -420,6 +422,8 @@ public class DungeonWorld implements Disposable {
                                 addSpatial(new FountainTokenSpatial(DungeonWorld.this, token));
                         }else if(token.get(Torch.class) != null){
                                 addSpatial(new TorchTokenSpatial(DungeonWorld.this, token));
+                        }else if(token.get(SignPostQuest.class) != null){
+                                addSpatial(new SignPostTokenSpatial(DungeonWorld.this, token));
                         }else if(token.getStairs() != null){
                                 addSpatial(new StairsSpatial(DungeonWorld.this, token));
                         }else if(token.get(Boulder.class) != null){

@@ -15,6 +15,7 @@ import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
 import asf.dungeon.model.token.logic.fsm.QuestNPC;
 import asf.dungeon.model.token.quest.PotionQuest;
+import asf.dungeon.model.token.quest.SignPostQuest;
 import asf.dungeon.view.AssetMappings;
 import com.badlogic.gdx.files.FileHandle;
 
@@ -51,11 +52,6 @@ public class TestAssetsFloorGen implements FloorMapGenerator, FloorMap.MonsterSp
                 FloorMap floorMap = new FloorMap(floorIndex, PreBuiltFloorGen.convertTileData(floorIndex, tileData), this);
                 PreBuiltFloorGen.spawnTokensFromTileData(dungeon, floorMap, tileData);
 
-
-
-
-
-
                 PotionItem.Type[] potionValues = PotionItem.Type.values();
                 for(int y = 1; y<=potionValues.length; y++){
                         dungeon.newLootToken(floorMap, new PotionItem(dungeon, potionValues[y-1], 24), 1,y);
@@ -83,6 +79,10 @@ public class TestAssetsFloorGen implements FloorMapGenerator, FloorMap.MonsterSp
 
                 Token traveler = new Token(dungeon, "Traveler", ModelId.Priest);
                 dungeon.newQuestCharacterToken(traveler, new FsmLogic(2,new Sector(7,1,15,4), QuestNPC.PauseThenMove), new PotionQuest(), floorMap, 10, 2);
+
+                Token signPost = new Token(dungeon, "Sign Post", ModelId.SignPost);
+                signPost.add(new SignPostQuest("Hello I am a Sign Post."));
+                dungeon.newToken(signPost, floorMap, 4,tileData.length-3);
 
                 return floorMap;
         }

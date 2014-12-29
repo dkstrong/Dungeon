@@ -15,6 +15,7 @@ public enum ModelId {
         CeramicPitcher,
         Fountain,
         Torch,
+        SignPost,
         SpikeTrap,
         Potion,
         Scroll,
