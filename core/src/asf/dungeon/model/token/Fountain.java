@@ -3,18 +3,26 @@ package asf.dungeon.model.token;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.item.PotionItem;
+import asf.dungeon.model.token.puzzle.Puzzle;
+import asf.dungeon.model.token.puzzle.PuzzlePiece;
 import asf.dungeon.model.token.quest.FountainQuest;
 
 /**
  * Created by Danny on 12/1/2014.
  */
-public class Fountain implements TokenComponent {
+public class Fountain implements TokenComponent, PuzzlePiece {
         private final Token token;
         private PotionItem.Type fountainType;
+        private Puzzle puzzle;
 
         public Fountain(Token token, PotionItem.Type fountainType) {
+                this(token, fountainType, null);
+        }
+
+        public Fountain(Token token, PotionItem.Type fountainType, Puzzle puzzle) {
                 this.token = token;
                 setFountainType(fountainType);
+                this.puzzle = puzzle;
         }
 
         @Override
@@ -35,7 +43,19 @@ public class Fountain implements TokenComponent {
                 Journal journal = target.get(Journal.class);
                 if (journal != null)
                         journal.learn(this);
-                fountainType = null;
+                setFountainType(null);
+        }
+
+        public void setFountainType(PotionItem.Type fountainType) {
+                this.fountainType = fountainType;
+                FountainQuest fq = token.get(FountainQuest.class);
+                if(fountainType == null && fq != null){
+                        token.remove(fq);
+                }else if(fountainType != null && fq == null){
+                        token.add(new FountainQuest());
+                }
+                if(puzzle!=null)
+                        puzzle.checkPuzzle(token.dungeon);
         }
 
         public PotionItem.Type getFountainType() {
@@ -50,13 +70,8 @@ public class Fountain implements TokenComponent {
                 return fountainType == null;
         }
 
-        public void setFountainType(PotionItem.Type fountainType) {
-                this.fountainType = fountainType;
-                FountainQuest fq = token.get(FountainQuest.class);
-                if(fountainType == null && fq != null){
-                         token.remove(fq);
-                }else if(fountainType != null && fq == null){
-                        token.add(new FountainQuest());
-                }
+        @Override
+        public boolean getValue() {
+                return fountainType == null;
         }
 }

@@ -51,7 +51,8 @@ public class Attack implements TokenComponent{
 
                 attackProjectileU+=delta;
                 if(attackProjectileU >= attackProjectileMaxU){
-                        if(projectileAttackTarget != null)
+                        // ensure target didnt teleport while projectile was in air, projectileAttackTarget will be null on a gaurunteed miss shot
+                        if(calcCanRangedAttack(projectileAttackTarget, false))
                                 sendDamageToAttackTarget(projectileAttackTarget);
                         projectileAttackTarget = null;
                         attackProjectileU = Float.NaN;
@@ -80,7 +81,7 @@ public class Attack implements TokenComponent{
 
 
 
-                inAttackRangeOfCommandTarget = calcCanRangedAttack(token.getCommand().getTargetToken());
+                inAttackRangeOfCommandTarget = calcCanRangedAttack(token.getCommand().getTargetToken(), true);
 
 
                 if(attackCommandTarget(delta)){
@@ -163,13 +164,6 @@ public class Attack implements TokenComponent{
                 //  if ranged attack then launches projectile
                 // if melee attack then sends damage
 
-                // TODO: check to make sure target token is in range for both ranged and melee attacks
-                // this needs to include also checking the floormap teleporting in the middle of being
-                // attacked can get you away safely if done before the attack damage is sent.
-
-                // for ranged attacks i may need to do this again for sendDamageToAttackTarget since
-                // there is that small delay
-
                 if(rangedAttack){
                         if(inAttackRangeOfCommandTarget){ // target is still in range, were going to hit him
                                 projectileAttackCoord.set(meleeAttackTarget.getLocation());
@@ -177,6 +171,8 @@ public class Attack implements TokenComponent{
                                 projectileAttackTarget = meleeAttackTarget;
                                 meleeAttackTarget.getDamage().setHitDuration(attackProjectileMaxU, token);
                         }else{ // target got out of range, were going to gurantee miss
+                                // TODO: instead of just uses the next closest tile, we need to ensure that the projectile
+                                // wont be shot over the max range of the weapon (this could happen if the target teleports)
                                 token.getFloorMap().getNextClosestLegalLocation(token.getLocation(), meleeAttackTarget.getLocation(), projectileAttackCoord);
                                 attackProjectileMaxU =  token.distance(projectileAttackCoord) / weapon.getProjectileSpeed();
                                 projectileAttackTarget = null;
@@ -186,16 +182,19 @@ public class Attack implements TokenComponent{
                         if(token.listener != null)
                                 token.listener.onAttack(projectileAttackTarget,projectileAttackCoord, true);
                 }else{
-                        sendDamageToAttackTarget(meleeAttackTarget);
-                        if(token.listener != null)
-                                token.listener.onAttack(meleeAttackTarget,meleeAttackTarget.getLocation() ,false);
+                        if(calcCanMeleeAttack(meleeAttackTarget)){
+                                sendDamageToAttackTarget(meleeAttackTarget);
+                                if(token.listener != null)
+                                        token.listener.onAttack(meleeAttackTarget,meleeAttackTarget.getLocation() ,false);
+                        }
+
                 }
 
         }
 
 
 
-        private boolean calcCanRangedAttack(Token target){
+        private boolean calcCanRangedAttack(Token target, boolean includeDirAndVisibilityTest){
                 if(!weapon.isRanged())
                         return false;
 
@@ -207,6 +206,9 @@ public class Attack implements TokenComponent{
                                 return false;
                 }
 
+                if(target.floorMap != token.floorMap)
+                        return false;
+
 
                 float distance = token.distance(target);
                 // not sure why i need distance-1, but in order to actually have the right range i have to subtract 1
@@ -214,6 +216,8 @@ public class Attack implements TokenComponent{
                 if(distance > weapon.getRange())
                         return false;
 
+                if(!includeDirAndVisibilityTest)
+                        return true;
 
                 Direction dirToTarget = token.location.direction(target.location);
                 if(token.direction.range(dirToTarget)>45)
@@ -256,6 +260,8 @@ public class Attack implements TokenComponent{
                                 return false;
                 }
 
+                if(target.floorMap != token.floorMap)
+                        return false;
 
                 float distance = token.distance(target);
                 if(distance > 1f)

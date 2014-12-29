@@ -205,7 +205,7 @@ public class DungeonWorld implements Disposable {
                 for (Spatial spatial : spatials) {
                         if (!spatial.isInitialized())
                                 continue;
-                        if (spatial instanceof CharacterTokenSpatial) {
+                        if (spatial instanceof AbstractTokenSpatial) {
                                 AbstractTokenSpatial tokenSpatial = (AbstractTokenSpatial) spatial;
 
                                 if (tokenSpatial.getToken() == ignoreToken) {

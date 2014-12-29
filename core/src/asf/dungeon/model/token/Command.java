@@ -9,6 +9,7 @@ import asf.dungeon.model.fogmap.LOS;
 import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.quest.Choice;
+import asf.dungeon.model.token.quest.Quest;
 
 /**
  * This component is how the token receives commands from the player or the ai
@@ -113,15 +114,17 @@ public class Command implements TokenComponent{
 
                 if(targetToken == null){
                         this.targetToken = null;
-                        //location.set(token.getLocation());
                         return;
                 }
 
-                if(targetToken.getStatusEffects() != null){
-                        if(targetToken.getStatusEffects().has(StatusEffect.Invisibility)){
-                                this.targetToken = null;
-                                return;
-                        }
+                if(targetToken.getDamage() == null || !targetToken.getDamage().isAttackable()){
+                        this.targetToken = null;
+                        return;
+                }
+
+                if(targetToken.getLogic() != null && targetToken.getLogic().getTeam() == token.getLogic().getTeam()){
+                        this.targetToken = null;
+                        return;
                 }
 
 
