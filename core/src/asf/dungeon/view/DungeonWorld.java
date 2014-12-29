@@ -238,7 +238,8 @@ public class DungeonWorld implements Disposable {
                                 loading = false;
                                 if (!simulationStarted) {
                                         if (settings.startDebugSession) {
-                                                dungeonApp.getPlatformActionResolver().showDebugWindow();
+                                                if(dungeonApp.getPlatformActionResolver()!=null)
+                                                        dungeonApp.getPlatformActionResolver().showDebugWindow();
                                         }
                                         Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
                                         //Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -384,7 +385,8 @@ public class DungeonWorld implements Disposable {
                                 dungeonApp.setAppPaused(true);
                                 return true;
                         } else if (keycode == Input.Keys.F12) {
-                                dungeonApp.getPlatformActionResolver().showDebugWindow();
+                                if(dungeonApp.getPlatformActionResolver()!=null)
+                                        dungeonApp.getPlatformActionResolver().showDebugWindow();
                                 return true;
                         }
                         return false;

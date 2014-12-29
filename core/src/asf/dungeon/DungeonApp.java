@@ -38,16 +38,17 @@ public class DungeonApp implements ApplicationListener {
                 Gdx.input.setCatchMenuKey(true);
                 Gdx.input.setCatchBackKey(true);
                 prefs = Gdx.app.getPreferences("Dungeon");
+                prefs.putBoolean("musicEnabled", false); // temporarily force disabled for ios, need to convert all sounds non ogg
                 music.setMusicEnabled(prefs.getBoolean("musicEnabled", true));
                 music.setMasterVolume(prefs.getFloat("masterVolume", 1f));
-                //returnToMainMenu();
+                returnToMainMenu();
 
                 DungeonWorld.Settings settings = new DungeonWorld.Settings();
                 settings.playerModel = ModelId.Knight;
 
                 //settings.startDebugSession = true;
                 //settings.random = new Random(5);
-                loadWorld(settings);
+                //loadWorld(settings);
 
         }
 
