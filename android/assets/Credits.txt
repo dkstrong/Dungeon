@@ -80,6 +80,10 @@ Pressure Plate Texture
 Sindwiller
 http://opengameart.org/content/painted-bolted-metal-tile
 
+2d Animated effects (lightening spell, etc)
+Clint Bellanger
+http://opengameart.org/users/clint-bellanger
+
 ===Interface===
 
 

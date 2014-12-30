@@ -8,6 +8,8 @@ public enum FxId {
         HealAura,
         Burning,
         Lightning,
+        Sparkles,
+        Explosion,
         PlasmaBall
 
 }

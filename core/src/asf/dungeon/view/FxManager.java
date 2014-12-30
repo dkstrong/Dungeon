@@ -19,8 +19,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 
 /**
- * Controls the creation and detruction of special effects like particle emitters and projectiles. will effeciently reuse them when possible
- *
+ * Controls the creation and destruction of special effects like particle emitters and projectiles. will efficiently reuse them when possible
+ * <p/>
  * Created by Daniel Strong on 11/21/2014.
  */
 public class FxManager implements Disposable {
@@ -56,78 +56,86 @@ public class FxManager implements Disposable {
                 }
 
 
-                // Preload assets
-                world.assetManager.load("ParticleEffects/Particle.png", Texture.class);
-
                 // 3d models
                 loaded3dModels = new Model[1];
                 world.assetManager.load("Models/Projectiles/Arrow.g3db", Model.class);
 
                 // animated decals
-                loadedDecalAnimations = new Animation[1];
+                loadedDecalAnimations = new Animation[3];
                 world.assetManager.load("Textures/SpriteSheets/shock.png", Texture.class);
+                world.assetManager.load("Textures/SpriteSheets/sparkles.png", Texture.class);
+                world.assetManager.load("Textures/SpriteSheets/explosion.png", Texture.class);
 
                 // particle effects
-                ParticleEffectLoader.ParticleEffectLoadParameter loadParam =
-                        new ParticleEffectLoader.ParticleEffectLoadParameter(particleBatches);
+                world.assetManager.load("ParticleEffects/Particle.png", Texture.class); // particle batch texture
+                ParticleEffectLoader.ParticleEffectLoadParameter loadParam = new ParticleEffectLoader.ParticleEffectLoadParameter(particleBatches);
 
                 loadedParticleEffects = new ParticleEffect[3];
                 world.assetManager.load("ParticleEffects/ConsumeHealth.pfx", ParticleEffect.class, loadParam);
                 world.assetManager.load("ParticleEffects/PlasmaBall.pfx", ParticleEffect.class, loadParam);
                 world.assetManager.load("ParticleEffects/Burning.pfx", ParticleEffect.class, loadParam);
 
-                fxMappings = new FxMapping[loaded3dModels.length+loadedDecalAnimations.length+loadedParticleEffects.length];
+                fxMappings = new FxMapping[loaded3dModels.length + loadedDecalAnimations.length + loadedParticleEffects.length];
         }
-
 
         public void init() {
 
-
-                ((BillboardParticleBatch)particleBatches.get(1)).setTexture(world.assetManager.get("ParticleEffects/Particle.png", Texture.class));
                 // 3d models
-                loaded3dModels[0] = world.assetManager.get("Models/Projectiles/Arrow.g3db", Model.class);
+                init3dModel(FxId.Arrow, "Models/Projectiles/Arrow.g3db");
 
                 // animated decals
-                Texture shockTex = world.assetManager.get("Textures/SpriteSheets/shock.png", Texture.class);
-                TextureRegion[][] shockTexRegions = TextureRegion.split(shockTex, shockTex.getWidth() / 4, shockTex.getHeight() / 4);
-                TextureRegion[] shockFrames = new TextureRegion[4 * 4];
-                int index = 0;
-                for (int i = 0; i < 4; i++) {
-                        for (int j = 0; j < 4; j++) {
-                                shockFrames[index++] = shockTexRegions[i][j];
-                        }
-                }
-                loadedDecalAnimations[0] = new Animation(.125f, shockFrames); // lightning
+                Array<PooledFx> decalsPool = new Array<PooledFx>(false, 16, PooledFx.class); // animated decals can all share the same pool, 3d models and particle effects require that each Fx has its own pool
+                initAnimatedDecal(FxId.Lightning, "Textures/SpriteSheets/shock.png", 4, 4, .125f, decalsPool);
+                initAnimatedDecal(FxId.Sparkles, "Textures/SpriteSheets/sparkles.png", 6, 1, .1f, decalsPool);
+                initAnimatedDecal(FxId.Explosion, "Textures/SpriteSheets/explosion.png", 3, 4, .125f, decalsPool);
 
                 // particle effects
-                loadedParticleEffects[0] = world.assetManager.get("ParticleEffects/ConsumeHealth.pfx", ParticleEffect.class);
-                loadedParticleEffects[1] = world.assetManager.get("ParticleEffects/PlasmaBall.pfx", ParticleEffect.class);
-                loadedParticleEffects[2] = world.assetManager.get("ParticleEffects/Burning.pfx", ParticleEffect.class);
+                ((BillboardParticleBatch) particleBatches.get(1)).setTexture(world.assetManager.get("ParticleEffects/Particle.png", Texture.class));
 
-                // Fx Pools
+                initParticleEffect(FxId.HealAura, "ParticleEffects/ConsumeHealth.pfx");
+                initParticleEffect(FxId.PlasmaBall, "ParticleEffects/PlasmaBall.pfx");
+                initParticleEffect(FxId.Burning, "ParticleEffects/Burning.pfx");
 
+        }
 
-                fxMappings[FxId.Arrow.ordinal()] = new FxMapping(Pooled3dModelSpatial.class, 0);
-                fxMappings[FxId.Lightning.ordinal()] = new FxMapping(PooledAnimatedDecalSpatial.class, 0);
-                fxMappings[FxId.HealAura.ordinal()] = new FxMapping(PooledParticleEffectSpatial.class, 0);
-                fxMappings[FxId.PlasmaBall.ordinal()] = new FxMapping(PooledParticleEffectSpatial.class, 1);
-                fxMappings[FxId.Burning.ordinal()] = new FxMapping(PooledParticleEffectSpatial.class, 2);
+        private void init3dModel(FxId fxId, String fileName) {
+                int fxIndex = 0;
+                while (loaded3dModels[fxIndex] != null)
+                        ++fxIndex;
 
-                // all animated decal Fx can share the same pool, all other Fx need their own pools
-                Array<PooledFx> decalsPool = new Array<PooledFx>(false, 16, PooledFx.class);
-                for (FxMapping fxMapping : fxMappings) {
-                        if (fxMapping.fxClass == Pooled3dModelSpatial.class) {
-                                fxMapping.fxPool = new Array<PooledFx>(false, 8, PooledFx.class);
-                        } else if (fxMapping.fxClass == PooledAnimatedDecalSpatial.class) {
-                                fxMapping.fxPool = decalsPool;
-                        } else if (fxMapping.fxClass == PooledParticleEffectSpatial.class) {
-                                fxMapping.fxPool = new Array<PooledFx>(false, 8, PooledFx.class);
-                        } else {
-                                throw new AssertionError(fxMapping.fxClass);
+                loaded3dModels[fxIndex] = world.assetManager.get(fileName, Model.class);
+                fxMappings[fxId.ordinal()] = new FxMapping((byte) 0, fxIndex, new Array<PooledFx>(false, 8, PooledFx.class));
+        }
+
+        private void initAnimatedDecal(FxId fxId, String fileName, int cols, int rows, float frameDuration, Array<PooledFx> sharedFxPool) {
+                Texture tex = world.assetManager.get(fileName, Texture.class);
+                TextureRegion[][] texRegions = TextureRegion.split(tex, tex.getWidth() / cols, tex.getHeight() / rows);
+                TextureRegion[] frames = new TextureRegion[cols * rows];
+                int index = 0;
+                for (int j = 0; j < rows; j++) {
+                        for (int i = 0; i < cols; i++) {
+                                frames[index++] = texRegions[j][i];
                         }
                 }
 
+                int fxIndex = 0;
+                while (loadedDecalAnimations[fxIndex] != null)
+                        ++fxIndex;
+
+                loadedDecalAnimations[fxIndex] = new Animation(frameDuration, frames);
+                fxMappings[fxId.ordinal()] = new FxMapping((byte) 1, fxIndex, sharedFxPool);
         }
+
+        private void initParticleEffect(FxId fxId, String fileName) {
+                int fxIndex = 0;
+                while (loadedParticleEffects[fxIndex] != null)
+                        ++fxIndex;
+
+                loadedParticleEffects[fxIndex] = world.assetManager.get(fileName, ParticleEffect.class);
+                fxMappings[fxId.ordinal()] = new FxMapping((byte) 2, fxIndex, new Array<PooledFx>(false, 8, PooledFx.class));
+
+        }
+
 
         protected Model getModel(FxId fxId) {
                 return loaded3dModels[fxMappings[fxId.ordinal()].resourceId];
@@ -142,18 +150,12 @@ public class FxManager implements Disposable {
         }
 
         private PooledFx makeFx(FxId fxId) {
-                // ghetto stuff to avoid c.newInstnce()
-                Class c = fxMappings[fxId.ordinal()].fxClass;
-                if (c == Pooled3dModelSpatial.class) {
-                        return new Pooled3dModelSpatial();
-                } else if (c == PooledAnimatedDecalSpatial.class) {
-                        return new PooledAnimatedDecalSpatial();
-                } else if (c == PooledParticleEffectSpatial.class) {
-                        return new PooledParticleEffectSpatial();
-                }
+                byte b = fxMappings[fxId.ordinal()].fxClass;
+                if (b == 0) return new Pooled3dModelSpatial();
+                else if (b == 1) return new PooledAnimatedDecalSpatial();
+                else if (b == 2) return new PooledParticleEffectSpatial();
                 throw new AssertionError(fxId);
         }
-
 
         public void spawnEffect(FxId fxId, AbstractTokenSpatial tokenSpatial, float duration) {
                 Array<PooledFx> pool = fxMappings[fxId.ordinal()].fxPool;
@@ -202,7 +204,7 @@ public class FxManager implements Disposable {
         }
 
         protected void clearAll() {
-                        // TODO: need to implement
+                // TODO: need to implement
         }
 
         public void beginRender() {
@@ -229,7 +231,7 @@ public class FxManager implements Disposable {
                 /**
                  * the type of fx spatial to use, 0 = 3d model, 1 = animated decal, 2= particle effect
                  */
-                Class<? extends PooledFx> fxClass;
+                byte fxClass;
                 /**
                  * index of the resource from the loaded resources array
                  */
@@ -240,9 +242,10 @@ public class FxManager implements Disposable {
                  */
                 Array<PooledFx> fxPool;
 
-                private FxMapping(Class<? extends PooledFx> fxClass, int resourceId) {
+                public FxMapping(byte fxClass, int resourceId, Array<PooledFx> fxPool) {
                         this.fxClass = fxClass;
                         this.resourceId = resourceId;
+                        this.fxPool = fxPool;
                 }
         }
 

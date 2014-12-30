@@ -96,7 +96,7 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                 mode = 2;
                 tokenSpatial = followTokenSpatial;
                 this.duration = duration;
-                Gdx.app.log("DecalSpatial","set Decal Spatial- follow token: "+followTokenSpatial);
+                //Gdx.app.log("DecalSpatial","set Decal Spatial- follow token: "+followTokenSpatial);
 
 
         }
@@ -217,7 +217,7 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
 
 
 
-                //decal.lookAt(world.cam.position, world.cam.up);
+                decal.lookAt(world.cam.position, world.cam.up);
                 decal.setTextureRegion(animation.getKeyFrame(time += delta));
                 if(time > animation.getAnimationDuration()) time = 0;
 
