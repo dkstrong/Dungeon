@@ -41,14 +41,14 @@ public class DungeonApp implements ApplicationListener {
                 prefs.putBoolean("musicEnabled", false); // temporarily force disabled for ios, need to convert all sounds non ogg
                 music.setMusicEnabled(prefs.getBoolean("musicEnabled", true));
                 music.setMasterVolume(prefs.getFloat("masterVolume", 1f));
-                returnToMainMenu();
+                //returnToMainMenu();
 
                 DungeonWorld.Settings settings = new DungeonWorld.Settings();
-                settings.playerModel = ModelId.Archer;
+                settings.playerModel = ModelId.Mage;
 
                 //settings.startDebugSession = true;
                 //settings.random = new Random(5);
-                //loadWorld(settings);
+                loadWorld(settings);
 
         }
 

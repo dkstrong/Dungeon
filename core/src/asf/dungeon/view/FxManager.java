@@ -204,7 +204,14 @@ public class FxManager implements Disposable {
         }
 
         protected void clearAll() {
-                // TODO: need to implement
+                if(fxMappings[0] == null) return;
+                for (FxMapping fxMapping : fxMappings) {
+                        for (PooledFx pooledFx : fxMapping.fxPool) {
+                                pooledFx.deactivate();
+                        }
+                }
+
+
         }
 
         public void beginRender() {

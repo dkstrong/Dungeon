@@ -89,13 +89,13 @@ public class DungeonWorld implements Disposable {
         public DungeonWorld(DungeonApp dungeonApp, Settings settings) {
                 this.dungeonApp = dungeonApp;
                 this.settings = settings;
-                camControl = new CamControl();
-                cam = camControl.cam;
+                camControl = new OrthoCamControl();
+                cam = camControl.getCamera();
                 environment = new Environment();
                 environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.64f, 0.64f, 0.64f, 1f));
                 environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
                 stage = new Stage(new ScreenViewport());
-                decalBatch = new DecalBatch(1000, new CameraGroupStrategy(camControl.cam));
+                decalBatch = new DecalBatch(1000, new CameraGroupStrategy(camControl.getCamera()));
                 modelBatch = new ModelBatch();
                 assetManager = new AssetManager();
                 assetManager.load("Packs/Game.atlas", TextureAtlas.class);
@@ -175,11 +175,11 @@ public class DungeonWorld implements Disposable {
         }
 
         public void getScreenCoords(Vector2 mapCoords, Vector3 storeScreenCoords) {
-                camControl.cam.project(getWorldCoords(mapCoords.x, mapCoords.y, storeScreenCoords));
+                cam.project(getWorldCoords(mapCoords.x, mapCoords.y, storeScreenCoords));
         }
 
         public void getScreenCoords(float mapCoordsX, float mapCoordsY, Vector3 storeScreenCoords) {
-                camControl.cam.project(getWorldCoords(mapCoordsX, mapCoordsY, storeScreenCoords));
+                cam.project(getWorldCoords(mapCoordsX, mapCoordsY, storeScreenCoords));
         }
 
         protected Token getLocalPlayerToken() {
@@ -295,7 +295,7 @@ public class DungeonWorld implements Disposable {
 
                         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-                        modelBatch.begin(camControl.cam);
+                        modelBatch.begin(cam);
                         fxManager.beginRender();
 
                         final float effectiveDelta = paused ? 0 : delta;
@@ -405,6 +405,7 @@ public class DungeonWorld implements Disposable {
 
                 @Override
                 public void onFloorMapChanged(FloorMap newFloorMap) {
+                        fxManager.clearAll();
                         floorSpatial.setFloorMap(newFloorMap);
                 }
 
@@ -442,7 +443,7 @@ public class DungeonWorld implements Disposable {
                 public void onTokenRemoved(Token token) {
                         if (token == hudSpatial.localPlayerToken) {
                                 if (!token.getDamage().isFullyDead()) {
-                                        camControl.chaseTarget.visU = 0; // this forces the player spatial to turn black and fade back in
+                                        camControl.getChaseTarget().visU = 0; // this forces the player spatial to turn black and fade back in
                                 } else {
                                         //dungeonApp.setAppGameOver();
                                 }

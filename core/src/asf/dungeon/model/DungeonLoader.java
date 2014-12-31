@@ -95,7 +95,7 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new TestAssetsFloorGen(),new TestAssetsFloorGen(), new TestAssetsFloorGen(),
+                                new ConnectedRoomsGen(),new TestAssetsFloorGen(), new TestAssetsFloorGen(),
                                 new ConnectedRoomsGen(), new ConnectedRoomsGen(), new MazeGen(7, 4), new DirectionalCaveHallGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
@@ -124,6 +124,12 @@ public class DungeonLoader {
 
                         ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 4);
                         token.getInventory().add(potion);
+
+                        BookItem book = new BookItem(dungeon, BookItem.Type.MagicMapping);
+                        token.getInventory().add(book);
+
+                        book = new BookItem(dungeon, BookItem.Type.MagicMapping);
+                        token.getInventory().add(book);
 
                         PotionItem health = new PotionItem(dungeon, PotionItem.Type.Speed, 4);
                         health.identifyItem(token);
