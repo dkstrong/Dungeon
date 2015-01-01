@@ -2,9 +2,9 @@ package asf.dungeon.model;
 
 import asf.dungeon.model.floorgen.FloorMapGenMultiplexer;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
-import asf.dungeon.model.floorgen.debug.BalanceTestFloorGen;
-import asf.dungeon.model.floorgen.debug.PreBuiltFloorGen;
-import asf.dungeon.model.floorgen.debug.TestAssetsFloorGen;
+import asf.dungeon.model.floorgen.prebuilt.BalanceTestFloorGen;
+import asf.dungeon.model.floorgen.prebuilt.PreBuiltFloorGen;
+import asf.dungeon.model.floorgen.prebuilt.TestAssetsFloorGen;
 import asf.dungeon.model.floorgen.cave.CellularAutomataGen;
 import asf.dungeon.model.floorgen.cave.DirectionalCaveHallGen;
 import asf.dungeon.model.floorgen.cave.MazeGen;

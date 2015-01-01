@@ -1,4 +1,4 @@
-package asf.dungeon.model.floorgen.debug;
+package asf.dungeon.model.floorgen.prebuilt;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
