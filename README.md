@@ -15,7 +15,7 @@ Special thanks to these art contributors who created assets specificaly for Dung
 
 Goblin Monster - Lee Zhi Fei
 
-Wooden Crate, Wooden Barrel, Wood Particles - Kevin Boyeete ([Check out his YouTube Channel](https://www.youtube.com/channel/UC5EmESk342x3tt2lHvnGOEQ))
+Wooden Crate, Wooden Barrel, Wood Particles - Kevin Boyette ([Check out his YouTube Channel](https://www.youtube.com/channel/UC5EmESk342x3tt2lHvnGOEQ))
 
 ### Important Art Licence Info
 
