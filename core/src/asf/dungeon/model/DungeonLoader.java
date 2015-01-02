@@ -250,6 +250,7 @@ public class DungeonLoader {
                 kryo.register(com.badlogic.gdx.utils.IdentityMap.Entry.class);
                 kryo.register(com.badlogic.gdx.utils.IdentityMap.Entries.class);
                 kryo.register(com.badlogic.gdx.utils.SnapshotArray.class);
+                kryo.register(com.badlogic.gdx.utils.IntMap.class);
                 kryo.register(Array.class);
                 kryo.register(com.badlogic.gdx.utils.Array[].class);
                 kryo.register(Array.ArrayIterable.class);
@@ -316,6 +317,7 @@ public class DungeonLoader {
                 kryo.register(asf.dungeon.model.token.quest.PotionQuest.class);
                 kryo.register(asf.dungeon.model.token.quest.FountainQuest.class);
                 kryo.register(asf.dungeon.model.token.quest.TorchQuest.class);
+                kryo.register(asf.dungeon.model.token.quest.SignPostQuest.class);
 
                 kryo.register(FogMap.class);
                 kryo.register(FogState.class);

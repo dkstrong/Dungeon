@@ -11,15 +11,21 @@ The Dungeon is looking for 3D artists, Sound artists, and Programmers to help ma
 
 ### Art Credits
 
-Special thanks to these art contributors
+Special thanks to these art contributors who created assets specificaly for Dungeon!
 
 Goblin Monster - Lee Zhi Fei
 
-### Additional Art Credits
+Wooden Crate, Wooden Barrel, Wood Particles - Kevin Boyeete ([Check out his YouTube Channel](https://www.youtube.com/channel/UC5EmESk342x3tt2lHvnGOEQ))
 
-This game also contains many art assets submitted/created by users of opengameart.org. For a list of art contributors from opengameart.org see android/assets/Credits.txt
+### Important Art Licence Info
 
-### License
+Dungeon's source code is open source with the new BSD Licence. However Dungeon uses many art assets created by others. Most art
+in this game is CC0 or CC-BY licenced.  but this is not the case for all art assets. If You wish to use art assets from Dungeon in your own game
+it's important you contact the person who contributed that art work to make sure they are ok with you using it.
+
+For a list of all art contributors see android/assets/Credits.txt
+
+### Source Code License
 
 Copyright (c) 2014, Daniel Strong
 

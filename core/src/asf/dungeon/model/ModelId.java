@@ -13,6 +13,8 @@ public enum ModelId {
         Goblin,
         UserMonster,
         CeramicPitcher,
+        Crate,
+        Barrel,
         Fountain,
         Torch,
         SignPost,

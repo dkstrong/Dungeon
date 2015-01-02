@@ -40,7 +40,7 @@ public class AssetMappings {
                 rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
                 rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
 
-                assetLocations = new String[23];
+                assetLocations = new String[25];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
                 assetLocations[ModelId.Cerberus.ordinal()] = "Models/Characters/cerberus.g3db";
@@ -53,10 +53,12 @@ public class AssetMappings {
                 assetLocations[ModelId.Goblin.ordinal()] = "Models/Characters/Goblin.g3db";
                 assetLocations[ModelId.UserMonster.ordinal()] = null;
                 assetLocations[ModelId.CeramicPitcher.ordinal()] = "Models/Crates/CeramicPitcher.g3db";
+                assetLocations[ModelId.Crate.ordinal()] = "Models/Crates/crate_01.g3db";
+                assetLocations[ModelId.Barrel.ordinal()] = "Models/Crates/barrel_01.g3db";
                 assetLocations[ModelId.Fountain.ordinal()] = "Models/Fountain/Fountain.g3db";
                 assetLocations[ModelId.SignPost.ordinal()] = "Models/SignPost/SignPost.g3db";
-                assetLocations[ModelId.SpikeTrap.ordinal()] = "Models/Crates/SpikeTrap/SpikeTrap.g3db";
-                assetLocations[ModelId.Torch.ordinal()] = "Models/Crates/Torch/Torch.g3db";
+                assetLocations[ModelId.SpikeTrap.ordinal()] = "Models/SpikeTrap/SpikeTrap.g3db";
+                assetLocations[ModelId.Torch.ordinal()] = "Models/Torch/Torch.g3db";
                 assetLocations[ModelId.Potion.ordinal()] = "Models/Loot/Potion/PotionSmall.g3db";
                 assetLocations[ModelId.Scroll.ordinal()] = "Models/Loot/Scroll/Scroll.g3db";
                 assetLocations[ModelId.Book.ordinal()] = "Models/Loot/Book/Book.g3db";

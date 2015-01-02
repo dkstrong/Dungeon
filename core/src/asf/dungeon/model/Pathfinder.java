@@ -91,7 +91,7 @@ public class Pathfinder {
         }
 
         public boolean generate(Token mover, Pair start, Pair finish, Array<Pair> storePath) {
-                return generate(mover, start, finish, storePath, PathingPolicy.Manhattan, false, mover.getInteractor() == null ? Integer.MAX_VALUE : 20);
+                return generate(mover, start, finish, storePath, PathingPolicy.CanDiagonalIfNotCuttingCorner, false, mover.getInteractor() == null ? Integer.MAX_VALUE : 20);
         }
 
         /**

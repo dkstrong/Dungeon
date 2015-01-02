@@ -1,6 +1,4 @@
-These are the references for all assets from opengameart.org
-
-Other contributors are listed in README.md
+These are the references for all art assets.
 
 ===Characters And Monsters===
 Animated Heroes (Knight, Archer, Mage, ...)
@@ -10,6 +8,40 @@ URL: http://opengameart.org/users/botanic
 Skeleton
 zebzorb
 http://opengameart.org/content/low-poly-rigged-skeleton
+
+Goblin
+Lee Zhi Fei
+
+===Doors, Crates, Traps, Switches, etc===
+Ceramic Pitcher
+Aare
+URL: http://opengameart.org/content/ceramic-bear-mug
+
+Fountains, Chests, Barrels
+Danimal
+http://opengameart.org/content/pixel-dungeons-set1-props-and-stuff
+
+Torch
+cemkalyoncu
+p0ss
+Tapio
+Yughues
+http://opengameart.org/content/izchaks-torches
+
+Spike Trap
+Danimal
+http://opengameart.org/content/spyke-trap-low-poly-updated
+
+Boulder
+Duion
+http://opengameart.org/content/uberpack-1
+
+Wooden Crate, Wooden Barrel
+Kevin Boyette
+
+Stairs
+Clint Bellanger
+URL: http://opengameart.org/content/low-poly-stairs
 
 ===Loot===
 Sword, Bow, Staff
@@ -40,37 +72,6 @@ Book
 Aare
 http://opengameart.org/content/old-book
 
-===Crates, Traps, and Switches===
-Ceramic Pitcher
-Aare
-URL: http://opengameart.org/content/ceramic-bear-mug
-
-Fountains, Chests, Barrels
-Danimal
-http://opengameart.org/content/pixel-dungeons-set1-props-and-stuff
-
-Torch
-cemkalyoncu
-p0ss
-Tapio
-Yughues
-http://opengameart.org/content/izchaks-torches
-
-Spike Trap
-Danimal
-http://opengameart.org/content/spyke-trap-low-poly-updated
-
-Boulder
-Duion
-http://opengameart.org/content/uberpack-1
-
-===Misc Dungeon Assets===
-Stairs
-Clint Bellanger
-URL: http://opengameart.org/content/low-poly-stairs
-
-
-
 ===Textures===
 Floor and Wall textures
 Spiney
@@ -83,6 +84,9 @@ http://opengameart.org/content/painted-bolted-metal-tile
 2d Animated effects (lightening spell, etc)
 Clint Bellanger
 http://opengameart.org/users/clint-bellanger
+
+Wooden particle texture
+Kevin Boyette
 
 ===Interface===
 
@@ -100,6 +104,8 @@ http://opengameart.org/content/ritual
 -------------------
 -- considering
 ------------------
+
+These assets may be used in the game, you may or may not see them in some builds.
 
 Stats Icons
 johndh

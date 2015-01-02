@@ -140,8 +140,8 @@ public class UtFloorGen {
 
                         dungeon.newCrateToken(
                                 floorMap,
-                                ModelId.CeramicPitcher.name(),
-                                ModelId.CeramicPitcher,
+                                ModelId.Crate.name(),
+                                ModelId.Crate,
                                 item,
                                 x, y);
                 }

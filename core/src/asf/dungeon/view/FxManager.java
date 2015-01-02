@@ -58,7 +58,7 @@ public class FxManager implements Disposable {
 
                 // 3d models
                 loaded3dModels = new Model[1];
-                world.assetManager.load("Models/Projectiles/Arrow.g3db", Model.class);
+                world.assetManager.load("Models/Arrow/Arrow.g3db", Model.class);
 
                 // animated decals
                 loadedDecalAnimations = new Animation[3];
@@ -81,7 +81,7 @@ public class FxManager implements Disposable {
         public void init() {
 
                 // 3d models
-                init3dModel(FxId.Arrow, "Models/Projectiles/Arrow.g3db");
+                init3dModel(FxId.Arrow, "Models/Arrow/Arrow.g3db");
 
                 // animated decals
                 Array<PooledFx> decalsPool = new Array<PooledFx>(false, 16, PooledFx.class); // animated decals can all share the same pool, 3d models and particle effects require that each Fx has its own pool

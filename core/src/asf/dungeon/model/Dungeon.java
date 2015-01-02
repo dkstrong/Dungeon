@@ -18,9 +18,7 @@ import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.Logic;
 import asf.dungeon.model.token.quest.Quest;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.badlogic.gdx.utils.IntMap;
 
 /**
  * Created by danny on 10/22/14.
@@ -29,7 +27,7 @@ public class Dungeon {
         public final DungeonRand rand;
         private final MasterJournal masterJournal;
         private final FloorMapGenerator floorMapFactory;
-        private final Map<Integer, FloorMap> floorMaps = new HashMap<Integer, FloorMap>(16);
+        private final IntMap<FloorMap> floorMaps = new IntMap<FloorMap>(2);
         private Token localPlayerToken;
         private FloorMap currentFloorMap;
         private int nextTokenId = 0;
@@ -56,7 +54,7 @@ public class Dungeon {
         }
 
         public int numFloormaps(){
-                return floorMaps.size();
+                return floorMaps.size;
         }
 
         public FloorMap generateFloor(int floorIndex) {
