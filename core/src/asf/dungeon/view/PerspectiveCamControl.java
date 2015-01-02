@@ -25,8 +25,8 @@ public class PerspectiveCamControl implements CamControl{
 
         public PerspectiveCamControl() {
                 cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-                cam.position.set(-15f, 35f, 15f);
-                //cam.position.set(0f, 35f, 15f);
+                //cam.position.set(-15f, 35f, 15f);
+                cam.position.set(0f, 35f, 15f);
                 cam.lookAt(0, 0, 0);
                 cam.near = .1f;
                 cam.far = 300f;

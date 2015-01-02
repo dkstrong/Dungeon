@@ -89,7 +89,7 @@ public class DungeonWorld implements Disposable {
         public DungeonWorld(DungeonApp dungeonApp, Settings settings) {
                 this.dungeonApp = dungeonApp;
                 this.settings = settings;
-                camControl = new OrthoCamControl();
+                camControl = new PerspectiveCamControl();
                 cam = camControl.getCamera();
                 environment = new Environment();
                 environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.64f, 0.64f, 0.64f, 1f));
@@ -129,14 +129,14 @@ public class DungeonWorld implements Disposable {
                 } else {
                         dungeon = DungeonLoader.createDungeon(settings);
                         dungeon.setListener(internalInput);
-                        saveDungeon();
+                        //saveDungeon();
                 }
 
 
         }
 
 
-        protected void notifyOnLoaded(LoadedNotifyable loadedNotifyable) {
+        public void notifyOnLoaded(LoadedNotifyable loadedNotifyable) {
                 loadables.add(loadedNotifyable);
                 loading = true;
         }
@@ -260,8 +260,6 @@ public class DungeonWorld implements Disposable {
 
                                 Iterator<LoadedNotifyable> i = loadables.iterator();
                                 while (i.hasNext()) {
-                                        // TODO: need to think about this more, might not be possible for loading ot finish and not have the needed asset.
-                                        // gotta think about what happens when inventory changes before loading is finished
                                         LoadedNotifyable next = i.next();
                                         if (next.onLoaded()) {
                                                 i.remove();

@@ -11,7 +11,6 @@ public enum ModelId {
         Priest,
         Skeleton,
         Goblin,
-        UserMonster,
         CeramicPitcher,
         Crate,
         Barrel,
@@ -25,6 +24,8 @@ public enum ModelId {
         Key,
         Key2,
         Key3,
-        Sword;
+        Sword,
+        Sword_01,
+        Bow_01;
 
 }

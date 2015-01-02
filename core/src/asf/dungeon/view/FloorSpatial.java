@@ -37,7 +37,7 @@ public class FloorSpatial implements Spatial {
 
         public final Vector3 tileDimensions = new Vector3(5, 5.75f, 5);
         public final Box tileBox = new Box(new Vector3(-tileDimensions.x / 2f, 0, -tileDimensions.z / 2f),new Vector3(tileDimensions.x / 2f, tileDimensions.y, tileDimensions.z / 2f));
-        public final Shape tileSphere = new Sphere(5.75f, 0, 2.875f, 0);
+        public final Shape tileSphere = new Sphere(tileDimensions.y/2f, 0, tileDimensions.y/4f, 0);
         private DungeonWorld world;
         private boolean initialized;
         private FloorMap floorMap;

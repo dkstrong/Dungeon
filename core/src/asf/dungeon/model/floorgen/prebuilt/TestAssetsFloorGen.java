@@ -16,8 +16,6 @@ import asf.dungeon.model.token.logic.fsm.Monster;
 import asf.dungeon.model.token.logic.fsm.QuestNPC;
 import asf.dungeon.model.token.quest.PotionQuest;
 import asf.dungeon.model.token.quest.SignPostQuest;
-import asf.dungeon.view.AssetMappings;
-import com.badlogic.gdx.files.FileHandle;
 
 /**
  * Created by Danny on 11/4/2014.
@@ -98,8 +96,8 @@ public class TestAssetsFloorGen implements FloorMapGenerator, FloorMap.MonsterSp
                                 y = dungeon.rand.range(6,10);
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
-                        FileHandle userMonsterLocation = AssetMappings.getUserMonsterLocation();
-                        ModelId modelId = userMonsterLocation != null ? ModelId.UserMonster : ModelId.Skeleton;
+
+                        ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Berzerker : ModelId.Skeleton;
 
                         Token token = dungeon.newCharacterToken(floorMap, "Monster",
                                 modelId,

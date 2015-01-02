@@ -149,10 +149,10 @@ public class Experience implements TokenComponent{
 
                 // agility
 
-                if(agility < 10) token.getMove().setMoveSpeed(1.55f);
-                else if(agility < 15) token.getMove().setMoveSpeed(1.65f);
-                else if(agility < 20) token.getMove().setMoveSpeed(1.75f);
-                else token.getMove().setMoveSpeed(UtMath.scalarLimitsInterpolation(agility,20f,100f,1.7f,3f));
+                if(agility < 10) token.getMove().setMoveSpeed(1.65f);
+                else if(agility < 15) token.getMove().setMoveSpeed(1.75f);
+                else if(agility < 20) token.getMove().setMoveSpeed(1.85f);
+                else token.getMove().setMoveSpeed(UtMath.scalarLimitsInterpolation(agility,20f,100f,1.9f,3f));
 
                 if(token.getStatusEffects() != null){
                         if(token.getStatusEffects().has(StatusEffect.Speed)){

@@ -264,7 +264,7 @@ public class Attack implements TokenComponent{
                         return false;
 
                 float distance = token.distance(target);
-                if(distance > 1.5f)
+                if(distance > 1.45f)
                         return false;
 
 

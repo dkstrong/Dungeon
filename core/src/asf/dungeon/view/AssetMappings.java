@@ -40,18 +40,17 @@ public class AssetMappings {
                 rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
                 rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
 
-                assetLocations = new String[25];
+                assetLocations = new String[26];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
                 assetLocations[ModelId.Cerberus.ordinal()] = "Models/Characters/cerberus.g3db";
                 assetLocations[ModelId.Diablous.ordinal()] = "Models/Characters/diablous.g3db";
                 assetLocations[ModelId.FemaleMage.ordinal()] = "Models/Characters/female_mage.g3db";
-                assetLocations[ModelId.Knight.ordinal()] = "Models/Characters/knight.g3db";
+                assetLocations[ModelId.Knight.ordinal()] = "Models/Characters/knight_01.g3db";
                 assetLocations[ModelId.Mage.ordinal()] = "Models/Characters/mage.g3db";
                 assetLocations[ModelId.Priest.ordinal()] = "Models/Characters/priest.g3db";
                 assetLocations[ModelId.Skeleton.ordinal()] = "Models/Characters/Skeleton.g3db";
                 assetLocations[ModelId.Goblin.ordinal()] = "Models/Characters/Goblin.g3db";
-                assetLocations[ModelId.UserMonster.ordinal()] = null;
                 assetLocations[ModelId.CeramicPitcher.ordinal()] = "Models/Crates/CeramicPitcher.g3db";
                 assetLocations[ModelId.Crate.ordinal()] = "Models/Crates/crate_01.g3db";
                 assetLocations[ModelId.Barrel.ordinal()] = "Models/Crates/barrel_01.g3db";
@@ -66,6 +65,8 @@ public class AssetMappings {
                 assetLocations[ModelId.Key2.ordinal()] = "Models/Loot/Key/Key2.g3db";
                 assetLocations[ModelId.Key3.ordinal()] = "Models/Loot/Key/Key3.g3db";
                 assetLocations[ModelId.Sword.ordinal()] = "Models/Loot/Sword/SwordLarge.g3db";
+                assetLocations[ModelId.Sword_01.ordinal()] = "Models/Loot/Sword/sword_01.g3db";
+                assetLocations[ModelId.Bow_01.ordinal()] = "Models/Loot/Bow/bow_01.g3db";
 
                 potionDisplayColors = new Color[11];
                 potionDisplayColors[PotionItem.Color.Red.ordinal()] = com.badlogic.gdx.graphics.Color.RED;

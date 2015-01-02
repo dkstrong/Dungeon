@@ -144,18 +144,22 @@ public class DungeonLoader {
 
                         if (settings.playerModel == ModelId.Knight) {
                                 WeaponItem sword = new WeaponItem(ModelId.Sword, "Sword", 3);
-                                sword.setCursed(true);
                                 token.getInventory().add(sword);
                                 token.getInventory().equip(sword);
                                 token.get(Journal.class).learn(sword);
-                        } else if (settings.playerModel == ModelId.Archer) {
-                                WeaponItem bow = new WeaponItem(ModelId.Sword, "Bow", 2, FxId.Arrow);
+
+                                WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, FxId.Arrow);
                                 bow.setRangedStats(3, 1);
-                                bow.setProjectileFx(FxId.Arrow);
+                                token.getInventory().add(bow);
+                                token.get(Journal.class).learn(bow);
+                        } else if (settings.playerModel == ModelId.Archer) {
+                                WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, FxId.Arrow);
+                                bow.setCursed(true);
+                                bow.setRangedStats(3, 1);
                                 token.getInventory().add(bow);
                                 token.getInventory().equip(bow);
                         } else if (settings.playerModel == ModelId.Mage) {
-                                WeaponItem staff = new WeaponItem(ModelId.Sword, "Staff", 3, FxId.PlasmaBall);
+                                WeaponItem staff = new WeaponItem(ModelId.Bow_01, "Staff", 3, FxId.PlasmaBall);
                                 staff.identifyItem(token);
                                 token.getInventory().add(staff);
                                 token.getInventory().equip(staff);
