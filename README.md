@@ -17,10 +17,10 @@ Goblin Monster - Lee Zhi Fei
 
 Wooden Crate, Wooden Barrel, Wood Particles - Kevin Boyette ([Check out his YouTube Channel](https://www.youtube.com/channel/UC5EmESk342x3tt2lHvnGOEQ))
 
-### Important Art Licence Info
+### Important Art License Info
 
-Dungeon's source code is open source with the new BSD Licence. However Dungeon uses many art assets created by others. Most art
-in this game is CC0 or CC-BY licenced.  but this is not the case for all art assets. If You wish to use art assets from Dungeon in your own game
+Dungeon uses many art assets created by others. Most art in this game is CC0 or CC-BY licensed. However some
+assets in Dungeon are released under other licenses. If You wish to use art assets from Dungeon in your own game
 it's important you contact the person who contributed that art work to make sure they are ok with you using it.
 
 For a list of all art contributors see android/assets/Credits.txt

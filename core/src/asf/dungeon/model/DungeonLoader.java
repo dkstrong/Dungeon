@@ -2,13 +2,14 @@ package asf.dungeon.model;
 
 import asf.dungeon.model.floorgen.FloorMapGenMultiplexer;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
-import asf.dungeon.model.floorgen.prebuilt.BalanceTestFloorGen;
-import asf.dungeon.model.floorgen.prebuilt.PreBuiltFloorGen;
-import asf.dungeon.model.floorgen.prebuilt.TestAssetsFloorGen;
 import asf.dungeon.model.floorgen.cave.CellularAutomataGen;
 import asf.dungeon.model.floorgen.cave.DirectionalCaveHallGen;
 import asf.dungeon.model.floorgen.cave.MazeGen;
 import asf.dungeon.model.floorgen.cave.RandomWalkGen;
+import asf.dungeon.model.floorgen.prebuilt.BalanceTestFloorGen;
+import asf.dungeon.model.floorgen.prebuilt.PreBuiltFloorGen;
+import asf.dungeon.model.floorgen.prebuilt.TestAssetsFloorGen;
+import asf.dungeon.model.floorgen.prebuilt.TutorialFloorGen;
 import asf.dungeon.model.floorgen.room.BinarySpaceGen;
 import asf.dungeon.model.floorgen.room.ConnectedRoomsGen;
 import asf.dungeon.model.floorgen.room.Room;
@@ -95,8 +96,8 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new ConnectedRoomsGen(),new TestAssetsFloorGen(), new TestAssetsFloorGen(),
-                                new ConnectedRoomsGen(), new ConnectedRoomsGen(), new MazeGen(7, 4), new DirectionalCaveHallGen(),
+                                new TutorialFloorGen(),new TestAssetsFloorGen(),new MazeGen(15, 19),
+                                new ConnectedRoomsGen(), new CellularAutomataGen(),  new DirectionalCaveHallGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(), new MazeGen(7, 4)
@@ -374,6 +375,7 @@ public class DungeonLoader {
                 kryo.register(asf.dungeon.model.floorgen.room.Doorway[].class);
                 kryo.register(ZeldaGen.class);
                 kryo.register(TestAssetsFloorGen.class);
+                kryo.register(asf.dungeon.model.floorgen.prebuilt.TutorialFloorGen.class);
 
 
                 return kryo;

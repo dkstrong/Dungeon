@@ -30,7 +30,7 @@ public class FloorMapGenMultiplexer implements FloorMapGenerator{
                                 }
                         }catch(InvalidGenerationException ex){
                                 System.err.println("FloorMapGenMultiplexer: Unable to generate floor index: "+floorIndex);
-                                if(++tries > 0) throw ex;
+                                if(++tries > 10) throw ex;
                         }
                 }while(floorMap == null);
 
