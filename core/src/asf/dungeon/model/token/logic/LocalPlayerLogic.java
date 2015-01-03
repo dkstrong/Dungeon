@@ -1,7 +1,5 @@
 package asf.dungeon.model.token.logic;
 
-import asf.dungeon.model.Direction;
-import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.token.Token;
 
 /**
@@ -25,11 +23,6 @@ public class LocalPlayerLogic implements Logic {
         @Override
         public int getTeam() {
                 return team;
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
-
         }
 
         @Override

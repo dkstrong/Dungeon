@@ -1,7 +1,5 @@
 package asf.dungeon.model.token;
 
-import asf.dungeon.model.Direction;
-import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.RingItem;
 import asf.dungeon.model.item.WeaponItem;
@@ -33,11 +31,6 @@ public class Experience implements TokenComponent{
         public void setToken(Token token) {
                 this.token = token;
                 recalcStats();
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
-
         }
 
         @Override

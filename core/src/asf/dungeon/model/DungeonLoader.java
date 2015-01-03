@@ -124,7 +124,9 @@ public class DungeonLoader {
                         token.getInventory().setNumQuickSlots(3);
 
                         ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 4);
+                        potion.identifyItem(token);
                         token.getInventory().add(potion);
+                        //token.getInventory().equip(potion);
 
                         BookItem book = new BookItem(dungeon, BookItem.Type.MagicMapping);
                         token.getInventory().add(book);
@@ -135,7 +137,6 @@ public class DungeonLoader {
                         PotionItem health = new PotionItem(dungeon, PotionItem.Type.Speed, 4);
                         health.identifyItem(token);
                         token.getInventory().add(health);
-                        token.getInventory().unequip(potion);
 
                         ArmorItem armor = new ArmorItem(ModelId.Sword, "Simple Armor", 1);
                         armor.identifyItem(token);
@@ -302,6 +303,7 @@ public class DungeonLoader {
                 kryo.register(asf.dungeon.model.token.SpikeTrap.class);
                 kryo.register(asf.dungeon.model.token.Interactor.class);
                 kryo.register(asf.dungeon.model.token.Stairs.class);
+                kryo.register(asf.dungeon.model.token.Boulder.class);
                 kryo.register(Inventory.class);
                 kryo.register(CharacterInventory.class);
                 kryo.register(CrateInventory.class);

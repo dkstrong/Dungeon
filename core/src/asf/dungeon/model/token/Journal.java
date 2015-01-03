@@ -1,7 +1,5 @@
 package asf.dungeon.model.token;
 
-import asf.dungeon.model.Direction;
-import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.PotionItem;
@@ -107,11 +105,6 @@ public class Journal implements TokenComponent{
                 }else{
                         equipmentStudy.put(item, currentStudy);
                 }
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
-
         }
 
         @Override

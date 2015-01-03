@@ -168,8 +168,9 @@ public class LootTokenSpatial extends AbstractTokenSpatial {
         @Override
         public void render(float delta) {
                 if (visU <= 0) return;
-                if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
-                if (world.hudSpatial.isMapViewMode() && !world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+                if (world.hudSpatial.isMapViewMode()){
+                        if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
 
                 modelInstance.transform.set(
                         translation.x, translation.y, translation.z,

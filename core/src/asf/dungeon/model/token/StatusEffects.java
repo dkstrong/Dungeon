@@ -1,7 +1,5 @@
 package asf.dungeon.model.token;
 
-import asf.dungeon.model.Direction;
-import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.fogmap.FogMap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
@@ -23,11 +21,6 @@ public class StatusEffects implements TokenComponent{
                 for (StatusEffect statusEffect : effectValues) {
                         statusEffects[statusEffect.ordinal()] = new FloatArray(false, 8);
                 }
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
-
         }
 
         @Override

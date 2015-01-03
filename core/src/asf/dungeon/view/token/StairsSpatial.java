@@ -69,9 +69,11 @@ public class StairsSpatial extends AbstractTokenSpatial{
 
         @Override
         public void render(float delta) {
-                if(visU <=0) return;
-                if(world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
-                if(world.hudSpatial.isMapViewMode() && !world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+                if (visU <= 0) return;
+                if (world.hudSpatial.isMapViewMode()){
+                        if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
+
 
                 colorAttribute.color.r = UtMath.clamp(floorDecalColor.r + .1f, 0f, 1f);
                 colorAttribute.color.g = UtMath.clamp(floorDecalColor.g+.1f, 0f,1f);

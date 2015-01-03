@@ -109,6 +109,8 @@ public class FloorSpatial implements Spatial {
                 fogAlpha[FogState.Visible.ordinal()] = 1;
                 DecalNodeWall.topWallVisibleY = tileDimensions.y;
                 DecalNodeWall.sideWallVisibleY = tileDimensions.y/2f;
+                DecalNodePit.topWallVisibleY = -tileDimensions.y;
+                DecalNodePit.sideWallVisibleY = -tileDimensions.y/2f;
 
                 Pair stairsDownLoc = floorMap.getStairsDown().getLocation();
 
@@ -117,7 +119,9 @@ public class FloorSpatial implements Spatial {
                         for (int y = 0; y < floorMap.getHeight(); y++) {
                                 Tile tile = floorMap.getTile(x,y);
                                 if(tile != null){
-                                        if(tile.isWall()){
+                                        if(tile.isPit()){
+                                                makeDecalPit(tile, x,y);
+                                        }else if(tile.isWall()){
                                                 makeDecalWall(tile, x, y);
                                         }else{
                                                 makeDecalFloor(tile, x,y, stairsDownLoc);
@@ -297,6 +301,74 @@ public class FloorSpatial implements Spatial {
 
         }
 
+        private void makeDecalPit(Tile tile, int x, int y){
+                DecalNodePit decalNode = new DecalNodePit();
+                decalNode.x = x;
+                decalNode.y = y;
+                decalNode.tile = tile;
+                decalNode.decals = new Decal[4];
+                decalNodes.add(decalNode);
+
+                world.getWorldCoords(x, y, worldCoordsTemp);
+
+                // top
+                decalNode.decal = new Decal();
+                decalNode.decal.setTextureRegion(wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)]);
+                decalNode.decal.setBlending(DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
+                decalNode.decal.setDimensions(tileDimensions.x, tileDimensions.z);
+                decalNode.decal.setColor(0,0,0,1);
+                decalNode.decal.rotateX(-90);
+                decalNode.decal.translate(worldCoordsTemp.x, 0, worldCoordsTemp.z);
+                // visiblyY = tileDimensions.y
+
+                // north
+                Tile northTile = floorMap.getTile(x,y+1);
+                if(northTile == null || !northTile.isPit()){
+                        decalNode.decals[0] = new Decal();
+                        decalNode.decals[0].setTextureRegion(wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)]);
+                        decalNode.decals[0].setBlending(DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
+                        decalNode.decals[0].setDimensions(tileDimensions.x, tileDimensions.y);
+                        decalNode.decals[0].setColor(0,0,0,1);
+                        decalNode.decals[0].translate(worldCoordsTemp.x, -tileDimensions.y / 2f, worldCoordsTemp.z - tileDimensions.z / 2f);
+                }
+
+                // south
+                Tile southTile = floorMap.getTile(x,y-1);
+                if(southTile == null || !southTile.isPit()){
+                        decalNode.decals[1] = new Decal();
+                        decalNode.decals[1].setTextureRegion(wallDarkTexRegions[MathUtils.random.nextInt(wallDarkTexRegions.length)]);
+                        decalNode.decals[1].setBlending(DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
+                        decalNode.decals[1].setDimensions(tileDimensions.x, tileDimensions.y);
+                        decalNode.decals[1].setColor(0,0,0,1);
+                        decalNode.decals[1].translate(worldCoordsTemp.x, -tileDimensions.y/2f, worldCoordsTemp.z+tileDimensions.z/2f);
+                }
+
+                // east
+                Tile eastTile = floorMap.getTile(x+1, y);
+                if(eastTile == null || !eastTile.isPit()){
+                        decalNode.decals[2] = new Decal();
+                        decalNode.decals[2].setTextureRegion(wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)]);
+                        decalNode.decals[2].setBlending(DecalMaterial.NO_BLEND, DecalMaterial.NO_BLEND);
+                        decalNode.decals[2].setDimensions(tileDimensions.z, tileDimensions.y);
+                        decalNode.decals[2].setColor(0, 0, 0, 1);
+                        decalNode.decals[2].rotateY(-90);
+                        decalNode.decals[2].translate(worldCoordsTemp.x+tileDimensions.x/2f, -tileDimensions.y/2f, worldCoordsTemp.z);
+                }
+
+                // west
+                Tile westTile = floorMap.getTile(x-1, y);
+                if(westTile==null || !westTile.isPit()){
+                        decalNode.decals[3] = new Decal();
+                        decalNode.decals[3].setTextureRegion(wallDarkTexRegions[MathUtils.random.nextInt(wallDarkTexRegions.length)]);
+                        decalNode.decals[3].setBlending(DecalMaterial.NO_BLEND, DecalMaterial.NO_BLEND);
+                        decalNode.decals[3].setDimensions(tileDimensions.z, tileDimensions.y);
+                        decalNode.decals[3].setColor(0, 0, 0, 1);
+                        decalNode.decals[3].rotateY(-90);
+                        decalNode.decals[3].translate(worldCoordsTemp.x-tileDimensions.x/2f, -tileDimensions.y/2f, worldCoordsTemp.z);
+                }
+
+        }
+
 
         private abstract static class DecalNode{
                 public Decal decal;
@@ -386,6 +458,43 @@ public class FloorSpatial implements Spatial {
                                 for (Decal wallDecal : decals) {
                                         wallDecal.setColor(color);
                                         floor.world.decalBatch.add(wallDecal);
+                                }
+                        }else{
+                                color.g = fog;
+                        }
+                }
+        }
+
+        private static class DecalNodePit extends DecalNode{
+                public Decal[] decals; // side wall decals, the top wall decal is the superclass decal
+                public static float topWallVisibleY;
+                public static float sideWallVisibleY;
+
+                @Override
+                protected void render(FloorSpatial floor, float delta) {
+                        Color color = decal.getColor();
+                        FogState fogState = floor.fogMap.getFogState(x,y);
+                        float fog = MathUtils.lerp(color.g, floor.fogAlpha[fogState.ordinal()], delta);
+                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().getLocation().distance(x,y)<16)){
+                                if(decal.getPosition().y != topWallVisibleY){
+                                        decal.setY(topWallVisibleY);
+                                        for (Decal wallDecal : decals){
+                                                if(wallDecal != null)
+                                                        wallDecal.setY(sideWallVisibleY);
+                                        }
+
+                                }
+                                if(fogState == FogState.MagicMapped)
+                                        color.set(fog * 0.9f, fog, fog * 1.2f, 1);
+                                else
+                                        color.set(fog,fog,fog,1);
+                                decal.setColor(color);
+                                floor.world.decalBatch.add(decal);
+                                for (Decal wallDecal : decals) {
+                                        if(wallDecal != null){
+                                                wallDecal.setColor(color);
+                                                floor.world.decalBatch.add(wallDecal);
+                                        }
                                 }
                         }else{
                                 color.g = fog;

@@ -146,7 +146,8 @@ public class FogMap {
                 // TODO: need to do something similiar for wall tiles in the corner of rooms
 
                 // if this is a door tile, set the adjcant wall tiles to visible
-                if(!floorMap.getTile(xWorld, yWorld).isDoor()){
+                Tile tile = floorMap.getTile(xWorld, yWorld);
+                if(tile == null || !tile.isDoor()){
                     return;
                 }
 

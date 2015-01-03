@@ -1,7 +1,5 @@
 package asf.dungeon.model.token.quest;
 
-import asf.dungeon.model.Direction;
-import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.token.Interactor;
 import asf.dungeon.model.token.TokenComponent;
 
@@ -33,11 +31,6 @@ public class Quest implements TokenComponent{
                 return choice.getNextDialogue();
         }
 
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
-
-        }
 
         @Override
         public boolean update(float delta) {

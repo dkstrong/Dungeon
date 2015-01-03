@@ -1,7 +1,5 @@
 package asf.dungeon.model.token;
 
-import asf.dungeon.model.Direction;
-import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.token.puzzle.Puzzle;
 import asf.dungeon.model.token.puzzle.PuzzlePiece;
 
@@ -17,10 +15,6 @@ public class Torch implements TokenComponent, PuzzlePiece {
                 this.token = token;
                 this.ignited = ignited;
                 this.puzzle = puzzle;
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
         }
 
         @Override

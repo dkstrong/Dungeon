@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.Array;
 /**
  * Created by Danny on 11/11/2014.
  */
-public class Attack implements TokenComponent{
+public class Attack implements TokenComponent, Teleportable{
 
         private final Token token;
         private WeaponItem weapon = WeaponItem.NULL;
@@ -32,6 +32,11 @@ public class Attack implements TokenComponent{
 
         public Attack(Token token) {
                 this.token = token;
+        }
+
+        @Override
+        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction){
+                return true;
         }
 
         @Override

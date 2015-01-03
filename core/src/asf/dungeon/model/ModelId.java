@@ -18,6 +18,7 @@ public enum ModelId {
         Torch,
         SignPost,
         SpikeTrap,
+        Boulder,
         Potion,
         Scroll,
         Book,

@@ -41,19 +41,19 @@ public class Token {
         private Array<TokenComponent> components = new Array<TokenComponent>(true, 8, TokenComponent.class);
         protected transient Listener listener;
         // Common Components
-        private Logic logic;
-        private Experience experience;
-        private Command command;
-        private Interactor interactor;
-        private Move move;
-        private Damage damage;
-        private Attack attack;
-        private CharacterInventory inventory;
-        private CrateInventory crateInventory;
-        private FogMapping fogMapping;
-        private StatusEffects statusEffects;
-        private Loot loot;
-        private Stairs stairs;
+        public Logic logic;
+        public Experience experience;
+        public Command command;
+        public Interactor interactor;
+        public Move move;
+        public Damage damage;
+        public Attack attack;
+        public CharacterInventory inventory;
+        public CrateInventory crateInventory;
+        public FogMapping fogMapping;
+        public StatusEffects statusEffects;
+        public Loot loot;
+        public Stairs stairs;
 
 
         public Token(Dungeon dungeon, int id, String name, ModelId modelId) {
@@ -130,17 +130,23 @@ public class Token {
                 }
         }
 
-        public boolean isValidTeleportLocation(FloorMap fm, int x, int y) {
+        public boolean canTeleport(FloorMap fm, int x, int y, Direction dir) {
                 Tile tile = fm.getTile(x, y);
-                if (tile == null || tile.isDoor() || tile.isWall()) {
+                if (tile == null || tile.isDoor() || tile.isBlockMovement()) {
                         return false;
+                }
+
+                for (TokenComponent c : components) {
+                        if(c instanceof Teleportable && !((Teleportable) c ).canTeleport(fm,x, y, dir))
+                                return false;
                 }
                 return true;
         }
 
         public boolean teleport(FloorMap fm, int x, int y, Direction dir) {
 
-                if (!isValidTeleportLocation(fm, x, y)) {
+                if (!canTeleport(fm, x, y, dir)) {
+                        // TODO: idealy i should be able to remove this if check, proper canTeleport checks should be built in to the calling code
                         throw new AssertionError(getName() + "- not a valid teleport location, need to include a check for this earlier in the code");
                 }
 
@@ -149,7 +155,7 @@ public class Token {
                 direction = dir;
 
                 for (TokenComponent c : components) {
-                        c.teleport(fm, x, y, direction);
+                        if(c instanceof Teleportable) ((Teleportable) c ).teleport(fm,x, y, direction);
                 }
 
                 return true;

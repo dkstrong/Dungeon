@@ -7,7 +7,7 @@ import asf.dungeon.model.SfxId;
 /**
  * Created by Danny on 11/11/2014.
  */
-public class Damage implements TokenComponent{
+public class Damage implements TokenComponent, Teleportable{
         private final Token token;
         private int sightRadius = 6;
         private int health = 10;
@@ -28,6 +28,11 @@ public class Damage implements TokenComponent{
         public Damage(Token token) {
                 this.token = token;
                 token.setBlocksPathing(true);
+        }
+
+        @Override
+        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction){
+                return true;
         }
 
         @Override

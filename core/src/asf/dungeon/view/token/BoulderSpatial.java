@@ -28,7 +28,7 @@ public class BoulderSpatial extends AbstractTokenSpatial{
 
         public void preload(DungeonWorld world) {
 
-                world.assetManager.load("Models/Boulder/Boulder.g3db", Model.class);
+                world.assetManager.load(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
 
 
 
@@ -36,7 +36,7 @@ public class BoulderSpatial extends AbstractTokenSpatial{
 
         public void init(AssetManager assetManager) {
                 initialized = true;
-                Model model = assetManager.get("Models/Boulder/Boulder.g3db", Model.class);
+                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
                 modelInstance = new BetterModelInstance(model);
 
                 boulder = token.get(Boulder.class);
@@ -86,12 +86,13 @@ public class BoulderSpatial extends AbstractTokenSpatial{
 
         @Override
         public void render(float delta) {
-                if(visU <=0)return;
-                if(world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
-                if(world.hudSpatial.isMapViewMode() && !world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+                if (visU <= 0) return;
+                if (world.hudSpatial.isMapViewMode()){
+                        if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
 
                 modelInstance.transform.set(
-                        translation.x , translation.y , translation.z ,
+                        translation.x , translation.y - (boulder.isFillsPit() ? world.floorSpatial.tileDimensions.y : 0) , translation.z ,
                         rotation.x, rotation.y, rotation.z, rotation.w,
                         1, 1, 1
                 );

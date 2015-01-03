@@ -9,13 +9,18 @@ import java.util.Map;
 /**
  * Created by Danny on 11/11/2014.
  */
-public class FogMapping implements TokenComponent {
+public class FogMapping implements TokenComponent, Teleportable {
         private final Token token;
         private Map<FloorMap, FogMap> fogMaps;
 
         public FogMapping(Token token) {
                 this.token = token;
                 fogMaps = new HashMap<FloorMap, FogMap>(16);
+        }
+
+        @Override
+        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction){
+                return true;
         }
 
         @Override

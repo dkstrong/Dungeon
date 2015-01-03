@@ -1,8 +1,6 @@
 package asf.dungeon.model.token.logic.fsm;
 
-import asf.dungeon.model.Direction;
 import asf.dungeon.model.DungeonRand;
-import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Sector;
 import asf.dungeon.model.token.Token;
@@ -47,11 +45,6 @@ public class FsmLogic implements Logic {
         @Override
         public int getTeam() {
                 return team;
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
-
         }
 
         @Override

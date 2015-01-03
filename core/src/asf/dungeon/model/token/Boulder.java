@@ -11,29 +11,56 @@ import com.badlogic.gdx.math.Vector2;
  * A boulder that can be pushed when Move goes in to its place
  * Created by Daniel Strong on 12/17/2014.
  */
-public class Boulder implements TokenComponent {
+public class Boulder implements TokenComponent , Teleportable{
         private Token token;
         private float moveSpeed = 1.5f;
         private float moveSpeedDiagonal = 1.06066017177f;
         private float moveU = 1;
         private Vector2 floatLocation = new Vector2();
+        private Tile fillsPit;
 
         public Boulder(Token token) {
                 this.token = token;
         }
 
         @Override
+        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction){
+
+                return true;
+        }
+
+        @Override
         public void teleport(FloorMap fm, int x, int y, Direction direction) {
                 moveU = 1;
                 floatLocation.set(x, y);
+
+                if(fillsPit != null)
+                        fillsPit.setPitFilled(false);
+
+                Tile tile = token.floorMap.getTile(token.location);
+                if(tile.isPit() && !tile.isPitFilled()){
+                        tile.setPitFilled(true);
+                        fillsPit = tile;
+                }else{
+                        fillsPit = null;
+                }
+                token.setBlocksPathing(fillsPit == null);
         }
 
         @Override
         public boolean update(float delta) {
                 if (moveU >= 1) return false;
                 moveU += delta;
-                if (moveU > 1)
+                if (moveU > 1){
                         moveU = 1;
+                        Tile tile = token.floorMap.getTile(token.location);
+                        if(tile.isPit() && !tile.isPitFilled()){
+                                tile.setPitFilled( true);
+                                fillsPit = tile;
+                                token.setBlocksPathing(false);
+                        }
+                }
+
                 updateFloatLocation();
                 return true;
         }
@@ -48,6 +75,7 @@ public class Boulder implements TokenComponent {
 
         protected void push(Token pushedBy) {
                 if (moveU != 1) return;
+                if(fillsPit != null) return;
                 Direction pushDir = pushedBy.location.direction(token.location);
                 Pair newLoc = new Pair();
                 // Attempt to push the boulder forward, then left, then right, if none of these directions work then it is stuck
@@ -73,8 +101,14 @@ public class Boulder implements TokenComponent {
         }
 
         private boolean isLocationBlocked(Pair location){
-                if(token.floorMap.isLocationBlocked(location))
+                Tile tile = token.floorMap.getTile(location);
+                if(tile == null || (!tile.isPit() && tile.isBlockMovement()))
                         return true;
+
+                for (Token t : token.floorMap.getTokens()) {
+                        if (t.isBlocksPathing() && t.isLocatedAt(location))
+                                return true;
+                }
 
                 Tile t = token.floorMap.getTile(location);
                 if(t.isDoor() && !t.isDoorOpened())
@@ -120,6 +154,8 @@ public class Boulder implements TokenComponent {
         public float getMoveSpeed() {
                 return moveSpeed;
         }
+
+        public boolean isFillsPit(){return fillsPit != null;}
 
 
 

@@ -9,14 +9,13 @@ import asf.dungeon.model.fogmap.LOS;
 import asf.dungeon.model.item.ConsumableItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.token.quest.Choice;
-import asf.dungeon.model.token.quest.Quest;
 
 /**
  * This component is how the token receives commands from the player or the ai
  *
  * player and ai should not initiateChat with the token directly.
  */
-public class Command implements TokenComponent{
+public class Command implements TokenComponent, Teleportable{
         private final Token token;
         private final Pair location = new Pair();                      // the location that this targetToken wants to move to, targetToken will move and attack through tiles along the way to get to its destination
         private Token targetToken;                    // alternative to location and continousMoveDir, will constantly try to move to location of this targetToken
@@ -25,12 +24,18 @@ public class Command implements TokenComponent{
         private Tile useKeyOnTile;
 
         protected ConsumableItem consumeItem;
+        protected Token targetItemToken;
         protected Item targetItem;
 
         private Choice chatChoice;
 
         public Command(Token token) {
                 this.token = token;
+        }
+
+        @Override
+        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction){
+                return true;
         }
 
         @Override
@@ -96,9 +101,9 @@ public class Command implements TokenComponent{
 
         public boolean consumeItem(ConsumableItem item, Token targetToken){
                 boolean valid = consumeItem(item);
-                if(valid){
-                        setTargetToken(targetToken);
-                }
+                if(valid)
+                        this.targetItemToken = targetToken;
+
                 //Gdx.app.log("Command",token+" consume "+item+" on target "+targetToken);
                 return valid;
         }

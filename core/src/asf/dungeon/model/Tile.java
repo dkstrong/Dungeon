@@ -13,10 +13,16 @@ public class Tile {
         private int movementCost;
         private boolean blockMovement;
         private boolean blockVision;
+        private boolean pit;
         private boolean door;
         private Symbol doorSymbol;
         private boolean doorForcedOpen;
 
+        private Tile(boolean pit) {
+                this.pit = pit;
+                blockMovement = this.pit;
+                blockVision = false;
+        }
         private Tile(boolean blockMovement, boolean blockVision) {
                 this.blockMovement = blockMovement;
                 this.blockVision = blockVision;
@@ -29,7 +35,6 @@ public class Tile {
                 this.doorSymbol = doorSymbol;
         }
 
-
         public boolean isBlockMovement() {
                 return blockMovement;
         }
@@ -38,17 +43,21 @@ public class Tile {
                 return blockVision;
         }
 
-        public boolean isWall() { return !isDoor()  && blockMovement; }
+        public boolean isWall() { return !pit && !door && blockMovement && blockVision; }
 
-        public boolean isFloor() { return !isDoor() && !blockMovement && !blockVision; }
+        public boolean isFloor() { return !pit && !door && !blockMovement && !blockVision; }
+
+        public boolean isPit(){return pit; }
+
+        public boolean isPitFilled(){ return !blockMovement; }
+
+        public void setPitFilled(boolean filled){ this.blockMovement = !filled; }
 
         public boolean isDoor() {
                 return door;
         }
 
-        public boolean isDoorOpened() {
-                return !blockVision;
-        }
+        public boolean isDoorOpened() { return !blockVision; }
 
         public boolean isDoorLocked() {
                 return blockMovement;
@@ -88,6 +97,10 @@ public class Tile {
                 return wallTile;
         }
 
+        public static Tile makePit() {
+                return new Tile(true);
+        }
+
         public static Tile makeDoor() { return new Tile(false, null); }
 
         public static Tile makeDoor(Symbol keyType) { return new Tile(true, keyType); }
@@ -103,6 +116,9 @@ public class Tile {
 
                 if (isWall())
                         return '|';
+
+                if (isPit())
+                        return ':';
 
                 if (isDoor())
                         if(isDoorLocked())

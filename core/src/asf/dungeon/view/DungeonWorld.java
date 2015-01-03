@@ -213,15 +213,13 @@ public class DungeonWorld implements Disposable {
                                 }
 
                                 Damage damage = tokenSpatial.getToken().getDamage();
-                                if (damage != null) {
-                                        if (damage.isDead())
-                                                continue;
+                                if(damage != null && damage.isDead())
+                                        continue;
 
-                                        final float dist2 = tokenSpatial.intersects(ray);
-                                        if (dist2 >= 0f && dist2 < closestDist2) {
-                                                result = tokenSpatial.getToken();
-                                                closestDist2 = dist2;
-                                        }
+                                final float dist2 = tokenSpatial.intersects(ray);
+                                if (dist2 >= 0f && dist2 < closestDist2) {
+                                        result = tokenSpatial.getToken();
+                                        closestDist2 = dist2;
                                 }
 
                         }

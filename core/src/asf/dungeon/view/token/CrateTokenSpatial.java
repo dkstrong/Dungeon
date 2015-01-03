@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.collision.Ray;
 /**
  * Created by Daniel Strong on 12/20/2014.
  */
-public class CrateTokenSpatial extends AbstractTokenSpatial{
+public class CrateTokenSpatial extends AbstractTokenSpatial {
         private boolean initialized = false;
         private BetterModelInstance modelInstance;
 
@@ -25,7 +25,6 @@ public class CrateTokenSpatial extends AbstractTokenSpatial{
         public void preload(DungeonWorld world) {
 
                 world.assetManager.load(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
-
 
 
         }
@@ -39,12 +38,12 @@ public class CrateTokenSpatial extends AbstractTokenSpatial{
 
         public void update(final float delta) {
 
-                FogState fogState = world.floorSpatial.fogMap==null ? FogState.Visible : world.floorSpatial.fogMap.getFogState(token.location.x, token.location.y);
-                float minVisU =0;
+                FogState fogState = world.floorSpatial.fogMap == null ? FogState.Visible : world.floorSpatial.fogMap.getFogState(token.location.x, token.location.y);
+                float minVisU = 0;
                 float maxVisU = 1;
-                if(fogState == FogState.Visible){
+                if (fogState == FogState.Visible) {
                         visU += delta * .65f;
-                }else{
+                } else {
                         visU -= delta * .75f;
                         // torch can be seen in the fog of war and in magic mapping
                         if (fogState == FogState.Visited || fogState == FogState.MagicMapped) {
@@ -57,17 +56,17 @@ public class CrateTokenSpatial extends AbstractTokenSpatial{
                 for (Material material : modelInstance.materials) {
                         ColorAttribute colorAttribute = (ColorAttribute) material.get(ColorAttribute.Diffuse);
                         //colorAttribute.color.a = visU;
-                        if(fogState == FogState.MagicMapped){
-                                colorAttribute.color.set(visU*0.7f,visU*.8f,visU,1);
-                        }else{
-                                colorAttribute.color.set(visU,visU,visU,1);
+                        if (fogState == FogState.MagicMapped) {
+                                colorAttribute.color.set(visU * 0.7f, visU * .8f, visU, 1);
+                        } else {
+                                colorAttribute.color.set(visU, visU, visU, 1);
                         }
                 }
 
                 world.getWorldCoords(token.getLocation(), translation);
                 rotation.set(world.assetMappings.getRotation(token.getDirection()));
 
-                if (minVisU == 0 || visU != minVisU){
+                if (minVisU == 0 || visU != minVisU) {
                         // if not fog blocked
                 }
 
@@ -75,12 +74,13 @@ public class CrateTokenSpatial extends AbstractTokenSpatial{
 
         @Override
         public void render(float delta) {
-                if(visU <=0)return;
-                if(world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
-                if(world.hudSpatial.isMapViewMode() && !world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+                if (visU <= 0) return;
+                if (world.hudSpatial.isMapViewMode()){
+                        if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
 
                 modelInstance.transform.set(
-                        translation.x , translation.y , translation.z ,
+                        translation.x, translation.y, translation.z,
                         rotation.x, rotation.y, rotation.z, rotation.w,
                         1, 1, 1
                 );

@@ -1,7 +1,5 @@
 package asf.dungeon.model.token;
 
-import asf.dungeon.model.Direction;
-import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.item.Item;
 
 /**
@@ -52,11 +50,6 @@ public class CrateInventory implements Inventory {
                 if (token.listener != null)
                         token.listener.onInventoryChanged();
                 return true;
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
-
         }
 
         @Override

@@ -200,6 +200,25 @@ public class Pathfinder {
                 return tile != null && !tile.isBlockMovement();
         }
 
+        private boolean isCuttableCorner(int x, int y){
+                if (x == end.x && y == end.y)
+                        return true;
+                if (x < 0 || x >= map.length || y < 0 || y >= map[0].length) {
+                        return false;
+                }
+
+                if(floorMap != null){
+                        for (Token token : floorMap.tokens) {
+                                if(!token.isBlocksPathing() || !token.isLocatedAt(x,y) || token.getCrateInventory() == null)
+                                        continue;
+                                return false;
+                        }
+                }
+
+                Tile tile = map[x][y];
+                return tile != null && (!tile.isBlockMovement() || tile.isPit());
+        }
+
         private Array<Pair> getNeighborNodes(Pair n) {
                 found.clear();
                 if (isWalkable(n.x + 1, n.y)) found.add(toPair(n.x + 1, n.y));
@@ -207,15 +226,15 @@ public class Pathfinder {
                 if (isWalkable(n.x, n.y + 1)) found.add(toPair(n.x, n.y + 1));
                 if (isWalkable(n.x, n.y - 1)) found.add(toPair(n.x, n.y - 1));
                 if (pathingPolicy == PathingPolicy.CanCutCorners) {
-                        if (isWalkable(n.x + 1, n.y + 1) && (isWalkable(n.x + 1, n.y) || isWalkable(n.x, n.y + 1))) found.add(toPair(n.x + 1, n.y + 1));
-                        if (isWalkable(n.x - 1, n.y + 1) && (isWalkable(n.x - 1, n.y) || isWalkable(n.x, n.y + 1))) found.add(toPair(n.x - 1, n.y + 1));
-                        if (isWalkable(n.x - 1, n.y - 1) && (isWalkable(n.x - 1, n.y) || isWalkable(n.x, n.y - 1))) found.add(toPair(n.x - 1, n.y - 1));
-                        if (isWalkable(n.x + 1, n.y - 1) && (isWalkable(n.x + 1, n.y) || isWalkable(n.x, n.y - 1))) found.add(toPair(n.x + 1, n.y - 1));
+                        if (isWalkable(n.x + 1, n.y + 1) && (isCuttableCorner(n.x + 1, n.y) || isCuttableCorner(n.x, n.y + 1))) found.add(toPair(n.x + 1, n.y + 1));
+                        if (isWalkable(n.x - 1, n.y + 1) && (isCuttableCorner(n.x - 1, n.y) || isCuttableCorner(n.x, n.y + 1))) found.add(toPair(n.x - 1, n.y + 1));
+                        if (isWalkable(n.x - 1, n.y - 1) && (isCuttableCorner(n.x - 1, n.y) || isCuttableCorner(n.x, n.y - 1))) found.add(toPair(n.x - 1, n.y - 1));
+                        if (isWalkable(n.x + 1, n.y - 1) && (isCuttableCorner(n.x + 1, n.y) || isCuttableCorner(n.x, n.y - 1))) found.add(toPair(n.x + 1, n.y - 1));
                 } else if (pathingPolicy == PathingPolicy.CanDiagonalIfNotCuttingCorner) {
-                        if (isWalkable(n.x + 1, n.y + 1) && (isWalkable(n.x + 1, n.y) && isWalkable(n.x, n.y + 1))) found.add(toPair(n.x + 1, n.y + 1));
-                        if (isWalkable(n.x - 1, n.y + 1) && (isWalkable(n.x - 1, n.y) && isWalkable(n.x, n.y + 1))) found.add(toPair(n.x - 1, n.y + 1));
-                        if (isWalkable(n.x - 1, n.y - 1) && (isWalkable(n.x - 1, n.y) && isWalkable(n.x, n.y - 1))) found.add(toPair(n.x - 1, n.y - 1));
-                        if (isWalkable(n.x + 1, n.y - 1) && (isWalkable(n.x + 1, n.y) && isWalkable(n.x, n.y - 1))) found.add(toPair(n.x + 1, n.y - 1));
+                        if (isWalkable(n.x + 1, n.y + 1) && (isCuttableCorner(n.x + 1, n.y) && isCuttableCorner(n.x, n.y + 1))) found.add(toPair(n.x + 1, n.y + 1));
+                        if (isWalkable(n.x - 1, n.y + 1) && (isCuttableCorner(n.x - 1, n.y) && isCuttableCorner(n.x, n.y + 1))) found.add(toPair(n.x - 1, n.y + 1));
+                        if (isWalkable(n.x - 1, n.y - 1) && (isCuttableCorner(n.x - 1, n.y) && isCuttableCorner(n.x, n.y - 1))) found.add(toPair(n.x - 1, n.y - 1));
+                        if (isWalkable(n.x + 1, n.y - 1) && (isCuttableCorner(n.x + 1, n.y) && isCuttableCorner(n.x, n.y - 1))) found.add(toPair(n.x + 1, n.y - 1));
                 }
                 return found;
         }
@@ -246,16 +265,18 @@ public class Pathfinder {
 
                         // if the node is the goal node, dont add extra movement code because its the goal
 
-                        Array<Token> tokensAt = floorMap.getTokensAt(n1);
-                        for (Token t : tokensAt) {
-                                if (!t.isBlocksPathing())
+                        for (Token t : floorMap.tokens) {
+                                if(!t.isLocatedAt(n1))
+                                        continue;
+
+                                if (t.getStairs() != null)
+                                        movementCost += 25;
+
+                                if(!t.isBlocksPathing())
                                         continue;
 
                                 if (mover.getInteractor() != null && t.get(Boulder.class) != null)
                                         continue; // player token doesnt try to walk around boulders
-
-                                if (t.getStairs() != null)
-                                        movementCost += 25;
 
                                 if (t.getLogic() != null && t.getLogic().getTeam() == mover.getLogic().getTeam()) {
                                         // walk around tokens on the same team

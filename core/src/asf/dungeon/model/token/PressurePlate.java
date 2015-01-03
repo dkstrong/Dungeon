@@ -1,7 +1,5 @@
 package asf.dungeon.model.token;
 
-import asf.dungeon.model.Direction;
-import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.token.puzzle.Puzzle;
 import asf.dungeon.model.token.puzzle.PuzzlePiece;
 
@@ -17,10 +15,6 @@ public class PressurePlate implements TokenComponent, PuzzlePiece {
                 this.token = token;
                 this.puzzle = puzzle;
                 token.setBlocksPathing(false);
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
         }
 
         @Override
@@ -52,6 +46,7 @@ public class PressurePlate implements TokenComponent, PuzzlePiece {
         public Puzzle getPuzzle() {
                 return puzzle;
         }
+
 
 
 }

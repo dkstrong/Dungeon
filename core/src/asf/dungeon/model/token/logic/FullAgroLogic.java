@@ -1,8 +1,6 @@
 package asf.dungeon.model.token.logic;
 
 
-import asf.dungeon.model.Direction;
-import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
 
@@ -30,10 +28,6 @@ public class FullAgroLogic implements Logic {
                 return team;
         }
 
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
-
-        }
 
         @Override
         public boolean update(float delta) {

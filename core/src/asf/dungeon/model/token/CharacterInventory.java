@@ -1,7 +1,5 @@
 package asf.dungeon.model.token;
 
-import asf.dungeon.model.Direction;
-import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.ArmorItem;
@@ -427,11 +425,6 @@ public class CharacterInventory implements Inventory {
 
         }
 
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
-
-        }
-
         private static final transient UseItemOutcome out = new UseItemOutcome();
 
         @Override
@@ -443,12 +436,12 @@ public class CharacterInventory implements Inventory {
                         boolean hasConsumed = false;
                         out.damage = 0;
                         if (consumableItem instanceof ConsumableItem.TargetsTokens) {
-                                if (token.getCommand().getTargetToken() != null) {
+                                if (token.getCommand().targetItemToken != null) {
                                         ConsumableItem.TargetsTokens citt = (ConsumableItem.TargetsTokens) consumableItem;
-                                        if (citt.canConsume(token, token.getCommand().getTargetToken())) {
-                                                out.targetToken = token.getCommand().getTargetToken();
+                                        if (citt.canConsume(token, token.getCommand().targetItemToken)) {
+                                                out.targetToken = token.getCommand().targetItemToken;
                                                 out.targetItem = null;
-                                                citt.consume(token, token.getCommand().getTargetToken(), out);
+                                                citt.consume(token, token.getCommand().targetItemToken, out);
                                                 hasConsumed = true;
                                         }
                                 }
@@ -493,6 +486,8 @@ public class CharacterInventory implements Inventory {
                         }
 
                         token.getCommand().consumeItem = null;
+                        token.getCommand().targetItemToken = null;
+                        token.getCommand().targetItem = null;
                 }
 
 

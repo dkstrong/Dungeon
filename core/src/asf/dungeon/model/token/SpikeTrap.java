@@ -1,7 +1,5 @@
 package asf.dungeon.model.token;
 
-import asf.dungeon.model.Direction;
-import asf.dungeon.model.FloorMap;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -15,11 +13,6 @@ public class SpikeTrap implements TokenComponent{
         public SpikeTrap(Token token) {
                 this.token = token;
                 token.setBlocksPathing(false);
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
-
         }
 
         @Override

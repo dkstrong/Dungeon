@@ -3,6 +3,7 @@ package asf.dungeon.model.token;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
+import asf.dungeon.model.Pathfinder;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.item.KeyItem;
@@ -13,7 +14,7 @@ import com.badlogic.gdx.utils.Array;
 /**
  * Created by Danny on 11/11/2014.
  */
-public class Move implements TokenComponent {
+public class Move implements TokenComponent , Teleportable{
         private final Token token;
         private float moveSpeed = 1.5f; // how fast the character moves between tiles, generally a value between 1 and 10, could be higher i suppose.
         private float moveSpeedDiagonal = 1.06066017177f;
@@ -33,12 +34,16 @@ public class Move implements TokenComponent {
         }
 
         @Override
+        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction) {
+                return true;
+        }
+
+        @Override
         public void teleport(FloorMap fm, int x, int y, Direction direction) {
                 moveU = 1;
                 path.clear();
                 pathedTarget.set(x, y);
                 floatLocation.set(x, y);
-
         }
 
         @Override
@@ -192,7 +197,8 @@ public class Move implements TokenComponent {
                         return;
                 }
 
-                boolean foundPath = token.floorMap.pathfinder.generate(token, new Pair(token.location), new Pair(targetLocation), path);
+                boolean foundPath = token.floorMap.pathfinder.generate(token, new Pair(token.location), new Pair(targetLocation), path,
+                        Pathfinder.PathingPolicy.CanDiagonalIfNotCuttingCorner, false, token.getInteractor() == null ? Integer.MAX_VALUE : 25);
                 if (!foundPath) {
                         //Gdx.app.error("Token", "No path found");
                         path.clear();

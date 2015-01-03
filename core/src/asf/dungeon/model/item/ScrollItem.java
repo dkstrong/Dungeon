@@ -106,10 +106,6 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                         out.targetToken = targetToken;
                         out.didSomething = true;
                 }else if(type == Type.Teleportation){
-                        // TODO: because loot can not be targeted, i cant teleport it. I need to modify
-                        // how canConsume and how selecting tokens works in HudSpatial so loot
-                        // can be teleported
-
                         // teleport target token to random location
                         // TODO: this code allows for teleporting into a locked room
                         // i need to make it so either it wont go into a locked room, or
@@ -117,17 +113,23 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
 
                         // TODO: when teleporting Crates, Keys, and NPCs i might want to have additional logic
                         // here to make this stuff teleport to a desired (reachable) area.
-                        int x,y;
+                        int tries=0, x,y;
                         Dungeon dungeon = token.dungeon;
                         FloorMap floorMap = token.getFloorMap();
-                        do{
+                        while(tries < 10){
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                        }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
-
-                        targetToken.teleport(floorMap, x, y, token.getDirection());
-                        out.targetToken = targetToken;
-                        out.didSomething = true;
+                                if(token.canTeleport(floorMap,x,y, token.getDirection())){
+                                        targetToken.teleport(floorMap, x, y, token.getDirection());
+                                        out.targetToken = targetToken;
+                                        out.didSomething = true;
+                                        break;
+                                }
+                                if(++tries >= 10){
+                                        out.targetToken = targetToken;
+                                       out.didSomething = false;
+                                }
+                        }
                 }else if(type == Type.Confusion){
                         // causes target to become confused, may attack other monsters
                         targetToken.getStatusEffects().add(StatusEffect.Confused, 20);
@@ -192,6 +194,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                                         if(!fogMap.isVisible(targetToken.getLocation().x, targetToken.getLocation().y))
                                                 return false;
                                 }
+                                // TODO: need to calculate the would be teleport location here, so token.canTeleport can be called
                                 return true;
                         default:
                                 throw new AssertionError(type);

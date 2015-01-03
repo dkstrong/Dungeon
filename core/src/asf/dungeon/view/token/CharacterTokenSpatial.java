@@ -10,7 +10,6 @@ import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.BetterAnimationController;
 import asf.dungeon.utility.BetterModelInstance;
-import asf.dungeon.utility.GdxInfo;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.DungeonWorld;
 import asf.dungeon.view.Spatial;
@@ -121,9 +120,11 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         Model weaponOffhandModel = world.assetManager.get("Models/Loot/Sword/shield_01.g3db", Model.class);
                         offhandModelInstance = new BetterModelInstance(weaponOffhandModel);
                         offhandAttachmentNode = modelInstance.getNode("palm_l", true, true);
+                }else{
+                        offhandModelInstance = null;
+                        offhandAttachmentNode = null;
                 }
 
-                // GdxInfo.model(modelInstance.model);
                 return true;
         }
 
@@ -209,7 +210,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 shadowDecal.rotateX(-90);
                 shadowDecal.setColor(1, 1, 1, 0.5f);
 
-                GdxInfo.model(modelInstance.model);
+                //GdxInfo.model(modelInstance.model);
 
 
         }
@@ -324,8 +325,9 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
         public void render(float delta) {
                 if (visU <= 0) return;
-                if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
-                if (world.hudSpatial.isMapViewMode() && !world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+                if (world.hudSpatial.isMapViewMode()){
+                        if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
+                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
 
 
                 modelInstance.transform.set(

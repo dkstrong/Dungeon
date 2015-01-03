@@ -186,11 +186,13 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                                 if (charAt == '-' || charAt == '|') { // Wall
                                         tiles[x][y] = Tile.makeWall();
+                                } else if(charAt == ':'){ // Pit
+                                        tiles[x][y] = Tile.makePit();
                                 } else if(charAt == '+'){ // Door
                                         tiles[x][y] = Tile.makeDoor();
                                 } else if(charAt == '/'){ // Locked Door
                                         tiles[x][y] = Tile.makeDoor(new KeyItem(KeyItem.Type.Silver));
-                                }  else{ // Floor
+                                }  else if(charAt != ' '){ // Floor
                                         tiles[x][y] = Tile.makeFloor();
                                 }
                         }
@@ -217,6 +219,10 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                         Token spikeTrap = new Token(dungeon, "Spike Trap", ModelId.SpikeTrap);
                                         spikeTrap.add(new SpikeTrap(spikeTrap));
                                         dungeon.newToken(spikeTrap, floorMap, x, y);
+                                } else if(charAt == 'b') { // Boulder
+                                        Token boulderToken = new Token(dungeon, "Boulder", ModelId.Boulder);
+                                        boulderToken.add(new Boulder(boulderToken));
+                                        dungeon.newToken(boulderToken, floorMap, x, y);
                                 } else if(charAt == 't') { // Traveler
                                         Token traveler = new Token(dungeon, "Traveler", ModelId.Priest);
                                         dungeon.newQuestCharacterToken(traveler, new FsmLogic(2, null, QuestNPC.PauseThenMove), new PotionQuest(), floorMap, x, y);
