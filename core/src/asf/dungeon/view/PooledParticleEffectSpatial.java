@@ -8,6 +8,7 @@ import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Shape;
 import asf.dungeon.view.shape.Sphere;
 import asf.dungeon.view.token.AbstractTokenSpatial;
+import asf.dungeon.view.token.CharacterTokenSpatial;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter;
@@ -32,7 +33,6 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
         private int mode;
         protected AbstractTokenSpatial tokenSpatial;
         private final Matrix4 transformMatrix = new Matrix4();
-        private final Vector3 translationBase = new Vector3();
         private final Vector3 translation = new Vector3();
         private final Quaternion rotation = new Quaternion();
         private float visU;
@@ -40,6 +40,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
         protected float duration = 0;
 
         private Token attackerToken;
+        private CharacterTokenSpatial attackerTokenSpatial;
         private final Pair destLoc = new Pair();
         private final Vector3 worldMoveDir = new Vector3(), worldStartLoc = new Vector3(), worldDestLoc = new Vector3();
 
@@ -96,8 +97,11 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                 setEffect();
                 this.mode = 3;
                 this.attackerToken = attacker;
+                attackerTokenSpatial = (CharacterTokenSpatial)world.getTokenSpatial(attackerToken);
                 this.destLoc.set(destLoc);
-                world.getWorldCoords(attacker.getMove().getFloatLocation(), worldStartLoc);
+                attackerTokenSpatial.getWeaponAttachmentTranslation(worldStartLoc);
+                if(worldStartLoc.y == 0)
+                        worldStartLoc.y = 4;
                 if (target == null) {
                         tokenSpatial = null;
                         world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
@@ -105,10 +109,9 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                         tokenSpatial = world.getTokenSpatial(target);
                         if (target.getMove() == null) world.getWorldCoords(target.getLocation().x, target.getLocation().y, worldDestLoc);
                         else world.getWorldCoords(target.getMove().getFloatLocation(), worldDestLoc);
-
                 }
-                worldMoveDir.set(worldDestLoc).sub(worldStartLoc);
-                UtMath.normalize(worldMoveDir);
+                worldDestLoc.y = worldStartLoc.y;
+                worldMoveDir.set(worldDestLoc).sub(worldStartLoc).nor();
 
                 transformMatrix.idt();
                 //Quaternion q = new Quaternion().setFromCross(Vector3.Z, worldMoveDir);
@@ -228,7 +231,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                 // TODO: can visU value be applied to particle effects?
 
                 transformMatrix.set(
-                        translation.x + translationBase.x, translation.y + translationBase.y, translation.z + translationBase.z,
+                        translation.x , translation.y , translation.z ,
                         rotation.x, rotation.y, rotation.z, rotation.w,
                         1, 1, 1
                 );

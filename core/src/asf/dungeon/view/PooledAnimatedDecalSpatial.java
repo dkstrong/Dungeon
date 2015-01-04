@@ -7,7 +7,6 @@ import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Sphere;
 import asf.dungeon.view.token.AbstractTokenSpatial;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -117,8 +116,7 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                         else world.getWorldCoords(target.getMove().getFloatLocation(), worldDestLoc);
 
                 }
-                worldMoveDir.set(worldDestLoc).sub(worldStartLoc);
-                UtMath.normalize(worldMoveDir);
+                worldMoveDir.set(worldDestLoc).sub(worldStartLoc).nor();
                 //rotation.setFromCross(Vector3.Z, worldMoveDir); // TODO: decals dont really use rotation
                 decal.setPosition(worldStartLoc);
 

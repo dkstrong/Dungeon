@@ -6,6 +6,7 @@ import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.token.AbstractTokenSpatial;
+import asf.dungeon.view.token.CharacterTokenSpatial;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -25,7 +26,6 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
 
         public ModelInstance modelInstance;
         public AnimationController animController;
-        public final Vector3 translationBase = new Vector3();
         public final Vector3 translation = new Vector3();
         public final Quaternion rotation = new Quaternion();
         public final Vector3 scale = new Vector3(1, 1, 1);
@@ -39,6 +39,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
         private float duration;
 
         private Token attackerToken;
+        private CharacterTokenSpatial attackerTokenSpatial;
         private AbstractTokenSpatial targetTokenSpatial;
         private final Pair destLoc = new Pair();
         private final Vector3 worldMoveDir = new Vector3(), worldStartLoc = new Vector3(), worldDestLoc = new Vector3();
@@ -67,8 +68,6 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                 //for (Material material : modelInstance.materials) {
                 //        material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
                 //}
-
-                translationBase.set(0, 4, 0);
         }
 
         @Override
@@ -100,8 +99,12 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                 setModel();
                 this.mode = 3;
                 this.attackerToken = attacker;
+                attackerTokenSpatial = (CharacterTokenSpatial)world.getTokenSpatial(attackerToken);
                 this.destLoc.set(destLoc);
-                world.getWorldCoords(attacker.getMove().getFloatLocation(), worldStartLoc);
+                attackerTokenSpatial.getWeaponAttachmentTranslation(worldStartLoc);
+                if(worldStartLoc.y == 0)
+                        worldStartLoc.y = 4;
+                // world.getWorldCoords(attacker.getMove().getFloatLocation(), worldStartLoc);
                 if (target == null) {
                         targetTokenSpatial = null;
                         world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
@@ -111,8 +114,8 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                         else world.getWorldCoords(target.getMove().getFloatLocation(), worldDestLoc);
 
                 }
-                worldMoveDir.set(worldDestLoc).sub(worldStartLoc);
-                UtMath.normalize(worldMoveDir);
+                worldDestLoc.y = worldStartLoc.y;
+                worldMoveDir.set(worldDestLoc).sub(worldStartLoc).nor();
                 rotation.setFromCross(Vector3.Z, worldMoveDir);
                 translation.set(worldStartLoc);
 
@@ -136,7 +139,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                                         duration = 0;
                                 }
                         }
-
+                        translation.y = 4; // hover it off the ground some
                 }else if(mode == 3){
                         if (attackerToken == null || !attackerToken.getAttack().hasProjectile() || attackerToken.getDamage().isDead()) {
                                 deactivate();
@@ -223,7 +226,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                 }
 
                 modelInstance.transform.set(
-                        translation.x + translationBase.x, translation.y + translationBase.y, translation.z + translationBase.z,
+                        translation.x , translation.y , translation.z ,
                         rotation.x, rotation.y, rotation.z, rotation.w,
                         scale.x, scale.y, scale.z
                 );

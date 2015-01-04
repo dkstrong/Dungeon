@@ -47,6 +47,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         private Node offhandAttachmentNode;
 
 
+
         public CharacterTokenSpatial(DungeonWorld world, Token token) {
                 super(world, token);
         }
@@ -376,6 +377,24 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 world.decalBatch.add(shadowDecal);
 
 
+        }
+
+        /**
+         * the current world translation of the weapon attachment bone
+         * if this model does not have a weapon bone bone then it will return the
+         * models translation.
+         *
+         * this is primarily used for spawning Fx
+         * @param store
+         */
+        public void getWeaponAttachmentTranslation(Vector3 store){
+                if(weaponModelInstance == null ){
+                        store.set(translation);
+                }else{
+                        //Matrix4 boneTransform = modelInstance.transform.cpy().mul(weaponAttachmentNode.globalTransform);
+                        //boneTransform.getTranslation(store);
+                        weaponModelInstance.transform.getTranslation(store);
+                }
         }
 
         public Token getToken() {

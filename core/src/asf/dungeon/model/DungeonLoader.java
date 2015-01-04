@@ -9,7 +9,6 @@ import asf.dungeon.model.floorgen.cave.RandomWalkGen;
 import asf.dungeon.model.floorgen.prebuilt.BalanceTestFloorGen;
 import asf.dungeon.model.floorgen.prebuilt.PreBuiltFloorGen;
 import asf.dungeon.model.floorgen.prebuilt.TestAssetsFloorGen;
-import asf.dungeon.model.floorgen.prebuilt.TutorialFloorGen;
 import asf.dungeon.model.floorgen.room.BinarySpaceGen;
 import asf.dungeon.model.floorgen.room.ConnectedRoomsGen;
 import asf.dungeon.model.floorgen.room.Room;
@@ -96,7 +95,7 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new TutorialFloorGen(),new TestAssetsFloorGen(),new MazeGen(15, 19),
+                                new TestAssetsFloorGen(),new TestAssetsFloorGen(),new MazeGen(15, 19),
                                 new ConnectedRoomsGen(), new CellularAutomataGen(),  new DirectionalCaveHallGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
