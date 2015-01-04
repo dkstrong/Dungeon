@@ -3,6 +3,7 @@ These are the references for all art assets.
 ===Characters And Monsters===
 Animated Heroes (Knight, Archer, Mage, ...)
 Clement Wu, Nikolaus, Botanic
+Edited by Kevin Boyette
 URL: http://opengameart.org/users/botanic
 
 Skeleton
@@ -44,6 +45,9 @@ Clint Bellanger
 URL: http://opengameart.org/content/low-poly-stairs
 
 ===Loot===
+Bow_01
+Kevin Boyette
+
 Sword, Bow, Staff
 PantherOne
 URL: http://opengameart.org/users/pantherone

@@ -961,6 +961,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 // immediatly bring up the inventory window so the user can see the result of using the book on this item
                                 this.setInventoryWindowVisible(true);
                         }
+                } else if (item instanceof KeyItem){
+                        KeyItem key = (KeyItem) item;
+                        appendToGameLog("You unlocked the door with a "+key.getType()+" Key.");
                 }
 
         }

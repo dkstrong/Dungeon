@@ -254,7 +254,43 @@ public class Move implements TokenComponent , Teleportable{
                 return false;
         }
 
+        private static final boolean doubleTapToOpenDoor = false;
+        private Tile lastTriedTile = null;
+
         private boolean useKey(Pair nextLocation) {
+                if(doubleTapToOpenDoor){
+                        return useKeyDoubleTap(nextLocation);
+                }
+
+                Tile nextTile = token.floorMap.getTile(nextLocation);
+                if(nextTile.isDoor() && nextTile.isDoorLocked()){
+                        if(nextTile.getDoorSymbol() instanceof KeyItem){
+                                boolean hasKey = token.inventory.hasKey((KeyItem)nextTile.getDoorSymbol());
+                                if(hasKey){
+                                        lastTriedTile = null;
+                                        nextTile.setDoorLocked(false);
+                                        token.getInventory().useKey((KeyItem) nextTile.getDoorSymbol());
+                                }else{
+                                        // cant open door, player does not have key for door
+                                        if(nextTile != lastTriedTile){ // if statement prevents spamming onPathBlocked
+                                                lastTriedTile = nextTile;
+                                                if (token.listener != null)
+                                                        token.listener.onPathBlocked(nextLocation, nextTile);
+                                        }
+
+                                }
+                        }else{
+                                // cant interact with non key locked door, player needs to solve puzzle and door will become unlocked
+                                if (token.listener != null)
+                                        token.listener.onPathBlocked(nextLocation, nextTile);
+                        }
+                        return true;
+                }
+                lastTriedTile = null;
+                return false;
+        }
+
+        private boolean useKeyDoubleTap(Pair nextLocation) {
                 Tile nextTile = token.floorMap.getTile(nextLocation);
                 if (nextTile.isDoor() && nextTile.isDoorLocked()) {
                         boolean key = false;
@@ -279,7 +315,6 @@ public class Move implements TokenComponent , Teleportable{
 
                                 }
                         } else {
-
                                 //token.getCommand().setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
                                 if (token.getCommand().canUseKeyOnTile == null) {
                                         //Gdx.app.log("Move","Ran in to locked door, but does not have open command, tile: "+token.getCommand().canUseKeyOnTile);
@@ -295,6 +330,7 @@ public class Move implements TokenComponent , Teleportable{
                 }
                 return false;
         }
+
 
         private void pickUpLoot() {
                 if (!picksUpItems)

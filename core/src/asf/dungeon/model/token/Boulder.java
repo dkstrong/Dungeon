@@ -79,7 +79,7 @@ public class Boulder implements TokenComponent , Teleportable{
                 Direction pushDir = pushedBy.location.direction(token.location);
                 Pair newLoc = new Pair();
                 // Attempt to push the boulder forward, then left, then right, if none of these directions work then it is stuck
-                setMoveSpeed(pushedBy.getMove().getMoveSpeed());
+                setMoveSpeed(pushedBy.getMove().getMoveSpeed()*1.1f);
 
                 if(!isLocationBlocked(newLoc.set(token.location).addFree(pushDir))){
                         moveU = 0;

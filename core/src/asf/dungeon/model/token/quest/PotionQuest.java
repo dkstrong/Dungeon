@@ -40,7 +40,7 @@ public class PotionQuest extends Quest {
                                         c0.setCommand(new Command() {
                                                 @Override
                                                 public void exec(Interactor interactor) {
-                                                        WeaponItem weapon = new WeaponItem(ModelId.Sword, "Traveler's Sword", 3);
+                                                        WeaponItem weapon = new WeaponItem(ModelId.SwordLarge, "Traveler's Sword", 3);
                                                         interactor.token.getInventory().add(weapon);
                                                         interactor.setChatProgress(interactor.chattingWith, 3);
                                                 }
@@ -142,7 +142,7 @@ public class PotionQuest extends Quest {
                                                         interactor.chattingWith.getInventory().add(givePotion);
 
                                                         boolean chanceCursed = interactor.token.dungeon.rand.bool(.75f - (interactor.token.getExperience().getLuck()/100f));
-                                                        WeaponItem weapon = new WeaponItem(ModelId.Sword, "Traveler's Sword", chanceCursed ? 1 : 3);
+                                                        WeaponItem weapon = new WeaponItem(ModelId.SwordLarge, "Traveler's Sword", chanceCursed ? 1 : 3);
                                                         weapon.setCursed(chanceCursed);
                                                         interactor.chattingWith.getInventory().add(weapon);
                                                         interactor.chattingWith.getInventory().setItemToDrop(weapon);

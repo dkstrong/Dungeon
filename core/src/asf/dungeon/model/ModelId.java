@@ -25,8 +25,9 @@ public enum ModelId {
         Key,
         Key2,
         Key3,
-        Sword,
+        SwordLarge,
         Sword_01,
+        BowLarge,
         Bow_01;
 
 }

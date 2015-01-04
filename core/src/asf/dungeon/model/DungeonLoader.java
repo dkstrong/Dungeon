@@ -138,21 +138,23 @@ public class DungeonLoader {
                         health.identifyItem(token);
                         token.getInventory().add(health);
 
-                        ArmorItem armor = new ArmorItem(ModelId.Sword, "Simple Armor", 1);
+                        ArmorItem armor = new ArmorItem(ModelId.SwordLarge, "Simple Armor", 1);
                         armor.identifyItem(token);
                         token.getInventory().add(armor);
                         token.getInventory().equip(armor);
 
                         if (settings.playerModel == ModelId.Knight) {
-                                WeaponItem sword = new WeaponItem(ModelId.Sword, "Sword", 3);
+                                WeaponItem sword = new WeaponItem(ModelId.SwordLarge, "Sword", 3);
+                                sword.setAttackDuration(1);
                                 token.getInventory().add(sword);
-                                token.getInventory().equip(sword);
+                                //token.getInventory().equip(sword);
                                 token.get(Journal.class).learn(sword);
 
-                                WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, FxId.Arrow);
+                                WeaponItem bow = new WeaponItem(ModelId.BowLarge, "Bow", 2, FxId.Arrow);
                                 bow.setRangedStats(3, 1);
                                 token.getInventory().add(bow);
                                 token.get(Journal.class).learn(bow);
+                                token.getInventory().equip(bow);
                         } else if (settings.playerModel == ModelId.Archer) {
                                 WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, FxId.Arrow);
                                 bow.setCursed(true);

@@ -22,6 +22,7 @@ public class Tile {
                 this.pit = pit;
                 blockMovement = this.pit;
                 blockVision = false;
+                movementCost = 20;
         }
         private Tile(boolean blockMovement, boolean blockVision) {
                 this.blockMovement = blockMovement;

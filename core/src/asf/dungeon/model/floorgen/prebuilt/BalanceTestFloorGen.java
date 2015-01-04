@@ -68,7 +68,7 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
                         //token.getInventory().equip(sword);
 
                         if(modelId == ModelId.Archer){
-                                WeaponItem weapon = new WeaponItem(ModelId.Sword,"Bow", 1, FxId.Arrow);
+                                WeaponItem weapon = new WeaponItem(ModelId.SwordLarge,"Bow", 1, FxId.Arrow);
                                 weapon.setRangedStats(3, 1);
                                 token.getInventory().add(weapon);
                                 token.getInventory().equip(weapon);
