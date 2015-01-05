@@ -84,6 +84,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private Label avatarLabel;
         private HorizontalGroup avatarStatusEffectsGroup;
         private Image[] statusEffectImage;
+        private HorizontalGroup keyIconsGroup;
+        private Image[] keyIconImage;
         private Label renderingStats;
         private final Array<DamageLabel> damageInfoLabels = new Array<DamageLabel>(false, 8, DamageLabel.class);
         private final Decal moveCommandDecal = new Decal();
@@ -168,8 +170,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 avatarStatusEffectsGroup.align(Align.bottomLeft);
 
 
-                StatusEffect[] values = StatusEffect.values();
-
+                StatusEffect[] values = StatusEffects.effectValues;
                 statusEffectImage = new Image[values.length];
                 // TODO: need to use texture regions here
                 for (StatusEffect value : values) {
@@ -181,11 +182,22 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         //avatarStatusEffectsGroup.addActor(statusEffectImage[i]);
                 }
 
+                keyIconsGroup = new HorizontalGroup();
+                world.stage.addActor(keyIconsGroup);
+                keyIconsGroup.align(Align.topRight);
+
+                KeyItem.Type[] keyTypes = KeyItem.typeValues;
+                keyIconImage = new Image[keyTypes.length];
+                for (KeyItem.Type keyType : keyTypes) {
+                        int i = keyType.ordinal();
+                        keyIconImage[i] = new Image(world.pack.findRegion(world.assetMappings.getKeyIcon(keyType)));
+                }
+
 
                 if (showRenderingStasLabel) {
                         renderingStats = new Label("", skin);
                         world.stage.addActor(renderingStats);
-                        renderingStats.setAlignment(Align.topRight);
+                        renderingStats.setAlignment(Align.topLeft);
                 }
 
                 gameLogLabel = new Label(null, skin);
@@ -346,7 +358,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         }
 
-        protected void resize(int width, int height) {
+        protected void resize(int graphicsWidth, int graphicsHeight) {
                 if (avatarButton == null)
                         return;
 
@@ -373,30 +385,39 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         buttonSize * .333f,
                         buttonSize * .333f);
 
+                keyIconsGroup.setBounds(
+                        graphicsWidth - buttonSize*3.75f - margin,
+                        graphicsHeight - buttonSize * .333f - margin,
+                        buttonSize * .333f,
+                        buttonSize * .333f);
+
 
                 if (renderingStats != null)
-                        renderingStats.setBounds(Gdx.graphics.getWidth() - buttonSize - margin, Gdx.graphics.getHeight() - buttonSize - margin, buttonSize, buttonSize);
+                        renderingStats.setBounds(
+                                margin,
+                                graphicsHeight - buttonSize- margin,
+                                buttonSize, buttonSize);
 
 
                 gameLogLabel.setBounds(
                         margin,
-                        Gdx.graphics.getHeight() - margin - buttonSize,
-                        Gdx.graphics.getWidth() * .5f,
+                        graphicsHeight - margin - buttonSize,
+                        graphicsWidth * .5f,
                         buttonSize);
 
                 targetInfoLabel.setBounds(
-                        Gdx.graphics.getWidth() * .25f,
-                        Gdx.graphics.getHeight() - margin - buttonSize * .5f,
-                        Gdx.graphics.getWidth() * .5f,
+                        graphicsWidth * .25f,
+                        graphicsHeight - margin - buttonSize * .5f,
+                        graphicsWidth * .5f,
                         buttonSize * .25f);
 
-                float windowWidth = Gdx.graphics.getWidth() * .85f;
+                float windowWidth = graphicsWidth * .85f;
                 float windowHeight = Gdx.graphics.getHeight() - 15 - 15;
                 float windowButtonSize = windowHeight * (1 / 5f);
                 float windowCloseButtonSize = windowButtonSize * .5f;
                 inventoryWindow.setBounds(
-                        (Gdx.graphics.getWidth() - windowWidth) * .5f,
-                        ((Gdx.graphics.getHeight() - windowHeight) * .5f),
+                        (graphicsWidth - windowWidth) * .5f,
+                        ((graphicsHeight - windowHeight) * .5f),
                         windowWidth,
                         windowHeight);
 
@@ -446,20 +467,20 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 float quickXOffset = buttonSize + margin;
                 for (int i = 0; i < quickButtons.length; i++) {
-                        quickButtons[i].setBounds(Gdx.graphics.getWidth() - (quickXOffset * (i + 1)),
+                        quickButtons[i].setBounds(graphicsWidth - (quickXOffset * (i + 1)),
                                 margin,
                                 buttonSize,
                                 buttonSize);
                 }
 
-                float itemWindowHeight = Gdx.graphics.getHeight() * .5f;
+                float itemWindowHeight = graphicsHeight * .5f;
                 float itemWindowWidth = itemWindowHeight * 1.75f;
                 float itemWindowButtonSizeX = windowButtonSize * 1.25f;
                 float itemWindowButtonSizeY = windowButtonSize * .75f;
 
                 itemWindow.setBounds(
-                        (Gdx.graphics.getWidth() - itemWindowWidth) * .5f,
-                        (Gdx.graphics.getHeight() - itemWindowHeight) * .5f,
+                        (graphicsWidth - itemWindowWidth) * .5f,
+                        (graphicsHeight - itemWindowHeight) * .5f,
                         itemWindowWidth,
                         itemWindowHeight);
 
@@ -687,7 +708,13 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 //
                 // refresh inventory
-
+                for (KeyItem.Type typeValue : KeyItem.typeValues) {
+                        if(localPlayerToken.inventory.containsKey(typeValue)){
+                                keyIconsGroup.addActor(keyIconImage[typeValue.ordinal()]);
+                        }else{
+                                keyIconImage[typeValue.ordinal()].remove();
+                        }
+                }
 
                 int numQuickSlots = localPlayerToken.getInventory().numQuickSlots();
                 if (quickButtons.length != numQuickSlots) {
@@ -917,7 +944,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         if(nextTile.getDoorSymbol() instanceof CombinationDoorPuzzle){
                                 this.appendToGameLog("The door is shut tight.");
                         }else if(nextTile.getDoorSymbol() instanceof KeyItem){
-                                if (localPlayerToken.getInventory().hasKey((KeyItem) nextTile.getDoorSymbol())) {
+                                if (localPlayerToken.getInventory().containsKey((KeyItem) nextTile.getDoorSymbol())) {
                                         this.appendToGameLog("Tap on door again to unlock door.");
                                 } else {
                                         this.appendToGameLog("You do not have the key to unlock this door.");

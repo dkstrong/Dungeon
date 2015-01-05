@@ -350,12 +350,10 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         weaponModelInstance.transform.set(modelInstance.transform).mul(weaponAttachmentNode.globalTransform);
                         weaponModelInstance.transform.set(
                                 weaponModelInstance.transform.getTranslation(new Vector3()),
-                                weaponUsesBoneRotation
-                                        ? rotation.cpy().mul(weaponAttachmentNode.globalTransform.getRotation(new Quaternion())) // TODO: this still dont work well
-                                        : rotation,
+                                weaponModelInstance.transform.getRotation(new Quaternion()),
                                 new Vector3(1, 1, 1)
                         );
-                        //if(weaponUsesBoneRotation) weaponModelInstance.transform.rotate(Vector3.Z, -90);
+                        weaponModelInstance.transform.rotate(Vector3.Z, -90);
                         world.modelBatch.render(weaponModelInstance, world.environment);
 
                         if(offhandModelInstance != null){

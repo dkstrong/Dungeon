@@ -265,7 +265,7 @@ public class Move implements TokenComponent , Teleportable{
                 Tile nextTile = token.floorMap.getTile(nextLocation);
                 if(nextTile.isDoor() && nextTile.isDoorLocked()){
                         if(nextTile.getDoorSymbol() instanceof KeyItem){
-                                boolean hasKey = token.inventory.hasKey((KeyItem)nextTile.getDoorSymbol());
+                                boolean hasKey = token.inventory.containsKey((KeyItem) nextTile.getDoorSymbol());
                                 if(hasKey){
                                         lastTriedTile = null;
                                         nextTile.setDoorLocked(false);
@@ -295,7 +295,7 @@ public class Move implements TokenComponent , Teleportable{
                 if (nextTile.isDoor() && nextTile.isDoorLocked()) {
                         boolean key = false;
                         if (nextTile.getDoorSymbol() instanceof KeyItem) {
-                                key = token.getInventory().hasKey((KeyItem) nextTile.getDoorSymbol());
+                                key = token.getInventory().containsKey((KeyItem) nextTile.getDoorSymbol());
                         }
                         if (token.getCommand().isUseKey() && nextTile == token.getCommand().getUseKeyOnTile()) {
                                 //token.getTarget().setUseKey(false);

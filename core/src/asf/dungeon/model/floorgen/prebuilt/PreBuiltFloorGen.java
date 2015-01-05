@@ -42,7 +42,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                 }else{
                         floorMap = tinyRoom(dungeon,floorIndex);
                 }
-                UtFloorGen.spawnCharacters(dungeon, floorMap);
+                //UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
                 return floorMap;
         }
@@ -57,9 +57,9 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                         "|.....---+---.....|",
                         "|.....|.....|.....|",
                         "|.....|.....|.....|",
-                        "|.....+.....|.....|",
+                        "|.....+.k...|.....|",
                         "|.....|.....|.....|",
-                        "|.....|-----|.....|",
+                        "|.....|--/--|.....|",
                         "|.................|",
                         "|...............&.|",
                         "|.................|",
@@ -80,7 +80,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                 puzzle.lockDoor(dungeon, floorMap, floorMap.getTile(9, 9));
 
 
-                Token boulderToken = new Token(dungeon, "Boulder", null);
+                Token boulderToken = new Token(dungeon, "Boulder", ModelId.Boulder);
                 boulderToken.add(new Boulder(boulderToken));
                 dungeon.newToken(boulderToken, floorMap, 5, 11);
 
@@ -231,7 +231,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                         fountainToken.add(new Fountain(fountainToken, dungeon.rand.potionType()));
                                         dungeon.newToken(fountainToken, floorMap, x, y);
                                 } else if(charAt == 'k') { // key
-                                        KeyItem keyItem = new KeyItem(KeyItem.Type.Silver);
+                                        KeyItem keyItem = new KeyItem(KeyItem.Type.Red);
                                         if(dungeon.rand.random.nextBoolean()){
                                                 dungeon.newCrateToken(floorMap, ModelId.Barrel.name(), ModelId.Barrel, keyItem, x, y);
                                         }else{

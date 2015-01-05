@@ -6,6 +6,7 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.SfxId;
 import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.Item;
+import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.token.Fountain;
@@ -150,6 +151,10 @@ public class AssetMappings {
 
         public String getHudStatusEffectIcon(StatusEffect effect){
                 return "Interface/Hud/health";
+        }
+
+        public String getKeyIcon(KeyItem.Type keyType){
+                return "Interface/Hud/Key2Hud";
         }
 
         public String getInventoryItemTextureAssetLocation(Item item){

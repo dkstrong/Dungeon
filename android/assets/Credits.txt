@@ -80,14 +80,22 @@ http://opengameart.org/content/old-book
 Floor and Wall textures
 Spiney
 URL: http://opengameart.org/users/spiney, http://opengameart.org/node/12116
+CC-BY
+
+Pit textures
+'Unnamed' ( (Viktor.Hahn@web.de )
+http://opengameart.org/content/unnameds-textures, http://opengameart.org/node/26250, http://opengameart.org/node/26232
+CC-BY-SA
 
 Pressure Plate Texture
 Sindwiller
 http://opengameart.org/content/painted-bolted-metal-tile
+CC-BY-SA
 
 2d Animated effects (lightening spell, etc)
 Clint Bellanger
 http://opengameart.org/users/clint-bellanger
+CC0
 
 Wooden particle texture
 Kevin Boyette

@@ -44,15 +44,17 @@ public class FloorSpatial implements Spatial {
         public FogMap fogMap;
         private Array<DecalNode> decalNodes;
         private TextureRegion[][] floorTexRegions;
-        private TextureRegion[] wallTexRegions, wallDarkTexRegions;
+        private TextureRegion[][] wallTexRegions;
+        private TextureRegion[][] pitTexRegions;
         private TextureAttribute[] doorLockedTexAttribute;
         private float[] fogAlpha;
         private static Vector3 worldCoordsTemp = new Vector3();
         @Override
         public void preload(DungeonWorld world) {
                 this.world = world;
-                world.assetManager.load("Textures/Dungeon/floorTilesPressurePlates.png", Texture.class);
-                world.assetManager.load("Textures/Dungeon/wallTiles.png", Texture.class);
+                world.assetManager.load("Textures/Floor/floorTilesPressurePlates.png", Texture.class);
+                world.assetManager.load("Textures/Floor/wallTiles.png", Texture.class);
+                world.assetManager.load("Textures/Floor/pitTiles.png", Texture.class);
 
                 world.assetManager.load("Models/Dungeon/Door/Door.g3db", Model.class);
         }
@@ -63,13 +65,14 @@ public class FloorSpatial implements Spatial {
                 fogAlpha = new float[5];
                 decalNodes = new Array<DecalNode>(false, 1024, DecalNode.class);
 
-                Texture floorTex = world.assetManager.get("Textures/Dungeon/floorTilesPressurePlates.png", Texture.class);
+                Texture floorTex = world.assetManager.get("Textures/Floor/floorTilesPressurePlates.png", Texture.class);
                 floorTexRegions = TextureRegion.split(floorTex, 128, 128);
 
-                Texture  wallTex = world.assetManager.get("Textures/Dungeon/wallTiles.png", Texture.class);
-                TextureRegion[][] tr2 = TextureRegion.split(wallTex, 256, 256);
-                wallTexRegions = tr2[0];
-                wallDarkTexRegions = tr2[1];
+                Texture wallTex = world.assetManager.get("Textures/Floor/wallTiles.png", Texture.class);
+                wallTexRegions = TextureRegion.split(wallTex, 128, 128);
+
+                Texture pitTex = world.assetManager.get("Textures/Floor/pitTiles.png", Texture.class);
+                pitTexRegions = TextureRegion.split(pitTex, 128, 128);
 
                 doorLockedTexAttribute = new TextureAttribute[8];
                 // locked by key
@@ -240,6 +243,22 @@ public class FloorSpatial implements Spatial {
                 decalNode.decal.translate(worldCoordsTemp.x, 0, worldCoordsTemp.z);
         }
 
+        private TextureRegion wallRegion(){
+                return wallTexRegions[MathUtils.random(0,3)][MathUtils.random(0,1)];
+        }
+
+        private TextureRegion wallDarkRegion(){
+                return wallTexRegions[MathUtils.random(0,3)][MathUtils.random(2,3)];
+        }
+
+        private TextureRegion pitBottomRegion(){
+                return pitTexRegions[MathUtils.random(0,3)][MathUtils.random(0,1)];
+        }
+
+        private TextureRegion pitSideRegion(){
+                return pitTexRegions[MathUtils.random(0,3)][MathUtils.random(2,3)];
+        }
+
         private void makeDecalWall(Tile tile, int x, int y){
                 DecalNodeWall decalNode = new DecalNodeWall();
                 decalNode.x = x;
@@ -252,7 +271,7 @@ public class FloorSpatial implements Spatial {
 
                 // top
                 decalNode.decal = new Decal();
-                decalNode.decal.setTextureRegion(wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)]);
+                decalNode.decal.setTextureRegion(wallRegion());
                 decalNode.decal.setBlending(DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                 decalNode.decal.setDimensions(tileDimensions.x, tileDimensions.z);
                 decalNode.decal.setColor(0,0,0,1);
@@ -262,7 +281,7 @@ public class FloorSpatial implements Spatial {
 
                 // north
                 decalNode.decals[0] = new Decal();
-                decalNode.decals[0].setTextureRegion(wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)]);
+                decalNode.decals[0].setTextureRegion(wallRegion());
                 decalNode.decals[0].setBlending(DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                 decalNode.decals[0].setDimensions(tileDimensions.x, tileDimensions.y);
                 decalNode.decals[0].setColor(0,0,0,1);
@@ -271,7 +290,7 @@ public class FloorSpatial implements Spatial {
 
                 // south
                 decalNode.decals[1] = new Decal();
-                decalNode.decals[1].setTextureRegion(wallDarkTexRegions[MathUtils.random.nextInt(wallDarkTexRegions.length)]);
+                decalNode.decals[1].setTextureRegion(wallDarkRegion());
                 decalNode.decals[1].setBlending(DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                 decalNode.decals[1].setDimensions(tileDimensions.x, tileDimensions.y);
                 decalNode.decals[1].setColor(0,0,0,1);
@@ -280,7 +299,7 @@ public class FloorSpatial implements Spatial {
 
                 // east
                 decalNode.decals[2] = new Decal();
-                decalNode.decals[2].setTextureRegion(wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)]);
+                decalNode.decals[2].setTextureRegion(wallDarkRegion());
                 decalNode.decals[2].setBlending(DecalMaterial.NO_BLEND, DecalMaterial.NO_BLEND);
                 decalNode.decals[2].setDimensions(tileDimensions.z, tileDimensions.y);
                 decalNode.decals[2].setColor(0, 0, 0, 1);
@@ -290,7 +309,7 @@ public class FloorSpatial implements Spatial {
 
                 // west
                 decalNode.decals[3] = new Decal();
-                decalNode.decals[3].setTextureRegion(wallDarkTexRegions[MathUtils.random.nextInt(wallDarkTexRegions.length)]);
+                decalNode.decals[3].setTextureRegion(wallRegion());
                 decalNode.decals[3].setBlending(DecalMaterial.NO_BLEND, DecalMaterial.NO_BLEND);
                 decalNode.decals[3].setDimensions(tileDimensions.z, tileDimensions.y);
                 decalNode.decals[3].setColor(0, 0, 0, 1);
@@ -313,7 +332,7 @@ public class FloorSpatial implements Spatial {
 
                 // top
                 decalNode.decal = new Decal();
-                decalNode.decal.setTextureRegion(wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)]);
+                decalNode.decal.setTextureRegion(pitBottomRegion());
                 decalNode.decal.setBlending(DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                 decalNode.decal.setDimensions(tileDimensions.x, tileDimensions.z);
                 decalNode.decal.setColor(0,0,0,1);
@@ -325,7 +344,7 @@ public class FloorSpatial implements Spatial {
                 Tile northTile = floorMap.getTile(x,y+1);
                 if(northTile == null || !northTile.isPit()){
                         decalNode.decals[0] = new Decal();
-                        decalNode.decals[0].setTextureRegion(wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)]);
+                        decalNode.decals[0].setTextureRegion(pitSideRegion());
                         decalNode.decals[0].setBlending(DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                         decalNode.decals[0].setDimensions(tileDimensions.x, tileDimensions.y);
                         decalNode.decals[0].setColor(0,0,0,1);
@@ -336,7 +355,7 @@ public class FloorSpatial implements Spatial {
                 Tile southTile = floorMap.getTile(x,y-1);
                 if(southTile == null || !southTile.isPit()){
                         decalNode.decals[1] = new Decal();
-                        decalNode.decals[1].setTextureRegion(wallDarkTexRegions[MathUtils.random.nextInt(wallDarkTexRegions.length)]);
+                        decalNode.decals[1].setTextureRegion(pitSideRegion());
                         decalNode.decals[1].setBlending(DecalMaterial.NO_BLEND,DecalMaterial.NO_BLEND);
                         decalNode.decals[1].setDimensions(tileDimensions.x, tileDimensions.y);
                         decalNode.decals[1].setColor(0,0,0,1);
@@ -347,7 +366,7 @@ public class FloorSpatial implements Spatial {
                 Tile eastTile = floorMap.getTile(x+1, y);
                 if(eastTile == null || !eastTile.isPit()){
                         decalNode.decals[2] = new Decal();
-                        decalNode.decals[2].setTextureRegion(wallTexRegions[MathUtils.random.nextInt(wallTexRegions.length)]);
+                        decalNode.decals[2].setTextureRegion(pitSideRegion());
                         decalNode.decals[2].setBlending(DecalMaterial.NO_BLEND, DecalMaterial.NO_BLEND);
                         decalNode.decals[2].setDimensions(tileDimensions.z, tileDimensions.y);
                         decalNode.decals[2].setColor(0, 0, 0, 1);
@@ -359,7 +378,7 @@ public class FloorSpatial implements Spatial {
                 Tile westTile = floorMap.getTile(x-1, y);
                 if(westTile==null || !westTile.isPit()){
                         decalNode.decals[3] = new Decal();
-                        decalNode.decals[3].setTextureRegion(wallDarkTexRegions[MathUtils.random.nextInt(wallDarkTexRegions.length)]);
+                        decalNode.decals[3].setTextureRegion(pitSideRegion());
                         decalNode.decals[3].setBlending(DecalMaterial.NO_BLEND, DecalMaterial.NO_BLEND);
                         decalNode.decals[3].setDimensions(tileDimensions.z, tileDimensions.y);
                         decalNode.decals[3].setColor(0, 0, 0, 1);

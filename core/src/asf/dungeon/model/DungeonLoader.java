@@ -9,6 +9,7 @@ import asf.dungeon.model.floorgen.cave.RandomWalkGen;
 import asf.dungeon.model.floorgen.prebuilt.BalanceTestFloorGen;
 import asf.dungeon.model.floorgen.prebuilt.PreBuiltFloorGen;
 import asf.dungeon.model.floorgen.prebuilt.TestAssetsFloorGen;
+import asf.dungeon.model.floorgen.prebuilt.TutorialFloorGen;
 import asf.dungeon.model.floorgen.room.BinarySpaceGen;
 import asf.dungeon.model.floorgen.room.ConnectedRoomsGen;
 import asf.dungeon.model.floorgen.room.Room;
@@ -95,8 +96,8 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new TestAssetsFloorGen(),new TestAssetsFloorGen(),new MazeGen(15, 19),
-                                new ConnectedRoomsGen(), new CellularAutomataGen(),  new DirectionalCaveHallGen(),
+                                new TutorialFloorGen(),new TutorialFloorGen(),new MazeGen(15, 19),
+                                new ConnectedRoomsGen(), new CellularAutomataGen(),  new TestAssetsFloorGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
                                 new ConnectedRoomsGen(), new MazeGen(7, 4)
@@ -118,9 +119,12 @@ public class DungeonLoader {
                                 new Experience(1, 20, 6, 3, 1, 1),
                                 0, 0);
 
-
                         //token.getStatusEffects().addStatusEffect(StatusEffects.Effect.Blind);
                         token.getInventory().setNumQuickSlots(3);
+
+                        //token.getInventory().add(new KeyItem(KeyItem.Type.Silver));
+                        //token.getInventory().add(new KeyItem(KeyItem.Type.Gold));
+                        //token.getInventory().add(new KeyItem(KeyItem.Type.Red));
 
                         ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 4);
                         potion.identifyItem(token);

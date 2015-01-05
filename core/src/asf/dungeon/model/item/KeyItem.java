@@ -6,10 +6,12 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Symbol;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.floorgen.room.Doorway;
 import asf.dungeon.model.token.Token;
 
 /**
+ *
+ * // TODO: KeyItem just has a single member variable to its type, KeyItem itself could jsut be an enum
+ *
  * Created by Danny on 11/5/2014.
  */
 public class KeyItem extends AbstractItem implements Item, Symbol {
@@ -20,6 +22,8 @@ public class KeyItem extends AbstractItem implements Item, Symbol {
         }
 
         private final Type type;
+
+        public static transient final Type[] typeValues = Type.values();
 
         public KeyItem(Type type) {
                 this.type = type;

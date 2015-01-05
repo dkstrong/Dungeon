@@ -54,7 +54,18 @@ public class CharacterInventory implements Inventory {
                 return null;
         }
 
-        public boolean hasKey(KeyItem key){
+        public boolean containsKey(KeyItem.Type key){
+                for (Item item : items) {
+                        if(item instanceof KeyItem){
+                                KeyItem k = (KeyItem) item;
+                                if(k.getType() == key) // TODO: or should i do k.getType == key.getType?
+                                        return true;
+                        }
+                }
+                return false;
+        }
+
+        public boolean containsKey(KeyItem key){
                 for (Item item : items) {
                         if(item instanceof KeyItem){
                                 KeyItem k = (KeyItem) item;
