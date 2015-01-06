@@ -48,32 +48,32 @@ public class Move implements TokenComponent , Teleportable{
 
         @Override
         public boolean update(float delta) {
-                if (token.getCommand().getTargetToken() != null) {
+                if (token.command.getTargetToken() != null) {
                         // set the move targt location to the target tokens location
                         // if the target token is in the fog, then set target location to their last known location
                         // if target token is lost in the fog for over the second, then continue to its last known location but give up pursuit
-                        Pair targetLocation = token.getCommand().getLocation();
-                        Token targetToken = token.getCommand().getTargetToken();
+                        Pair targetLocation = token.command.getLocation();
+                        Token targetToken = token.command.getTargetToken();
 
                         FogMap fogMap;
-                        if (token.getFogMapping() != null)
-                                fogMap = token.getFogMapping().getFogMap(token.getFloorMap());
+                        if (token.fogMapping != null)
+                                fogMap = token.fogMapping.getFogMap(token.floorMap);
                         else
                                 fogMap = null;
                         // TODO: how this is configured is that if fogmapping is turned off, then the target
                         // can not be lost in to the fog, Instead I should do it based on range as  a back up
                         // I may need to modify the monster ai to allow for this
-                        boolean targetInvisisible = targetToken.getStatusEffects() != null && targetToken.getStatusEffects().has(StatusEffect.Invisibility);
+                        boolean targetInvisisible = targetToken.statusEffects != null && targetToken.statusEffects.has(StatusEffect.Invisibility);
 
-                        if (!targetInvisisible && (fogMap == null || fogMap.isVisible(targetToken.getLocation().x, targetToken.getLocation().y))) {
-                                targetLocation.set(targetToken.getLocation());
-                                continuousMoveTokenLastLoc.set(targetToken.getLocation());
+                        if (!targetInvisisible && (fogMap == null || fogMap.isVisible(targetToken.location.x, targetToken.location.y))) {
+                                targetLocation.set(targetToken.location);
+                                continuousMoveTokenLastLoc.set(targetToken.location);
                                 continuousMoveTokenLostVisionCountdown = 1;
                         } else {
                                 targetLocation.set(continuousMoveTokenLastLoc);
                                 continuousMoveTokenLostVisionCountdown -= delta;
                                 if (continuousMoveTokenLostVisionCountdown < 0) {
-                                        token.getCommand().setTargetToken(null); // lost sight for over a second, no longer chasing
+                                        token.command.setTargetToken(null); // lost sight for over a second, no longer chasing
                                         targetToken = null;
                                 }
 
@@ -83,7 +83,7 @@ public class Move implements TokenComponent , Teleportable{
                                 Damage moveTokenDamage = targetToken.get(Damage.class);
                                 if (moveTokenDamage != null) {
                                         if (moveTokenDamage.isDead()) {
-                                                token.getCommand().setTargetToken(null); // target died, well keep moving to its last location but we wont target it anymore
+                                                token.command.setTargetToken(null); // target died, well keep moving to its last location but we wont target it anymore
                                                 targetToken = null;
                                         }
                                 }
@@ -93,13 +93,13 @@ public class Move implements TokenComponent , Teleportable{
                 }
 
 
-                calcPathToLocation(token.getCommand().getLocation());
+                calcPathToLocation(token.command.getLocation());
 
                 moveU += delta * (token.direction.isDiagonal() ? moveSpeedDiagonal : moveSpeed);
 
 
-                FloorMap floorMap = token.getFloorMap();
-                Pair location = token.getLocation();
+                FloorMap floorMap = token.floorMap;
+                Pair location = token.location;
 
                 if (moveU > 1) {
                         if (path.size > 1) {
@@ -121,8 +121,8 @@ public class Move implements TokenComponent , Teleportable{
                                                 token.direction = newDirection;
                                         location.set(nextLocation);
                                         moveU -= 1;
-                                        if (token.getFogMapping() != null)
-                                                token.getFogMapping().computeFogMap();
+                                        if (token.fogMapping != null)
+                                                token.fogMapping.computeFogMap();
 
                                 } else {
 
@@ -135,18 +135,18 @@ public class Move implements TokenComponent , Teleportable{
                                                 token.direction = newDirection;
 
                                         boolean action;
-                                        if (token.getInteractor() != null) {
+                                        if (token.interactor != null) {
                                                 action = pushBoulder(nextLocation);
                                                 if (!action)
-                                                        action = token.getInteractor().interact(nextLocation);
+                                                        action = token.interactor.interact(nextLocation);
                                         } else {
                                                 action = false;
                                         }
 
                                         if (!action) {
                                                 action = useKey(nextLocation);
-                                                if (!action && token.getAttack() != null)
-                                                        token.getAttack().attackTargetInDirection(delta); // auto attack anything in front of me, do not do ranged attack
+                                                if (!action && token.attack != null)
+                                                        token.attack.attackTargetInDirection(delta); // auto attack anything in front of me, do not do ranged attack
                                         }
 
 
@@ -198,7 +198,7 @@ public class Move implements TokenComponent , Teleportable{
                 }
 
                 boolean foundPath = token.floorMap.pathfinder.generate(token, new Pair(token.location), new Pair(targetLocation), path,
-                        Pathfinder.PathingPolicy.CanDiagonalIfNotCuttingCorner, false, token.getInteractor() == null ? Integer.MAX_VALUE : 25);
+                        Pathfinder.PathingPolicy.CanDiagonalIfNotCuttingCorner, false, token.interactor == null ? Integer.MAX_VALUE : 25);
                 if (!foundPath) {
                         //Gdx.app.error("Token", "No path found");
                         path.clear();
@@ -231,8 +231,8 @@ public class Move implements TokenComponent , Teleportable{
                                         token.direction = newDir;
                                         token.location.set(nextLocation); // set location to path[1] (which is now 0 after removing the original 0)
                                         moveU = 1 - moveU;
-                                        if (token.getFogMapping() != null)
-                                                token.getFogMapping().computeFogMap();
+                                        if (token.fogMapping != null)
+                                                token.fogMapping.computeFogMap();
 
                                         // attackCoolDown == attackCooldownDuration;  // i could do this here to punish making uturns, and give an advantage for coming up from behind
                                 }
@@ -255,7 +255,7 @@ public class Move implements TokenComponent , Teleportable{
         }
 
         private static final boolean doubleTapToOpenDoor = false;
-        private Tile lastTriedTile = null;
+        protected boolean showDoorLockedMessage = true;
 
         private boolean useKey(Pair nextLocation) {
                 if(doubleTapToOpenDoor){
@@ -267,13 +267,13 @@ public class Move implements TokenComponent , Teleportable{
                         if(nextTile.getDoorSymbol() instanceof KeyItem){
                                 boolean hasKey = token.inventory.containsKey((KeyItem) nextTile.getDoorSymbol());
                                 if(hasKey){
-                                        lastTriedTile = null;
+                                        showDoorLockedMessage = true;
                                         nextTile.setDoorLocked(false);
-                                        token.getInventory().useKey((KeyItem) nextTile.getDoorSymbol());
+                                        token.inventory.useKey((KeyItem) nextTile.getDoorSymbol());
                                 }else{
                                         // cant open door, player does not have key for door
-                                        if(nextTile != lastTriedTile){ // if statement prevents spamming onPathBlocked
-                                                lastTriedTile = nextTile;
+                                        if(showDoorLockedMessage){ // if statement prevents spamming onPathBlocked
+                                                showDoorLockedMessage = false;
                                                 if (token.listener != null)
                                                         token.listener.onPathBlocked(nextLocation, nextTile);
                                         }
@@ -281,12 +281,15 @@ public class Move implements TokenComponent , Teleportable{
                                 }
                         }else{
                                 // cant interact with non key locked door, player needs to solve puzzle and door will become unlocked
-                                if (token.listener != null)
-                                        token.listener.onPathBlocked(nextLocation, nextTile);
+                                if(showDoorLockedMessage){ // if statement prevents spamming onPathBlocked
+                                        showDoorLockedMessage = false;
+                                        if (token.listener != null)
+                                                token.listener.onPathBlocked(nextLocation, nextTile);
+                                }
                         }
                         return true;
                 }
-                lastTriedTile = null;
+                showDoorLockedMessage = true;
                 return false;
         }
 
@@ -295,13 +298,13 @@ public class Move implements TokenComponent , Teleportable{
                 if (nextTile.isDoor() && nextTile.isDoorLocked()) {
                         boolean key = false;
                         if (nextTile.getDoorSymbol() instanceof KeyItem) {
-                                key = token.getInventory().containsKey((KeyItem) nextTile.getDoorSymbol());
+                                key = token.inventory.containsKey((KeyItem) nextTile.getDoorSymbol());
                         }
-                        if (token.getCommand().isUseKey() && nextTile == token.getCommand().getUseKeyOnTile()) {
+                        if (token.command.isUseKey() && nextTile == token.command.getUseKeyOnTile()) {
                                 //token.getTarget().setUseKey(false);
                                 if (!key) {
                                         //Gdx.app.log("Move","Try to use key but do not have a key");
-                                        //token.getCommand().setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
+                                        //token.command.setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
                                         //if(token.listener != null)
                                         //        token.listener.onPathBlocked(nextLocation, nextTile);
                                         return true;
@@ -309,16 +312,16 @@ public class Move implements TokenComponent , Teleportable{
                                 } else {
                                         //Gdx.app.log("Move","Unlocking door");
                                         nextTile.setDoorLocked(false);
-                                        token.getInventory().useKey((KeyItem) nextTile.getDoorSymbol());
-                                        //token.getCommand().setLocation(token.location);
+                                        token.inventory.useKey((KeyItem) nextTile.getDoorSymbol());
+                                        //token.command.setLocation(token.location);
                                         return true;
 
                                 }
                         } else {
-                                //token.getCommand().setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
-                                if (token.getCommand().canUseKeyOnTile == null) {
-                                        //Gdx.app.log("Move","Ran in to locked door, but does not have open command, tile: "+token.getCommand().canUseKeyOnTile);
-                                        token.getCommand().canUseKeyOnTile = nextTile;
+                                //token.command.setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
+                                if (token.command.canUseKeyOnTile == null) {
+                                        //Gdx.app.log("Move","Ran in to locked door, but does not have open command, tile: "+token.command.canUseKeyOnTile);
+                                        token.command.canUseKeyOnTile = nextTile;
                                         if (token.listener != null)
                                                 token.listener.onPathBlocked(nextLocation, nextTile);
                                 }
@@ -337,9 +340,9 @@ public class Move implements TokenComponent , Teleportable{
                         return;
                 Array<Token> tokensAt = token.floorMap.getTokensAt(token.location);
                 for (Token t : tokensAt) {
-                        Loot loot = t.getLoot();
+                        Loot loot = t.loot;
                         if (loot != null && loot.canbePickedUp()) {
-                                boolean valid = token.getInventory().add(loot.getItem());
+                                boolean valid = token.inventory.add(loot.getItem());
                                 if (valid)
                                         loot.becomeRemoved();
                                 //else
@@ -360,18 +363,18 @@ public class Move implements TokenComponent , Teleportable{
         }
 
         private float getLocationFloatX() {
-                Direction direction = token.getDirection();
+                Direction direction = token.direction;
                 if (moveU == 1 || direction == Direction.South || direction == Direction.North)
                         return token.location.x;
                 else if (direction == Direction.East || direction == Direction.NorthEast || direction == Direction.SouthEast)
-                        return MathUtils.lerp(token.location.x - 1, token.getLocation().x, moveU);
+                        return MathUtils.lerp(token.location.x - 1, token.location.x, moveU);
                 else if (direction == Direction.West || direction == Direction.NorthWest || direction == Direction.SouthWest)
-                        return MathUtils.lerp(token.location.x + 1, token.getLocation().x, moveU);
+                        return MathUtils.lerp(token.location.x + 1, token.location.x, moveU);
                 throw new AssertionError("unexpected state");
         }
 
         private float getLocationFloatY() {
-                Direction direction = token.getDirection();
+                Direction direction = token.direction;
                 if (moveU == 1 || direction == Direction.West || direction == Direction.East)
                         return token.location.y;
                 else if (direction == Direction.North || direction == Direction.NorthEast || direction == Direction.NorthWest)

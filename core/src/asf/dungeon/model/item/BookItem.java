@@ -42,22 +42,22 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                 switch(type){
                         case MagicMapping:
                                 // reveal map and crates
-                                token.getFogMapping().getCurrentFogMap().revealMapWithMagic();
+                                token.fogMapping.getCurrentFogMap().revealMapWithMagic();
                                 out.didSomething = true;
                                 break;
                         case ItemDetection:
                                 // reveal location of crates
-                                token.getStatusEffects().add(StatusEffect.ItemVision, 15);
+                                token.statusEffects.add(StatusEffect.ItemVision, 15);
                                 out.didSomething = true;
                                 break;
                         case Sleep:
                                 // cause player to fall asleep for period of time
-                                token.getStatusEffects().add(StatusEffect.Paralyze, 5);
+                                token.statusEffects.add(StatusEffect.Paralyze, 5);
                                 out.didSomething = true;
                                 break;
                         case ExtraQuickSlot:
                                 // adds an extra quick slot to the players inventory
-                                CharacterInventory inventory = token.getInventory();
+                                CharacterInventory inventory = token.inventory;
                                 int numSlots = inventory.numQuickSlots();
                                 out.didSomething = numSlots < 3;
                                 if(out.didSomething)
@@ -65,12 +65,12 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                                 break;
                         case AggravateMonsters:
                                 // tokens in entire floor immediatly get aggro for player
-                                token.getStatusEffects().add(StatusEffect.LuresMonsters, 60);
+                                token.statusEffects.add(StatusEffect.LuresMonsters, 60);
                                 out.didSomething = true;
                                 break;
                         case Experience:
                                 // player gains some experience
-                                token.getExperience().addXp(5);
+                                token.experience.addXp(5);
                                 out.didSomething = true;
                                 break;
                         case Identify:
@@ -105,8 +105,8 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                         EquipmentItem equipment = (EquipmentItem ) targetItem;
                         equipment.setCursed(false);
                         // TODO: this is a weird place to invoke onInventoryChanged, i might want to come up with a way to channel this through inventory
-                        if(token.getListener() != null)
-                                token.getListener().onInventoryChanged();
+                        if(token.listener != null)
+                                token.listener.onInventoryChanged();
                 }else{
                         throw new AssertionError(type);
                 }
@@ -118,7 +118,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
 
         @Override
         public boolean canConsume(Token token, Item targetItem) {
-                if(this == targetItem || targetItem == null ||  !token.getInventory().contains(targetItem))
+                if(this == targetItem || targetItem == null ||  !token.inventory.contains(targetItem))
                         return false;
                 if(type == Type.Identify){
                         return !targetItem.isIdentified(token);

@@ -14,30 +14,30 @@ public enum QuestNPC implements State{
                 @Override
                 public void begin(FsmLogic fsm, Token token, Command command) {
                         fsm.count = 3;
-                        command.setLocation(token.getLocation());
+                        command.setLocation(token.location);
                 }
 
                 @Override
                 public void update(FsmLogic fsm, Token token, Command command, float delta) {
-                        Array<Token> tokensAt = token.getFloorMap().getManhattanNeighborTokens(token.getLocation());
+                        Array<Token> tokensAt = token.floorMap.getManhattanNeighborTokens(token.location);
                         for (Token t : tokensAt) {
-                                if(t.getInteractor() != null ){
-                                        command.setLocation(token.getLocation());
+                                if(t.interactor != null ){
+                                        command.setLocation(token.location);
                                         return;
                                 }
                         }
-                        if(command.getLocation().equals(token.getLocation())){
+                        if(command.getLocation().equals(token.location)){
                                 fsm.count-=delta;
                                 if(fsm.count <0){
-                                        FloorMap floorMap = token.getFloorMap();
+                                        FloorMap floorMap = token.floorMap;
                                         int x,y, tries=0;
                                         do{
                                                 if(++tries > 20){
                                                         fsm.count = token.dungeon.rand.range(5,10);
                                                         return;
                                                 }
-                                                x = token.getLocation().x + token.dungeon.rand.range(-2,2);
-                                                y = token.getLocation().y + token.dungeon.rand.range(-2,2);
+                                                x = token.location.x + token.dungeon.rand.range(-2,2);
+                                                y = token.location.y + token.dungeon.rand.range(-2,2);
                                                 if(fsm.sector != null){
                                                         x = MathUtils.clamp(x, fsm.sector.x1, fsm.sector.x2);
                                                         y = MathUtils.clamp(y, fsm.sector.y1, fsm.sector.y2);

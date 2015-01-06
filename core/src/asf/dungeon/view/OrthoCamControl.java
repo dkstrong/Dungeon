@@ -3,12 +3,9 @@ package asf.dungeon.view;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.token.AbstractTokenSpatial;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 /**
  * Created by Daniel Strong on 12/30/14.
@@ -86,7 +83,7 @@ public class OrthoCamControl implements CamControl {
 
                         if(targetZoom != 1){
                                 chasingTimer+=delta;
-                                if(chasingTimer > 1f && chaseTarget.getToken().getMove().isMoving()){
+                                if(chasingTimer > 1f && chaseTarget.getToken().move.isMoving()){
                                         targetZoom =1;
                                 }
                         }

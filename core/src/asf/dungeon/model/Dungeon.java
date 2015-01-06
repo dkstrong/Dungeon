@@ -139,13 +139,13 @@ public class Dungeon {
                 t.add(new Attack(t));
                 t.add(new Move(t));
 
-                t.getDamage().setDeathDuration(3f);
-                t.getDamage().setDeathRemovalDuration(Float.NaN);
-                t.getExperience().setToken(t);
-                t.getLogic().setToken(t);
+                t.damage.setDeathDuration(3f);
+                t.damage.setDeathRemovalDuration(Float.NaN);
+                t.experience.setToken(t);
+                t.logic.setToken(t);
                 localPlayerToken = t;
                 if(fm != null){
-                        moveToken(t, fm, x, y, t.getDirection());
+                        moveToken(t, fm, x, y, t.direction);
                 }
                 return localPlayerToken;
         }
@@ -164,13 +164,13 @@ public class Dungeon {
                 t.add(new Attack(t));
                 t.add(new Move(t));
 
-                t.getMove().setPicksUpItems(false);
-                t.getDamage().setDeathDuration(3f);
-                t.getDamage().setDeathRemovalDuration(10f);
-                t.getExperience().setToken(t);
-                if(t.getLogic()!=null)t.getLogic().setToken(t);
+                t.move.setPicksUpItems(false);
+                t.damage.setDeathDuration(3f);
+                t.damage.setDeathRemovalDuration(10f);
+                t.experience.setToken(t);
+                if(t.logic!=null)t.logic.setToken(t);
 
-                moveToken(t, fm, x,y,t.getDirection());
+                moveToken(t, fm, x,y,t.direction);
                 return t;
         }
 
@@ -185,21 +185,21 @@ public class Dungeon {
                 t.add(new StatusEffects(t));
                 t.add(new Damage(t));
                 t.add(new Move(t));
-                t.getMove().setPicksUpItems(false);
-                t.getDamage().setMaxHealth(4);
-                t.getDamage().setHealth(2);
-                t.getDamage().setAttackable(false);
-                t.getDamage().setDeathRemovalDuration(Float.NaN);
-                if(t.getLogic() != null) t.getLogic().setToken(t);
+                t.move.setPicksUpItems(false);
+                t.damage.setMaxHealth(4);
+                t.damage.setHealth(2);
+                t.damage.setAttackable(false);
+                t.damage.setDeathRemovalDuration(Float.NaN);
+                if(t.logic != null) t.logic.setToken(t);
 
-                moveToken(t, fm, x,y,t.getDirection());
+                moveToken(t, fm, x,y,t.direction);
                 return t;
         }
 
         public Token newToken(Token token, FloorMap fm, int x, int y){
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 token.setId(nextTokenId++);
-                moveToken(token, fm, x,y,token.getDirection());
+                moveToken(token, fm, x,y,token.direction);
                 return token;
         }
 
@@ -208,10 +208,10 @@ public class Dungeon {
                 Token t = new Token(this,  nextTokenId++, name, modelId);
                 t.add(new CrateInventory(t, item));
                 t.add(new Damage(t));
-                t.getDamage().setMaxHealth(1);
-                t.getDamage().setDeathDuration(2.5f);
-                t.getDamage().setDeathRemovalDuration(.25f);
-                moveToken(t, fm, x,y,t.getDirection());
+                t.damage.setMaxHealth(1);
+                t.damage.setDeathDuration(2.5f);
+                t.damage.setDeathRemovalDuration(.25f);
+                moveToken(t, fm, x,y,t.direction);
                 return t;
         }
 
@@ -219,12 +219,12 @@ public class Dungeon {
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 Token t = new Token(this,  nextTokenId++, item.getName(), item.getModelId());
                 t.add(new Loot(t, item));
-                moveToken(t, fm, x,y,t.getDirection());
+                moveToken(t, fm, x,y,t.direction);
                 return t;
         }
 
         public void removeToken(Token token) {
-                FloorMap fm = token.getFloorMap();
+                FloorMap fm = token.floorMap;
                 if(fm == null){
                         if(token == localPlayerToken)
                                 localPlayerToken = null;
@@ -255,7 +255,7 @@ public class Dungeon {
          * @param direction
          */
         public void moveToken(Token token, FloorMap newFloorMap, int x, int y, Direction direction){
-                FloorMap oldFloorMap = token.getFloorMap();
+                FloorMap oldFloorMap = token.floorMap;
                 if(oldFloorMap == null){
                         token.teleport(newFloorMap ,x,y,direction);
                         newFloorMap.tokens.add(token);
@@ -268,7 +268,7 @@ public class Dungeon {
 
 
                         if(token == localPlayerToken)
-                                setCurrentFloor(token.getFloorMap().index);
+                                setCurrentFloor(token.floorMap.index);
 
                 }else{
                         if(oldFloorMap == newFloorMap){
@@ -289,7 +289,7 @@ public class Dungeon {
                                         }
                                 }
                                 if(token == localPlayerToken){
-                                        setCurrentFloor(token.getFloorMap().index);
+                                        setCurrentFloor(token.floorMap.index);
                                 }
                         }else{
                                 throw new IllegalStateException("token was not on a valid floor");
@@ -304,10 +304,10 @@ public class Dungeon {
          */
         public void moveToken(Token token, FloorMap newFloorMap) {
 
-                FloorMap oldFloorMap = token.getFloorMap();
+                FloorMap oldFloorMap = token.floorMap;
                 if(oldFloorMap == null){
                         Stairs stairs = newFloorMap.getStairsUp();
-                        token.teleport(newFloorMap ,stairs.getLocation().x,stairs.getLocation().y,stairs.getDirection());
+                        token.teleport(newFloorMap ,stairs.getLocation().x,stairs.getLocation().y,stairs.token.direction);
                         newFloorMap.tokens.add(token);
                         if (listener != null && newFloorMap == currentFloorMap)
                                 listener.onTokenAdded(token);
@@ -316,14 +316,14 @@ public class Dungeon {
                                 listener.onNewPlayerToken(localPlayerToken);
 
                         if(token == localPlayerToken)
-                                setCurrentFloor(token.getFloorMap().index);
+                                setCurrentFloor(token.floorMap.index);
 
                 }else{
                         boolean valid = oldFloorMap.tokens.removeValue(token, true);
                         if(valid){
                                 boolean down = newFloorMap.index > oldFloorMap.index;
                                 Stairs stairs = down ? newFloorMap.getStairsUp() : newFloorMap.getStairsDown();
-                                token.teleport(newFloorMap ,stairs.getLocation().x,stairs.getLocation().y, down ? stairs.getDirection() : stairs.getDirection().opposite());
+                                token.teleport(newFloorMap ,stairs.getLocation().x,stairs.getLocation().y, down ? stairs.token.direction : stairs.token.direction.opposite());
                                 newFloorMap.tokens.add(token);
                                 if (listener != null){
                                         if (oldFloorMap == currentFloorMap) {
@@ -333,7 +333,7 @@ public class Dungeon {
                                         }
                                 }
                                 if(token == localPlayerToken){
-                                        setCurrentFloor(token.getFloorMap().index);
+                                        setCurrentFloor(token.floorMap.index);
                                 }
                         }else{
                                 throw new IllegalStateException("token was not on a valid floor");

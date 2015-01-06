@@ -96,7 +96,7 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new TutorialFloorGen(),new TutorialFloorGen(),new MazeGen(15, 19),
+                                new PreBuiltFloorGen(),new TutorialFloorGen(),new MazeGen(15, 19),
                                 new ConnectedRoomsGen(), new CellularAutomataGen(),  new TestAssetsFloorGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
@@ -119,56 +119,56 @@ public class DungeonLoader {
                                 new Experience(1, 20, 6, 3, 1, 1),
                                 0, 0);
 
-                        //token.getStatusEffects().addStatusEffect(StatusEffects.Effect.Blind);
-                        token.getInventory().setNumQuickSlots(3);
+                        //token.statusEffects.addStatusEffect(StatusEffects.Effect.Blind);
+                        token.inventory.setNumQuickSlots(3);
 
-                        //token.getInventory().add(new KeyItem(KeyItem.Type.Silver));
-                        //token.getInventory().add(new KeyItem(KeyItem.Type.Gold));
-                        //token.getInventory().add(new KeyItem(KeyItem.Type.Red));
+                        //token.inventory.add(new KeyItem(KeyItem.Type.Silver));
+                        //token.inventory.add(new KeyItem(KeyItem.Type.Gold));
+                        //token.inventory.add(new KeyItem(KeyItem.Type.Red));
 
                         ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 4);
                         potion.identifyItem(token);
-                        token.getInventory().add(potion);
-                        //token.getInventory().equip(potion);
+                        token.inventory.add(potion);
+                        //token.inventory.equip(potion);
 
                         BookItem book = new BookItem(dungeon, BookItem.Type.MagicMapping);
-                        token.getInventory().add(book);
+                        token.inventory.add(book);
 
                         book = new BookItem(dungeon, BookItem.Type.MagicMapping);
-                        token.getInventory().add(book);
+                        token.inventory.add(book);
 
                         PotionItem health = new PotionItem(dungeon, PotionItem.Type.Speed, 4);
                         health.identifyItem(token);
-                        token.getInventory().add(health);
+                        token.inventory.add(health);
 
                         ArmorItem armor = new ArmorItem(ModelId.SwordLarge, "Simple Armor", 1);
                         armor.identifyItem(token);
-                        token.getInventory().add(armor);
-                        token.getInventory().equip(armor);
+                        token.inventory.add(armor);
+                        token.inventory.equip(armor);
 
                         if (settings.playerModel == ModelId.Knight) {
                                 WeaponItem sword = new WeaponItem(ModelId.SwordLarge, "Sword", 3);
                                 sword.setAttackDuration(1);
-                                token.getInventory().add(sword);
-                                //token.getInventory().equip(sword);
+                                token.inventory.add(sword);
+                                token.inventory.equip(sword);
                                 token.get(Journal.class).learn(sword);
 
                                 WeaponItem bow = new WeaponItem(ModelId.BowLarge, "Bow", 2, FxId.Arrow);
                                 bow.setRangedStats(3, 1);
-                                token.getInventory().add(bow);
+                                token.inventory.add(bow);
                                 token.get(Journal.class).learn(bow);
-                                token.getInventory().equip(bow);
+                                //token.inventory.equip(bow);
                         } else if (settings.playerModel == ModelId.Archer) {
                                 WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, FxId.Arrow);
                                 bow.setCursed(true);
                                 bow.setRangedStats(3, 1);
-                                token.getInventory().add(bow);
-                                token.getInventory().equip(bow);
+                                token.inventory.add(bow);
+                                token.inventory.equip(bow);
                         } else if (settings.playerModel == ModelId.Mage) {
                                 WeaponItem staff = new WeaponItem(ModelId.Bow_01, "Staff", 3, FxId.PlasmaBall);
                                 staff.identifyItem(token);
-                                token.getInventory().add(staff);
-                                token.getInventory().equip(staff);
+                                token.inventory.add(staff);
+                                token.inventory.equip(staff);
                         }
 
 

@@ -29,7 +29,7 @@ public class FountainTokenSpatial extends AbstractTokenSpatial{
 
         public void preload(DungeonWorld world) {
 
-                world.assetManager.load(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
+                world.assetManager.load(world.assetMappings.getAssetLocation(token.modelId), Model.class);
 
                 fountain = token.get(Fountain.class);
                 world.assetManager.load(world.assetMappings.getFountainTextureAssetLocation(fountain), Texture.class);
@@ -39,7 +39,7 @@ public class FountainTokenSpatial extends AbstractTokenSpatial{
 
         public void init(AssetManager assetManager) {
                 initialized = true;
-                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.getModelId()));
+                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId));
                 modelInstance = new BetterModelInstance(model);
 
                 texToggle = fountain.isConsumed();
@@ -81,8 +81,8 @@ public class FountainTokenSpatial extends AbstractTokenSpatial{
                         }
                 }
 
-                world.getWorldCoords(token.getLocation(), translation);
-                rotation.set(world.assetMappings.getRotation(token.getDirection()));
+                world.getWorldCoords(token.location, translation);
+                rotation.set(world.assetMappings.getRotation(token.direction));
 
                 if (minVisU == 0 || visU != minVisU){
                         // if not fog blocked
@@ -107,7 +107,7 @@ public class FountainTokenSpatial extends AbstractTokenSpatial{
                 if (visU <= 0) return;
                 if (world.hudSpatial.isMapViewMode()){
                         if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
-                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
+                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.location.distance(token.location) > 16) return;
 
                 modelInstance.transform.set(
                         translation.x , translation.y , translation.z ,

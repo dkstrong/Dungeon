@@ -24,22 +24,22 @@ import com.badlogic.gdx.utils.Array;
 public class Token {
         public final Dungeon dungeon;
         private int id;
-        private final ModelId modelId;
+        public final ModelId modelId;
         /**
          * the name of this character or item for the interfce
          */
-        protected String name;
+        public String name;
         /**
          * whether or not other tokens can stand on the same tile as this one. typically crates and characters block pathing, but pickups do not.
          */
-        protected boolean blocksPathing = true;
+        public boolean blocksPathing = true;
 
         // state variables
         public final Pair location = new Pair();                     // the current tile that this token is considered to be standing on
-        protected FloorMap floorMap;
-        protected Direction direction = Direction.South;          // the direction that this token is facing, this affects certain gameplay mechanics.
-        private Array<TokenComponent> components = new Array<TokenComponent>(true, 8, TokenComponent.class);
-        protected transient Listener listener;
+        public FloorMap floorMap;
+        public Direction direction = Direction.South;          // the direction that this token is facing, this affects certain gameplay mechanics.
+        private final Array<TokenComponent> components = new Array<TokenComponent>(true, 8, TokenComponent.class);
+        public transient Listener listener;
         // Common Components
         public Logic logic;
         public Experience experience;
@@ -147,7 +147,7 @@ public class Token {
 
                 if (!canTeleport(fm, x, y, dir)) {
                         // TODO: idealy i should be able to remove this if check, proper canTeleport checks should be built in to the calling code
-                        throw new AssertionError(getName() + "- not a valid teleport location, need to include a check for this earlier in the code");
+                        throw new AssertionError(name + "- not a valid teleport location, need to include a check for this earlier in the code");
                 }
 
                 floorMap = fm;
@@ -167,15 +167,6 @@ public class Token {
                                 return; // this component consumed the rest of the update
                         }
                 }
-        }
-
-        /**
-         * DO NOT MODIFY
-         *
-         * @return
-         */
-        public Pair getLocation() {
-                return location;
         }
 
         public boolean isLocatedAt(Pair loc) {
@@ -226,99 +217,6 @@ public class Token {
                 return id;
         }
 
-        public void setDirection(Direction direction) {
-                this.direction = direction;
-        }
-
-        public Direction getDirection() {
-                return direction;
-        }
-
-        public String getName() {
-                return name;
-        }
-
-        public ModelId getModelId() {
-                return modelId;
-        }
-
-        public Logic getLogic() {
-                return logic;
-        }
-
-        public Command getCommand() {
-                return command;
-        }
-
-        public Interactor getInteractor() {
-                return interactor;
-        }
-
-        public Move getMove() {
-                return move;
-        }
-
-        public Damage getDamage() {
-                return damage;
-        }
-
-        public Attack getAttack() {
-                return attack;
-        }
-
-        public CharacterInventory getInventory() {
-                return inventory;
-        }
-
-        public FogMapping getFogMapping() {
-                return fogMapping;
-        }
-
-        public Experience getExperience() {
-                return experience;
-        }
-
-        public CrateInventory getCrateInventory() {
-                return crateInventory;
-        }
-
-        public StatusEffects getStatusEffects() {
-                return statusEffects;
-        }
-
-        public Loot getLoot() {
-                return loot;
-        }
-
-        public Stairs getStairs() {
-                return stairs;
-        }
-
-        /**
-         * if the token prevents other tokens from sharing the same tile.
-         *
-         * @return
-         */
-        public boolean isBlocksPathing() {
-                return blocksPathing;
-        }
-
-        public void setBlocksPathing(boolean blocksPathing) {
-                this.blocksPathing = blocksPathing;
-        }
-
-        public FloorMap getFloorMap() {
-                return floorMap;
-        }
-
-        public Listener getListener() {
-                return listener;
-        }
-
-        public void setListener(Listener listener) {
-                this.listener = listener;
-        }
-
         public static interface Listener {
 
                 public void onPathBlocked(Pair nextLocation, Tile nextTile);
@@ -363,18 +261,18 @@ public class Token {
 
         @Override
         public String toString() {
-                return getName();
+                return name;
         }
 
         public char toCharacter(){
-                if(getLogic() != null){
-                        if(getLogic() instanceof LocalPlayerLogic) return '@';
+                if(logic != null){
+                        if(logic instanceof LocalPlayerLogic) return '@';
                         if(get(Quest.class) != null) return 'q';
                         return '#';
                 }
-                if(getLoot()!= null){
-                        if(getLoot().getItem() instanceof KeyItem){
-                                KeyItem.Type keyType = ((KeyItem) getLoot().getItem()).getType();
+                if(loot!= null){
+                        if(loot.getItem() instanceof KeyItem){
+                                KeyItem.Type keyType = ((KeyItem) loot.getItem()).getType();
                                 if(keyType == KeyItem.Type.Red) return 'r';
                                 else if(keyType == KeyItem.Type.Gold) return 'g';
                                 else if(keyType == KeyItem.Type.Silver) return 's';
@@ -382,9 +280,9 @@ public class Token {
                         }
                         return '$';
                 }
-                if(getCrateInventory() != null){
-                        if(getCrateInventory().getItemToDrop() instanceof KeyItem){
-                                KeyItem.Type keyType = ((KeyItem) getCrateInventory().getItemToDrop()).getType();
+                if(crateInventory != null){
+                        if(crateInventory.getItemToDrop() instanceof KeyItem){
+                                KeyItem.Type keyType = ((KeyItem) crateInventory.getItemToDrop()).getType();
                                 if(keyType == KeyItem.Type.Red) return 'r';
                                 else if(keyType == KeyItem.Type.Gold) return 'g';
                                 else if(keyType == KeyItem.Type.Silver) return 's';
@@ -393,8 +291,8 @@ public class Token {
                         return '$';
                 }
 
-                if(getStairs() != null){
-                        if(getStairs().isStairsUp())
+                if(stairs != null){
+                        if(stairs.isStairsUp())
                                 return '^';
                         else
                                 return '&';

@@ -35,7 +35,7 @@ public abstract class AbstractTokenSpatial implements Spatial, Token.Listener{
         public AbstractTokenSpatial(DungeonWorld world, Token token) {
                 this.world = world;
                 this.token = token;
-                this.token.setListener(this);
+                this.token.listener = this;
         }
 
         /**
@@ -55,7 +55,7 @@ public abstract class AbstractTokenSpatial implements Spatial, Token.Listener{
         @Override
         public void dispose() {
                 if(token != null)
-                        token.setListener(null);
+                        token.listener = null;
         }
 
 
@@ -85,7 +85,7 @@ public abstract class AbstractTokenSpatial implements Spatial, Token.Listener{
         public void onAttack(Token target, Pair targetLocation, boolean ranged) {
 
                 if (ranged) {
-                        world.fxManager.shootProjectile(token.getAttack().getWeapon().getProjectileFx(), token, target, targetLocation);
+                        world.fxManager.shootProjectile(token.attack.getWeapon().getProjectileFx(), token, target, targetLocation);
                 }
 
                 if (world.hudSpatial.localPlayerToken == token)

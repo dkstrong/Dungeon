@@ -41,13 +41,13 @@ public class AssetMappings {
                 rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
                 rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
 
-                assetLocations = new String[28];
+                assetLocations = new String[29];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
                 assetLocations[ModelId.Cerberus.ordinal()] = "Models/Characters/cerberus.g3db";
                 assetLocations[ModelId.Diablous.ordinal()] = "Models/Characters/diablous.g3db";
                 assetLocations[ModelId.FemaleMage.ordinal()] = "Models/Characters/female_mage.g3db";
-                assetLocations[ModelId.Knight.ordinal()] = "Models/Characters/knight_01.g3db";
+                assetLocations[ModelId.Knight.ordinal()] = "Models/Characters/knight.g3db";
                 assetLocations[ModelId.Mage.ordinal()] = "Models/Characters/mage.g3db";
                 assetLocations[ModelId.Priest.ordinal()] = "Models/Characters/priest.g3db";
                 assetLocations[ModelId.Skeleton.ordinal()] = "Models/Characters/Skeleton.g3db";
@@ -55,6 +55,7 @@ public class AssetMappings {
                 assetLocations[ModelId.CeramicPitcher.ordinal()] = "Models/Crates/CeramicPitcher.g3db";
                 assetLocations[ModelId.Crate.ordinal()] = "Models/Crates/crate_01.g3db";
                 assetLocations[ModelId.Barrel.ordinal()] = "Models/Crates/barrel_01.g3db";
+                assetLocations[ModelId.Chest.ordinal()] = "Models/Crates/chest_01.g3db";
                 assetLocations[ModelId.Fountain.ordinal()] = "Models/Fountain/Fountain.g3db";
                 assetLocations[ModelId.SignPost.ordinal()] = "Models/SignPost/SignPost.g3db";
                 assetLocations[ModelId.SpikeTrap.ordinal()] = "Models/SpikeTrap/SpikeTrap.g3db";

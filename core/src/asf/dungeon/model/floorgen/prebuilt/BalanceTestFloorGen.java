@@ -64,14 +64,14 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
                                 x,y);
 
                         //EquipmentItem sword = EquipmentItem.makeWeapon("Sword", 1);
-                        //token.getInventory().add(sword);
-                        //token.getInventory().equip(sword);
+                        //token.inventory.add(sword);
+                        //token.inventory.equip(sword);
 
                         if(modelId == ModelId.Archer){
                                 WeaponItem weapon = new WeaponItem(ModelId.SwordLarge,"Bow", 1, FxId.Arrow);
                                 weapon.setRangedStats(3, 1);
-                                token.getInventory().add(weapon);
-                                token.getInventory().equip(weapon);
+                                token.inventory.add(weapon);
+                                token.inventory.equip(weapon);
                         }
 
                 }

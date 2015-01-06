@@ -212,7 +212,7 @@ public class DungeonWorld implements Disposable {
                                         continue;
                                 }
 
-                                Damage damage = tokenSpatial.getToken().getDamage();
+                                Damage damage = tokenSpatial.getToken().damage;
                                 if(damage != null && damage.isDead())
                                         continue;
 
@@ -409,11 +409,11 @@ public class DungeonWorld implements Disposable {
                 public void onTokenAdded(Token token) {
                         if (token == hudSpatial.localPlayerToken) {
                                 // dont re add the token, he already has a token spatial.
-                        } else if(token.getLogic() != null){
+                        } else if(token.logic != null){
                                 addSpatial(new CharacterTokenSpatial(DungeonWorld.this, token));
-                        }else if(token.getLoot() != null){
+                        }else if(token.loot != null){
                                 addSpatial(new LootTokenSpatial(DungeonWorld.this, token));
-                        }else if(token.getCrateInventory() != null){
+                        }else if(token.crateInventory != null){
                                 addSpatial(new CrateTokenSpatial(DungeonWorld.this, token));
                         }else if(token.get(SpikeTrap.class) != null){
                                 addSpatial(new SpikeTrapTokenSpatial(DungeonWorld.this, token));
@@ -423,7 +423,7 @@ public class DungeonWorld implements Disposable {
                                 addSpatial(new TorchTokenSpatial(DungeonWorld.this, token));
                         }else if(token.get(SignPostQuest.class) != null){
                                 addSpatial(new SignPostTokenSpatial(DungeonWorld.this, token));
-                        }else if(token.getStairs() != null){
+                        }else if(token.stairs != null){
                                 addSpatial(new StairsSpatial(DungeonWorld.this, token));
                         }else if(token.get(Boulder.class) != null){
                                 addSpatial(new BoulderSpatial(DungeonWorld.this, token));
@@ -438,7 +438,7 @@ public class DungeonWorld implements Disposable {
                 @Override
                 public void onTokenRemoved(Token token) {
                         if (token == hudSpatial.localPlayerToken) {
-                                if (!token.getDamage().isFullyDead()) {
+                                if (!token.damage.isFullyDead()) {
                                         camControl.getChaseTarget().visU = 0; // this forces the player spatial to turn black and fade back in
                                 } else {
                                         //dungeonApp.setAppGameOver();

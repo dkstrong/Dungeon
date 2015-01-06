@@ -32,13 +32,13 @@ public class FullAgroLogic implements Logic {
         @Override
         public boolean update(float delta) {
 
-                if(token.getCommand().getTargetToken()== null || token.getCommand().getTargetToken().getDamage().isDead()){
+                if(token.command.getTargetToken()== null || token.command.getTargetToken().damage.isDead()){
                         int targetTeam = 1;
                         if(team == targetTeam) targetTeam = 0;
 
-                        Array<Token> tokens = token.getFloorMap().getTokensOnTeam(targetTeam);
+                        Array<Token> tokens = token.floorMap.getTokensOnTeam(targetTeam);
                         for (Token targetToken : tokens) {
-                                token.getCommand().setTargetToken(targetToken);
+                                token.command.setTargetToken(targetToken);
                                 break;
                         }
                 }

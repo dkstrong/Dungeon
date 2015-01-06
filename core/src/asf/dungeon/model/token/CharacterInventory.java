@@ -31,7 +31,7 @@ public class CharacterInventory implements Inventory {
 
         public CharacterInventory(Token token, Item... items) {
                 this.token = token;
-                if (token.getLogic() == null) {
+                if (token.logic == null) {
                         this.items = new Array<Item>(true, items.length, Item.class); // this is probably a crate, inventory will probaby not grow in size
                 } else {
                         this.items = new Array<Item>(true, 16, Item.class);
@@ -176,18 +176,18 @@ public class CharacterInventory implements Inventory {
         }
 
         public boolean canChangeEquipment() {
-                if (token.getAttack() != null && (token.getAttack().isAttacking() || token.getAttack().hasProjectile()))
+                if (token.attack != null && (token.attack.isAttacking() || token.attack.hasProjectile()))
                         return false;
 
-                if(token.getStatusEffects() != null && (token.getStatusEffects().has(StatusEffect.Paralyze) || token.getStatusEffects().has(StatusEffect.Frozen))  )
+                if(token.statusEffects != null && (token.statusEffects.has(StatusEffect.Paralyze) || token.statusEffects.has(StatusEffect.Frozen))  )
                         return false;
                 return timeSinceComabt > 5f;
         }
 
         private boolean hasRequiredStatsToChangeEquipment(EquipmentItem currentSlot, EquipmentItem otherSlot1, EquipmentItem otherSlot2, EquipmentItem item){
-                int str = token.getExperience().getStrength();
-                int agi = token.getExperience().getAgility();
-                int ine = token.getExperience().getIntelligence();
+                int str = token.experience.getStrength();
+                int agi = token.experience.getAgility();
+                int ine = token.experience.getIntelligence();
                 if(item != null){
                         str += item.getStrengthMod();
                         agi += item.getAgilityMod();
@@ -224,15 +224,15 @@ public class CharacterInventory implements Inventory {
                 if (item instanceof WeaponItem) {
                         if(!hasRequiredStatsToChangeEquipment(weaponSlot, armorSlot, ringSlot, item)) return false;
                         weaponSlot = (WeaponItem) item;
-                        token.getExperience().recalcStats();
+                        token.experience.recalcStats();
                 } else if (item instanceof ArmorItem) {
                         if(!hasRequiredStatsToChangeEquipment(armorSlot, weaponSlot, ringSlot, item)) return false;
                         armorSlot = (ArmorItem) item;
-                        token.getExperience().recalcStats();
+                        token.experience.recalcStats();
                 } else if (item instanceof RingItem) {
                         if(!hasRequiredStatsToChangeEquipment(ringSlot, weaponSlot, armorSlot, item)) return false;
                         ringSlot = (RingItem) item;
-                        token.getExperience().recalcStats();
+                        token.experience.recalcStats();
                 }
 
                 if (token.listener != null)
@@ -302,15 +302,15 @@ public class CharacterInventory implements Inventory {
                 if (weaponSlot == item) {
                         if(!hasRequiredStatsToChangeEquipment(weaponSlot, armorSlot, ringSlot, null)) return false;
                         weaponSlot = null;
-                        token.getExperience().recalcStats();
+                        token.experience.recalcStats();
                 } else if (armorSlot == item) {
                         if(!hasRequiredStatsToChangeEquipment(armorSlot, weaponSlot, ringSlot, null)) return false;
                         armorSlot = null;
-                        token.getExperience().recalcStats();
+                        token.experience.recalcStats();
                 } else if (ringSlot == item) {
                         if(!hasRequiredStatsToChangeEquipment(ringSlot, weaponSlot, armorSlot, null)) return false;
                         ringSlot = null;
-                        token.getExperience().recalcStats();
+                        token.experience.recalcStats();
                 }
                 if (!forDiscard && token.listener != null)
                         token.listener.onInventoryChanged();
@@ -367,14 +367,14 @@ public class CharacterInventory implements Inventory {
                 boolean valid = discard(item);
                 if(!valid) return false;
                 Pair dropLoc = new Pair(token.location);
-                if(token.getMove().isMoving()){
+                if(token.move.isMoving()){
                         dropLoc.addFree(token.direction.opposite());
                         Tile tile = token.floorMap.getTile(dropLoc);
                         if(tile == null || !tile.isFloor() || token.floorMap.hasTokensAt(dropLoc.x,dropLoc.y)){
                                 dropLoc.set(token.location);
                         }
                 }
-                token.dungeon.newLootToken(token.getFloorMap(), item, dropLoc.x, dropLoc.y);
+                token.dungeon.newLootToken(token.floorMap, item, dropLoc.x, dropLoc.y);
                 return true;
         }
 
@@ -382,30 +382,26 @@ public class CharacterInventory implements Inventory {
                 boolean valid = discard(item);
                 if(!valid) return false;
                 Pair dropLoc = new Pair(token.location);
-                if(token.getMove().isMoving()){
-                        dropLoc.addFree(token.direction.opposite());
-                }else{
-                        dropLoc.addFree(token.direction);
-                }
+                dropLoc.addFree(token.direction);
 
                 if(token.floorMap.isLocationBlocked(dropLoc)){
-                        dropLoc.set(token.location);
+                        dropLoc.set(token.location); // or maybe also doo addFree(token.direction.opposite()) ?
                 }
-                Token lootToken = token.dungeon.newLootToken(token.getFloorMap(), item, token.location.x, token.location.y);
-                lootToken.getLoot().becomeThrown(dropLoc.x, dropLoc.y);
+                Token lootToken = token.dungeon.newLootToken(token.floorMap, item, token.location.x, token.location.y);
+                lootToken.loot.becomeThrown(dropLoc.x, dropLoc.y);
                 return true;
         }
 
         public boolean throwItem(Item item, int targetLocationX, int targetLocationY){
                 boolean valid = discard(item);
                 if(!valid) return false;
-                Token lootToken = token.dungeon.newLootToken(token.getFloorMap(), item, token.getLocation().x, token.getLocation().y);
-                lootToken.getLoot().becomeThrown(targetLocationX, targetLocationY);
+                Token lootToken = token.dungeon.newLootToken(token.floorMap, item, token.location.x, token.location.y);
+                lootToken.loot.becomeThrown(targetLocationX, targetLocationY);
                 return true;
         }
 
         public boolean discard(Item item) {
-                if (token.getDamage().isDead()) {
+                if (token.damage.isDead()) {
                         return false;
                 }
 
@@ -441,31 +437,31 @@ public class CharacterInventory implements Inventory {
         @Override
         public boolean update(float delta) {
                 timeSinceComabt += delta;
-                if (token.getCommand() != null && token.getCommand().consumeItem != null) {
-                        ConsumableItem consumableItem = token.getCommand().consumeItem;
+                if (token.command != null && token.command.consumeItem != null) {
+                        ConsumableItem consumableItem = token.command.consumeItem;
 
                         boolean hasConsumed = false;
                         out.damage = 0;
                         if (consumableItem instanceof ConsumableItem.TargetsTokens) {
-                                if (token.getCommand().targetItemToken != null) {
+                                if (token.command.targetItemToken != null) {
                                         ConsumableItem.TargetsTokens citt = (ConsumableItem.TargetsTokens) consumableItem;
-                                        if (citt.canConsume(token, token.getCommand().targetItemToken)) {
-                                                out.targetToken = token.getCommand().targetItemToken;
+                                        if (citt.canConsume(token, token.command.targetItemToken)) {
+                                                out.targetToken = token.command.targetItemToken;
                                                 out.targetItem = null;
-                                                citt.consume(token, token.getCommand().targetItemToken, out);
+                                                citt.consume(token, token.command.targetItemToken, out);
                                                 hasConsumed = true;
                                         }
                                 }
                         }
 
                         if (consumableItem instanceof ConsumableItem.TargetsItems) {
-                                if (token.getCommand().targetItem != null) {
+                                if (token.command.targetItem != null) {
                                         ConsumableItem.TargetsItems citi = (ConsumableItem.TargetsItems) consumableItem;
-                                        if (citi.canConsume(token, token.getCommand().targetItem)) {
+                                        if (citi.canConsume(token, token.command.targetItem)) {
                                                 out.targetToken = null;
-                                                out.targetItem = token.getCommand().targetItem;
-                                                citi.consume(token, token.getCommand().targetItem, out);
-                                                token.getCommand().targetItem = null;
+                                                out.targetItem = token.command.targetItem;
+                                                citi.consume(token, token.command.targetItem, out);
+                                                token.command.targetItem = null;
                                                 hasConsumed = true;
                                         }
                                 }
@@ -496,9 +492,9 @@ public class CharacterInventory implements Inventory {
                                 discard(consumableItem);
                         }
 
-                        token.getCommand().consumeItem = null;
-                        token.getCommand().targetItemToken = null;
-                        token.getCommand().targetItem = null;
+                        token.command.consumeItem = null;
+                        token.command.targetItemToken = null;
+                        token.command.targetItem = null;
                 }
 
 

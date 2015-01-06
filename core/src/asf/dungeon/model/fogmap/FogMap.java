@@ -76,7 +76,7 @@ public class FogMap {
 
 
         public void update(){
-                if(token.getFloorMap() != floorMap){
+                if(token.floorMap != floorMap){
                         // if token not currently on the floor fo this fog map,
                         // then just set all visible fog in to visited
                         for(int x=0; x<fog.length; x++){
@@ -88,11 +88,11 @@ public class FogMap {
                         }
                         return;
                 }
-                xCenter = token.getLocation().x;
-                yCenter = token.getLocation().y;
+                xCenter = token.location.x;
+                yCenter = token.location.y;
 
-                if (stepResult == null || radius != token.getDamage().getSightRadius()) {
-                        radius = token.getDamage().getSightRadius();
+                if (stepResult == null || radius != token.damage.getSightRadius()) {
+                        radius = token.damage.getSightRadius();
                         int size = radius * 2 + 1;
                         stepResult = new byte[size][size];
                 } else {

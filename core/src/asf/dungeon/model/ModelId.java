@@ -14,6 +14,7 @@ public enum ModelId {
         CeramicPitcher,
         Crate,
         Barrel,
+        Chest,
         Fountain,
         Torch,
         SignPost,

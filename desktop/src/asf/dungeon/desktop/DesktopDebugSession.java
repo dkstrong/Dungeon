@@ -466,7 +466,7 @@ public class DesktopDebugSession {
                                 return floorMap.index + " (FloorMap)";
                         } else if (o instanceof Token) {
                                 Token token = (Token) o;
-                                return token.getName();
+                                return token.name;
                         }
                         return super.toString();
                 }

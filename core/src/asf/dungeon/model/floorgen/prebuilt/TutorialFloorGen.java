@@ -80,8 +80,8 @@ public class TutorialFloorGen implements FloorMapGenerator, FloorMap.MonsterSpaw
 
                         if(modelId == ModelId.Archer){
                                 WeaponItem weapon = new WeaponItem(ModelId.SwordLarge,"Bow", 1, FxId.Arrow);
-                                token.getInventory().add(weapon);
-                                token.getInventory().equip(weapon);
+                                token.inventory.add(weapon);
+                                token.inventory.equip(weapon);
                         }
 
                 }

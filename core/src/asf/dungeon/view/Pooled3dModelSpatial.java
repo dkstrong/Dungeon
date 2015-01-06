@@ -104,14 +104,14 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                 attackerTokenSpatial.getWeaponAttachmentTranslation(worldStartLoc);
                 if(worldStartLoc.y == 0)
                         worldStartLoc.y = 4;
-                // world.getWorldCoords(attacker.getMove().getFloatLocation(), worldStartLoc);
+                // world.getWorldCoords(attacker.move.getFloatLocation(), worldStartLoc);
                 if (target == null) {
                         targetTokenSpatial = null;
                         world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
                 } else {
                         targetTokenSpatial = world.getTokenSpatial(target);
-                        if (target.getMove() == null) world.getWorldCoords(target.getLocation().x, target.getLocation().y, worldDestLoc);
-                        else world.getWorldCoords(target.getMove().getFloatLocation(), worldDestLoc);
+                        if (target.move == null) world.getWorldCoords(target.location.x, target.location.y, worldDestLoc);
+                        else world.getWorldCoords(target.move.getFloatLocation(), worldDestLoc);
 
                 }
                 worldDestLoc.y = worldStartLoc.y;
@@ -135,16 +135,16 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                         if(targetTokenSpatial != null){
                                 translation.set(targetTokenSpatial.translation);
                                 //rotation.set(targetTokenSpatial.rotation) // TODO: do i want to follow rotation too?
-                                if(targetTokenSpatial.getToken().getDamage() != null && targetTokenSpatial.getToken().getDamage().isDead()){
+                                if(targetTokenSpatial.getToken().damage != null && targetTokenSpatial.getToken().damage.isDead()){
                                         duration = 0;
                                 }
                         }
                         translation.y = 4; // hover it off the ground some
                 }else if(mode == 3){
-                        if (attackerToken == null || !attackerToken.getAttack().hasProjectile() || attackerToken.getDamage().isDead()) {
+                        if (attackerToken == null || !attackerToken.attack.hasProjectile() || attackerToken.damage.isDead()) {
                                 deactivate();
                                 return;
-                        } else if (attackerToken.getAttack().getEffectiveProjectileU() < 0) {
+                        } else if (attackerToken.attack.getEffectiveProjectileU() < 0) {
                                 return;
                         }
 
@@ -156,7 +156,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
 
                         UtMath.interpolate(
                                 Interpolation.pow3,
-                                attackerToken.getAttack().getEffectiveProjectileU(),
+                                attackerToken.attack.getEffectiveProjectileU(),
                                 worldStartLoc,
                                 worldDestLoc,
                                 translation);
@@ -169,16 +169,16 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
 
                 FogState fogState;
                 if (targetTokenSpatial != null) {
-                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null) {
-                                fogState = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap().getFogState(targetTokenSpatial.getToken().getLocation().x, targetTokenSpatial.getToken().getLocation().y);
+                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().fogMapping != null) {
+                                fogState = world.getLocalPlayerToken().fogMapping.getCurrentFogMap().getFogState(targetTokenSpatial.getToken().location.x, targetTokenSpatial.getToken().location.y);
                         } else {
                                 fogState = FogState.Visible;
                         }
                         visU = targetTokenSpatial.visU;
 
                 } else {
-                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null) {
-                                fogState = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap().getFogState(destLoc.x, destLoc.y);
+                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().fogMapping != null) {
+                                fogState = world.getLocalPlayerToken().fogMapping.getCurrentFogMap().getFogState(destLoc.x, destLoc.y);
                         } else {
                                 fogState = FogState.Visible;
                         }
@@ -220,7 +220,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                         // a half second of time between projectile spawna nd when it should show up
                         // we check the effective projectile u to make sure it is positive to make sure that the
                         // projectile should be visible
-                        if (attackerToken == null || attackerToken.getAttack().getEffectiveProjectileU() < 0 || attackerToken.getDamage().isDead()) {
+                        if (attackerToken == null || attackerToken.attack.getEffectiveProjectileU() < 0 || attackerToken.damage.isDead()) {
                                 return;
                         }
                 }

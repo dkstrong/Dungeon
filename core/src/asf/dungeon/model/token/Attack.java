@@ -86,7 +86,7 @@ public class Attack implements TokenComponent, Teleportable{
 
 
 
-                inAttackRangeOfCommandTarget = calcCanRangedAttack(token.getCommand().getTargetToken(), true);
+                inAttackRangeOfCommandTarget = calcCanRangedAttack(token.command.getTargetToken(), true);
 
 
                 if(attackCommandTarget(delta)){
@@ -97,7 +97,7 @@ public class Attack implements TokenComponent, Teleportable{
                 }
 
 
-                if(token.getDamage().isHit())
+                if(token.damage.isHit())
                         return true; // Damage doesnt block the update on isHit() because Attack can still do things while is hit, however everything else lower on the stack is blocked
 
                 return false;
@@ -110,12 +110,12 @@ public class Attack implements TokenComponent, Teleportable{
                         return false; // attack is on cooldown
                 }
 
-                if(token.getDamage().isHit())
+                if(token.damage.isHit())
                         return false;
 
                 if(inAttackRangeOfCommandTarget &&  rangedAttack == false ){
                         attackU = 0;
-                        meleeAttackTarget = token.getCommand().getTargetToken();
+                        meleeAttackTarget = token.command.getTargetToken();
                         rangedAttack = true;
                         return true;
                 }
@@ -151,7 +151,7 @@ public class Attack implements TokenComponent, Teleportable{
                                         meleeAttackTarget = t;
                                         rangedAttack = false;
                                         attackU = 0;
-                                        meleeAttackTarget.getDamage().setHitDuration(weapon.getAttackDuration(), token);
+                                        meleeAttackTarget.damage.setHitDuration(weapon.getAttackDuration(), token);
                                         sentAttackResult = false;
                                         return true;
                                 }
@@ -171,14 +171,14 @@ public class Attack implements TokenComponent, Teleportable{
 
                 if(rangedAttack){
                         if(inAttackRangeOfCommandTarget){ // target is still in range, were going to hit him
-                                projectileAttackCoord.set(meleeAttackTarget.getLocation());
+                                projectileAttackCoord.set(meleeAttackTarget.location);
                                 attackProjectileMaxU =  token.distance(projectileAttackCoord) / weapon.getProjectileSpeed();
                                 projectileAttackTarget = meleeAttackTarget;
-                                meleeAttackTarget.getDamage().setHitDuration(attackProjectileMaxU, token);
+                                meleeAttackTarget.damage.setHitDuration(attackProjectileMaxU, token);
                         }else{ // target got out of range, were going to gurantee miss
                                 // TODO: instead of just uses the next closest tile, we need to ensure that the projectile
                                 // wont be shot over the max range of the weapon (this could happen if the target teleports)
-                                token.getFloorMap().getNextClosestLegalLocation(token.getLocation(), meleeAttackTarget.getLocation(), projectileAttackCoord);
+                                token.floorMap.getNextClosestLegalLocation(token.location, meleeAttackTarget.location, projectileAttackCoord);
                                 attackProjectileMaxU =  token.distance(projectileAttackCoord) / weapon.getProjectileSpeed();
                                 projectileAttackTarget = null;
                         }
@@ -190,7 +190,7 @@ public class Attack implements TokenComponent, Teleportable{
                         if(calcCanMeleeAttack(meleeAttackTarget)){
                                 sendDamageToAttackTarget(meleeAttackTarget);
                                 if(token.listener != null)
-                                        token.listener.onAttack(meleeAttackTarget,meleeAttackTarget.getLocation() ,false);
+                                        token.listener.onAttack(meleeAttackTarget,meleeAttackTarget.location ,false);
                         }
 
                 }
@@ -203,11 +203,11 @@ public class Attack implements TokenComponent, Teleportable{
                 if(!weapon.isRanged())
                         return false;
 
-                if(target == null || target.getDamage() == null || !target.getDamage().isAttackable())
+                if(target == null || target.damage == null || !target.damage.isAttackable())
                         return false;
 
-                if(token.getStatusEffects()==null || !token.getStatusEffects().has(StatusEffect.Confused)){
-                        if(token.getLogic()!=null && target.getLogic() != null&&token.getLogic().getTeam() == target.getLogic().getTeam())
+                if(token.statusEffects==null || !token.statusEffects.has(StatusEffect.Confused)){
+                        if(token.logic!=null && target.logic != null&&token.logic.getTeam() == target.logic.getTeam())
                                 return false;
                 }
 
@@ -234,8 +234,8 @@ public class Attack implements TokenComponent, Teleportable{
                 // i removed it since turning is instant anyway
 
 
-                if(token.getFogMapping() != null){
-                        if(!token.getFogMapping().getCurrentFogMap().isVisible(target.location.x, target.location.y))
+                if(token.fogMapping!= null){
+                        if(!token.fogMapping.getCurrentFogMap().isVisible(target.location.x, target.location.y))
                                 return false;
                 }else{
                         // no fogmapping, so we need to do a ray cast here
@@ -244,7 +244,7 @@ public class Attack implements TokenComponent, Teleportable{
 
                         // TODO: i should change the logic here to always use the alternate LOS algorithm for range
                         // or i need to figure out how to use the same LOS algorithm that fogmapping uses
-                        if(!LOS.hasLineOfSightManual(token.getFloorMap(), token.location.x, token.location.y, target.location.x, target.location.y))
+                        if(!LOS.hasLineOfSightManual(token.floorMap, token.location.x, token.location.y, target.location.x, target.location.y))
                                 return false;
                 }
 
@@ -257,11 +257,11 @@ public class Attack implements TokenComponent, Teleportable{
                 if(weapon.isRanged())
                         return false;
 
-                if(target == null || target.getDamage() == null || !target.getDamage().isAttackable())
+                if(target == null || target.damage == null || !target.damage.isAttackable())
                         return false;
 
-                if(token.getStatusEffects()==null || !token.getStatusEffects().has(StatusEffect.Confused)){
-                        if(token.getLogic()!=null && target.getLogic() != null&&token.getLogic().getTeam() == target.getLogic().getTeam())
+                if(token.statusEffects==null || !token.statusEffects.has(StatusEffect.Confused)){
+                        if(token.logic!=null && target.logic != null&&token.logic.getTeam() == target.logic.getTeam())
                                 return false;
                 }
 
@@ -288,39 +288,39 @@ public class Attack implements TokenComponent, Teleportable{
         private void sendDamageToAttackTarget(Token targetToken) {
 
 
-                if(targetToken.getInventory() != null){
+                if(targetToken.inventory != null){
                         // only reset self combat timer if attacking a character
-                        token.getInventory().resetCombatTimer();
-                        targetToken.getInventory().resetCombatTimer();
+                        token.inventory.resetCombatTimer();
+                        targetToken.inventory.resetCombatTimer();
                 }
 
                 out.damage = 0;
                 out.dodge = false;
                 out.critical = false;
 
-                if(targetToken.getExperience() == null){
+                if(targetToken.experience == null){
                         out.dodge = false;
-                        out.damage = token.getExperience().getStrength();
+                        out.damage = token.experience.getStrength();
                 }else{
-                        float speedDifference = targetToken.getExperience().getAgility() - token.getExperience().getAgility();
+                        float speedDifference = targetToken.experience.getAgility() - token.experience.getAgility();
 
                         if(speedDifference >0) {// target is faster,
                                 float chance = UtMath.scalarLimitsInterpolation(speedDifference, 0f, 100f, 0f, .5f);
                                 out.dodge = token.dungeon.rand.bool(chance);
                         }else{
-                                out.dodge = token.dungeon.rand.bool(.025f + targetToken.getExperience().getLuck() / 100f);
+                                out.dodge = token.dungeon.rand.bool(.025f + targetToken.experience.getLuck() / 100f);
                         }
 
                         if(out.dodge){
                                 out.damage = 0;
                         }else{
                                 // damage done has a minimum of weapon damage and maximum of strength
-                                int strength = token.getExperience().getStrength();
+                                int strength = token.experience.getStrength();
                                 int weaponDmg = weapon.getDamage();
                                 if(weaponDmg <strength) out.damage = token.dungeon.rand.range(weaponDmg, strength);
                                 else out.damage = weaponDmg;
 
-                                if(token.getStatusEffects() != null && token.getStatusEffects().has(StatusEffect.Might)){
+                                if(token.statusEffects != null && token.statusEffects.has(StatusEffect.Might)){
                                         out.damage = Math.round(out.damage*1.5f);
                                 }
 
@@ -333,15 +333,15 @@ public class Attack implements TokenComponent, Teleportable{
                                 }
 
                                 // damage absorb is the armor rating of worn armor.
-                                int armorAbsorb = targetToken.getInventory().getArmorSlot() == null ? 0 : targetToken.getInventory().getArmorSlot().getArmorRating();
+                                int armorAbsorb = targetToken.inventory.getArmorSlot() == null ? 0 : targetToken.inventory.getArmorSlot().getArmorRating();
 
                                 // actually since armorAbsorb is only based on the armor worn, maybe Might shoudlnt increase its effectiveness
-                                //if(targetToken.getStatusEffects() != null && targetToken.getStatusEffects().hasStatusEffect(StatusEffects.Effect.Might)){
+                                //if(targettoken.statusEffects != null && targettoken.statusEffects.hasStatusEffect(StatusEffects.Effect.Might)){
                                 //        armorAbsorb = Math.round(armorAbsorb*1.25f);
                                 //}
 
-                                if(targetToken.getStatusEffects()!= null){
-                                        if(targetToken.getStatusEffects().has(StatusEffect.Frozen)){
+                                if(targetToken.statusEffects!= null){
+                                        if(targetToken.statusEffects.has(StatusEffect.Frozen)){
                                                 armorAbsorb-= out.damage*.15f;
                                         }
                                 }
@@ -354,15 +354,15 @@ public class Attack implements TokenComponent, Teleportable{
 
 
                 if(out.damage  >0)
-                        targetToken.getDamage().addHealth(-out.damage);
+                        targetToken.damage.addHealth(-out.damage);
                 else
                         out.damage = 0;
 
-                if(targetToken.getExperience() != null && token.listener != null)
+                if(targetToken.experience != null && token.listener != null)
                         token.listener.onAttacked(token, targetToken, out);
 
-                if(targetToken.getDamage().isDead()){
-                        token.getExperience().addXpFrom(targetToken.getExperience());
+                if(targetToken.damage.isDead()){
+                        token.experience.addXpFrom(targetToken.experience);
                 }
         }
 
@@ -379,7 +379,7 @@ public class Attack implements TokenComponent, Teleportable{
         }
 
         public float getCriticalHitChance(){
-                return token.getExperience().getLuck() / 100f;
+                return token.experience.getLuck() / 100f;
         }
 
         public boolean isAttacking() {return meleeAttackTarget != null;}
@@ -441,7 +441,7 @@ public class Attack implements TokenComponent, Teleportable{
         protected void setWeapon(WeaponItem weapon){
                 if(weapon == null) weapon  = WeaponItem.NULL;
                 if(weapon == this.weapon) return;
-                if(token.getAttack().isAttacking() || token.getAttack().isAttackingRanged())
+                if(isAttacking() || isAttackingRanged())
                         throw new IllegalStateException("can not change weapon while attacking");
                 this.weapon = weapon;
         }

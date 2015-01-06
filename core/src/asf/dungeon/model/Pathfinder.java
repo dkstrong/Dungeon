@@ -91,7 +91,7 @@ public class Pathfinder {
         }
 
         public boolean generate(Token mover, Pair start, Pair finish, Array<Pair> storePath) {
-                return generate(mover, start, finish, storePath, PathingPolicy.CanDiagonalIfNotCuttingCorner, false, mover.getInteractor() == null ? Integer.MAX_VALUE : 20);
+                return generate(mover, start, finish, storePath, PathingPolicy.CanDiagonalIfNotCuttingCorner, false, mover.interactor == null ? Integer.MAX_VALUE : 20);
         }
 
         /**
@@ -209,7 +209,7 @@ public class Pathfinder {
 
                 if(floorMap != null){
                         for (Token token : floorMap.tokens) {
-                                if(!token.isBlocksPathing() || !token.isLocatedAt(x,y) || token.getCrateInventory() == null)
+                                if(!token.blocksPathing || !token.isLocatedAt(x,y) || token.crateInventory == null)
                                         continue;
                                 return false;
                         }
@@ -259,7 +259,7 @@ public class Pathfinder {
 
 
                 int movementCost = map[n1.x][n1.y].getMovementCost();
-                if (mover != null && !n1.equals(end) && (closedNodes.size < 5 || mover.getInteractor() == null)) {
+                if (mover != null && !n1.equals(end) && (closedNodes.size < 5 || mover.interactor == null)) {
                         // NPCs - we check all their nodes because they dont frequently repath
                         // players - only check the first 5 nodes because they frequently repath
 
@@ -269,25 +269,25 @@ public class Pathfinder {
                                 if(!t.isLocatedAt(n1))
                                         continue;
 
-                                if (t.getStairs() != null)
+                                if (t.stairs!= null)
                                         movementCost += 25;
 
-                                if(!t.isBlocksPathing())
+                                if(!t.blocksPathing)
                                         continue;
 
-                                if (mover.getInteractor() != null && t.get(Boulder.class) != null)
+                                if (mover.interactor != null && t.get(Boulder.class) != null)
                                         continue; // player token doesnt try to walk around boulders
 
-                                if (t.getLogic() != null && t.getLogic().getTeam() == mover.getLogic().getTeam()) {
+                                if (t.logic != null && t.logic.getTeam() == mover.logic.getTeam()) {
                                         // walk around tokens on the same team
                                         movementCost += 30;
-                                } else if (t.getMove() == null) {
+                                } else if (t.move == null) {
                                         // walk around crates
                                         movementCost += 30;
                                 } else if (t.get(Quest.class) != null) {
                                         // walk around quest tokens
                                         movementCost += 30;
-                                } else if (t.getDamage() != null && !t.getDamage().isAttackable()) {
+                                } else if (t.damage != null && !t.damage.isAttackable()) {
                                         movementCost += 20; // avoid walking into monsters, unless they are the target
                                 }
                         }

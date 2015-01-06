@@ -66,7 +66,7 @@ public class TestAssetsFloorGen implements FloorMapGenerator, FloorMap.MonsterSp
                 }
 
                 for(int x = 4; x < bookValues.length+4; x++){
-                        dungeon.newCrateToken(floorMap, "Crate", dungeon.rand.random.nextBoolean() ? ModelId.Barrel : ModelId.Crate, new BookItem(dungeon, bookValues[x-4]), x,  tileData.length - 2);
+                        dungeon.newCrateToken(floorMap, "Crate", dungeon.rand.random.nextBoolean() ? ModelId.Barrel : ModelId.Chest, new BookItem(dungeon, bookValues[x-4]), x,  tileData.length - 2);
                 }
 
                 for(int y = 0; y< potionValues.length; y++){

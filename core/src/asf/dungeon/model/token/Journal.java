@@ -109,10 +109,10 @@ public class Journal implements TokenComponent{
 
         @Override
         public boolean update(float delta) {
-                float study = delta * token.getExperience().getIntelligence();
-                study(token.getInventory().getWeaponSlot(), study);
-                study(token.getInventory().getArmorSlot(), study);
-                study(token.getInventory().getRingSlot(), study);
+                float study = delta * token.experience.getIntelligence();
+                study(token.inventory.getWeaponSlot(), study);
+                study(token.inventory.getArmorSlot(), study);
+                study(token.inventory.getRingSlot(), study);
                 return false;
         }
 }

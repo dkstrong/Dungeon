@@ -19,12 +19,12 @@ public class PotionQuest extends Quest {
                         @Override
                         public boolean testCondition(Interactor interactor) {
                                 Token chattingWith = interactor.chattingWith;
-                                return (interactor.getChatProgress(chattingWith) == 1 && !chattingWith.getDamage().isDead());
+                                return (interactor.getChatProgress(chattingWith) == 1 && !chattingWith.damage.isDead());
                         }
 
                         @Override
                         public String getMessage(Interactor interactor) {
-                                if(interactor.token.getInventory().isFull())
+                                if(interactor.token.inventory.isFull())
                                         return "I will gladly hold up my end of the bargain, return to me when you have room in your inventory.";
                                 else
                                         return "As promised, here is the sword. Unfortunately I have not been able to identify it yet.";
@@ -33,7 +33,7 @@ public class PotionQuest extends Quest {
 
                         @Override
                         public Choice[] getChoices(Interactor interactor) {
-                                if(interactor.token.getInventory().isFull()){
+                                if(interactor.token.inventory.isFull()){
                                         return new Choice[]{new Choice("I will return.")};
                                 }else{
                                         Choice c0 =  new Choice("[Take Sword]");
@@ -41,7 +41,7 @@ public class PotionQuest extends Quest {
                                                 @Override
                                                 public void exec(Interactor interactor) {
                                                         WeaponItem weapon = new WeaponItem(ModelId.SwordLarge, "Traveler's Sword", 3);
-                                                        interactor.token.getInventory().add(weapon);
+                                                        interactor.token.inventory.add(weapon);
                                                         interactor.setChatProgress(interactor.chattingWith, 3);
                                                 }
                                         });
@@ -56,7 +56,7 @@ public class PotionQuest extends Quest {
                 dialouges[2] = new Dialouge() {
                         @Override
                         public boolean testCondition(Interactor interactor) {
-                                return(interactor.getChatProgress(interactor.chattingWith) == 2 && !interactor.chattingWith.getDamage().isDead());
+                                return(interactor.getChatProgress(interactor.chattingWith) == 2 && !interactor.chattingWith.damage.isDead());
                         }
 
                         @Override
@@ -100,8 +100,8 @@ public class PotionQuest extends Quest {
                 dialouges[0] =  new Dialouge(){
                         @Override
                         public boolean testCondition(Interactor interactor) {
-                                if(interactor.token.getInventory() != null && !interactor.token.getInventory().canChangeEquipment()) return false;
-                                return (interactor.getChatProgress(interactor.chattingWith) == 0 && !interactor.chattingWith.getDamage().isDead());
+                                if(interactor.token.inventory != null && !interactor.token.inventory.canChangeEquipment()) return false;
+                                return (interactor.getChatProgress(interactor.chattingWith) == 0 && !interactor.chattingWith.damage.isDead());
                         }
 
                         @Override
@@ -111,17 +111,17 @@ public class PotionQuest extends Quest {
 
                         @Override
                         public Choice[] getChoices(Interactor interactor) {
-                                final PotionItem health = interactor.token.getInventory().getPotionItem(PotionItem.Type.Health);
+                                final PotionItem health = interactor.token.inventory.getPotionItem(PotionItem.Type.Health);
                                 Choice c0;
                                 if(health != null && health.isIdentified(interactor.token)){
                                         c0 = new Choice("[Give Health Potion]");
                                         c0.setCommand(new Command() {
                                                 @Override
                                                 public void exec(Interactor interactor) {
-                                                        PotionItem givePotion = interactor.token.getInventory().discardOrUnstack(health, 1);
+                                                        PotionItem givePotion = interactor.token.inventory.discardOrUnstack(health, 1);
                                                         if(givePotion == null) throw new AssertionError("potion should now be null");
-                                                        interactor.chattingWith.getInventory().add(givePotion);
-                                                        interactor.chattingWith.getCommand().consumeItem(givePotion);
+                                                        interactor.chattingWith.inventory.add(givePotion);
+                                                        interactor.chattingWith.command.consumeItem(givePotion);
                                                         interactor.setChatProgress(interactor.chattingWith, 1);
                                                 }
                                         });
@@ -130,24 +130,24 @@ public class PotionQuest extends Quest {
                                         c0 = null;
                                 }
 
-                                final PotionItem poison = interactor.token.getInventory().getPotionItem(PotionItem.Type.Poison);
+                                final PotionItem poison = interactor.token.inventory.getPotionItem(PotionItem.Type.Poison);
                                 Choice c1;
                                 if(poison != null && poison.isIdentified(interactor.token)){
                                         c1 = new Choice("I don't have a Health Potion but I can give you this... [Give Poison Potion]");
                                         c1.setCommand(new Command() {
                                                 @Override
                                                 public void exec(Interactor interactor) {
-                                                        PotionItem givePotion = interactor.token.getInventory().discardOrUnstack(poison, 1);
+                                                        PotionItem givePotion = interactor.token.inventory.discardOrUnstack(poison, 1);
                                                         if(givePotion == null) throw new AssertionError("potion should now be null");
-                                                        interactor.chattingWith.getInventory().add(givePotion);
+                                                        interactor.chattingWith.inventory.add(givePotion);
 
-                                                        boolean chanceCursed = interactor.token.dungeon.rand.bool(.75f - (interactor.token.getExperience().getLuck()/100f));
+                                                        boolean chanceCursed = interactor.token.dungeon.rand.bool(.75f - (interactor.token.experience.getLuck()/100f));
                                                         WeaponItem weapon = new WeaponItem(ModelId.SwordLarge, "Traveler's Sword", chanceCursed ? 1 : 3);
                                                         weapon.setCursed(chanceCursed);
-                                                        interactor.chattingWith.getInventory().add(weapon);
-                                                        interactor.chattingWith.getInventory().setItemToDrop(weapon);
+                                                        interactor.chattingWith.inventory.add(weapon);
+                                                        interactor.chattingWith.inventory.setItemToDrop(weapon);
 
-                                                        interactor.chattingWith.getCommand().consumeItem(givePotion);
+                                                        interactor.chattingWith.command.consumeItem(givePotion);
 
 
                                                         interactor.setChatProgress(interactor.chattingWith, 2);

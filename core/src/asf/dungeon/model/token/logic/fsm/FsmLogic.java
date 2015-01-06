@@ -27,9 +27,9 @@ public class FsmLogic implements Logic {
         }
 
         protected void setState(State state) {
-                if (currentState != null) currentState.end(this, token, token.getCommand());
+                if (currentState != null) currentState.end(this, token, token.command);
                 currentState = state;
-                currentState.begin(this, token, token.getCommand());
+                currentState.begin(this, token, token.command);
         }
 
         protected State getCurrentState() {
@@ -50,7 +50,7 @@ public class FsmLogic implements Logic {
         @Override
         public boolean update(float delta) {
                 if (currentState == null) setState(initialState);
-                currentState.update(this, token, token.getCommand(), delta);
+                currentState.update(this, token, token.command, delta);
                 return false;
         }
 }

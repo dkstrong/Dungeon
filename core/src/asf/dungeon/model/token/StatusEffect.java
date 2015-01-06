@@ -8,13 +8,13 @@ public enum StatusEffect {
         Heal(){
                 @Override
                 protected void apply(Token token) {
-                        token.getDamage().addHealth(1);
+                        token.damage.addHealth(1);
                 }
         },
         Poison(){
                 @Override
                 protected void apply(Token token) {
-                        token.getDamage().addHealth(-1);
+                        token.damage.addHealth(-1);
                 }
         },
         Frozen(){
@@ -22,17 +22,17 @@ public enum StatusEffect {
                 // Attack.sendDamageToAttackTarget also checks for this and increases damage received
                 @Override
                 protected void begin(Token token) {
-                        token.getStatusEffects().remove(StatusEffect.Burning);
+                        token.statusEffects.remove(StatusEffect.Burning);
                 }
         },
         Burning(){
                 @Override
                 protected void begin(Token token) {
-                        token.getStatusEffects().remove(StatusEffect.Frozen);
+                        token.statusEffects.remove(StatusEffect.Frozen);
                 }
                 @Override
                 protected void apply(Token token) {
-                        token.getDamage().addHealth(-1);
+                        token.damage.addHealth(-1);
                 }
         },
         Paralyze(), // StatusEffects.update() checks for this and blocks the stack if paralyzed, Inventory

@@ -58,25 +58,24 @@ public class Command implements TokenComponent, Teleportable{
         }
 
         public void setLocation(int x, int y) {
-
                 if(location.equals(x,y))
                         return;
-                canUseKeyOnTile = null;
                 this.location.set(x,y);
                 targetToken = null;
                 useKeyOnTile = null;
-
-
+                canUseKeyOnTile = null;
+                token.move.showDoorLockedMessage = true;
         }
 
         public void setUseKeyOnTile(Pair location){
                 if(canUseKeyOnTile != null){
-                        Tile tile = token.getFloorMap().getTile(location);
+                        Tile tile = token.floorMap.getTile(location);
                         if(canUseKeyOnTile == tile && tile.isDoor() && tile.isDoorLocked()){
                                 this.location.set(location);
                                 useKeyOnTile =tile;
                                 targetToken = null;
                                 canUseKeyOnTile = null;
+                                token.move.showDoorLockedMessage = true;
                         }
                 }else{
                         useKeyOnTile = null;
@@ -84,7 +83,7 @@ public class Command implements TokenComponent, Teleportable{
         }
 
         public boolean consumeItem(ConsumableItem item){
-                if (consumeItem != null || token.getDamage().isDead())
+                if (consumeItem != null || token.damage.isDead())
                         return false; // already consuming an item, or dead
                 //Gdx.app.log("Command",token+" consume "+item);
                 consumeItem = (ConsumableItem) item;
@@ -122,34 +121,36 @@ public class Command implements TokenComponent, Teleportable{
                         return;
                 }
 
-                if(targetToken.getDamage() == null || !targetToken.getDamage().isAttackable()){
+                if(targetToken.damage == null || !targetToken.damage.isAttackable()){
                         this.targetToken = null;
                         return;
                 }
 
-                if(targetToken.getLogic() != null && targetToken.getLogic().getTeam() == token.getLogic().getTeam()){
+                if(targetToken.logic != null && targetToken.logic.getTeam() == token.logic.getTeam()){
                         this.targetToken = null;
                         return;
                 }
 
 
-                if(token.getFogMapping() != null){
-                        FogMap fogMap = token.getFogMapping().getFogMap(token.getFloorMap());
+                if(token.fogMapping != null){
+                        FogMap fogMap = token.fogMapping.getFogMap(token.floorMap);
                         if(!fogMap.isVisible(targetToken.location.x, targetToken.location.y)){
                                 this.targetToken = null;
                                 return;
                         }
                 }else{
                         // same LOS fallback used in Attack
-                        if(!LOS.hasLineOfSightManual(token.getFloorMap(), token.location.x, token.location.y, targetToken.location.x, targetToken.location.y)){
+                        if(!LOS.hasLineOfSightManual(token.floorMap, token.location.x, token.location.y, targetToken.location.x, targetToken.location.y)){
                                 this.targetToken = null;
                                 return ;
                         }
                 }
                 this.targetToken = targetToken;
-                location.set(targetToken.getLocation());
+                location.set(targetToken.location);
                 useKeyOnTile = null;
                 canUseKeyOnTile = null;
+                token.move.showDoorLockedMessage = true;
+
         }
 
         public boolean isUseKey() {

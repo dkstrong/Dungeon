@@ -27,7 +27,7 @@ public class Damage implements TokenComponent, Teleportable{
 
         public Damage(Token token) {
                 this.token = token;
-                token.setBlocksPathing(true);
+                token.blocksPathing = true;
         }
 
         @Override
@@ -44,7 +44,7 @@ public class Damage implements TokenComponent, Teleportable{
         @Override
         public boolean update(float delta) {
                 if (isFullyDead()) {
-                        token.setBlocksPathing(false);
+                        token.blocksPathing = false;
                         deathCountdown -= delta;
                         if (deathCountdown < -deathRemovalDuration) {
                                 token.dungeon.removeToken(token);
@@ -127,14 +127,14 @@ public class Damage implements TokenComponent, Teleportable{
         }
 
         protected void onRevive() {
-                token.setBlocksPathing(true);
+                token.blocksPathing = true;
         }
 
         protected void onDied() {
 
-                if(token.getCrateInventory() != null){
-                        token.getCrateInventory().dropItem(token.getCrateInventory().getItemToDrop());
-                }
+                if(token.crateInventory != null)
+                        token.crateInventory.dropItem(token.crateInventory.getItemToDrop());
+
         }
 
         /**
@@ -147,8 +147,8 @@ public class Damage implements TokenComponent, Teleportable{
         }
 
         public boolean isAttackable() {
-                if(token.getInteractor() != null && token.getInteractor().isInteracting()) return false;
-                if(token.getStatusEffects() != null && token.getStatusEffects().has(StatusEffect.Invisibility)) return false;
+                if(token.interactor != null && token.interactor.isInteracting()) return false;
+                if(token.statusEffects != null && token.statusEffects.has(StatusEffect.Invisibility)) return false;
                 return attackable && !isDead();
         }
 

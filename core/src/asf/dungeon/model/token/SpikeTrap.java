@@ -12,7 +12,7 @@ public class SpikeTrap implements TokenComponent{
 
         public SpikeTrap(Token token) {
                 this.token = token;
-                token.setBlocksPathing(false);
+                token.blocksPathing = false;
         }
 
         @Override
@@ -33,12 +33,12 @@ public class SpikeTrap implements TokenComponent{
                 triggered = 1;
                 if(listener!=null) listener.onSpikeTrapTriggered();
 
-                Array<Token> victimTokens = token.getFloorMap().getTokens();
+                Array<Token> victimTokens = token.floorMap.getTokens();
                 for (int i = 0; i < victimTokens.size; i++) {
                         Token t = victimTokens.items[i];
                         if(t == token) continue;
-                        if(t.getDamage() == null) continue;
-                        if(!t.isLocatedAt(token.getLocation())) continue;
+                        if(t.damage == null) continue;
+                        if(!t.isLocatedAt(token.location)) continue;
                         sendDamageToVictim(t);
                 }
 
@@ -47,15 +47,15 @@ public class SpikeTrap implements TokenComponent{
         private void sendDamageToVictim(Token victimToken){
                 Attack.AttackOutcome out = new Attack.AttackOutcome();
 
-                if(victimToken.getInventory() != null){
-                        victimToken.getInventory().resetCombatTimer();
+                if(victimToken.inventory != null){
+                        victimToken.inventory.resetCombatTimer();
                 }
                 out.damage = 5;
                 out.dodge = false;
                 out.critical =false;
-                victimToken.getDamage().setHitDuration(2, token);
-                victimToken.getDamage().addHealth(-out.damage);
-                if(victimToken.getExperience() !=null && victimToken.listener != null) {
+                victimToken.damage.setHitDuration(2, token);
+                victimToken.damage.addHealth(-out.damage);
+                if(victimToken.experience !=null && victimToken.listener != null) {
                         victimToken.listener.onAttacked(token, victimToken, out);
                 }
 

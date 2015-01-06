@@ -28,7 +28,7 @@ public class BoulderSpatial extends AbstractTokenSpatial{
 
         public void preload(DungeonWorld world) {
 
-                world.assetManager.load(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
+                world.assetManager.load(world.assetMappings.getAssetLocation(token.modelId), Model.class);
 
 
 
@@ -36,11 +36,11 @@ public class BoulderSpatial extends AbstractTokenSpatial{
 
         public void init(AssetManager assetManager) {
                 initialized = true;
-                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
+                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId), Model.class);
                 modelInstance = new BetterModelInstance(model);
 
                 boulder = token.get(Boulder.class);
-                rotation.set(world.assetMappings.getRotation(token.getDirection()));
+                rotation.set(world.assetMappings.getRotation(token.direction));
 
         }
 
@@ -78,7 +78,7 @@ public class BoulderSpatial extends AbstractTokenSpatial{
                         // if not fog blocked
                         float rotMoveSpeed = UtMath.largest(boulder.getMoveSpeed(), 7f);
                         float rotSpeed = delta * (rotMoveSpeed + 0.5f);
-                        Quaternion tokenDirRot = world.assetMappings.getRotation(token.getDirection());
+                        Quaternion tokenDirRot = world.assetMappings.getRotation(token.direction);
                         rotation.slerp(tokenDirRot, rotSpeed);
                 }
 
@@ -89,7 +89,7 @@ public class BoulderSpatial extends AbstractTokenSpatial{
                 if (visU <= 0) return;
                 if (world.hudSpatial.isMapViewMode()){
                         if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
-                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
+                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.location.distance(token.location) > 16) return;
 
                 modelInstance.transform.set(
                         translation.x , translation.y - (boulder.isFillsPit() ? world.floorSpatial.tileDimensions.y : 0) , translation.z ,

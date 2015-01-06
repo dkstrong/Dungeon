@@ -142,7 +142,7 @@ public abstract class EquipmentItem implements Item {
         public String getNameFromJournal(Token token) {
                 boolean identified = isIdentified(token);
                 String cursedMessage;
-                if(isCursed() && (identified || token.getInventory().isEquipped(this))) cursedMessage = M.Cursed+" ";
+                if(isCursed() && (identified || token.inventory.isEquipped(this))) cursedMessage = M.Cursed+" ";
                 else cursedMessage="";
 
                 if (identified) return cursedMessage+getName();
@@ -153,7 +153,7 @@ public abstract class EquipmentItem implements Item {
         public String getDescriptionFromJournal(Token token) {
                 boolean identified = isIdentified(token);
                 String cursedMessage;
-                if(isCursed() && token.getInventory().isEquipped(this)) cursedMessage = "\n\n"+M.CursedEquippedDesc;
+                if(isCursed() && token.inventory.isEquipped(this)) cursedMessage = "\n\n"+M.CursedEquippedDesc;
                 else if(isCursed() && identified) cursedMessage = "\n\n"+M.CursedDesc;
                 else cursedMessage="";
 

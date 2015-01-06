@@ -14,7 +14,7 @@ public class PressurePlate implements TokenComponent, PuzzlePiece {
         public PressurePlate(Token token, Puzzle puzzle) {
                 this.token = token;
                 this.puzzle = puzzle;
-                token.setBlocksPathing(false);
+                token.blocksPathing = false;
         }
 
         @Override

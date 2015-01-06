@@ -37,7 +37,7 @@ public class Interactor implements TokenComponent, Teleportable{
                         if(quest == null) continue;
                         chattingWith = t;
                         Dialouge currentDialogue = quest.initialDialouge(this);
-                        token.getCommand().setLocation(token.getLocation());
+                        token.command.setLocation(token.location);
                         if(currentDialogue != null) {
                                 if(token.listener != null)
                                         token.listener.onInteract(quest, currentDialogue);
@@ -54,7 +54,7 @@ public class Interactor implements TokenComponent, Teleportable{
 
                 if(!isInteracting()) return false;
 
-                Choice chatChoice = token.getCommand().getChatChoice();
+                Choice chatChoice = token.command.getChatChoice();
                 //Gdx.app.log("Interactor","received chat choice: "+chatChoice);
                 if(chatChoice !=null){
                         Quest quest = chattingWith.get(Quest.class);
@@ -66,7 +66,7 @@ public class Interactor implements TokenComponent, Teleportable{
                         }else{
                                 //Gdx.app.log("Interactor","done interacting with "+chattingWith.getName());
                                 chattingWith = null;
-                                //token.getCommand().setLocation(token.getLocation());
+                                //token.command.setLocation(token.location);
                                 return true;
                         }
                 }

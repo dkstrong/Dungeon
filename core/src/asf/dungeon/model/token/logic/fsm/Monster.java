@@ -19,17 +19,17 @@ public enum Monster implements State {
         Sleep {
                 @Override
                 public void begin(FsmLogic fsm, Token token, Command command) {
-                        if (fsm.sector == null || fsm.sector.contains(token.getLocation())) {
+                        if (fsm.sector == null || fsm.sector.contains(token.location)) {
                                 // monster haas no sector, or already is in sector, just sit still
-                                command.setLocation(token.getLocation());
+                                command.setLocation(token.location);
                         } else {
                                 // move to a point in sector
-                                FloorMap floorMap = token.getFloorMap();
+                                FloorMap floorMap = token.floorMap;
                                 int x, y, tries = 0;
                                 do {
                                         if (++tries > 20) {
-                                                x = token.getLocation().x;
-                                                y = token.getLocation().y;
+                                                x = token.location.x;
+                                                y = token.location.y;
                                                 break;
                                         }
                                         x = fsm.sector.getRandomX(fsm.rand);
@@ -49,21 +49,21 @@ public enum Monster implements State {
         Explore {
                 @Override
                 public void begin(FsmLogic fsm, Token token, Command command) {
-                        command.setLocation(token.getLocation());
+                        command.setLocation(token.location);
                 }
 
                 @Override
                 public void update(FsmLogic fsm, Token token, Command command, float delta) {
                         // TODO: i think how explore should work is that it moves to random nearby locations,
                         // but after 30 seconds or so go in to sleep/return to sector
-                        if (token.isLocatedAt(token.getCommand().getLocation())) {
+                        if (token.isLocatedAt(token.command.getLocation())) {
                                 // Wander aimlessly
-                                FloorMap floorMap = token.getFloorMap();
+                                FloorMap floorMap = token.floorMap;
                                 int x, y, tries = 0;
                                 do {
                                         if (++tries > 20) {
-                                                x = token.getLocation().x;
-                                                y = token.getLocation().y;
+                                                x = token.location.x;
+                                                y = token.location.y;
                                                 return;
                                         }
                                         x = token.dungeon.rand.random.nextInt(floorMap.getWidth());
@@ -86,12 +86,12 @@ public enum Monster implements State {
 
                 @Override
                 public void update(FsmLogic fsm, Token token, Command command, float delta) {
-                        if (fsm.target.getStatusEffects() == null || !fsm.target.getStatusEffects().has(StatusEffect.LuresMonsters)) {
+                        if (fsm.target.statusEffects == null || !fsm.target.statusEffects.has(StatusEffect.LuresMonsters)) {
                                 fsm.setState(Explore);
                                 return;
                         }
 
-                        command.setLocation(fsm.target.getLocation());
+                        command.setLocation(fsm.target.location);
 
                         checkForTargets(fsm, token, command);
                 }
@@ -99,7 +99,7 @@ public enum Monster implements State {
         ChaseKeepDistance {
                 @Override
                 public void begin(FsmLogic fsm, Token token, Command command) {
-                        moveToSafeDistance(fsm, token, command, token.getAttack().getWeapon().getRange());
+                        moveToSafeDistance(fsm, token, command, token.attack.getWeapon().getRange());
                 }
 
                 @Override
@@ -107,11 +107,11 @@ public enum Monster implements State {
 
                         if (checkForConfused(fsm, token, command))
                                 return;
-                        if (!fsm.target.getDamage().isAttackable()) {
+                        if (!fsm.target.damage.isAttackable()) {
                                 fsm.setState(Explore);
-                        } else if (!token.getAttack().isOnAttackCooldown()) {
+                        } else if (!token.attack.isOnAttackCooldown()) {
                                 fsm.setState(Chase);
-                        } else if (command.getTargetToken() == null && !token.getMove().isMoving() && command.getLocation().equals(token.getLocation())) {
+                        } else if (command.getTargetToken() == null && !token.move.isMoving() && command.getLocation().equals(token.location)) {
                                 // if finished moving while keeping distance and attack cooldown still isnt finished
                                 // then go in to attack target token mode
                                 command.setTargetToken(fsm.target);
@@ -120,7 +120,7 @@ public enum Monster implements State {
                         } else if (command.getTargetToken() != null) {
                                 // if elected to hold position because already at a good range, then continualy check
                                 // distance to target and move back if needed
-                                moveToSafeDistance(fsm, token, command, token.getAttack().getWeapon().getRange());
+                                moveToSafeDistance(fsm, token, command, token.attack.getWeapon().getRange());
                         }
 
 
@@ -136,7 +136,7 @@ public enum Monster implements State {
 
                 @Override
                 public void update(FsmLogic fsm, Token token, Command command, float delta) {
-                        if (!fsm.target.getDamage().isAttackable()) {
+                        if (!fsm.target.damage.isAttackable()) {
                                 fsm.setState(Explore);
                                 return;
                         }
@@ -144,8 +144,8 @@ public enum Monster implements State {
                         if (checkForConfused(fsm, token, command))
                                 return;
 
-                        if (token.getAttack().getWeapon().isRanged()) {
-                                if (token.getAttack().isOnAttackCooldown()) {
+                        if (token.attack.getWeapon().isRanged()) {
+                                if (token.attack.isOnAttackCooldown()) {
                                         fsm.setState(ChaseKeepDistance);
                                 }
                         }
@@ -170,12 +170,12 @@ public enum Monster implements State {
         }
 
         private static boolean checkForConfused(FsmLogic fsm, Token token, Command command) {
-                if (fsm.target.getLogic() != null && token.getStatusEffects() != null) {
+                if (fsm.target.logic != null && token.statusEffects != null) {
                         // ensure monster is chasing the appropriate team based on its confused state
-                        if (fsm.target.getLogic().getTeam() == token.getLogic().getTeam() && !token.getStatusEffects().has(StatusEffect.Confused)) {
+                        if (fsm.target.logic.getTeam() == token.logic.getTeam() && !token.statusEffects.has(StatusEffect.Confused)) {
                                 fsm.setState(Explore);
                                 return true;
-                        } else if (fsm.target.getLogic().getTeam() != token.getLogic().getTeam() && token.getStatusEffects().has(StatusEffect.Confused)) {
+                        } else if (fsm.target.logic.getTeam() != token.logic.getTeam() && token.statusEffects.has(StatusEffect.Confused)) {
                                 fsm.setState(Explore);
                                 return true;
                         }
@@ -185,36 +185,36 @@ public enum Monster implements State {
         }
 
         private static boolean checkForTargets(FsmLogic fsm, Token token, Command command) {
-                FloorMap fm = token.getFloorMap();
+                FloorMap fm = token.floorMap;
 
                 Array<Token> attackableTokens = fm.getTokens();
                 for (Token t : attackableTokens) {
                         if (fsm.getCurrentState() != Lured &&
-                                token.getStatusEffects() != null &&
-                                token.getStatusEffects().has(StatusEffect.LuresMonsters) &&
-                                !token.getStatusEffects().has(StatusEffect.Confused)) {
+                                token.statusEffects != null &&
+                                token.statusEffects.has(StatusEffect.LuresMonsters) &&
+                                !token.statusEffects.has(StatusEffect.Confused)) {
                                 fsm.target = t;
                                 fsm.setState(Lured);
                                 return true;
                         }
 
-                        if (t.getLogic() == null || t.getDamage() == null || !t.getDamage().isAttackable())
+                        if (t.logic == null || t.damage == null || !t.damage.isAttackable())
                                 continue;
 
-                        if (token.getStatusEffects() != null && token.getStatusEffects().has(StatusEffect.Confused)) {
-                                if (t.getLogic().getTeam() != token.getLogic().getTeam())
+                        if (token.statusEffects != null && token.statusEffects.has(StatusEffect.Confused)) {
+                                if (t.logic.getTeam() != token.logic.getTeam())
                                         continue;
                         } else {
-                                if (t.getLogic().getTeam() == token.getLogic().getTeam())
+                                if (t.logic.getTeam() == token.logic.getTeam())
                                         continue;
                         }
 
                         float distance = token.distance(t);
                         // TODO: sight radius is an integer/manhatten value, may want to alter this check some..
-                        if(distance > token.getDamage().getSightRadius())
+                        if(distance > token.damage.getSightRadius())
                                 continue;
 
-                        if(!LOS.hasLineOfSightManual(token.getFloorMap(), token.getLocation().x, token.getLocation().y, t.getLocation().x, t.getLocation().y))
+                        if(!LOS.hasLineOfSightManual(token.floorMap, token.location.x, token.location.y, t.location.x, t.location.y))
                                 continue;
 
                         fsm.target = t;
@@ -238,11 +238,11 @@ public enum Monster implements State {
                         return;
                 }
 
-                Direction dir = fsm.target.getLocation().direction(token.getLocation());
+                Direction dir = fsm.target.location.direction(token.location);
                 int range = (int) safeDistance;
-                FloorMap fm = token.getFloorMap();
+                FloorMap fm = token.floorMap;
                 do {
-                        fsm.pair.set(fsm.target.getLocation()).multAddFree(dir, range);
+                        fsm.pair.set(fsm.target.location).multAddFree(dir, range);
                         if (!fm.isLocationBlocked(fsm.pair)) break;
                         //fsm.pair.set(fsm.target.getLocation()).multAdd(dir, range, false);
                         //if(!fm.isLocationBlocked(fsm.pair)) break;
@@ -254,7 +254,7 @@ public enum Monster implements State {
                         command.setLocation(fsm.pair);
                 } else {
                         // backed in to a corner, give command to just hold location
-                        command.setLocation(token.getLocation());
+                        command.setLocation(token.location);
                 }
 
         }

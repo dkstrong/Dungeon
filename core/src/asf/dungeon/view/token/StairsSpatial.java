@@ -27,7 +27,7 @@ public class StairsSpatial extends AbstractTokenSpatial{
 
         @Override
         public void preload(DungeonWorld world) {
-                if(token.getStairs().isStairsUp()){
+                if(token.stairs.isStairsUp()){
                         world.assetManager.load("Models/Dungeon/Stairs/StairsUp.g3db", Model.class);
                 }else{
                         world.assetManager.load("Models/Dungeon/Stairs/StairsDown.g3db", Model.class);
@@ -39,7 +39,7 @@ public class StairsSpatial extends AbstractTokenSpatial{
         public void init(AssetManager assetManager) {
                 initialized = true;
 
-                if(token.getStairs().isStairsUp()){
+                if(token.stairs.isStairsUp()){
                         Model model = assetManager.get("Models/Dungeon/Stairs/StairsUp.g3db", Model.class);
                         modelInstance = new BetterModelInstance(model);
                 }else{
@@ -49,9 +49,9 @@ public class StairsSpatial extends AbstractTokenSpatial{
                 Material material = modelInstance.materials.get(0);
                 colorAttribute = (ColorAttribute)material.get(ColorAttribute.Diffuse);
 
-                world.getWorldCoords(token.getLocation(), translation);
+                world.getWorldCoords(token.location, translation);
 
-                rotation.set(world.assetMappings.getRotation(token.getDirection()));
+                rotation.set(world.assetMappings.getRotation(token.direction));
 
                 modelInstance.transform.set(
                         translation.x , translation.y , translation.z ,
@@ -72,7 +72,7 @@ public class StairsSpatial extends AbstractTokenSpatial{
                 if (visU <= 0) return;
                 if (world.hudSpatial.isMapViewMode()){
                         if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
-                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
+                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.location.distance(token.location) > 16) return;
 
 
                 colorAttribute.color.r = UtMath.clamp(floorDecalColor.r + .1f, 0f, 1f);

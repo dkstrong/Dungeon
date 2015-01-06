@@ -53,14 +53,12 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         }
 
         public void preload(DungeonWorld world) {
-                token.setListener(this);
-
-                world.assetManager.load(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
+                world.assetManager.load(world.assetMappings.getAssetLocation(token.modelId), Model.class);
                 refreshWeaponAttachment();
 
                 // check to see if the token spawned with a projectile, spawn the projectile with it if thats the case
-                if (token.getAttack() != null && token.getAttack().hasProjectile()) {
-                        world.fxManager.shootProjectile(token.getAttack().getWeapon().getProjectileFx(), token, token.getAttack().getProjectileAttackTarget(), token.getAttack().getProjectileAttackCoord());
+                if (token.attack != null && token.attack.hasProjectile()) {
+                        world.fxManager.shootProjectile(token.attack.getWeapon().getProjectileFx(), token, token.attack.getProjectileAttackTarget(), token.attack.getProjectileAttackCoord());
                 }
 
         }
@@ -68,13 +66,13 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
 
         private void refreshWeaponAttachment(){
-                WeaponItem weaponSlot = token.getInventory().getWeaponSlot();
+                WeaponItem weaponSlot = token.inventory.getWeaponSlot();
                 if(weaponSlot != loadedWeaponItem){
                         if(weaponSlot == null){
                                 unloadWeaponAttachment();
                         }else{
                                 loadedWeaponItem = weaponSlot;
-                                String weaponAssetLocation = world.assetMappings.getAssetLocation(token.getInventory().getWeaponSlot().getModelId());
+                                String weaponAssetLocation = world.assetMappings.getAssetLocation(token.inventory.getWeaponSlot().getModelId());
                                 world.assetManager.load(weaponAssetLocation, Model.class);
                                 if(!loadedWeaponItem.isRanged())
                                         world.assetManager.load("Models/Loot/Sword/shield_01.g3db", Model.class);
@@ -96,7 +94,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         public boolean onLoaded() {
                 if(modelInstance == null)
                         return false;
-                WeaponItem weaponSlot = token.getInventory().getWeaponSlot();
+                WeaponItem weaponSlot = token.inventory.getWeaponSlot();
                 if(weaponSlot == null){
                         unloadWeaponAttachment();
                         return true;
@@ -137,7 +135,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         public void init(AssetManager assetManager) {
                 initialized = true;
 
-                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.getModelId()));
+                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId));
                 modelInstance = new BetterModelInstance(model);
 
                 //if (shape != null)
@@ -151,19 +149,16 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
                 //}
 
-                if (    token.getModelId() != ModelId.Knight &&
-                        token.getModelId() != ModelId.Goblin &&
-                        token.getModelId() != ModelId.Skeleton) {
+                if (
+                        token.modelId != ModelId.Goblin &&
+                        token.modelId != ModelId.Skeleton) {
                         float s = .45f;
                         scale.set(s, s, s);
                         translationBase.set(0, (world.floorSpatial.tileBox.getDimensions().y / 2f) + 1.45f, 0);
-                }else if(token.getModelId() == ModelId.Knight){
-                       // float s = 4.25f;
-                       // scale.set(s, s, s);
                 }
 
-                if (token.getModelId() == ModelId.Diablous || token.getModelId() == ModelId.Berzerker || token.getModelId() == ModelId.Priest
-                        || token.getModelId() == ModelId.Scroll || token.getModelId() == ModelId.Torch) {
+                if (token.modelId == ModelId.Diablous || token.modelId == ModelId.Berzerker || token.modelId == ModelId.Priest
+                        || token.modelId == ModelId.Scroll || token.modelId == ModelId.Torch) {
                         for (Material mat : modelInstance.materials) {
                                 //GdxInfo.material(mat);
                                 mat.set(new IntAttribute(IntAttribute.CullFace, 0));
@@ -200,10 +195,10 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
 
                 // check to see if token spawned with status effects already on, if so then shot their Fx and hud information
-                if (token.getStatusEffects() != null) {
+                if (token.statusEffects != null) {
                         for (StatusEffect effect : StatusEffects.effectValues) {
-                                if (token.getStatusEffects().has(effect)) {
-                                        float duration = token.getStatusEffects().getDuration(effect);
+                                if (token.statusEffects.has(effect)) {
+                                        float duration = token.statusEffects.getDuration(effect);
                                         onStatusEffectChange(effect, duration);
                                 }
                         }
@@ -236,7 +231,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 if (fogState == FogState.Visible) {
                         visU += delta * .65f;
 
-                        if (token.getStatusEffects().has(StatusEffect.Invisibility)) {
+                        if (token.statusEffects.has(StatusEffect.Invisibility)) {
                                 if (token == world.hudSpatial.localPlayerToken)
                                         maxVisU = .5f;
                                 else
@@ -259,7 +254,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         }
                 }
 
-                world.getWorldCoords(token.getMove().getFloatLocation(), translation);
+                world.getWorldCoords(token.move.getFloatLocation(), translation);
 
                 // changing animations and rotations is not allowed for
                 // objects that modify the minVisU (eg these items are in the fog of war but still visible)
@@ -274,34 +269,34 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
         private void updateIfNotFogBlocked(float delta) {
 
-                if (token.getDamage() != null && token.getDamage().isDead()) {
+                if (token.damage != null && token.damage.isDead()) {
                         if (current != die) {
-                                animController.animate(die.id, 1, die.duration / token.getDamage().getDeathDuration(), null, .2f);
+                                animController.animate(die.id, 1, die.duration / token.damage.getDeathDuration(), null, .2f);
                                 current = die;
-                                world.sounds.play(token.getDamage().getDeathSfx());
+                                world.sounds.play(token.damage.getDeathSfx());
                         }
 
-                } else if (token.getAttack() != null && token.getAttack().isAttacking()) {
+                } else if (token.attack != null && token.attack.isAttacking()) {
                         if (current != attack) {
-                                animController.animate(attack.id, 1, attack.duration / token.getAttack().getWeapon().getAttackDuration(), null, .2f);
+                                animController.animate(attack.id, 1, attack.duration / token.attack.getWeapon().getAttackDuration(), null, .2f);
                                 current = attack;
                         }
-                } else if (token.getDamage() != null && token.getDamage().isHit()) {
+                } else if (token.damage != null && token.damage.isHit()) {
                         if (current != hit) {
                                 if (world.hudSpatial.localPlayerToken == token) {
                                         world.hudSpatial.setMapViewMode(false); // if being attacked, force out of map view mode to make it easier to respond
                                 }
 
                                 if (hit == null) {
-                                        throw new Error(token.getName());
+                                        throw new Error(token.name);
                                 }
-                                animController.animate(hit.id, 1, hit.duration / token.getDamage().getHitDuration(), null, .2f);
+                                animController.animate(hit.id, 1, hit.duration / token.damage.getHitDuration(), null, .2f);
                                 current = hit;
-                                world.sounds.play(token.getDamage().getHitSfx());
+                                world.sounds.play(token.damage.getHitSfx());
                         }
-                } else if (token.getMove() != null && token.getMove().isMoving() && !(token.getAttack() != null && token.getAttack().isInRangeOfAttackTarget())) {
+                } else if (token.move != null && token.move.isMoving() && !(token.attack != null && token.attack.isInRangeOfAttackTarget())) {
                         if (current != walk) {
-                                float v = UtMath.scalarLimitsInterpolation(token.getMove().getMoveSpeed(), 1, 10, 1f, 1.5f);
+                                float v = UtMath.scalarLimitsInterpolation(token.move.getMoveSpeed(), 1, 10, 1f, 1.5f);
                                 animController.animate(walk.id, -1, v, null, .2f);
                                 current = walk;
                         }
@@ -313,16 +308,16 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 }
 
 
-                if (token.getDamage() != null && !token.getDamage().isDead() && token.getAttack() != null && token.getAttack().isAttackingRanged()) {
-                        float rotMoveSpeed = token.getMove() == null ? 7 : UtMath.largest(token.getMove().getMoveSpeed(), 7f);
+                if (token.damage != null && !token.damage.isDead() && token.attack != null && token.attack.isAttackingRanged()) {
+                        float rotMoveSpeed = token.move == null ? 7 : UtMath.largest(token.move.getMoveSpeed(), 7f);
                         float rotSpeed = delta * (rotMoveSpeed + 0.5f);
-                        Direction dir = token.getLocation().direction(token.getAttack().getAttackTarget().getLocation());
+                        Direction dir = token.location.direction(token.attack.getAttackTarget().location);
                         Quaternion tokenDirRot = world.assetMappings.getRotation(dir);
                         rotation.slerp(tokenDirRot, rotSpeed);
                 } else {
-                        float rotMoveSpeed = UtMath.largest(token.getMove().getMoveSpeed(), 7f);
+                        float rotMoveSpeed = UtMath.largest(token.move.getMoveSpeed(), 7f);
                         float rotSpeed = delta * (rotMoveSpeed + 0.5f);
-                        Quaternion tokenDirRot = world.assetMappings.getRotation(token.getDirection());
+                        Quaternion tokenDirRot = world.assetMappings.getRotation(token.direction);
                         rotation.slerp(tokenDirRot, rotSpeed);
                 }
 
@@ -334,7 +329,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 if (visU <= 0) return;
                 if (world.hudSpatial.isMapViewMode()){
                         if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
-                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
+                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.location.distance(token.location) > 16) return;
 
 
                 modelInstance.transform.set(
@@ -348,22 +343,12 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         // TODO: fix wasteful creation of new vectors and quaternions
                         // TODO: rotations and stuff are still all messed up. damn you blender for not letting us apply transforms on armatures!
                         weaponModelInstance.transform.set(modelInstance.transform).mul(weaponAttachmentNode.globalTransform);
-                        weaponModelInstance.transform.set(
-                                weaponModelInstance.transform.getTranslation(new Vector3()),
-                                weaponModelInstance.transform.getRotation(new Quaternion()),
-                                new Vector3(1, 1, 1)
-                        );
                         weaponModelInstance.transform.rotate(Vector3.Z, -90);
                         world.modelBatch.render(weaponModelInstance, world.environment);
 
                         if(offhandModelInstance != null){
                                 offhandModelInstance.transform.set(modelInstance.transform).mul(offhandAttachmentNode.globalTransform);
-                                offhandModelInstance.transform.set(
-                                        offhandModelInstance.transform.getTranslation(new Vector3()),
-                                        rotation,
-                                        new Vector3(1,1,1)
-
-                                );
+                                weaponModelInstance.transform.rotate(Vector3.Z, -90);
                                 world.modelBatch.render(offhandModelInstance, world.environment);
                         }
                 }

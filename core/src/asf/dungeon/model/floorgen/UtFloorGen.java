@@ -106,8 +106,8 @@ public class UtFloorGen {
 
                         if (modelId == ModelId.Archer) {
                                 WeaponItem weapon = new WeaponItem(ModelId.SwordLarge, "Bow", 1, FxId.Arrow);
-                                characterToken.getInventory().add(weapon);
-                                characterToken.getInventory().equals(weapon);
+                                characterToken.inventory.add(weapon);
+                                characterToken.inventory.equals(weapon);
                         }
 
                 }
@@ -309,7 +309,7 @@ public class UtFloorGen {
 
                         Token stairsToken = new Token(dungeon, "Stairs", null);
                         stairsToken.add(new Stairs(stairsToken, floorMap.index - 1));
-                        stairsToken.setDirection(Direction.East);
+                        stairsToken.direction = Direction.East;
                         dungeon.newToken(stairsToken, floorMap, x,y);
                         return;
                 } while (true);
@@ -328,7 +328,7 @@ public class UtFloorGen {
 
                         Token stairsToken = new Token(dungeon, "Stairs", null);
                         stairsToken.add(new Stairs(stairsToken, floorMap.index + 1));
-                        stairsToken.setDirection(Direction.East);
+                        stairsToken.direction = Direction.East;
                         dungeon.newToken(stairsToken, floorMap, x,y);
                         return;
                 } while (true);

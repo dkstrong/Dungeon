@@ -44,7 +44,7 @@ public class Boulder implements TokenComponent , Teleportable{
                 }else{
                         fillsPit = null;
                 }
-                token.setBlocksPathing(fillsPit == null);
+                token.blocksPathing = fillsPit == null;
         }
 
         @Override
@@ -57,7 +57,7 @@ public class Boulder implements TokenComponent , Teleportable{
                         if(tile.isPit() && !tile.isPitFilled()){
                                 tile.setPitFilled( true);
                                 fillsPit = tile;
-                                token.setBlocksPathing(false);
+                                token.blocksPathing = false;
                         }
                 }
 
@@ -79,7 +79,7 @@ public class Boulder implements TokenComponent , Teleportable{
                 Direction pushDir = pushedBy.location.direction(token.location);
                 Pair newLoc = new Pair();
                 // Attempt to push the boulder forward, then left, then right, if none of these directions work then it is stuck
-                setMoveSpeed(pushedBy.getMove().getMoveSpeed()*1.1f);
+                setMoveSpeed(pushedBy.move.getMoveSpeed()*1.1f);
 
                 if(!isLocationBlocked(newLoc.set(token.location).addFree(pushDir))){
                         moveU = 0;
@@ -106,7 +106,7 @@ public class Boulder implements TokenComponent , Teleportable{
                         return true;
 
                 for (Token t : token.floorMap.getTokens()) {
-                        if (t.isBlocksPathing() && t.isLocatedAt(location))
+                        if (t.blocksPathing && t.isLocatedAt(location))
                                 return true;
                 }
 
@@ -126,18 +126,18 @@ public class Boulder implements TokenComponent , Teleportable{
         }
 
         private float getLocationFloatX() {
-                Direction direction = token.getDirection();
+                Direction direction = token.direction;
                 if (moveU == 1 || direction == Direction.South || direction == Direction.North)
                         return token.location.x;
                 else if (direction == Direction.East || direction == Direction.NorthEast || direction == Direction.SouthEast)
-                        return MathUtils.lerp(token.location.x - 1, token.getLocation().x, moveU);
+                        return MathUtils.lerp(token.location.x - 1, token.location.x, moveU);
                 else if (direction == Direction.West || direction == Direction.NorthWest || direction == Direction.SouthWest)
-                        return MathUtils.lerp(token.location.x + 1, token.getLocation().x, moveU);
+                        return MathUtils.lerp(token.location.x + 1, token.location.x, moveU);
                 throw new AssertionError("unexpected state");
         }
 
         private float getLocationFloatY() {
-                Direction direction = token.getDirection();
+                Direction direction = token.direction;
                 if (moveU == 1 || direction == Direction.West || direction == Direction.East)
                         return token.location.y;
                 else if (direction == Direction.North || direction == Direction.NorthEast || direction == Direction.NorthWest)

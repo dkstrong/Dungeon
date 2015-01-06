@@ -101,7 +101,7 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
                 dungeon = DungeonLoader.createDungeon(settings);
                 dungeon.setListener(this);
                 float delta = 1 / 30f;
-                while (!playerToken.getDamage().isDead()) {
+                while (!playerToken.damage.isDead()) {
                         dungeon.update(delta);
                 }
 
@@ -121,14 +121,14 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
                 if (attackOutcome.dodge) {
                         if (printOnAttackInfo) {
                                 println(String.format("%s (%s / %s) attacked %s (%s / %s), but he dodged it! ",
-                                        attacker.getName(), attacker.getDamage().getHealth(), attacker.getDamage().getMaxHealth(),
-                                        target.getName(), target.getDamage().getHealth(), target.getDamage().getMaxHealth()));
+                                        attacker.name, attacker.damage.getHealth(), attacker.damage.getMaxHealth(),
+                                        target.name, target.damage.getHealth(), target.damage.getMaxHealth()));
                         }
                 } else {
                         if (printOnAttackInfo) {
                                 println(String.format("%s (%s / %s) attacked %s (%s / %s) for %s damage %s",
-                                        attacker.getName(), attacker.getDamage().getHealth(), attacker.getDamage().getMaxHealth(),
-                                        target.getName(), target.getDamage().getHealth(), target.getDamage().getMaxHealth(),
+                                        attacker.name, attacker.damage.getHealth(), attacker.damage.getMaxHealth(),
+                                        target.name, target.damage.getHealth(), target.damage.getMaxHealth(),
                                         attackOutcome.damage, attackOutcome.critical ? "CRITICAL HIT!" : ""));
 
                         }
@@ -146,9 +146,9 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
                                 simulation.dodgeCount++;
                 }
 
-                if (target.getDamage().isDead()) {
-                        if (printOnAttackInfo) println(String.format("%s is dead", target.getName()));
-                        if (target.getLogic().getTeam() == 1)
+                if (target.damage.isDead()) {
+                        if (printOnAttackInfo) println(String.format("%s is dead", target.name));
+                        if (target.logic.getTeam() == 1)
                                 simulation.killCount++;
                 }
         }
@@ -205,65 +205,65 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
 
         private static void printTokenInfo(Token token1, Token token2) {
                 printInfo("Name",
-                        token1.getName(),
-                        token2.getName());
+                        token1.name,
+                        token2.name);
                 printInfo("Level",
-                        token1.getExperience().getLevel(),
-                        token2.getExperience().getLevel());
+                        token1.experience.getLevel(),
+                        token2.experience.getLevel());
 
 
                 printInfo("Vitality", // increases health, increases magic damage and defense
-                        token1.getExperience().getVitalityBase()+(token1.getExperience().getVitalityMod() > 0 ? " + "+token1.getExperience().getVitalityMod() : ""),
-                        token2.getExperience().getVitalityBase()+(token2.getExperience().getVitalityMod() > 0 ? " + "+token2.getExperience().getVitalityMod() : ""));
+                        token1.experience.getVitalityBase()+(token1.experience.getVitalityMod() > 0 ? " + "+token1.experience.getVitalityMod() : ""),
+                        token2.experience.getVitalityBase()+(token2.experience.getVitalityMod() > 0 ? " + "+token2.experience.getVitalityMod() : ""));
 
                 printInfo("Strength", // increases physic damage and defense
-                        token1.getExperience().getStrengthBase()+(token1.getExperience().getStrengthMod() > 0 ? " + "+token1.getExperience().getStrengthMod() : ""),
-                        token2.getExperience().getStrengthBase()+(token2.getExperience().getStrengthMod() > 0 ? " + "+token2.getExperience().getStrengthMod() : ""));
+                        token1.experience.getStrengthBase()+(token1.experience.getStrengthMod() > 0 ? " + "+token1.experience.getStrengthMod() : ""),
+                        token2.experience.getStrengthBase()+(token2.experience.getStrengthMod() > 0 ? " + "+token2.experience.getStrengthMod() : ""));
 
                 printInfo("Agility", // increases move speed, rate of attack, and chance to dodge
-                        token1.getExperience().getAgilityBase()+(token1.getExperience().getAgilityMod() > 0 ? " + "+token1.getExperience().getAgilityMod() : ""),
-                        token2.getExperience().getAgilityBase()+(token2.getExperience().getAgilityMod() > 0 ? " + "+token2.getExperience().getAgilityMod() : ""));
+                        token1.experience.getAgilityBase()+(token1.experience.getAgilityMod() > 0 ? " + "+token1.experience.getAgilityMod() : ""),
+                        token2.experience.getAgilityBase()+(token2.experience.getAgilityMod() > 0 ? " + "+token2.experience.getAgilityMod() : ""));
 
                 printInfo("Luck", // increases chance of critical hit
-                        token1.getExperience().getLuckBase()+(token1.getExperience().getLuckMod() > 0 ? " + "+token1.getExperience().getLuckMod() : ""),
-                        token2.getExperience().getLuckBase()+(token2.getExperience().getLuckMod() > 0 ? " + "+token2.getExperience().getLuckMod() : ""));
+                        token1.experience.getLuckBase()+(token1.experience.getLuckMod() > 0 ? " + "+token1.experience.getLuckMod() : ""),
+                        token2.experience.getLuckBase()+(token2.experience.getLuckMod() > 0 ? " + "+token2.experience.getLuckMod() : ""));
 
                 println();
                 printInfo("Weapon",
-                        token1.getInventory().getWeaponSlot(),
-                        token2.getInventory().getWeaponSlot());
+                        token1.inventory.getWeaponSlot(),
+                        token2.inventory.getWeaponSlot());
                 printInfo("Armor",
-                        token1.getInventory().getArmorSlot(),
-                        token2.getInventory().getArmorSlot());
+                        token1.inventory.getArmorSlot(),
+                        token2.inventory.getArmorSlot());
                 printInfo("Ring",
-                        token1.getInventory().getRingSlot(),
-                        token2.getInventory().getRingSlot());
+                        token1.inventory.getRingSlot(),
+                        token2.inventory.getRingSlot());
                 println();
                 printLabel("Vitality");
                 printInfo("HP",
-                        token1.getDamage().getMaxHealth(),
-                        token2.getDamage().getMaxHealth());
+                        token1.damage.getMaxHealth(),
+                        token2.damage.getMaxHealth());
                 printLabel("Strength");
                 printInfo("Attack Duration",
-                        token1.getAttack().getWeapon().getAttackDuration(),
-                        token2.getAttack().getWeapon().getAttackDuration());
+                        token1.attack.getWeapon().getAttackDuration(),
+                        token2.attack.getWeapon().getAttackDuration());
                 printInfo("Attack Range",
-                        token1.getAttack().getWeapon().getRange(),
-                        token2.getAttack().getWeapon().getRange());
+                        token1.attack.getWeapon().getRange(),
+                        token2.attack.getWeapon().getRange());
                 printLabel("Agility");
                 printInfo("Move Speed",
-                        token1.getMove().getMoveSpeed(),
-                        token2.getMove().getMoveSpeed());
+                        token1.move.getMoveSpeed(),
+                        token2.move.getMoveSpeed());
                 printInfo("Attack Cooldown",
-                        token1.getAttack().getWeapon().getAttackCooldown(),
-                        token2.getAttack().getWeapon().getAttackCooldown());
+                        token1.attack.getWeapon().getAttackCooldown(),
+                        token2.attack.getWeapon().getAttackCooldown());
                 printInfo("Projectile Speed",
-                        token1.getAttack().getWeapon().getProjectileSpeed(),
-                        token2.getAttack().getWeapon().getProjectileSpeed());
+                        token1.attack.getWeapon().getProjectileSpeed(),
+                        token2.attack.getWeapon().getProjectileSpeed());
                 printLabel("Luck");
                 printInfo("Critical Hit",
-                        token1.getAttack().getCriticalHitChance(),
-                        token2.getAttack().getCriticalHitChance());
+                        token1.attack.getCriticalHitChance(),
+                        token2.attack.getCriticalHitChance());
         }
 
 
@@ -370,14 +370,14 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
 
         @Override
         public void onTokenAdded(Token token) {
-                token.setListener(this);
+                token.listener = this;
 
-                if (token.getLogic() == null)
+                if (token.logic == null)
                         return;
 
-                if (token.getLogic().getTeam() == 0) {
+                if (token.logic.getTeam() == 0) {
                         playerToken = token;
-                } else if (token.getLogic().getTeam() == 1) {
+                } else if (token.logic.getTeam() == 1) {
                         monsterToken = token;
                 }
 

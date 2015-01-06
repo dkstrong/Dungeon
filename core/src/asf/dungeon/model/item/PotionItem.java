@@ -109,7 +109,7 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         }
 
         public static boolean doPotionEffects(Token token, PotionItem.Type type){
-                StatusEffects statusEffects = token.getStatusEffects();
+                StatusEffects statusEffects = token.statusEffects;
                 if (statusEffects == null)
                         return false;
                 switch (type) {

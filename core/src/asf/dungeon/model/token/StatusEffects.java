@@ -40,8 +40,8 @@ public class StatusEffects implements TokenComponent{
 
                                 if(durations.size ==0){
                                         statusEffect.end(token);
-                                        if(token.getExperience() != null)
-                                                token.getExperience().recalcStats();
+                                        if(token.experience != null)
+                                                token.experience.recalcStats();
                                         if(token.listener != null)
                                                 token.listener.onStatusEffectChange(statusEffect, 0);
                                 }
@@ -50,18 +50,18 @@ public class StatusEffects implements TokenComponent{
                 }
 
                 if(has(StatusEffect.MindVision)){
-                        FogMap fogMap = token.getFogMapping().getCurrentFogMap();
-                        Array<Token> monsterTokens = token.getFloorMap().getAttackableTokens(token.getLogic().getTeam());
+                        FogMap fogMap = token.fogMapping.getCurrentFogMap();
+                        Array<Token> monsterTokens = token.floorMap.getAttackableTokens(token.logic.getTeam());
                         for (Token monsterToken : monsterTokens) {
-                                fogMap.revealLocation(monsterToken.getLocation().x, monsterToken.getLocation().y);
+                                fogMap.revealLocation(monsterToken.location.x, monsterToken.location.y);
                         }
                 }
 
                 if(has(StatusEffect.ItemVision)){
-                        FogMap fogMap = token.getFogMapping().getCurrentFogMap();
-                        Array<Token> crateAndLootTokens = token.getFloorMap().getCrateAndLootTokens();
+                        FogMap fogMap = token.fogMapping.getCurrentFogMap();
+                        Array<Token> crateAndLootTokens = token.floorMap.getCrateAndLootTokens();
                         for (Token t : crateAndLootTokens) {
-                                fogMap.revealLocationWithMagic(t.getLocation().x, t.getLocation().y);
+                                fogMap.revealLocationWithMagic(t.location.x, t.location.y);
                         }
                 }
 
@@ -84,8 +84,8 @@ public class StatusEffects implements TokenComponent{
                 durations.add(Float.NaN);
                 // following the logic from the bottom of addStatusEffect(Effect,float,int)
 
-                if(token.getExperience() != null)
-                        token.getExperience().recalcStats();
+                if(token.experience != null)
+                        token.experience.recalcStats();
                 if(token.listener != null)
                         token.listener.onStatusEffectChange(statusEffect, Float.NaN);
                 statusEffect.begin(token);
@@ -113,8 +113,8 @@ public class StatusEffects implements TokenComponent{
                 }
 
 
-                if(token.getExperience() != null)
-                        token.getExperience().recalcStats();
+                if(token.experience != null)
+                        token.experience.recalcStats();
                 if(token.listener != null)
                         token.listener.onStatusEffectChange(statusEffect, duration);
                 statusEffect.begin(token);
@@ -124,8 +124,8 @@ public class StatusEffects implements TokenComponent{
                 FloatArray durations = statusEffects[statusEffect.ordinal()];
                 durations.clear();
                 statusEffect.end(token);
-                if(token.getExperience() != null)
-                        token.getExperience().recalcStats();
+                if(token.experience != null)
+                        token.experience.recalcStats();
                 if(token.listener != null)
                         token.listener.onStatusEffectChange(statusEffect, 0);
         }

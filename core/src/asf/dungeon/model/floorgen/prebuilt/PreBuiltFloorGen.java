@@ -208,12 +208,12 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                 if(charAt == '^'){ // Stairs Up
                                         Token stairsToken = new Token(dungeon, "Stairs", null);
                                         stairsToken.add(new Stairs(stairsToken, floorMap.index - 1));
-                                        stairsToken.setDirection(Direction.East);
+                                        stairsToken.direction = Direction.East;
                                         dungeon.newToken(stairsToken, floorMap, x,y);
                                 } else if(charAt == '&'){ // Stairs Down
                                         Token stairsToken = new Token(dungeon, "Stairs", null);
                                         stairsToken.add(new Stairs(stairsToken, floorMap.index+1));
-                                        stairsToken.setDirection(Direction.East);
+                                        stairsToken.direction = Direction.East;
                                         dungeon.newToken(stairsToken, floorMap, x,y);
                                 } else if(charAt == 's') { // Spike Trap
                                         Token spikeTrap = new Token(dungeon, "Spike Trap", ModelId.SpikeTrap);
@@ -231,7 +231,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                         fountainToken.add(new Fountain(fountainToken, dungeon.rand.potionType()));
                                         dungeon.newToken(fountainToken, floorMap, x, y);
                                 } else if(charAt == 'k') { // key
-                                        KeyItem keyItem = new KeyItem(KeyItem.Type.Red);
+                                        KeyItem keyItem = new KeyItem(KeyItem.Type.Silver);
                                         if(dungeon.rand.random.nextBoolean()){
                                                 dungeon.newCrateToken(floorMap, ModelId.Barrel.name(), ModelId.Barrel, keyItem, x, y);
                                         }else{
@@ -246,8 +246,8 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                                 x,y);
                                         if(modelId == ModelId.Archer){
                                                 WeaponItem weapon = new WeaponItem(ModelId.SwordLarge,"Bow", 1, FxId.Arrow);
-                                                token.getInventory().add(weapon);
-                                                token.getInventory().equip(weapon);
+                                                token.inventory.add(weapon);
+                                                token.inventory.equip(weapon);
                                         }
 
                                 }

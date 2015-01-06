@@ -31,7 +31,7 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
 
         public void preload(DungeonWorld world) {
 
-                world.assetManager.load(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
+                world.assetManager.load(world.assetMappings.getAssetLocation(token.modelId), Model.class);
 
                 SpikeTrap spikeTrap = token.get(SpikeTrap.class);
                 if(spikeTrap == null)
@@ -43,7 +43,7 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
         public void init(AssetManager assetManager) {
                 initialized = true;
 
-                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.getModelId()));
+                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId));
                 modelInstance = new BetterModelInstance(model);
 
                 AnimFactory.createIdleAnim(modelInstance);
@@ -76,8 +76,8 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
                         }
                 }
 
-                world.getWorldCoords(token.getLocation(), translation);
-                rotation.set(world.assetMappings.getRotation(token.getDirection()));
+                world.getWorldCoords(token.location, translation);
+                rotation.set(world.assetMappings.getRotation(token.direction));
 
                 if (animController != null)
                         animController.update(delta);
@@ -89,7 +89,7 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
                 if (visU <= 0) return;
                 if (world.hudSpatial.isMapViewMode()){
                         if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
-                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
+                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.location.distance(token.location) > 16) return;
 
 
                 modelInstance.transform.set(

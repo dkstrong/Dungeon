@@ -13,7 +13,7 @@ public class Stairs implements TokenComponent{
         public Stairs(Token token, int stairsTo) {
                 this.token = token;
                 this.stairsTo = stairsTo;
-                token.setBlocksPathing(false);
+                token.blocksPathing = false;
         }
 
         @Override

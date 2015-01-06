@@ -21,7 +21,7 @@ public class Loot implements TokenComponent, Teleportable{
         public Loot(Token token, Item item) {
                 this.token = token;
                 this.item = item;
-                token.setBlocksPathing(false);
+                token.blocksPathing = false;
         }
 
 

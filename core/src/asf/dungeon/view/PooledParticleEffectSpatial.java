@@ -107,8 +107,8 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                         world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
                 } else {
                         tokenSpatial = world.getTokenSpatial(target);
-                        if (target.getMove() == null) world.getWorldCoords(target.getLocation().x, target.getLocation().y, worldDestLoc);
-                        else world.getWorldCoords(target.getMove().getFloatLocation(), worldDestLoc);
+                        if (target.move == null) world.getWorldCoords(target.location.x, target.location.y, worldDestLoc);
+                        else world.getWorldCoords(target.move.getFloatLocation(), worldDestLoc);
                 }
                 worldDestLoc.y = worldStartLoc.y;
                 worldMoveDir.set(worldDestLoc).sub(worldStartLoc).nor();
@@ -182,23 +182,23 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                         if (tokenSpatial != null) {
                                 translation.set(tokenSpatial.translation);
 
-                                if(tokenSpatial.getToken().getDamage() != null && tokenSpatial.getToken().getDamage().isDead()){
+                                if(tokenSpatial.getToken().damage != null && tokenSpatial.getToken().damage.isDead()){
                                         duration = 0;
                                 }
                         }
 
 
                 } else if (mode == 3) {
-                        if (attackerToken == null || !attackerToken.getAttack().hasProjectile() || attackerToken.getDamage().isDead()) {
+                        if (attackerToken == null || !attackerToken.attack.hasProjectile() || attackerToken.damage.isDead()) {
                                 //Gdx.app.log("Pooled PE","trigger end fx");
                                 reg.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
-                        } else if (attackerToken.getAttack().getEffectiveProjectileU() < 0) {
+                        } else if (attackerToken.attack.getEffectiveProjectileU() < 0) {
                                 return;
                         }
 
                         UtMath.interpolate(
                                 Interpolation.pow3,
-                                attackerToken.getAttack().getEffectiveProjectileU(),
+                                attackerToken.attack.getEffectiveProjectileU(),
                                 worldStartLoc,
                                 worldDestLoc,
                                 translation);
@@ -209,16 +209,16 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
 
                 FogState fogState;
                 if (tokenSpatial != null) {
-                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null) {
-                                fogState = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap().getFogState(tokenSpatial.getToken().getLocation().x, tokenSpatial.getToken().getLocation().y);
+                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().fogMapping != null) {
+                                fogState = world.getLocalPlayerToken().fogMapping.getCurrentFogMap().getFogState(tokenSpatial.getToken().location.x, tokenSpatial.getToken().location.y);
                         } else {
                                 fogState = FogState.Visible;
                         }
                         visU = tokenSpatial.visU;
 
                 } else {
-                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null) {
-                                fogState = world.getLocalPlayerToken().getFogMapping().getCurrentFogMap().getFogState(destLoc.x, destLoc.y);
+                        if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().fogMapping != null) {
+                                fogState = world.getLocalPlayerToken().fogMapping.getCurrentFogMap().getFogState(destLoc.x, destLoc.y);
                         } else {
                                 fogState = FogState.Visible;
                         }
@@ -259,7 +259,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                         // a half second of time between projectile spawna nd when it should show up
                         // we check the effective projectile u to make sure it is positive to make sure that the
                         // projectile should be visible
-                        if (attackerToken == null || attackerToken.getAttack().getEffectiveProjectileU() < 0 || attackerToken.getDamage().isDead()) {
+                        if (attackerToken == null || attackerToken.attack.getEffectiveProjectileU() < 0 || attackerToken.damage.isDead()) {
                                 return;
                         }
                 }

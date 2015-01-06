@@ -40,9 +40,9 @@ public class LootTokenSpatial extends AbstractTokenSpatial {
 
         public void preload(DungeonWorld world) {
 
-                world.assetManager.load(world.assetMappings.getAssetLocation(token.getModelId()), Model.class);
+                world.assetManager.load(world.assetMappings.getAssetLocation(token.modelId), Model.class);
 
-                loot = token.getLoot();
+                loot = token.loot;
                 if (loot.getItem() instanceof PotionItem) {
                         PotionItem potion = (PotionItem) loot.getItem();
                         world.assetManager.load(world.assetMappings.getPotionTextureAssetLocation(potion), Texture.class);
@@ -58,7 +58,7 @@ public class LootTokenSpatial extends AbstractTokenSpatial {
 
         public void init(AssetManager assetManager) {
                 initialized = true;
-                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.getModelId()));
+                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId));
                 modelInstance = new BetterModelInstance(model);
 
                 AnimFactory.createAnim(AnimFactory.dropped(), modelInstance);
@@ -86,7 +86,7 @@ public class LootTokenSpatial extends AbstractTokenSpatial {
 
                 }
 
-                if (token.getModelId() == ModelId.Scroll) {
+                if (token.modelId == ModelId.Scroll) {
                         for (Material mat : modelInstance.materials) {
                                 //GdxInfo.material(mat);
                                 mat.set(new IntAttribute(IntAttribute.CullFace, 0));
@@ -138,8 +138,8 @@ public class LootTokenSpatial extends AbstractTokenSpatial {
                         }
                 }
 
-                world.getWorldCoords(token.getLoot().getFloatLocationX(), token.getLoot().getFloatLocationY(), translation);
-                rotation.set(world.assetMappings.getRotation(token.getDirection()));
+                world.getWorldCoords(token.loot.getFloatLocationX(), token.loot.getFloatLocationY(), translation);
+                rotation.set(world.assetMappings.getRotation(token.direction));
 
 
 
@@ -147,7 +147,7 @@ public class LootTokenSpatial extends AbstractTokenSpatial {
                         // if not fog blocked
 
                 }
-                if(token.getLoot().isBeingThrown()){
+                if(token.loot.isBeingThrown()){
                         if(current != dropped){
                                 animController.animate(idle.id, -1, 1, null, 0);
                                 current = dropped;
@@ -170,7 +170,7 @@ public class LootTokenSpatial extends AbstractTokenSpatial {
                 if (visU <= 0) return;
                 if (world.hudSpatial.isMapViewMode()){
                         if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
-                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.getLocation().distance(token.getLocation()) > 16) return;
+                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.location.distance(token.location) > 16) return;
 
                 modelInstance.transform.set(
                         translation.x, translation.y, translation.z,

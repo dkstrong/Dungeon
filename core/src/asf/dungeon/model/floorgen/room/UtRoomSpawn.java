@@ -362,7 +362,7 @@ public class UtRoomSpawn {
 
                 Token stairsToken = new Token(dungeon, "Stairs", null);
                 stairsToken.add(new Stairs(stairsToken, floorIndexTo));
-                stairsToken.setDirection(Direction.East);
+                stairsToken.direction = Direction.East;
                 dungeon.newToken(stairsToken, floorMap, x,y);
 
                 room.containsStairsTo = floorIndexTo;

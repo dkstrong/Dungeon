@@ -110,11 +110,11 @@ public class Experience implements TokenComponent{
 
         protected void recalcStats(){
                 // equipment
-                WeaponItem weapon = token.getInventory().getWeaponSlot();
-                ArmorItem armor = token.getInventory().getArmorSlot();
-                RingItem ring = token.getInventory().getRingSlot();
+                WeaponItem weapon = token.inventory.getWeaponSlot();
+                ArmorItem armor = token.inventory.getArmorSlot();
+                RingItem ring = token.inventory.getRingSlot();
 
-                token.getAttack().setWeapon(weapon);
+                token.attack.setWeapon(weapon);
 
 
                 // status effects
@@ -136,39 +136,39 @@ public class Experience implements TokenComponent{
 
 
                 // vitality
-                token.getDamage().setMaxHealth(vitality);
+                token.damage.setMaxHealth(vitality);
 
                 // strength
 
                 // agility
 
-                if(agility < 10) token.getMove().setMoveSpeed(1.65f);
-                else if(agility < 15) token.getMove().setMoveSpeed(1.75f);
-                else if(agility < 20) token.getMove().setMoveSpeed(1.85f);
-                else token.getMove().setMoveSpeed(UtMath.scalarLimitsInterpolation(agility,20f,100f,1.9f,3f));
+                if(agility < 10) token.move.setMoveSpeed(1.65f);
+                else if(agility < 15) token.move.setMoveSpeed(1.75f);
+                else if(agility < 20) token.move.setMoveSpeed(1.85f);
+                else token.move.setMoveSpeed(UtMath.scalarLimitsInterpolation(agility, 20f, 100f, 1.9f, 3f));
 
-                if(token.getStatusEffects() != null){
-                        if(token.getStatusEffects().has(StatusEffect.Speed)){
-                                token.getMove().setMoveSpeed(token.getMove().getMoveSpeed()*1.3f);
+                if(token.statusEffects != null){
+                        if(token.statusEffects.has(StatusEffect.Speed)){
+                                token.move.setMoveSpeed(token.move.getMoveSpeed() * 1.3f);
                         }
                 }
 
 
                 // intelligence
 
-                if(token.getStatusEffects() != null && token.getStatusEffects().has(StatusEffect.Blind)){
-                        token.getDamage().setSightRadius(1);
+                if(token.statusEffects != null && token.statusEffects.has(StatusEffect.Blind)){
+                        token.damage.setSightRadius(1);
                 }else{
-                        token.getDamage().setSightRadius(Math.round(UtMath.scalarLimitsInterpolation(intelligence, 1f, 40f, 4f, 10f))); // default is 6
+                        token.damage.setSightRadius(Math.round(UtMath.scalarLimitsInterpolation(intelligence, 1f, 40f, 4f, 10f))); // default is 6
                 }
 
-                //Gdx.app.log(token.getName(),"int: "+intelligence+" sight: "+token.getDamage().getSightRadius()+"");
+                //Gdx.app.log(token.getName(),"int: "+intelligence+" sight: "+token.damage.getSightRadius()+"");
 
                 // luck
 
 
-                if(token.getFogMapping()!= null && token.getFloorMap() != null){
-                        token.getFogMapping().computeFogMap();
+                if(token.fogMapping!= null && token.floorMap != null){
+                        token.fogMapping.computeFogMap();
                 }
 
 

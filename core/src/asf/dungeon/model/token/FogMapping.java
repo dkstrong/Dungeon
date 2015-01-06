@@ -39,7 +39,7 @@ public class FogMapping implements TokenComponent, Teleportable {
         }
 
         protected void computeFogMap() {
-                fogMaps.get(token.getFloorMap()).update();
+                fogMaps.get(token.floorMap).update();
         }
 
         public FogMap getFogMap(FloorMap floorMap) {
@@ -47,6 +47,6 @@ public class FogMapping implements TokenComponent, Teleportable {
         }
 
         public FogMap getCurrentFogMap(){
-                return getFogMap(token.getFloorMap());
+                return getFogMap(token.floorMap);
         }
 }

@@ -94,8 +94,8 @@ public class FloorSpatial implements Spatial {
                 if(!isInitialized())
                         return;
 
-                if( world.getLocalPlayerToken() != null && world.getLocalPlayerToken().getFogMapping() != null){
-                        fogMap = world.getLocalPlayerToken().getFogMapping().getFogMap(floorMap);
+                if( world.getLocalPlayerToken() != null && world.getLocalPlayerToken().fogMapping != null){
+                        fogMap = world.getLocalPlayerToken().fogMapping.getFogMap(floorMap);
                         if(fogMap == null){
                                 throw new AssertionError("should not be null");
                         }
@@ -411,7 +411,7 @@ public class FloorSpatial implements Spatial {
                         Color color = decal.getColor();
                         FogState fogState = floor.fogMap.getFogState(x,y);
                         float fog = MathUtils.lerp(color.g, floor.fogAlpha[fogState.ordinal()], delta);
-                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().getLocation().distance(x,y)<16)){
+                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().location.distance(x,y)<16)){
                                 if(fogState == FogState.MagicMapped)
                                         color.set(fog * 0.9f, fog, fog * 1.2f, 1);
                                 else
@@ -434,7 +434,7 @@ public class FloorSpatial implements Spatial {
                         Color color = decal.getColor();
                         FogState fogState = floor.fogMap.getFogState(x,y);
                         float fog = MathUtils.lerp(color.g, floor.fogAlpha[fogState.ordinal()], delta);
-                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().getLocation().distance(x,y)<16)){
+                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().location.distance(x,y)<16)){
                                 if(decal.getPosition().y != visibleY){
                                         decal.setY(visibleY);
 
@@ -462,7 +462,7 @@ public class FloorSpatial implements Spatial {
                         Color color = decal.getColor();
                         FogState fogState = floor.fogMap.getFogState(x,y);
                         float fog = MathUtils.lerp(color.g, floor.fogAlpha[fogState.ordinal()], delta);
-                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().getLocation().distance(x,y)<16)){
+                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().location.distance(x,y)<16)){
                                 if(decal.getPosition().y != topWallVisibleY){
                                         decal.setY(topWallVisibleY);
                                         for (Decal wallDecal : decals)
@@ -494,7 +494,7 @@ public class FloorSpatial implements Spatial {
                         Color color = decal.getColor();
                         FogState fogState = floor.fogMap.getFogState(x,y);
                         float fog = MathUtils.lerp(color.g, floor.fogAlpha[fogState.ordinal()], delta);
-                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().getLocation().distance(x,y)<16)){
+                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().location.distance(x,y)<16)){
                                 if(decal.getPosition().y != topWallVisibleY){
                                         decal.setY(topWallVisibleY);
                                         for (Decal wallDecal : decals){
@@ -546,7 +546,7 @@ public class FloorSpatial implements Spatial {
                         Color color = decal.getColor();
                         FogState fogState = floor.fogMap.getFogState(x,y);
                         float fog = MathUtils.lerp(color.g, floor.fogAlpha[fogState.ordinal()], delta);
-                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().getLocation().distance(x,y)<16)){
+                        if(fog > 0 && (floor.world.hudSpatial.isMapViewMode() || floor.world.getLocalPlayerToken().location.distance(x,y)<16)){
                                 if(fogState == FogState.MagicMapped)
                                         color.set(fog * 0.9f, fog, fog * 1.2f, 1);
                                 else

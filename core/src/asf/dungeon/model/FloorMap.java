@@ -90,31 +90,31 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
 
         public Stairs getStairsAt(int x, int y){
                 for (Token token : tokens) {
-                        if(token.getStairs() != null && token.location.x == x && token.location.y == y)
-                                return token.getStairs();
+                        if(token.stairs != null && token.location.x == x && token.location.y == y)
+                                return token.stairs;
                 }
                 return null;
         }
 
         public Stairs getStairsUp(){
                 for (Token token : tokens) {
-                        if(token.getStairs() != null && token.getStairs().isStairsUp())
-                                return token.getStairs();
+                        if(token.stairs != null && token.stairs.isStairsUp())
+                                return token.stairs;
                 }
                 return null;
         }
 
         public Stairs getStairsDown(){
                 for (Token token : tokens) {
-                        if(token.getStairs() != null && !token.getStairs().isStairsUp())
-                                return token.getStairs();
+                        if(token.stairs != null && !token.stairs.isStairsUp())
+                                return token.stairs;
                 }
                 return null;
         }
 
         public boolean hasTokensAt(int x, int y){
                 for(Token token : tokens){
-                        if(token.getLocation().x ==x && token.getLocation().y == y){
+                        if(token.location.x ==x && token.location.y == y){
                                 return true;
                         }
                 }
@@ -130,7 +130,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         public Array<Token> getTokensOnTeam(int team) {
                 tokensAt.clear();
                 for (Token token : tokens) {
-                        if(token.getLogic() != null && token.getLogic().getTeam() == team)
+                        if(token.logic != null && token.logic.getTeam() == team)
                                 tokensAt.add(token);
                 }
                 return tokensAt;
@@ -144,7 +144,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         public Array<Token> getTokensAt(Sector sector) {
                 tokensAt.clear();
                 for (Token token : tokens) {
-                        if(sector.contains(token.getLocation()))
+                        if(sector.contains(token.location))
                                 tokensAt.add(token);
                 }
                 return tokensAt;
@@ -157,9 +157,9 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         public Array<Token> getManhattanNeighborTokens(Pair loc){
                 tokensAt.clear();
                 for (Token token : tokens) {
-                        if(token.getLocation().x == loc.x && (token.getLocation().y == loc.y-1 || token.getLocation().y== loc.y +1)  ){
+                        if(token.location.x == loc.x && (token.location.y == loc.y-1 || token.location.y== loc.y +1)  ){
                                 tokensAt.add(token);
-                        }else if(token.getLocation().y == loc.y && (token.getLocation().x == loc.x-1 || token.getLocation().x == loc.x+1)){
+                        }else if(token.location.y == loc.y && (token.location.x == loc.x-1 || token.location.x == loc.x+1)){
                                 tokensAt.add(token);
                         }
                 }
@@ -173,7 +173,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         public Array<Token> getTokensInExtent(Pair loc, int extent){
                 tokensAt.clear();
                 for (Token token : tokens) {
-                        Pair tLoc = token.getLocation();
+                        Pair tLoc = token.location;
                         if(tLoc.x >= loc.x - extent && tLoc.x <= loc.x+extent && tLoc.y >= loc.y-extent && tLoc.y <= loc.y+extent){
                                 tokensAt.add(token);
                         }
@@ -184,7 +184,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         public Array<Token> getTargetableTokens(Token token, ConsumableItem.TargetsTokens usingItem){
                 tokensAt.clear();
                 for (Token t : tokens) {
-                        Pair tLoc = t.getLocation();
+                        Pair tLoc = t.location;
                         if(usingItem.canConsume(token, t)){
                                 tokensAt.add(t);
                         }
@@ -198,14 +198,14 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
          * The returned array should not be stored as it will be reused next time this method is called
          */
         public Array<Token> getVisibleTokens(Token token){
-                if(token.getFogMapping() == null){
+                if(token.fogMapping == null){
                        throw new IllegalArgumentException("the token must have fog mapping enabled");
                 }
-                FogMap fogMap = token.getFogMapping().getCurrentFogMap();
+                FogMap fogMap = token.fogMapping.getCurrentFogMap();
 
                 tokensAt.clear();
                 for (Token t : tokens) {
-                        Pair tLoc = t.getLocation();
+                        Pair tLoc = t.location;
                         if(fogMap.isVisible(tLoc.x, tLoc.y)){
                                 tokensAt.add(t);
                         }
@@ -216,7 +216,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         public Array<Token> getCrateAndLootTokens() {
                 tokensAt.clear();
                 for (Token t : tokens) {
-                        if(t.getCrateInventory() != null || t.getLoot() != null){
+                        if(t.crateInventory != null || t.loot != null){
                                 tokensAt.add(t);
                         }
                 }
@@ -234,8 +234,8 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         public Array<Token> getAttackableTokens(int notOnTeam) {
                 tokensAt.clear();
                 for (Token t : tokens) {
-                        if(t.getLogic() != null && t.getLogic().getTeam() != notOnTeam
-                           && t.getDamage() != null && t.getDamage().isAttackable()
+                        if(t.logic != null && t.logic.getTeam() != notOnTeam
+                           && t.damage != null && t.damage.isAttackable()
                            )
                                 tokensAt.add(t);
                 }
@@ -331,7 +331,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                 if (tile == null || tile.isBlockMovement())
                         return true;
                 for (Token token : tokens) {
-                        if (token.isBlocksPathing() && token.isLocatedAt(x,y))
+                        if (token.blocksPathing && token.isLocatedAt(x,y))
                                 return true;
                 }
                 return false;
@@ -420,7 +420,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                                         boolean printedToken = false;
                                         for(int i=0; i < tokens.size; i++){
                                                 Token token = tokens.items[i];
-                                                if(token.getLocation().x != x || token.getLocation().y != y) continue;
+                                                if(token.location.x != x || token.location.y != y) continue;
                                                 char c= token.toCharacter();
                                                 if(Character.isLetter(c)){
                                                         s+= c;
