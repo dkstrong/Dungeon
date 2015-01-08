@@ -96,7 +96,7 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new PreBuiltFloorGen(),new TutorialFloorGen(),new MazeGen(15, 19),
+                                new TestAssetsFloorGen(),new TutorialFloorGen(),new MazeGen(15, 19),
                                 new ConnectedRoomsGen(), new CellularAutomataGen(),  new TestAssetsFloorGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
@@ -147,13 +147,13 @@ public class DungeonLoader {
                         token.inventory.equip(armor);
 
                         if (settings.playerModel == ModelId.Knight) {
-                                WeaponItem sword = new WeaponItem(ModelId.SwordLarge, "Sword", 3);
+                                WeaponItem sword = new WeaponItem(ModelId.Sword_01, "Sword", 3);
                                 sword.setAttackDuration(1);
                                 token.inventory.add(sword);
                                 token.inventory.equip(sword);
                                 token.get(Journal.class).learn(sword);
 
-                                WeaponItem bow = new WeaponItem(ModelId.BowLarge, "Bow", 2, FxId.Arrow);
+                                WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, FxId.Arrow);
                                 bow.setRangedStats(3, 1);
                                 token.inventory.add(bow);
                                 token.get(Journal.class).learn(bow);

@@ -11,6 +11,7 @@ public enum ModelId {
         Priest,
         Skeleton,
         Goblin,
+        RockMonster,
         CeramicPitcher,
         Crate,
         Barrel,

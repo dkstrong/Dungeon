@@ -26,7 +26,7 @@ public class PerspectiveCamControl implements CamControl{
         public PerspectiveCamControl() {
                 cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
                 //cam.position.set(-15f, 35f, 15f);
-                cam.position.set(0f, 15f, 15f);
+                cam.position.set(0f, 25f, 15f);
                 cam.lookAt(0, 0, 0);
                 cam.near = .1f;
                 cam.far = 300f;
@@ -51,7 +51,7 @@ public class PerspectiveCamControl implements CamControl{
                                 if(zoom<targetZoom) zoom = targetZoom;
                         }
                         //chaseCamOffset.y = UtMath.scalarLimitsExtrapolation(zoom, 0, 1, 100, 35f);
-                        chaseCamOffset.y = UtMath.scalarLimitsExtrapolation(zoom, 0, 1, 100, 15);
+                        chaseCamOffset.y = UtMath.scalarLimitsExtrapolation(zoom, 0, 1, 100, 25);
                 }
                 if (chasing && chaseTarget != null) {
 

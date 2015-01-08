@@ -150,11 +150,16 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 //}
 
                 if (
+                        token.modelId != ModelId.Knight &&
                         token.modelId != ModelId.Goblin &&
+                        token.modelId != ModelId.RockMonster &&
                         token.modelId != ModelId.Skeleton) {
                         float s = .45f;
                         scale.set(s, s, s);
                         translationBase.set(0, (world.floorSpatial.tileBox.getDimensions().y / 2f) + 1.45f, 0);
+                }else if(token.modelId == ModelId.Knight){
+                        float s = .48f;
+                        scale.set(s, s, s);
                 }
 
                 if (token.modelId == ModelId.Diablous || token.modelId == ModelId.Berzerker || token.modelId == ModelId.Priest
@@ -167,23 +172,23 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
 
                 for (Animation animation : modelInstance.animations) {
-                        if (animation.id.contains("Walk")) {
+                        if (animation.id.toLowerCase().contains("walk")) {
                                 walk = animation;
-                        } else if (animation.id.contains("Idle")) {
+                        } else if (animation.id.toLowerCase().contains("idle")) {
                                 idle = animation;
-                        } else if (animation.id.equals("Attack")) {
-                                attack = animation;
-                        } else if (animation.id.contains("AttackSword")) {
+                        } else if (animation.id.toLowerCase().contains("attacksword")) {
                                 attackSword = animation;
-                        } else if (animation.id.contains("AttackBow")) {
+                        } else if (animation.id.toLowerCase().contains("attackbow")) {
                                 attackBow = animation;
-                        } else if (animation.id.contains("AttackStaff")) {
+                        } else if (animation.id.toLowerCase().contains("attackstaff")) {
                                 attackStaff = animation;
-                        } else if (animation.id.contains("Hit")) {
+                        } else if (animation.id.toLowerCase().contains("attack")) {
+                                attack = animation;
+                        } else if (animation.id.toLowerCase().contains("hit")) {
                                 hit = animation;
-                        } else if (animation.id.contains("Damaged")) {
+                        } else if (animation.id.toLowerCase().contains("damage")) {
                                 hit = animation;
-                        } else if (animation.id.contains("Die")) {
+                        } else if (animation.id.toLowerCase().contains("die")) {
                                 die = animation;
                         }
 
@@ -344,11 +349,23 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         // TODO: rotations and stuff are still all messed up. damn you blender for not letting us apply transforms on armatures!
                         weaponModelInstance.transform.set(modelInstance.transform).mul(weaponAttachmentNode.globalTransform);
                         weaponModelInstance.transform.rotate(Vector3.Z, -90);
+                        Vector3 trans =weaponModelInstance.transform.getTranslation(new Vector3());
+                        weaponModelInstance.transform.toNormalMatrix();
+
+                        weaponModelInstance.transform.set(trans,
+                                weaponModelInstance.transform.getRotation(new Quaternion()),
+                                scale);
+
                         world.modelBatch.render(weaponModelInstance, world.environment);
 
                         if(offhandModelInstance != null){
                                 offhandModelInstance.transform.set(modelInstance.transform).mul(offhandAttachmentNode.globalTransform);
-                                weaponModelInstance.transform.rotate(Vector3.Z, -90);
+                                offhandModelInstance.transform.rotate(Vector3.Z, -90);
+                                trans =offhandModelInstance.transform.getTranslation(new Vector3());
+                                offhandModelInstance.transform.toNormalMatrix();
+                                offhandModelInstance.transform.set(trans,
+                                        offhandModelInstance.transform.getRotation(new Quaternion()),
+                                        scale);
                                 world.modelBatch.render(offhandModelInstance, world.environment);
                         }
                 }

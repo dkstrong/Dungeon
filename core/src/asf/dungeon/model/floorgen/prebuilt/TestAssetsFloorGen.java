@@ -97,7 +97,7 @@ public class TestAssetsFloorGen implements FloorMapGenerator, FloorMap.MonsterSp
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
 
-                        ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Berzerker : ModelId.Skeleton;
+                        ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.RockMonster : ModelId.RockMonster;
 
                         Token token = dungeon.newCharacterToken(floorMap, "Monster",
                                 modelId,
