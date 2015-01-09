@@ -5,10 +5,12 @@ import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
+import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.model.item.KeyItem;
+import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Boulder;
 import asf.dungeon.model.token.Experience;
@@ -22,6 +24,8 @@ import asf.dungeon.model.token.logic.fsm.Monster;
 import asf.dungeon.model.token.logic.fsm.QuestNPC;
 import asf.dungeon.model.token.puzzle.CombinationDoorPuzzle;
 import asf.dungeon.model.token.quest.PotionQuest;
+import asf.dungeon.model.token.quest.SignPostQuest;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * Created by Danny on 11/4/2014.
@@ -68,7 +72,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                 };
 
                 FloorMap floorMap = new FloorMap(floorIndex, convertTileData(floorIndex,tileData));
-                spawnTokensFromTileData(dungeon, floorMap, tileData);
+                spawnTokensFromTileData(dungeon, floorMap, tileData, null);
 
                 CombinationDoorPuzzle puzzle = new CombinationDoorPuzzle();
 
@@ -107,7 +111,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                 };
 
                 FloorMap floorMap = new FloorMap(floorIndex, convertTileData(floorIndex,tileData));
-                spawnTokensFromTileData(dungeon, floorMap, tileData);
+                spawnTokensFromTileData(dungeon, floorMap, tileData, null);
                 return floorMap;
         }
 
@@ -132,7 +136,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                 };
 
                 FloorMap floorMap = new FloorMap(floorIndex, convertTileData(floorIndex,tileData));
-                spawnTokensFromTileData(dungeon, floorMap, tileData);
+                spawnTokensFromTileData(dungeon, floorMap, tileData, null);
                 return floorMap;
         }
         public static FloorMap smallRoom(Dungeon dungeon, int floorIndex){
@@ -152,7 +156,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                 };
 
                 FloorMap floorMap = new FloorMap(floorIndex, convertTileData(floorIndex,tileData));
-                spawnTokensFromTileData(dungeon, floorMap, tileData);
+                spawnTokensFromTileData(dungeon, floorMap, tileData, null);
                 return floorMap;
         }
 
@@ -172,7 +176,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                 };
 
                 FloorMap floorMap = new FloorMap(floorIndex,convertTileData(floorIndex,tileData));
-                spawnTokensFromTileData(dungeon, floorMap, tileData);
+                spawnTokensFromTileData(dungeon, floorMap, tileData, null);
 
                 return floorMap;
         }
@@ -200,7 +204,39 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                 return tiles;
         }
 
-        protected static void spawnTokensFromTileData(Dungeon dungeon, FloorMap floorMap, String[] tileData){
+        protected static String[] randomizeTileData(Dungeon dungeon, FloorMap floorMap, String[] tileData, String[] roomMask){
+                String[] td = new String[tileData.length];
+                for(int i=0; i < td.length; i++) td[i] = tileData[i];
+                final Array<Pair> pairs = new Array<Pair>(false, 16, Pair.class);
+                for (int y = 0; y < tileData.length; y++) {
+                        for (int x = 0; x < tileData[0].length(); x++) {
+                                char charAt = tileData[tileData.length - y - 1].charAt(x);
+                                // check to see if this is a valid token to randomize (eg crates)
+                                if(charAt != 'c' && charAt != 'C' && charAt != 'h'&& charAt != 'k')
+                                        continue;
+                                // replace this token with a floor tile
+                                td[tileData.length-y-1] = td[td.length-y-1].substring(0, x)+'.'+td[td.length - y - 1].substring(x+1);
+
+                                // choose new random location from the roomMask to place this token at
+                                // this is done by finding all locations with the same room mask,
+                                // then randomly picking one of them
+                                char room = roomMask[tileData.length-y-1].charAt(x);
+                                pairs.clear();
+                                for (int ry = 0; ry < roomMask.length; ry++)
+                                        for (int rx = 0; rx < roomMask[0].length(); rx++)
+                                                if(roomMask[roomMask.length - ry - 1].charAt(rx) == room)
+                                                        pairs.add(new Pair(rx,ry));
+                                Pair newLoc = pairs.items[dungeon.rand.random.nextInt(pairs.size)];
+
+                                // new location now has this token instead of whatever it was
+                                td[tileData.length-newLoc.y-1] = td[td.length-newLoc.y-1].substring(0, newLoc.x)+charAt+td[td.length - newLoc.y - 1].substring(newLoc.x+1);
+                        }
+                }
+                return td;
+        }
+
+        protected static void spawnTokensFromTileData(Dungeon dungeon, FloorMap floorMap, String[] tileData, String[] signPostMessages){
+                int nextSignPostMessage = 0;
                 for (int y = 0; y < tileData.length; y++) {
                         for (int x = 0; x < tileData[0].length(); x++) {
                                 char charAt = tileData[tileData.length - y - 1].charAt(x);
@@ -215,6 +251,12 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                         stairsToken.add(new Stairs(stairsToken, floorMap.index+1));
                                         stairsToken.direction = Direction.East;
                                         dungeon.newToken(stairsToken, floorMap, x,y);
+                                } else if(charAt == 'c') { // crate (empty)
+                                        dungeon.newCrateToken(floorMap, "Wooden Barrel", ModelId.Barrel, null, x, y);
+                                } else if(charAt == 'C') { // crate (empty)
+                                        dungeon.newCrateToken(floorMap, "Wooden Crate", ModelId.Crate, null, x, y);
+                                } else if(charAt == 'h') { // health potion
+                                        dungeon.newCrateToken(floorMap, "Wooden Barrel", ModelId.Barrel, new PotionItem(dungeon, PotionItem.Type.Health, 1), x, y);
                                 } else if(charAt == 's') { // Spike Trap
                                         Token spikeTrap = new Token(dungeon, "Spike Trap", ModelId.SpikeTrap);
                                         spikeTrap.add(new SpikeTrap(spikeTrap));
@@ -230,6 +272,10 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                         Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
                                         fountainToken.add(new Fountain(fountainToken, dungeon.rand.potionType()));
                                         dungeon.newToken(fountainToken, floorMap, x, y);
+                                } else if(charAt == 'p') { // sign post
+                                        Token signPost = new Token(dungeon, "Sign Post", ModelId.SignPost);
+                                        signPost.add(new SignPostQuest(signPostMessages[nextSignPostMessage++]));
+                                        dungeon.newToken(signPost, floorMap, x,y);
                                 } else if(charAt == 'k') { // key
                                         KeyItem keyItem = new KeyItem(KeyItem.Type.Silver);
                                         if(dungeon.rand.random.nextBoolean()){

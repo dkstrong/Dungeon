@@ -11,11 +11,13 @@ The Dungeon is looking for 3D artists, Sound artists, and Programmers to help ma
 
 ### Art Credits
 
-Special thanks to these art contributors who created assets specificaly for Dungeon!
+Special thanks to these art contributors who created assets specifically for Dungeon!
+
+Wooden Crate, Wooden Barrel, Wood Particles, Rock Monster - Kevin Boyette ([Check out his YouTube Channel](https://www.youtube.com/channel/UC5EmESk342x3tt2lHvnGOEQ))
 
 Goblin Monster - Lee Zhi Fei
 
-Wooden Crate, Wooden Barrel, Wood Particles - Kevin Boyette ([Check out his YouTube Channel](https://www.youtube.com/channel/UC5EmESk342x3tt2lHvnGOEQ))
+
 
 ### Important Art License Info
 

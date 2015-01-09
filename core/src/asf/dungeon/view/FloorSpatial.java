@@ -166,22 +166,26 @@ public class FloorSpatial implements Spatial {
                 return initialized;
         }
 
+        private static int isFloorOrPit(Tile t){
+                return t.isFloor() || t.isPit() ? 1 : 0;
+        }
+
         private Direction whichDirectionToFaceDoor(int x, int y){
                 Tile nw = floorMap.getTile(x-1,y+1);
                 Tile n = floorMap.getTile(x,y+1);
                 Tile ne = floorMap.getTile(x+1,y+1);
-                int northCount = (nw.isFloor()? 1 :0) + (n.isFloor()? 1 :0) + (ne.isFloor() ? 1 :0);
+                int northCount = isFloorOrPit(nw) + isFloorOrPit(n) + isFloorOrPit(ne);
                 if(northCount == 3) return Direction.North;
                 Tile e = floorMap.getTile(x+1,y);
                 Tile se = floorMap.getTile(x+1,y-1);
-                int eastCount = (ne.isFloor()? 1 :0) + (e.isFloor()? 1 :0) + (se.isFloor() ? 1 :0);
+                int eastCount = isFloorOrPit(ne) + isFloorOrPit(e) + isFloorOrPit(se);
                 if(eastCount == 3) return Direction.East;
                 Tile s = floorMap.getTile(x,y-1);
                 Tile sw = floorMap.getTile(x-1,y-1);
-                int southCount = (se.isFloor()? 1 :0) + (s.isFloor()? 1 :0) + (sw.isFloor() ? 1 :0);
+                int southCount = isFloorOrPit(se) + isFloorOrPit(s) + isFloorOrPit(sw);
                 if(southCount == 3) return Direction.South;
                 Tile w = floorMap.getTile(x-1,y);
-                int westCount = (sw.isFloor()? 1 :0) + (w.isFloor()? 1 :0) + (nw.isFloor() ? 1 :0);
+                int westCount = isFloorOrPit(sw) + isFloorOrPit(w) + isFloorOrPit(nw);
                 if(westCount == 3) return Direction.West;
 
                 if(northCount == 2) return Direction.North;
@@ -190,7 +194,7 @@ public class FloorSpatial implements Spatial {
                 if(westCount == 2) return Direction.West;
 
 
-                if(n.isFloor() && s.isFloor()) return Direction.South;
+                if(isFloorOrPit(n)==1 && isFloorOrPit(s)==1) return Direction.South;
                 return Direction.West;
         }
 

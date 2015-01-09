@@ -104,6 +104,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 weaponAttachmentNode = offhandIsPrimary ? modelInstance.getNode("attach_l", true, true) : modelInstance.getNode("attach_r", true, true);
                 if(weaponAttachmentNode == null){
                         unloadWeaponAttachment();
+                        loadedWeaponItem = weaponSlot; // to preferent spamming the loaded notifyable
                         return true;
                 }
 
@@ -226,7 +227,6 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
 
         public void update(final float delta) {
-                refreshWeaponAttachment();
                 FogState fogState = world.floorSpatial.fogMap == null ? FogState.Visible : world.floorSpatial.fogMap.getFogState(token.location.x, token.location.y);
                 float minVisU = 0;
                 float maxVisU = 1;
@@ -302,12 +302,12 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 } else if (token.move != null && token.move.isMoving() && !(token.attack != null && token.attack.isInRangeOfAttackTarget())) {
                         if (current != walk) {
                                 float v = UtMath.scalarLimitsInterpolation(token.move.getMoveSpeed(), 1, 10, 1f, 1.5f);
-                                animController.animate(walk.id, -1, v, null, .2f);
+                                animController.animate(walk.id, -1, v, null, 0.3f);
                                 current = walk;
                         }
                 } else {
                         if (current != idle) {
-                                animController.animate(idle.id, -1, .25f, null, .2f);
+                                animController.animate(idle.id, -1, .25f, null, 0.3f);
                                 current = idle;
                         }
                 }
@@ -377,6 +377,12 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 world.decalBatch.add(shadowDecal);
 
 
+        }
+
+        @Override
+        public void onInventoryChanged() {
+                super.onInventoryChanged();
+                refreshWeaponAttachment();
         }
 
         /**
