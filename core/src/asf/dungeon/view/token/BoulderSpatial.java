@@ -4,7 +4,6 @@ import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Boulder;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.BetterModelInstance;
-import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -76,8 +75,7 @@ public class BoulderSpatial extends AbstractTokenSpatial{
 
                 if (minVisU == 0 || visU != minVisU){
                         // if not fog blocked
-                        float rotMoveSpeed = UtMath.largest(boulder.getMoveSpeed(), 7f);
-                        float rotSpeed = delta * (rotMoveSpeed + 0.5f);
+                        float rotSpeed = delta * (7f + 0.5f);
                         Quaternion tokenDirRot = world.assetMappings.getRotation(token.direction);
                         rotation.slerp(tokenDirRot, rotSpeed);
                 }

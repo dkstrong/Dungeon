@@ -184,6 +184,10 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                                 walk = animation;
                         } else if (animation.id.toLowerCase().contains("sprint")) {
                                 sprint = animation;
+                        } else if (animation.id.toLowerCase().contains("rockpush")) {
+                                rockPush = animation;
+                        } else if (animation.id.toLowerCase().contains("keyturn")) {
+                                keyTurn = animation;
                         } else if (animation.id.toLowerCase().contains("idle")) {
                                 idle = animation;
                         } else if (animation.id.toLowerCase().contains("attacksword")) {
@@ -209,6 +213,8 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 if(attackStaff == null) attackStaff = attack;
                 if(walk ==null) walk = idle;
                 if(sprint == null) sprint = walk;
+                if(rockPush == null) rockPush = walk;
+                if(keyTurn == null) keyTurn = walk;
 
 
                 // check to see if token spawned with status effects already on, if so then shot their Fx and hud information
@@ -234,7 +240,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         }
 
         private Animation current,
-                idle, walk, sprint, attack, attackUnarmed, attackSword, attackBow, attackStaff, hit, die;
+                idle, walk, sprint, rockPush, keyTurn, attack, attackUnarmed, attackSword, attackBow, attackStaff, hit, die;
 
 
         public void update(final float delta) {
@@ -314,6 +320,12 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                                 animController.animate(hit.id, 1, hit.duration / token.damage.getHitDuration(), null, .2f);
                                 current = hit;
                                 world.sounds.play(token.damage.getHitSfx());
+                        }
+                }else if(token.move.isPushingBoulder()){
+                        if(token.move.isMoving()){
+                                animController.animate(rockPush.id, -1, 1, null, 0.3f);
+                        }else{
+                                animController.animate(rockPush.id, -1, 0, null, 0.3f);
                         }
                 } else if (token.move != null && token.move.isMoving() && !(token.attack != null && token.attack.isInRangeOfAttackTarget())) {
                         if(token.statusEffects.has(StatusEffect.Speed)){ // TODO: may be excesive checking for Speed

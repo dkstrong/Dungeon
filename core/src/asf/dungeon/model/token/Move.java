@@ -25,7 +25,7 @@ public class Move implements TokenComponent , Teleportable{
 
         private final Pair continuousMoveTokenLastLoc = new Pair();
         private float continuousMoveTokenLostVisionCountdown = 0;
-        private float moveU = 1;                                // 1 = fully on the location, less then 1 means moving on to the location still even though it occupies it, use direction variable to determine which way token is walking towards the location
+        protected float moveU = 1;                                // 1 = fully on the location, less then 1 means moving on to the location still even though it occupies it, use direction variable to determine which way token is walking towards the location
         private Vector2 floatLocation = new Vector2();
 
 
@@ -124,6 +124,13 @@ public class Move implements TokenComponent , Teleportable{
                                         if (token.fogMapping != null)
                                                 token.fogMapping.computeFogMap();
 
+                                        if(pushingBoulder != null && !pushingBoulder.isMoving()){
+                                                if(!pushingBoulder.token.isLocatedAt(nextLocation) || !pushingBoulder.push(token)){
+                                                        pushingBoulder = null;
+                                                }
+                                        }
+
+
                                 } else {
 
                                         // path is blocked, will attempt to attack what is blocking the path
@@ -154,6 +161,7 @@ public class Move implements TokenComponent , Teleportable{
 
                         } else if (path.size == 1) {
                                 // idle
+                                pushingBoulder = null;
                                 path.clear();
                                 pathedTarget.set(location);
                                 Stairs stairs = floorMap.getStairsAt(location.x, location.y);
@@ -165,6 +173,7 @@ public class Move implements TokenComponent , Teleportable{
                                 moveU = 1;
                                 //pickUpLoot();
                         } else {
+                                pushingBoulder = null;
                                 moveU = 1;
                         }
 
@@ -242,12 +251,17 @@ public class Move implements TokenComponent , Teleportable{
                 }
         }
 
+        private Boulder pushingBoulder;
+        public boolean isPushingBoulder(){
+                return pushingBoulder != null;
+        }
+
         private boolean pushBoulder(Pair nextLocation) {
                 Array<Token> tokensAt = token.floorMap.getTokensAt(nextLocation);
                 for (Token t : tokensAt) {
                         Boulder boulder = t.get(Boulder.class);
-                        if (boulder != null && !boulder.isFillsPit()) {
-                                boulder.push(token);
+                        if (boulder != null && boulder.push(token)) {
+                                pushingBoulder = boulder;
                                 return true;
                         }
                 }

@@ -12,7 +12,7 @@ import com.badlogic.gdx.math.Vector2;
  * Created by Daniel Strong on 12/17/2014.
  */
 public class Boulder implements TokenComponent , Teleportable{
-        private Token token;
+        protected Token token;
         private float moveSpeed = 1.5f;
         private float moveSpeedDiagonal = 1.06066017177f;
         private float moveU = 1;
@@ -50,7 +50,7 @@ public class Boulder implements TokenComponent , Teleportable{
         @Override
         public boolean update(float delta) {
                 if (moveU >= 1) return false;
-                moveU += delta;
+                moveU += delta * (token.direction.isDiagonal() ? moveSpeedDiagonal : moveSpeed);
                 if (moveU > 1){
                         moveU = 1;
                         Tile tile = token.floorMap.getTile(token.location);
@@ -72,32 +72,35 @@ public class Boulder implements TokenComponent , Teleportable{
 
         }
 
-
-        protected void push(Token pushedBy) {
-                if (moveU != 1) return;
-                if(fillsPit != null) return;
+        protected boolean push(Token pushedBy) {
+                if (moveU != 1) return false;
+                if(fillsPit != null) return false;
+                //if(pushedBy != null && pushedBy != this.pushedBy) return false;
                 Direction pushDir = pushedBy.location.direction(token.location);
                 Pair newLoc = new Pair();
                 // Attempt to push the boulder forward, then left, then right, if none of these directions work then it is stuck
-                setMoveSpeed(pushedBy.move.getMoveSpeed()*1.1f);
+                setMoveSpeed(pushedBy.move.getMoveSpeed());
 
                 if(!isLocationBlocked(newLoc.set(token.location).addFree(pushDir))){
                         moveU = 0;
                         token.location.set(newLoc);
                         token.direction = pushDir;
+                        return true;
                 }else if(isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(-90))) &&
                         !isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(90)))){
                         moveU = 0;
                         token.location.set(newLoc);
                         token.direction = pushDir.rotate(90);
+                        return true;
                 }else if(
                         isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(90))) &&
                         !isLocationBlocked(newLoc.set(token.location).addFree(pushDir.rotate(-90)))){
                         moveU = 0;
                         token.location.set(newLoc);
                         token.direction = pushDir.rotate(-90);
+                        return true;
                 }
-
+                return false;
         }
 
         private boolean isLocationBlocked(Pair location){
