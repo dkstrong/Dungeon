@@ -35,7 +35,7 @@ public class Move implements TokenComponent , Teleportable{
 
         @Override
         public boolean canTeleport(FloorMap fm, int x, int y, Direction direction) {
-                return true;
+                return keyTurnU == 1;
         }
 
         @Override
@@ -44,10 +44,24 @@ public class Move implements TokenComponent , Teleportable{
                 path.clear();
                 pathedTarget.set(x, y);
                 floatLocation.set(x, y);
+                pushingBoulder = null;
         }
 
         @Override
         public boolean update(float delta) {
+                if(keyTurnU != 1){
+                        keyTurnU += delta;
+                        if(keyTurnU < 1){
+                                return true;
+                        }else{
+                                keyTurnU = 1;
+                                keyTurnOnTile.setDoorLocked(false);
+                                token.inventory.useKey((KeyItem) keyTurnOnTile.doorSymbol);
+                        }
+
+                }
+
+
                 if (token.command.getTargetToken() != null) {
                         // set the move targt location to the target tokens location
                         // if the target token is in the fog, then set target location to their last known location
@@ -93,6 +107,7 @@ public class Move implements TokenComponent , Teleportable{
                 }
 
 
+
                 calcPathToLocation(token.command.getLocation());
 
                 moveU += delta * (token.direction.isDiagonal() ? moveSpeedDiagonal : moveSpeed);
@@ -136,6 +151,7 @@ public class Move implements TokenComponent , Teleportable{
                                         // path is blocked, will attempt to attack what is blocking the path
                                         // if can not attack (due to cooldown or some other reason) then the token will just kind of chill
                                         moveU = 1;
+                                        pushingBoulder = null;
 
                                         Direction newDirection = location.direction(nextLocation);
                                         if (newDirection != null)
@@ -192,9 +208,9 @@ public class Move implements TokenComponent , Teleportable{
         }
 
         private void calcPathToLocation(Pair targetLocation) {
-                if (targetLocation.equals(pathedTarget)) {
+                if (pushingBoulder!= null || keyTurnU != 1 || targetLocation.equals(pathedTarget)) {
                         //Gdx.app.log(name, "already pathing: " + targetLocation);
-                        return; // already targeting this loaction, dont calc again
+                        return; // already targeting this loaction, or using a blocking animation (pushing boulder,  turning key).. dont calc
                 }
 
 
@@ -270,6 +286,12 @@ public class Move implements TokenComponent , Teleportable{
 
         private static final boolean doubleTapToOpenDoor = false;
         protected boolean showDoorLockedMessage = true;
+        private float keyTurnU = 1;
+        private Tile keyTurnOnTile;
+
+        public boolean isKeyTurn(){
+                return keyTurnU != 1;
+        }
 
         private boolean useKey(Pair nextLocation) {
                 if(doubleTapToOpenDoor){
@@ -281,9 +303,11 @@ public class Move implements TokenComponent , Teleportable{
                         if(nextTile.doorSymbol instanceof KeyItem){
                                 boolean hasKey = token.inventory.containsKey((KeyItem) nextTile.doorSymbol);
                                 if(hasKey){
+                                        keyTurnU = 0;
                                         showDoorLockedMessage = true;
-                                        nextTile.setDoorLocked(false);
-                                        token.inventory.useKey((KeyItem) nextTile.doorSymbol);
+                                        keyTurnOnTile = nextTile;
+                                        //nextTile.setDoorLocked(false);
+                                        //token.inventory.useKey((KeyItem) nextTile.doorSymbol);
                                 }else{
                                         // cant open door, player does not have key for door
                                         if(showDoorLockedMessage){ // if statement prevents spamming onPathBlocked
@@ -325,9 +349,11 @@ public class Move implements TokenComponent , Teleportable{
 
                                 } else {
                                         //Gdx.app.log("Move","Unlocking door");
-                                        nextTile.setDoorLocked(false);
-                                        token.inventory.useKey((KeyItem) nextTile.doorSymbol);
-                                        //token.command.setLocation(token.location);
+                                        keyTurnU = 0;
+                                        keyTurnOnTile = nextTile;
+                                        //nextTile.setDoorLocked(false);
+                                        //token.inventory.useKey((KeyItem) nextTile.doorSymbol);
+
                                         return true;
 
                                 }

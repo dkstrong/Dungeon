@@ -156,6 +156,8 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         animController = new BetterAnimationController(modelInstance);
 
 
+
+
                 //for (Material material : modelInstance.materials) {
                 //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
                 //}
@@ -321,11 +323,15 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                                 current = hit;
                                 world.sounds.play(token.damage.getHitSfx());
                         }
+                }else if(token.move.isKeyTurn()){
+                        if(current != keyTurn){
+                                animController.animate(keyTurn.id, 1, 1f, null, 0.3f);
+                                current = keyTurn;
+                        }
                 }else if(token.move.isPushingBoulder()){
-                        if(token.move.isMoving()){
+                        if(current != rockPush){
                                 animController.animate(rockPush.id, -1, 1, null, 0.3f);
-                        }else{
-                                animController.animate(rockPush.id, -1, 0, null, 0.3f);
+                                current = rockPush;
                         }
                 } else if (token.move != null && token.move.isMoving() && !(token.attack != null && token.attack.isInRangeOfAttackTarget())) {
                         if(token.statusEffects.has(StatusEffect.Speed)){ // TODO: may be excesive checking for Speed
