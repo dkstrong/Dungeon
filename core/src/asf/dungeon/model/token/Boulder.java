@@ -102,7 +102,7 @@ public class Boulder implements TokenComponent , Teleportable{
 
         private boolean isLocationBlocked(Pair location){
                 Tile tile = token.floorMap.getTile(location);
-                if(tile == null || (!tile.isPit() && tile.isBlockMovement()))
+                if(tile == null || (!tile.isPit() && tile.blockMovement))
                         return true;
 
                 for (Token t : token.floorMap.getTokens()) {

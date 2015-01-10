@@ -284,7 +284,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                                 dungeon.newLootToken(floorMap, keyItem, x, y);
                                         }
                                 } else if(charAt == 'm') { // monster
-                                        ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Skeleton : ModelId.Berzerker;
+                                        ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.RockMonster : ModelId.RockMonster;
                                         Token token = dungeon.newCharacterToken(floorMap, modelId.name(),
                                                 modelId,
                                                 new FsmLogic(1, null, Monster.Sleep),

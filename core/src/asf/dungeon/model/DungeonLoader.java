@@ -158,6 +158,10 @@ public class DungeonLoader {
                                 token.inventory.add(bow);
                                 token.get(Journal.class).learn(bow);
                                 //token.inventory.equip(bow);
+
+                                WeaponItem staff = new WeaponItem(ModelId.SwordLarge, "Staff", 3, FxId.PlasmaBall);
+                                staff.identifyItem(token);
+                                token.inventory.add(staff);
                         } else if (settings.playerModel == ModelId.Archer) {
                                 WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, FxId.Arrow);
                                 bow.setCursed(true);

@@ -246,7 +246,7 @@ public class Move implements TokenComponent , Teleportable{
                 Array<Token> tokensAt = token.floorMap.getTokensAt(nextLocation);
                 for (Token t : tokensAt) {
                         Boulder boulder = t.get(Boulder.class);
-                        if (boulder != null) {
+                        if (boulder != null && !boulder.isFillsPit()) {
                                 boulder.push(token);
                                 return true;
                         }
@@ -264,12 +264,12 @@ public class Move implements TokenComponent , Teleportable{
 
                 Tile nextTile = token.floorMap.getTile(nextLocation);
                 if(nextTile.isDoor() && nextTile.isDoorLocked()){
-                        if(nextTile.getDoorSymbol() instanceof KeyItem){
-                                boolean hasKey = token.inventory.containsKey((KeyItem) nextTile.getDoorSymbol());
+                        if(nextTile.doorSymbol instanceof KeyItem){
+                                boolean hasKey = token.inventory.containsKey((KeyItem) nextTile.doorSymbol);
                                 if(hasKey){
                                         showDoorLockedMessage = true;
                                         nextTile.setDoorLocked(false);
-                                        token.inventory.useKey((KeyItem) nextTile.getDoorSymbol());
+                                        token.inventory.useKey((KeyItem) nextTile.doorSymbol);
                                 }else{
                                         // cant open door, player does not have key for door
                                         if(showDoorLockedMessage){ // if statement prevents spamming onPathBlocked
@@ -297,8 +297,8 @@ public class Move implements TokenComponent , Teleportable{
                 Tile nextTile = token.floorMap.getTile(nextLocation);
                 if (nextTile.isDoor() && nextTile.isDoorLocked()) {
                         boolean key = false;
-                        if (nextTile.getDoorSymbol() instanceof KeyItem) {
-                                key = token.inventory.containsKey((KeyItem) nextTile.getDoorSymbol());
+                        if (nextTile.doorSymbol instanceof KeyItem) {
+                                key = token.inventory.containsKey((KeyItem) nextTile.doorSymbol);
                         }
                         if (token.command.isUseKey() && nextTile == token.command.getUseKeyOnTile()) {
                                 //token.getTarget().setUseKey(false);
@@ -312,7 +312,7 @@ public class Move implements TokenComponent , Teleportable{
                                 } else {
                                         //Gdx.app.log("Move","Unlocking door");
                                         nextTile.setDoorLocked(false);
-                                        token.inventory.useKey((KeyItem) nextTile.getDoorSymbol());
+                                        token.inventory.useKey((KeyItem) nextTile.doorSymbol);
                                         //token.command.setLocation(token.location);
                                         return true;
 

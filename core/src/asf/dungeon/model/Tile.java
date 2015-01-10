@@ -10,12 +10,21 @@ public class Tile {
         private static transient final Tile floorTile = new Tile(false, false);
         private static transient final Tile wallTile = new Tile(true, true);
 
-        private int movementCost;
-        private boolean blockMovement;
-        private boolean blockVision;
+        public int movementCost;
+        /**
+         * do not modify directly, modify using mutators like setDoorLocked() and setPitFilled()
+         */
+        public boolean blockMovement;
+        /**
+         * do not modify directly, modify using mutators like setDoorOpened()
+         */
+        public boolean blockVision;
         private boolean pit;
         private boolean door;
-        private Symbol doorSymbol;
+        /**
+         * do not modify directly, modify using setDoorLocked()
+         */
+        public Symbol doorSymbol;
         private boolean doorForcedOpen;
 
         private Tile(boolean pit) {
@@ -34,14 +43,6 @@ public class Tile {
                 this.blockVision = true;
                 this.blockMovement = doorLocked;
                 this.doorSymbol = doorSymbol;
-        }
-
-        public boolean isBlockMovement() {
-                return blockMovement;
-        }
-
-        public boolean isBlockVision() {
-                return blockVision;
         }
 
         public boolean isWall() { return !pit && !door && blockMovement && blockVision; }
@@ -64,10 +65,6 @@ public class Tile {
                 return blockMovement;
         }
 
-        public Symbol getDoorSymbol() {
-                return doorSymbol;
-        }
-
         public void setDoorOpened(boolean opened) { blockVision = !opened && !doorForcedOpen; }
 
         public void setDoorLocked(boolean locked) {
@@ -84,10 +81,6 @@ public class Tile {
         public void setDoorForcedOpen(boolean doorForcedOpen) {
                 this.doorForcedOpen = doorForcedOpen;
                 blockVision = !doorForcedOpen;
-        }
-
-        public int getMovementCost() {
-                return movementCost;
         }
 
         public static Tile makeFloor() {
@@ -123,7 +116,7 @@ public class Tile {
 
                 if (isDoor())
                         if(isDoorLocked())
-                                if(getDoorSymbol() instanceof KeyItem)
+                                if(doorSymbol instanceof KeyItem)
                                         return '/';
                                 else
                                         return '\\';

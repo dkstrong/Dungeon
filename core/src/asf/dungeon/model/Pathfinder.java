@@ -197,7 +197,7 @@ public class Pathfinder {
                 // like a stationary token standing in the way.
 
                 Tile tile = map[x][y];
-                return tile != null && !tile.isBlockMovement();
+                return tile != null && !tile.blockMovement;
         }
 
         private boolean isCuttableCorner(int x, int y){
@@ -207,7 +207,7 @@ public class Pathfinder {
                         return false;
                 }
 
-                if(floorMap != null){
+                if(floorMap != null){ // make crates act as non cuttable corners
                         for (Token token : floorMap.tokens) {
                                 if(!token.blocksPathing || !token.isLocatedAt(x,y) || token.crateInventory == null)
                                         continue;
@@ -216,7 +216,7 @@ public class Pathfinder {
                 }
 
                 Tile tile = map[x][y];
-                return tile != null && (!tile.isBlockMovement() || tile.isPit());
+                return tile != null && !tile.blockMovement && !tile.isPit();
         }
 
         private Array<Pair> getNeighborNodes(Pair n) {
@@ -231,10 +231,12 @@ public class Pathfinder {
                         if (isWalkable(n.x - 1, n.y - 1) && (isCuttableCorner(n.x - 1, n.y) || isCuttableCorner(n.x, n.y - 1))) found.add(toPair(n.x - 1, n.y - 1));
                         if (isWalkable(n.x + 1, n.y - 1) && (isCuttableCorner(n.x + 1, n.y) || isCuttableCorner(n.x, n.y - 1))) found.add(toPair(n.x + 1, n.y - 1));
                 } else if (pathingPolicy == PathingPolicy.CanDiagonalIfNotCuttingCorner) {
-                        if (isWalkable(n.x + 1, n.y + 1) && (isCuttableCorner(n.x + 1, n.y) && isCuttableCorner(n.x, n.y + 1))) found.add(toPair(n.x + 1, n.y + 1));
-                        if (isWalkable(n.x - 1, n.y + 1) && (isCuttableCorner(n.x - 1, n.y) && isCuttableCorner(n.x, n.y + 1))) found.add(toPair(n.x - 1, n.y + 1));
-                        if (isWalkable(n.x - 1, n.y - 1) && (isCuttableCorner(n.x - 1, n.y) && isCuttableCorner(n.x, n.y - 1))) found.add(toPair(n.x - 1, n.y - 1));
-                        if (isWalkable(n.x + 1, n.y - 1) && (isCuttableCorner(n.x + 1, n.y) && isCuttableCorner(n.x, n.y - 1))) found.add(toPair(n.x + 1, n.y - 1));
+                        if(isCuttableCorner(n.x, n.y)){
+                                if (isWalkable(n.x + 1, n.y + 1) && (isCuttableCorner(n.x + 1, n.y) && isCuttableCorner(n.x, n.y + 1))) found.add(toPair(n.x + 1, n.y + 1));
+                                if (isWalkable(n.x - 1, n.y + 1) && (isCuttableCorner(n.x - 1, n.y) && isCuttableCorner(n.x, n.y + 1))) found.add(toPair(n.x - 1, n.y + 1));
+                                if (isWalkable(n.x - 1, n.y - 1) && (isCuttableCorner(n.x - 1, n.y) && isCuttableCorner(n.x, n.y - 1))) found.add(toPair(n.x - 1, n.y - 1));
+                                if (isWalkable(n.x + 1, n.y - 1) && (isCuttableCorner(n.x + 1, n.y) && isCuttableCorner(n.x, n.y - 1))) found.add(toPair(n.x + 1, n.y - 1));
+                        }
                 }
                 return found;
         }
@@ -258,7 +260,7 @@ public class Pathfinder {
                 int distance = (int) Math.round(10 * Math.sqrt(Math.pow(n1.x - n2.x, 2) + Math.pow(n1.y - n2.y, 2)));
 
 
-                int movementCost = map[n1.x][n1.y].getMovementCost();
+                int movementCost = map[n1.x][n1.y].movementCost;
                 if (mover != null && !n1.equals(end) && (closedNodes.size < 5 || mover.interactor == null)) {
                         // NPCs - we check all their nodes because they dont frequently repath
                         // players - only check the first 5 nodes because they frequently repath

@@ -132,7 +132,7 @@ public class Token {
 
         public boolean canTeleport(FloorMap fm, int x, int y, Direction dir) {
                 Tile tile = fm.getTile(x, y);
-                if (tile == null || tile.isDoor() || tile.isBlockMovement()) {
+                if (tile == null || tile.isDoor() || tile.blockMovement) {
                         return false;
                 }
 

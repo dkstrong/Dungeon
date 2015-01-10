@@ -328,7 +328,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
 
         public boolean isLocationBlocked(int x, int y) {
                 Tile tile = getTile(x,y);
-                if (tile == null || tile.isBlockMovement())
+                if (tile == null || tile.blockMovement)
                         return true;
                 for (Token token : tokens) {
                         if (token.blocksPathing && token.isLocatedAt(x,y))
@@ -355,7 +355,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                         return false;
                 }
                 Tile tile = getTile(x, y);
-                return tile == null || tile.isBlockVision();
+                return tile == null || tile.blockVision;
 
         }
 
@@ -371,25 +371,25 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                 if(Math.abs(xRange) > Math.abs(yRange)){
                         int xSign = UtMath.sign(xRange);
                         goalTile = getTile(goal.x+xSign, goal.y);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x + xSign, goal.y);
+                        if(goalTile != null && !goalTile.blockMovement) return store.set(goal.x + xSign, goal.y);
                         int ySign = UtMath.sign(yRange);
                         goalTile = getTile(goal.x, goal.y+ySign);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y+ySign);
+                        if(goalTile != null && !goalTile.blockMovement) return store.set(goal.x, goal.y+ySign);
                         goalTile = getTile(goal.x, goal.y-ySign);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y-ySign);
+                        if(goalTile != null && !goalTile.blockMovement) return store.set(goal.x, goal.y-ySign);
                         goalTile = getTile(goal.x-xSign, goal.y);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x-xSign, goal.y);
+                        if(goalTile != null && !goalTile.blockMovement) return store.set(goal.x-xSign, goal.y);
                 }else{
                         int ySign = UtMath.sign(yRange);
                         goalTile = getTile(goal.x, goal.y+ySign);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y+ySign);
+                        if(goalTile != null && !goalTile.blockMovement) return store.set(goal.x, goal.y+ySign);
                         int xSign = UtMath.sign(xRange);
                         goalTile = getTile(goal.x+xSign, goal.y);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x+xSign, goal.y);
+                        if(goalTile != null && !goalTile.blockMovement) return store.set(goal.x+xSign, goal.y);
                         goalTile = getTile(goal.x-xSign, goal.y);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x-xSign, goal.y);
+                        if(goalTile != null && !goalTile.blockMovement) return store.set(goal.x-xSign, goal.y);
                         goalTile = getTile(goal.x, goal.y-ySign);
-                        if(goalTile != null && !goalTile.isBlockMovement()) return store.set(goal.x, goal.y-ySign);
+                        if(goalTile != null && !goalTile.blockMovement) return store.set(goal.x, goal.y-ySign);
                 }
                 store.set(goal);
                 return null;

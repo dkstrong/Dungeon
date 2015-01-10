@@ -941,16 +941,16 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         @Override
         public void onPathBlocked(Pair nextLocation, Tile nextTile) {
                 if (nextTile.isDoor() && nextTile.isDoorLocked()) {
-                        if(nextTile.getDoorSymbol() instanceof CombinationDoorPuzzle){
+                        if(nextTile.doorSymbol instanceof CombinationDoorPuzzle){
                                 this.appendToGameLog("The door is shut tight.");
-                        }else if(nextTile.getDoorSymbol() instanceof KeyItem){
-                                if (localPlayerToken.inventory.containsKey((KeyItem) nextTile.getDoorSymbol())) {
+                        }else if(nextTile.doorSymbol instanceof KeyItem){
+                                if (localPlayerToken.inventory.containsKey((KeyItem) nextTile.doorSymbol)) {
                                         this.appendToGameLog("Tap on door again to unlock door.");
                                 } else {
                                         this.appendToGameLog("You do not have the key to unlock this door.");
                                 }
                         }else{
-                                throw new AssertionError(nextTile.getDoorSymbol());
+                                throw new AssertionError(nextTile.doorSymbol);
                         }
 
                 }

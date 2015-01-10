@@ -574,12 +574,12 @@ public class FloorSpatial implements Spatial {
                 }
 
                 private TextureAttribute getDoorTexAttribute(Tile doorTile, TextureAttribute[] doorLockedTexAttribute){
-                        if(doorTile.getDoorSymbol() == null){
+                        if(doorTile.doorSymbol == null){
                                 return doorLockedTexAttribute[doorLockedTexAttribute.length-1];
                         }
 
-                        if(doorTile.getDoorSymbol() instanceof KeyItem){
-                                KeyItem keyItem = (KeyItem) doorTile.getDoorSymbol();
+                        if(doorTile.doorSymbol instanceof KeyItem){
+                                KeyItem keyItem = (KeyItem) doorTile.doorSymbol;
                                 if(doorTile.isDoorLocked())
                                         return doorLockedTexAttribute[keyItem.getType().ordinal()];
                                 else

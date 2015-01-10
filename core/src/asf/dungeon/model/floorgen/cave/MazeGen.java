@@ -48,7 +48,7 @@ public class MazeGen implements FloorMapGenerator {
                 outerloop:
                 for(int x=0; x<tiles.length; x++){
                         for(int y=0; y<tiles[x].length; y++){
-                                if(!tiles[x][y].isBlockMovement() && !tiles[x][y].isBlockVision()){
+                                if(!tiles[x][y].blockMovement && !tiles[x][y].blockVision){
                                         Token stairsToken = new Token(dungeon, "Stairs", null);
                                         stairsToken.add(new Stairs(stairsToken, floorMap.index - 1));
                                         dungeon.newToken(stairsToken, floorMap, x,y);
@@ -62,7 +62,7 @@ public class MazeGen implements FloorMapGenerator {
                 outerloop:
                 for (int x = tiles.length - 1; x >= 0; x--) {
                         for (int y = tiles[x].length - 1; y >= 0; y--) {
-                                if(!tiles[x][y].isBlockMovement() && !tiles[x][y].isBlockVision()){
+                                if(!tiles[x][y].blockMovement && !tiles[x][y].blockVision){
                                         Token stairsToken = new Token(dungeon, "Stairs", null);
                                         stairsToken.add(new Stairs(stairsToken, floorMap.index + 1));
                                         dungeon.newToken(stairsToken, floorMap, x,y);
