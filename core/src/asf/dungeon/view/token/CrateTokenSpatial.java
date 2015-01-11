@@ -6,9 +6,11 @@ import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.collision.Ray;
 
@@ -18,6 +20,7 @@ import com.badlogic.gdx.math.collision.Ray;
 public class CrateTokenSpatial extends AbstractTokenSpatial {
         private boolean initialized = false;
         private BetterModelInstance modelInstance;
+        private Decal shadowDecal;
 
         public CrateTokenSpatial(DungeonWorld world, Token token) {
                 super(world, token);
@@ -34,6 +37,16 @@ public class CrateTokenSpatial extends AbstractTokenSpatial {
                 initialized = true;
                 Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId));
                 modelInstance = new BetterModelInstance(model);
+
+
+                shadowDecal = Decal.newDecal(
+                        world.floorSpatial.tileDimensions.x,
+                        world.floorSpatial.tileDimensions.z,
+                        world.pack.findRegion("Textures/TokenShadow"),
+                        GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+                shadowDecal.rotateX(-90);
+                shadowDecal.setColor(1, 1, 1, 0.5f);
 
         }
 
@@ -98,6 +111,10 @@ public class CrateTokenSpatial extends AbstractTokenSpatial {
                 );
 
                 world.modelBatch.render(modelInstance, world.environment);
+
+                shadowDecal.setPosition(translation);
+                shadowDecal.translateY(0.1f);
+                world.decalBatch.add(shadowDecal);
         }
 
         @Override

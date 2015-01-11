@@ -103,6 +103,12 @@ public class Attack implements TokenComponent, Teleportable{
                 return false;
         }
 
+        /**
+         * only meant to be used by Monster Trap to keep it from attackign right after waking up
+         */
+        protected void restartWeaponCooldown(){
+                attackCoolDown = weapon.getAttackCooldown();
+        }
 
         private boolean attackCommandTarget(float delta){
 

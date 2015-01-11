@@ -12,6 +12,7 @@ import asf.dungeon.model.token.FogMapping;
 import asf.dungeon.model.token.Interactor;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Loot;
+import asf.dungeon.model.token.MonsterTrap;
 import asf.dungeon.model.token.Move;
 import asf.dungeon.model.token.Stairs;
 import asf.dungeon.model.token.StatusEffects;
@@ -153,6 +154,31 @@ public class Dungeon {
         public Token newCharacterToken(FloorMap fm, String name, ModelId modelId, Logic logic, Experience experience, int x, int y) {
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 Token t = new Token(this,  nextTokenId++, name, modelId);
+                t.add(logic);
+                t.add(new Command(t));
+                //t.add(new FogMapping(t));
+                //t.add(new Journal());
+                t.add(experience);
+                t.add(new CharacterInventory(t));
+                t.add(new StatusEffects(t));
+                t.add(new Damage(t));
+                t.add(new Attack(t));
+                t.add(new Move(t));
+
+                t.move.setPicksUpItems(false);
+                t.damage.setDeathDuration(3f);
+                t.damage.setDeathRemovalDuration(10f);
+                t.experience.setToken(t);
+                if(t.logic!=null)t.logic.setToken(t);
+
+                moveToken(t, fm, x,y,t.direction);
+                return t;
+        }
+
+        public Token newTrapCharacterToken(FloorMap fm, String name, ModelId modelId, Logic logic, Experience experience, int x, int y) {
+                if(fm == null) throw new IllegalArgumentException("fm can not be null");
+                Token t = new Token(this,  nextTokenId++, name, modelId);
+                t.add(new MonsterTrap(t));
                 t.add(logic);
                 t.add(new Command(t));
                 //t.add(new FogMapping(t));

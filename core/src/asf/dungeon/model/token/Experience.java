@@ -142,6 +142,9 @@ public class Experience implements TokenComponent{
 
                 // agility
 
+                if(agility < 2) token.move.setMoveSpeed(.35f);
+                if(agility < 3) token.move.setMoveSpeed(.65f);
+                if(agility < 5) token.move.setMoveSpeed(1.35f);
                 if(agility < 10) token.move.setMoveSpeed(1.65f);
                 else if(agility < 15) token.move.setMoveSpeed(1.75f);
                 else if(agility < 20) token.move.setMoveSpeed(1.85f);

@@ -147,9 +147,12 @@ public class Damage implements TokenComponent, Teleportable{
         }
 
         public boolean isAttackable() {
+                if(token.monsterTrap != null && !token.monsterTrap.isAwake()) return false;
+                if(token.inventory != null && token.inventory.isKeyTurn()) return false;
                 if(token.interactor != null && token.interactor.isInteracting()) return false;
                 if(token.statusEffects != null && token.statusEffects.has(StatusEffect.Invisibility)) return false;
-                return attackable && !isDead();
+                if(health <= 0) return false;
+                return attackable;
         }
 
         public boolean isHit() {

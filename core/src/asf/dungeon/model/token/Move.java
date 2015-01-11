@@ -256,6 +256,7 @@ public class Move implements TokenComponent , Teleportable{
                 }
         }
 
+
         private Boulder pushingBoulder;
         public boolean isPushingBoulder(){
                 return pushingBoulder != null;
@@ -269,6 +270,12 @@ public class Move implements TokenComponent , Teleportable{
                                 pushingBoulder = boulder;
                                 return true;
                         }
+                        MonsterTrap mt = t.get(MonsterTrap.class);
+                        if(mt != null && !mt.isTriggered()){
+                                mt.trigger(token);
+                                return true;
+                        }
+
                 }
                 return false;
         }

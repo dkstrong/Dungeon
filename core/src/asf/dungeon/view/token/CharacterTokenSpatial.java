@@ -178,33 +178,21 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
 
                 for (Animation animation : modelInstance.animations) {
-                        if (animation.id.toLowerCase().contains("walk")) {
-                                walk = animation;
-                        } else if (animation.id.toLowerCase().contains("sprint")) {
-                                sprint = animation;
-                        } else if (animation.id.toLowerCase().contains("rockpush")) {
-                                rockPush = animation;
-                        } else if (animation.id.toLowerCase().contains("keyturn")) {
-                                keyTurn = animation;
-                        } else if (animation.id.toLowerCase().contains("dazed")) {
-                                dazed = animation;
-                        } else if (animation.id.toLowerCase().contains("idle")) {
-                                idle = animation;
-                        } else if (animation.id.toLowerCase().contains("attacksword")) {
-                                attackSword = animation;
-                        } else if (animation.id.toLowerCase().contains("attackbow")) {
-                                attackBow = animation;
-                        } else if (animation.id.toLowerCase().contains("attackstaff")) {
-                                attackStaff = animation;
-                        } else if (animation.id.toLowerCase().contains("attack")) {
-                                attack = animation;
-                        } else if (animation.id.toLowerCase().contains("hit")) {
-                                hit = animation;
-                        } else if (animation.id.toLowerCase().contains("damage")) {
-                                hit = animation;
-                        } else if (animation.id.toLowerCase().contains("die")) {
-                                die = animation;
-                        }
+                        String animId = animation.id.toLowerCase();
+                        if (animId.contains("walk") && !animId.contains("old")) walk = animation;
+                        else if (animId.contains("pile_of_rocks")) monsterTrap = animation;
+                        else if (animId.contains("sprint")) sprint = animation;
+                        else if (animId.contains("rockpush")) rockPush = animation;
+                        else if (animId.contains("keyturn")) keyTurn = animation;
+                        else if (animId.contains("dazed")) dazed = animation;
+                        else if (animId.contains("idle")) idle = animation;
+                        else if (animId.contains("attacksword")) attackSword = animation;
+                        else if (animId.contains("attackbow")) attackBow = animation;
+                        else if (animId.contains("attackstaff")) attackStaff = animation;
+                        else if (animId.contains("attack")) attack = animation;
+                        else if (animId.contains("hit") || animId.contains("damage")) hit = animation;
+                        else if (animId.contains("die")) die = animation;
+
 
                 }
                 if (attackUnarmed == null) attackUnarmed = attack;
@@ -216,7 +204,10 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 if (rockPush == null) rockPush = walk;
                 if (keyTurn == null) keyTurn = walk;
                 if (dazed == null) dazed = idle;
+                if (monsterTrap == null) monsterTrap = idle;
 
+                if(token.monsterTrap != null)
+                        animController.animate(monsterTrap.id, -1, 0f, null, 0.3f);
 
                 // check to see if token spawned with status effects already on, if so then shot their Fx and hud information
                 if (token.statusEffects != null) {
@@ -227,6 +218,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                                 }
                         }
                 }
+
                 shadowDecal = Decal.newDecal(
                         world.floorSpatial.tileDimensions.x,
                         world.floorSpatial.tileDimensions.z,
@@ -236,11 +228,10 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 shadowDecal.rotateX(-90);
                 shadowDecal.setColor(1, 1, 1, 0.5f);
 
-
         }
 
         private Animation current,
-                idle, walk, sprint, rockPush, keyTurn, dazed, attack, attackUnarmed, attackSword, attackBow, attackStaff, hit, die;
+                idle, walk, monsterTrap, sprint, rockPush, keyTurn, dazed, attack, attackUnarmed, attackSword, attackBow, attackStaff, hit, die;
 
 
         public void update(final float delta) {
@@ -353,10 +344,19 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                                         current = dazed;
                                 }
                         } else {
-                                if (current != idle) {
-                                        animController.animate(idle.id, -1, 1f, null, 0.3f);
-                                        current = idle;
+                                if(token.monsterTrap == null || token.monsterTrap.isAwake()){
+                                        if (current != idle) {
+                                                animController.animate(idle.id, -1, 1f, null, 0.3f);
+                                                current = idle;
+                                        }
+                                }else{
+                                        if(token.monsterTrap.isTriggered() && current != monsterTrap){
+                                                animController.animate(monsterTrap.id, 1, 1f, null, 0.3f);
+                                                animController.queue(idle.id, -1, 1f, null, 03f);
+                                                current = monsterTrap;
+                                        }
                                 }
+
                         }
 
                 }

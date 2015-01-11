@@ -54,6 +54,7 @@ public class Token {
         public StatusEffects statusEffects;
         public Loot loot;
         public Stairs stairs;
+        public MonsterTrap monsterTrap;
 
 
         public Token(Dungeon dungeon, int id, String name, ModelId modelId) {
@@ -127,6 +128,8 @@ public class Token {
                         this.loot = (Loot) component;
                 }else if(component instanceof Stairs){
                         this.stairs = (Stairs) component;
+                }else if(component instanceof MonsterTrap){
+                        this.monsterTrap = (MonsterTrap) component;
                 }
         }
 

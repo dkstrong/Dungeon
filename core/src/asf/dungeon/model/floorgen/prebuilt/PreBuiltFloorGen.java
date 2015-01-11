@@ -284,7 +284,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                                 dungeon.newLootToken(floorMap, keyItem, x, y);
                                         }
                                 } else if(charAt == 'm') { // monster
-                                        ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.RockMonster : ModelId.RockMonster;
+                                        ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Skeleton : ModelId.RockMonster;
                                         Token token = dungeon.newCharacterToken(floorMap, modelId.name(),
                                                 modelId,
                                                 new FsmLogic(1, null, Monster.Sleep),
@@ -295,6 +295,15 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                                 token.inventory.add(weapon);
                                                 token.inventory.equip(weapon);
                                         }
+
+                                } else if(charAt == 'M') { // monster trap
+                                        ModelId modelId = ModelId.RockMonster;
+                                        Token token = dungeon.newTrapCharacterToken(floorMap, "Rock Monster Trap",
+                                                modelId,
+                                                new FsmLogic(1, null, Monster.Sleep),
+                                                new Experience(1, 8, 4, 1, 1,1),
+                                                x,y);
+
 
                                 }
                         }
