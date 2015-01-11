@@ -64,7 +64,7 @@ public class Command implements TokenComponent, Teleportable{
                 targetToken = null;
                 useKeyOnTile = null;
                 canUseKeyOnTile = null;
-                token.move.showDoorLockedMessage = true;
+                token.inventory.showDoorLockedMessage = true;
         }
 
         public void setUseKeyOnTile(Pair location){
@@ -75,7 +75,7 @@ public class Command implements TokenComponent, Teleportable{
                                 useKeyOnTile =tile;
                                 targetToken = null;
                                 canUseKeyOnTile = null;
-                                token.move.showDoorLockedMessage = true;
+                                token.inventory.showDoorLockedMessage = true;
                         }
                 }else{
                         useKeyOnTile = null;
@@ -149,7 +149,7 @@ public class Command implements TokenComponent, Teleportable{
                 location.set(targetToken.location);
                 useKeyOnTile = null;
                 canUseKeyOnTile = null;
-                token.move.showDoorLockedMessage = true;
+                token.inventory.showDoorLockedMessage = true;
 
         }
 

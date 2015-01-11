@@ -149,7 +149,7 @@ public class Experience implements TokenComponent{
 
                 if(token.statusEffects != null){
                         if(token.statusEffects.has(StatusEffect.Speed)){
-                                token.move.setMoveSpeed(token.move.getMoveSpeed() * 1.3f);
+                                token.move.setMoveSpeed(token.move.getMoveSpeed() * 1.35f);
                         }
                 }
 

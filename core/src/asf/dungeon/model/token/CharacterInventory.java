@@ -1,5 +1,7 @@
 package asf.dungeon.model.token;
 
+import asf.dungeon.model.Direction;
+import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.item.ArmorItem;
@@ -19,7 +21,7 @@ import java.util.Arrays;
 /**
 * Created by Daniel Strong on 12/8/2014.
 */
-public class CharacterInventory implements Inventory {
+public class CharacterInventory implements Inventory, Teleportable {
         private final Token token;
         private final Array<Item> items;
         private WeaponItem weaponSlot;
@@ -437,6 +439,20 @@ public class CharacterInventory implements Inventory {
         @Override
         public boolean update(float delta) {
                 timeSinceComabt += delta;
+
+                if(keyTurnU != 1){
+                        keyTurnU += delta;
+                        if(keyTurnU < 1){
+                                return true;
+                        }else{
+                                keyTurnU = 1;
+                                keyTurnOnTile.setDoorLocked(false);
+                                token.inventory.useKey((KeyItem) keyTurnOnTile.doorSymbol);
+                        }
+
+                }
+
+
                 if (token.command != null && token.command.consumeItem != null) {
                         ConsumableItem consumableItem = token.command.consumeItem;
 
@@ -501,12 +517,106 @@ public class CharacterInventory implements Inventory {
                 return false;
         }
 
+        private static final boolean doubleTapToOpenDoor = false;
+        protected boolean showDoorLockedMessage = true;
+        private float keyTurnU = 1;
+        private Tile keyTurnOnTile;
+
+        public boolean isKeyTurn(){
+                return keyTurnU != 1;
+        }
+
         /**
-         * should only be called by Move after unlocking a door
+         * should only be called by Move when move blocked
+         * @param nextLocation
+         * @return
+         */
+        protected boolean useKey(Pair nextLocation) {
+                if(doubleTapToOpenDoor){
+                        return useKeyDoubleTap(nextLocation);
+                }
+
+                Tile nextTile = token.floorMap.getTile(nextLocation);
+                if(nextTile.isDoor() && nextTile.isDoorLocked()){
+                        if(nextTile.doorSymbol instanceof KeyItem){
+                                boolean hasKey = token.inventory.containsKey((KeyItem) nextTile.doorSymbol);
+                                if(hasKey){
+                                        keyTurnU = 0;
+                                        showDoorLockedMessage = true;
+                                        keyTurnOnTile = nextTile;
+                                        //nextTile.setDoorLocked(false);
+                                        //token.inventory.useKey((KeyItem) nextTile.doorSymbol);
+                                }else{
+                                        // cant open door, player does not have key for door
+                                        if(showDoorLockedMessage){ // if statement prevents spamming onPathBlocked
+                                                showDoorLockedMessage = false;
+                                                if (token.listener != null)
+                                                        token.listener.onPathBlocked(nextLocation, nextTile);
+                                        }
+
+                                }
+                        }else{
+                                // cant interact with non key locked door, player needs to solve puzzle and door will become unlocked
+                                if(showDoorLockedMessage){ // if statement prevents spamming onPathBlocked
+                                        showDoorLockedMessage = false;
+                                        if (token.listener != null)
+                                                token.listener.onPathBlocked(nextLocation, nextTile);
+                                }
+                        }
+                        return true;
+                }
+                showDoorLockedMessage = true;
+                return false;
+        }
+
+        private boolean useKeyDoubleTap(Pair nextLocation) {
+                Tile nextTile = token.floorMap.getTile(nextLocation);
+                if (nextTile.isDoor() && nextTile.isDoorLocked()) {
+                        boolean key = false;
+                        if (nextTile.doorSymbol instanceof KeyItem) {
+                                key = token.inventory.containsKey((KeyItem) nextTile.doorSymbol);
+                        }
+                        if (token.command.isUseKey() && nextTile == token.command.getUseKeyOnTile()) {
+                                //token.getTarget().setUseKey(false);
+                                if (!key) {
+                                        //Gdx.app.log("Move","Try to use key but do not have a key");
+                                        //token.command.setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
+                                        //if(token.listener != null)
+                                        //        token.listener.onPathBlocked(nextLocation, nextTile);
+                                        return true;
+
+                                } else {
+                                        //Gdx.app.log("Move","Unlocking door");
+                                        keyTurnU = 0;
+                                        keyTurnOnTile = nextTile;
+                                        //nextTile.setDoorLocked(false);
+                                        //token.inventory.useKey((KeyItem) nextTile.doorSymbol);
+
+                                        return true;
+
+                                }
+                        } else {
+                                //token.command.setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
+                                if (token.command.canUseKeyOnTile == null) {
+                                        //Gdx.app.log("Move","Ran in to locked door, but does not have open command, tile: "+token.command.canUseKeyOnTile);
+                                        token.command.canUseKeyOnTile = nextTile;
+                                        if (token.listener != null)
+                                                token.listener.onPathBlocked(nextLocation, nextTile);
+                                }
+
+
+                                return true;
+
+                        }
+                }
+                return false;
+        }
+        /**
+         * should only be called by after unlocking door in update
          *
          * @param key
          */
-        protected void useKey(KeyItem key) {
+        private void useKey(KeyItem key) {
                 KeyItem actualKey = null;
                 for (Item item : items) {
                         if(item instanceof KeyItem){
@@ -524,6 +634,16 @@ public class CharacterInventory implements Inventory {
                 if (token.listener != null)
                         token.listener.onUseItem(actualKey, out);
                 discard(actualKey);
+        }
+
+        @Override
+        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction) {
+                return keyTurnU == 1;
+        }
+
+        @Override
+        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+
         }
 
 

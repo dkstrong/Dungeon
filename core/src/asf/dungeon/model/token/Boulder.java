@@ -6,6 +6,7 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * A boulder that can be pushed when Move goes in to its place
@@ -25,6 +26,13 @@ public class Boulder implements TokenComponent , Teleportable{
 
         @Override
         public boolean canTeleport(FloorMap fm, int x, int y, Direction direction){
+                if(fillsPit != null){
+                        Array<Token> tokensAt = token.floorMap.getTokensAt(token.location);
+                        for (Token t : tokensAt) {
+                                if(t!=token)
+                                        return false; // a token is standing on top of this boulder, it cant be teleported
+                        }
+                }
 
                 return true;
         }

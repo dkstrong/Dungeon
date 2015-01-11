@@ -6,7 +6,6 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Pathfinder;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
-import asf.dungeon.model.item.KeyItem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -35,7 +34,7 @@ public class Move implements TokenComponent , Teleportable{
 
         @Override
         public boolean canTeleport(FloorMap fm, int x, int y, Direction direction) {
-                return keyTurnU == 1;
+                return true;
         }
 
         @Override
@@ -49,17 +48,6 @@ public class Move implements TokenComponent , Teleportable{
 
         @Override
         public boolean update(float delta) {
-                if(keyTurnU != 1){
-                        keyTurnU += delta;
-                        if(keyTurnU < 1){
-                                return true;
-                        }else{
-                                keyTurnU = 1;
-                                keyTurnOnTile.setDoorLocked(false);
-                                token.inventory.useKey((KeyItem) keyTurnOnTile.doorSymbol);
-                        }
-
-                }
 
 
                 if (token.command.getTargetToken() != null) {
@@ -167,7 +155,8 @@ public class Move implements TokenComponent , Teleportable{
                                         }
 
                                         if (!action) {
-                                                action = useKey(nextLocation);
+                                                if(token.inventory != null)
+                                                        action = token.inventory.useKey(nextLocation);
                                                 if (!action && token.attack != null)
                                                         token.attack.attackTargetInDirection(delta); // auto attack anything in front of me, do not do ranged attack
                                         }
@@ -208,7 +197,7 @@ public class Move implements TokenComponent , Teleportable{
         }
 
         private void calcPathToLocation(Pair targetLocation) {
-                if (pushingBoulder!= null || keyTurnU != 1 || targetLocation.equals(pathedTarget)) {
+                if (pushingBoulder!= null || targetLocation.equals(pathedTarget)) {
                         //Gdx.app.log(name, "already pathing: " + targetLocation);
                         return; // already targeting this loaction, or using a blocking animation (pushing boulder,  turning key).. dont calc
                 }
@@ -283,97 +272,6 @@ public class Move implements TokenComponent , Teleportable{
                 }
                 return false;
         }
-
-        private static final boolean doubleTapToOpenDoor = false;
-        protected boolean showDoorLockedMessage = true;
-        private float keyTurnU = 1;
-        private Tile keyTurnOnTile;
-
-        public boolean isKeyTurn(){
-                return keyTurnU != 1;
-        }
-
-        private boolean useKey(Pair nextLocation) {
-                if(doubleTapToOpenDoor){
-                        return useKeyDoubleTap(nextLocation);
-                }
-
-                Tile nextTile = token.floorMap.getTile(nextLocation);
-                if(nextTile.isDoor() && nextTile.isDoorLocked()){
-                        if(nextTile.doorSymbol instanceof KeyItem){
-                                boolean hasKey = token.inventory.containsKey((KeyItem) nextTile.doorSymbol);
-                                if(hasKey){
-                                        keyTurnU = 0;
-                                        showDoorLockedMessage = true;
-                                        keyTurnOnTile = nextTile;
-                                        //nextTile.setDoorLocked(false);
-                                        //token.inventory.useKey((KeyItem) nextTile.doorSymbol);
-                                }else{
-                                        // cant open door, player does not have key for door
-                                        if(showDoorLockedMessage){ // if statement prevents spamming onPathBlocked
-                                                showDoorLockedMessage = false;
-                                                if (token.listener != null)
-                                                        token.listener.onPathBlocked(nextLocation, nextTile);
-                                        }
-
-                                }
-                        }else{
-                                // cant interact with non key locked door, player needs to solve puzzle and door will become unlocked
-                                if(showDoorLockedMessage){ // if statement prevents spamming onPathBlocked
-                                        showDoorLockedMessage = false;
-                                        if (token.listener != null)
-                                                token.listener.onPathBlocked(nextLocation, nextTile);
-                                }
-                        }
-                        return true;
-                }
-                showDoorLockedMessage = true;
-                return false;
-        }
-
-        private boolean useKeyDoubleTap(Pair nextLocation) {
-                Tile nextTile = token.floorMap.getTile(nextLocation);
-                if (nextTile.isDoor() && nextTile.isDoorLocked()) {
-                        boolean key = false;
-                        if (nextTile.doorSymbol instanceof KeyItem) {
-                                key = token.inventory.containsKey((KeyItem) nextTile.doorSymbol);
-                        }
-                        if (token.command.isUseKey() && nextTile == token.command.getUseKeyOnTile()) {
-                                //token.getTarget().setUseKey(false);
-                                if (!key) {
-                                        //Gdx.app.log("Move","Try to use key but do not have a key");
-                                        //token.command.setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
-                                        //if(token.listener != null)
-                                        //        token.listener.onPathBlocked(nextLocation, nextTile);
-                                        return true;
-
-                                } else {
-                                        //Gdx.app.log("Move","Unlocking door");
-                                        keyTurnU = 0;
-                                        keyTurnOnTile = nextTile;
-                                        //nextTile.setDoorLocked(false);
-                                        //token.inventory.useKey((KeyItem) nextTile.doorSymbol);
-
-                                        return true;
-
-                                }
-                        } else {
-                                //token.command.setLocation(token.location); // cant open door no key stop trying to move in to the door its pointless
-                                if (token.command.canUseKeyOnTile == null) {
-                                        //Gdx.app.log("Move","Ran in to locked door, but does not have open command, tile: "+token.command.canUseKeyOnTile);
-                                        token.command.canUseKeyOnTile = nextTile;
-                                        if (token.listener != null)
-                                                token.listener.onPathBlocked(nextLocation, nextTile);
-                                }
-
-
-                                return true;
-
-                        }
-                }
-                return false;
-        }
-
 
         private void pickUpLoot() {
                 if (!picksUpItems)

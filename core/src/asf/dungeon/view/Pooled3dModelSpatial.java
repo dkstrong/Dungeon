@@ -71,15 +71,15 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
         }
 
         @Override
-        public void set(FxId fxId, Pair location, float duration){
+        public void set(FxId fxId, float x, float y, float z, float duration){
                 this.fxId = fxId;
                 setModel();
                 mode = 1;
-                destLoc.set(location);
+                world.getMapCoords(x,y,z,destLoc);
                 targetTokenSpatial = null;
                 this.duration = duration;
-                world.getWorldCoords(location, worldDestLoc);
-                translation.set(worldDestLoc);
+
+                translation.set(x,y,z);
                 rotation.idt();
         }
 

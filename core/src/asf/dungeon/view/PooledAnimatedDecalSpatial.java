@@ -76,17 +76,18 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                 sphere.set(decalSize);
         }
         @Override
-        public void set(FxId fxId, Pair location, float duration) {
+        public void set(FxId fxId,float x, float y, float z, float duration) {
                 this.fxId = fxId;
                 setAnimation();
                 mode=  1;
-                destLoc.set(location);
+                world.getMapCoords(x,y,z,destLoc);
                 tokenSpatial = null;
                 this.duration = duration;
 
 
-                world.getWorldCoords(location, decal.getPosition());
-                decal.setPosition(decal.getPosition());
+                //world.getWorldCoords(location, decal.getPosition());
+                //decal.setPosition(decal.getPosition());
+                decal.setPosition(x,y,z);
         }
         @Override
         public void set(FxId fxId, AbstractTokenSpatial followTokenSpatial, float duration) {

@@ -48,6 +48,7 @@ public class FxManager implements Disposable {
                         PointSpriteParticleBatch pointSpriteBatch = new PointSpriteParticleBatch();
                         pointSpriteBatch.setCamera(world.cam);
                         particleBatches.add(pointSpriteBatch);
+                        //BillboardParticleBatchBlendable billboardParticleBatch = new BillboardParticleBatchBlendable();
                         BillboardParticleBatch billboardParticleBatch = new BillboardParticleBatch();
                         billboardParticleBatch.setCamera(world.cam);
                         particleBatches.add(billboardParticleBatch);
@@ -70,10 +71,12 @@ public class FxManager implements Disposable {
                 world.assetManager.load("ParticleEffects/Particle.png", Texture.class); // particle batch texture
                 ParticleEffectLoader.ParticleEffectLoadParameter loadParam = new ParticleEffectLoader.ParticleEffectLoadParameter(particleBatches);
 
-                loadedParticleEffects = new ParticleEffect[3];
+                loadedParticleEffects = new ParticleEffect[4];
                 world.assetManager.load("ParticleEffects/ConsumeHealth.pfx", ParticleEffect.class, loadParam);
                 world.assetManager.load("ParticleEffects/PlasmaBall.pfx", ParticleEffect.class, loadParam);
                 world.assetManager.load("ParticleEffects/Burning.pfx", ParticleEffect.class, loadParam);
+                world.assetManager.load("ParticleEffects/CrateWoodExplode.pfx", ParticleEffect.class, loadParam);
+
 
                 fxMappings = new FxMapping[loaded3dModels.length + loadedDecalAnimations.length + loadedParticleEffects.length];
         }
@@ -95,6 +98,8 @@ public class FxManager implements Disposable {
                 initParticleEffect(FxId.HealAura, "ParticleEffects/ConsumeHealth.pfx");
                 initParticleEffect(FxId.PlasmaBall, "ParticleEffects/PlasmaBall.pfx");
                 initParticleEffect(FxId.Burning, "ParticleEffects/Burning.pfx");
+                initParticleEffect(FxId.CrateWoodExplosion, "ParticleEffects/CrateWoodExplode.pfx");
+
 
         }
 
@@ -157,6 +162,23 @@ public class FxManager implements Disposable {
                 throw new AssertionError(fxId);
         }
 
+        public void spawnEffect(FxId fxId, float x, float y, float z, float duration) {
+                Array<PooledFx> pool = fxMappings[fxId.ordinal()].fxPool;
+
+                for (PooledFx pooledFx : pool) {
+                        if (!pooledFx.isActive()) {
+                                pooledFx.set(fxId, x,y,z, duration);
+                                return;
+                        }
+                }
+
+                // if there is no available particle effect in the pool, then create a new one
+                PooledFx pooledFx = makeFx(fxId);
+                pool.add(pooledFx);
+                world.addSpatial(pooledFx);
+                pooledFx.set(fxId, x,y,z, duration);
+
+        }
         public void spawnEffect(FxId fxId, AbstractTokenSpatial tokenSpatial, float duration) {
                 Array<PooledFx> pool = fxMappings[fxId.ordinal()].fxPool;
                 // first try to add duration to any existing effect already on this token spatial
@@ -259,10 +281,10 @@ public class FxManager implements Disposable {
         public interface PooledFx extends Spatial {
                 /**
                  * @param fxId
-                 * @param location static location to play the particle effect at
+                 * @param x,y,z static location to play the particle effect at
                  * @param duration duration of the particle effect
                  */
-                public void set(FxId fxId, Pair location, float duration);
+                public void set(FxId fxId, float x, float y, float z, float duration);
 
                 /**
                  * @param fxId

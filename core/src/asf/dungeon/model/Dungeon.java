@@ -209,8 +209,8 @@ public class Dungeon {
                 t.add(new CrateInventory(t, item));
                 t.add(new Damage(t));
                 t.damage.setMaxHealth(1);
-                t.damage.setDeathDuration(2.5f);
-                t.damage.setDeathRemovalDuration(.25f);
+                t.damage.setDeathDuration(1.75f);
+                t.damage.setDeathRemovalDuration(0f);
                 moveToken(t, fm, x,y,t.direction);
                 return t;
         }

@@ -49,7 +49,6 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         private Node offhandAttachmentNode;
 
 
-
         public CharacterTokenSpatial(DungeonWorld world, Token token) {
                 super(world, token);
         }
@@ -66,24 +65,23 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         }
 
 
-
-        private void refreshWeaponAttachment(){
+        private void refreshWeaponAttachment() {
                 WeaponItem weaponSlot = token.inventory.getWeaponSlot();
-                if(weaponSlot != loadedWeaponItem){
-                        if(weaponSlot == null){
+                if (weaponSlot != loadedWeaponItem) {
+                        if (weaponSlot == null) {
                                 unloadWeaponAttachment();
-                        }else{
+                        } else {
                                 loadedWeaponItem = weaponSlot;
                                 String weaponAssetLocation = world.assetMappings.getAssetLocation(token.inventory.getWeaponSlot().getModelId());
                                 world.assetManager.load(weaponAssetLocation, Model.class);
-                                if(!loadedWeaponItem.isRanged())
+                                if (!loadedWeaponItem.isRanged())
                                         world.assetManager.load("Models/Loot/Sword/shield_01.g3db", Model.class);
                                 world.notifyOnLoaded(this);
                         }
                 }
         }
 
-        private void unloadWeaponAttachment(){
+        private void unloadWeaponAttachment() {
                 loadedWeaponItem = null;
                 weaponModelInstance = null;
                 weaponAnimController = null;
@@ -96,17 +94,17 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
         @Override
         public boolean onLoaded() {
-                if(modelInstance == null)
+                if (modelInstance == null)
                         return false;
                 WeaponItem weaponSlot = token.inventory.getWeaponSlot();
-                if(weaponSlot == null){
+                if (weaponSlot == null) {
                         unloadWeaponAttachment();
                         return true;
                 }
                 boolean offhandIsPrimary = weaponSlot.getModelId().name().contains("Bow");
 
                 weaponAttachmentNode = offhandIsPrimary ? modelInstance.getNode("attach_l", true, true) : modelInstance.getNode("attach_r", true, true);
-                if(weaponAttachmentNode == null){
+                if (weaponAttachmentNode == null) {
                         unloadWeaponAttachment();
                         loadedWeaponItem = weaponSlot; // to preferent spamming the loaded notifyable
                         return true;
@@ -115,26 +113,26 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 //GdxInfo.model(modelInstance.model);
 
                 String weaponAssetLocation = world.assetMappings.getAssetLocation(weaponSlot.getModelId());
-                if(!world.assetManager.isLoaded(weaponAssetLocation, Model.class))
+                if (!world.assetManager.isLoaded(weaponAssetLocation, Model.class))
                         return false;
 
                 Model weaponModel = world.assetManager.get(weaponAssetLocation, Model.class);
                 weaponModelInstance = new BetterModelInstance(weaponModel);
-                if(weaponModelInstance.animations.size > 0){
+                if (weaponModelInstance.animations.size > 0) {
                         weaponAnimController = new BetterAnimationController(weaponModelInstance);
                         weaponAnimController.allowSameAnimation = true;
                         weaponAttackAnim = weaponModelInstance.animations.get(0);
                 }
 
 
-                if(weaponSlot.isRanged()) attack = offhandIsPrimary ? attackBow : attackStaff;
+                if (weaponSlot.isRanged()) attack = offhandIsPrimary ? attackBow : attackStaff;
                 else attack = attackSword;
 
-                if(token.modelId == ModelId.Knight && !weaponSlot.isRanged()){
+                if (token.modelId == ModelId.Knight && !weaponSlot.isRanged()) {
                         Model weaponOffhandModel = world.assetManager.get("Models/Loot/Sword/shield_01.g3db", Model.class);
                         offhandModelInstance = new BetterModelInstance(weaponOffhandModel);
                         offhandAttachmentNode = modelInstance.getNode("shield", true, true);
-                }else{
+                } else {
                         offhandModelInstance = null;
                         offhandAttachmentNode = null;
                 }
@@ -156,17 +154,15 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         animController = new BetterAnimationController(modelInstance);
 
 
-
-
                 //for (Material material : modelInstance.materials) {
                 //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
                 //}
 
                 if (
                         token.modelId != ModelId.Knight &&
-                        token.modelId != ModelId.Goblin &&
-                        token.modelId != ModelId.RockMonster &&
-                        token.modelId != ModelId.Skeleton) {
+                                token.modelId != ModelId.Goblin &&
+                                token.modelId != ModelId.RockMonster &&
+                                token.modelId != ModelId.Skeleton) {
                         float s = .45f;
                         scale.set(s, s, s);
                         translationBase.set(0, (world.floorSpatial.tileBox.getDimensions().y / 2f) + 1.45f, 0);
@@ -190,6 +186,8 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                                 rockPush = animation;
                         } else if (animation.id.toLowerCase().contains("keyturn")) {
                                 keyTurn = animation;
+                        } else if (animation.id.toLowerCase().contains("dazed")) {
+                                dazed = animation;
                         } else if (animation.id.toLowerCase().contains("idle")) {
                                 idle = animation;
                         } else if (animation.id.toLowerCase().contains("attacksword")) {
@@ -209,14 +207,15 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         }
 
                 }
-                if(attackUnarmed == null) attackUnarmed = attack;
-                if(attackSword == null) attackSword = attack;
-                if(attackBow == null) attackBow = attack;
-                if(attackStaff == null) attackStaff = attack;
-                if(walk ==null) walk = idle;
-                if(sprint == null) sprint = walk;
-                if(rockPush == null) rockPush = walk;
-                if(keyTurn == null) keyTurn = walk;
+                if (attackUnarmed == null) attackUnarmed = attack;
+                if (attackSword == null) attackSword = attack;
+                if (attackBow == null) attackBow = attack;
+                if (attackStaff == null) attackStaff = attack;
+                if (walk == null) walk = idle;
+                if (sprint == null) sprint = walk;
+                if (rockPush == null) rockPush = walk;
+                if (keyTurn == null) keyTurn = walk;
+                if (dazed == null) dazed = idle;
 
 
                 // check to see if token spawned with status effects already on, if so then shot their Fx and hud information
@@ -238,11 +237,10 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 shadowDecal.setColor(1, 1, 1, 0.5f);
 
 
-
         }
 
         private Animation current,
-                idle, walk, sprint, rockPush, keyTurn, attack, attackUnarmed, attackSword, attackBow, attackStaff, hit, die;
+                idle, walk, sprint, rockPush, keyTurn, dazed, attack, attackUnarmed, attackSword, attackBow, attackStaff, hit, die;
 
 
         public void update(final float delta) {
@@ -288,7 +286,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 if (animController != null) {
                         animController.update(delta);
 
-                        if(weaponAnimController != null)
+                        if (weaponAnimController != null)
                                 weaponAnimController.update(delta);
                 }
 
@@ -306,8 +304,8 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 } else if (token.attack != null && token.attack.isAttacking()) {
                         if (current != attack) {
                                 animController.animate(attack.id, 1, attack.duration / token.attack.getWeapon().getAttackDuration(), null, .2f);
-                                if(weaponAnimController != null)
-                                        weaponAnimController.animate(weaponAttackAnim.id,1,weaponAttackAnim.duration / token.attack.getWeapon().getAttackDuration(), null, .2f );
+                                if (weaponAnimController != null)
+                                        weaponAnimController.animate(weaponAttackAnim.id, 1, weaponAttackAnim.duration / token.attack.getWeapon().getAttackDuration(), null, .2f);
                                 current = attack;
                         }
                 } else if (token.damage != null && token.damage.isHit()) {
@@ -323,23 +321,24 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                                 current = hit;
                                 world.sounds.play(token.damage.getHitSfx());
                         }
-                }else if(token.move.isKeyTurn()){
-                        if(current != keyTurn){
+                } else if (token.inventory != null && token.inventory.isKeyTurn()) {
+                        if (current != keyTurn) {
                                 animController.animate(keyTurn.id, 1, 1f, null, 0.3f);
                                 current = keyTurn;
                         }
-                }else if(token.move.isPushingBoulder()){
-                        if(current != rockPush){
+                } else if (token.move.isPushingBoulder()) {
+                        if (current != rockPush) {
                                 animController.animate(rockPush.id, -1, 1, null, 0.3f);
                                 current = rockPush;
                         }
                 } else if (token.move != null && token.move.isMoving() && !(token.attack != null && token.attack.isInRangeOfAttackTarget())) {
-                        if(token.statusEffects.has(StatusEffect.Speed)){ // TODO: may be excesive checking for Speed
+                        if (token.statusEffects.has(StatusEffect.Speed)) { // TODO: may be excesive checking for Speed
                                 if (current != sprint) {
-                                        animController.animate(sprint.id, -1, 1, null, 0.3f);
+                                        float v = UtMath.scalarLimitsInterpolation(token.move.getMoveSpeed(), 1, 10, .91f, 1.25f);
+                                        animController.animate(sprint.id, -1, v, null, 0.3f);
                                         current = sprint;
                                 }
-                        }else{
+                        } else {
                                 if (current != walk) {
                                         float v = UtMath.scalarLimitsInterpolation(token.move.getMoveSpeed(), 1, 10, 1f, 1.5f);
                                         animController.animate(walk.id, -1, v, null, 0.3f);
@@ -347,10 +346,19 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                                 }
                         }
                 } else {
-                        if (current != idle) {
-                                animController.animate(idle.id, -1, 1f, null, 0.3f);
-                                current = idle;
+
+                        if (token.statusEffects.has(StatusEffect.Paralyze)) {
+                                if (current != dazed) {
+                                        animController.animate(dazed.id, -1, 1f, null, 0.3f);
+                                        current = dazed;
+                                }
+                        } else {
+                                if (current != idle) {
+                                        animController.animate(idle.id, -1, 1f, null, 0.3f);
+                                        current = idle;
+                                }
                         }
+
                 }
 
 
@@ -373,9 +381,9 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
         public void render(float delta) {
                 if (visU <= 0) return;
-                if (world.hudSpatial.isMapViewMode()){
+                if (world.hudSpatial.isMapViewMode()) {
                         if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
-                }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.location.distance(token.location) > 16) return;
+                } else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.location.distance(token.location) > 16) return;
 
 
                 modelInstance.transform.set(
@@ -385,7 +393,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 );
                 world.modelBatch.render(modelInstance, world.environment);
 
-                if(weaponModelInstance != null){
+                if (weaponModelInstance != null) {
                         weaponModelInstance.transform.set(modelInstance.transform).mul(weaponAttachmentNode.globalTransform);
                         weaponModelInstance.transform.rotate(Vector3.Z, -90);
 //                        Vector3 trans =weaponModelInstance.transform.getTranslation(new Vector3());
@@ -397,7 +405,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
                         world.modelBatch.render(weaponModelInstance, world.environment);
 
-                        if(offhandModelInstance != null){
+                        if (offhandModelInstance != null) {
                                 offhandModelInstance.transform.set(modelInstance.transform).mul(offhandAttachmentNode.globalTransform);
                                 offhandModelInstance.transform.rotate(Vector3.Z, -90);
 //                                trans =offhandModelInstance.transform.getTranslation(new Vector3());
@@ -408,7 +416,6 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                                 world.modelBatch.render(offhandModelInstance, world.environment);
                         }
                 }
-
 
 
                 shadowDecal.setPosition(translation);
@@ -428,14 +435,15 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
          * the current world translation of the weapon attachment bone
          * if this model does not have a weapon bone bone then it will return the
          * models translation.
-         *
+         * <p/>
          * this is primarily used for spawning Fx
+         *
          * @param store
          */
-        public void getWeaponAttachmentTranslation(Vector3 store){
-                if(weaponModelInstance == null ){
+        public void getWeaponAttachmentTranslation(Vector3 store) {
+                if (weaponModelInstance == null) {
                         store.set(translation);
-                }else{
+                } else {
                         //Matrix4 boneTransform = modelInstance.transform.cpy().mul(weaponAttachmentNode.globalTransform);
                         //boneTransform.getTranslation(store);
                         weaponModelInstance.transform.getTranslation(store);

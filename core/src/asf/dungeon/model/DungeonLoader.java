@@ -141,6 +141,10 @@ public class DungeonLoader {
                         health.identifyItem(token);
                         token.inventory.add(health);
 
+                        PotionItem paralyze = new PotionItem(dungeon, PotionItem.Type.Paralyze, 4);
+                        paralyze.identifyItem(token);
+                        token.inventory.add(paralyze);
+
                         ArmorItem armor = new ArmorItem(ModelId.SwordLarge, "Simple Armor", 1);
                         armor.identifyItem(token);
                         token.inventory.add(armor);

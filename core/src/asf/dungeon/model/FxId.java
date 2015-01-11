@@ -10,6 +10,7 @@ public enum FxId {
         Lightning,
         Sparkles,
         Explosion,
-        PlasmaBall
+        PlasmaBall,
+        CrateWoodExplosion;
 
 }

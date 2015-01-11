@@ -203,6 +203,9 @@ public class Attack implements TokenComponent, Teleportable{
                 if(!weapon.isRanged())
                         return false;
 
+                if(token.move != null && token.move.isPushingBoulder())
+                        return false;
+
                 if(target == null || target.damage == null || !target.damage.isAttackable())
                         return false;
 
@@ -255,6 +258,9 @@ public class Attack implements TokenComponent, Teleportable{
 
         private boolean calcCanMeleeAttack(Token target){
                 if(weapon.isRanged())
+                        return false;
+
+                if(token.move != null && token.move.isPushingBoulder())
                         return false;
 
                 if(target == null || target.damage == null || !target.damage.isAttackable())

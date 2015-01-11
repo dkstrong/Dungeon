@@ -1,5 +1,6 @@
 package asf.dungeon.view.token;
 
+import asf.dungeon.model.FxId;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.BetterModelInstance;
@@ -36,6 +37,8 @@ public class CrateTokenSpatial extends AbstractTokenSpatial {
 
         }
 
+        private float dead = 0;
+
         public void update(final float delta) {
 
                 FogState fogState = world.floorSpatial.fogMap == null ? FogState.Visible : world.floorSpatial.fogMap.getFogState(token.location.x, token.location.y);
@@ -68,13 +71,22 @@ public class CrateTokenSpatial extends AbstractTokenSpatial {
 
                 if (minVisU == 0 || visU != minVisU) {
                         // if not fog blocked
+                        if(dead ==0 && token.damage.isDead()){
+                                world.fxManager.spawnEffect(FxId.CrateWoodExplosion, translation.x,translation.y+3f, translation.z, 1f);
+                        }
                 }
+
+                if(token.damage.isDead()){
+                        dead+=delta;
+                }
+
+
 
         }
 
         @Override
         public void render(float delta) {
-                if (visU <= 0) return;
+                if (visU <= 0 || dead > 0f) return;
                 if (world.hudSpatial.isMapViewMode()){
                         if (!world.cam.frustum.sphereInFrustumWithoutNearFar(translation, 5)) return;
                 }else if (world.hudSpatial.localPlayerToken != null && world.hudSpatial.localPlayerToken.location.distance(token.location) > 16) return;

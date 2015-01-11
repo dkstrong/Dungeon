@@ -159,6 +159,12 @@ public class DungeonWorld implements Disposable {
                 return storeMapCoords;
         }
 
+        public Pair getMapCoords(float worldX, float worldY, float worldZ, Pair storeMapCoords) {
+                storeMapCoords.x = (int)((worldX ) / floorSpatial.tileDimensions.x);
+                storeMapCoords.y = (int)((UtMath.abs(worldZ)) / floorSpatial.tileDimensions.z);
+                return storeMapCoords;
+        }
+
         public Vector3 getWorldCoords(float mapCoordsX, float mapCoordsY, Vector3 storeWorldCoords) {
                 storeWorldCoords.x =( (mapCoordsX * floorSpatial.tileDimensions.x) ) + (floorSpatial.tileDimensions.x /2f);
                 storeWorldCoords.y = 0;

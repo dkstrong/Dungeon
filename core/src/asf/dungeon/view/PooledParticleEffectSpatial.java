@@ -66,15 +66,15 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
         }
 
         @Override
-        public void set(FxId fxId, Pair location, float duration) {
+        public void set(FxId fxId, float x, float y, float z, float duration) {
                 this.fxId = fxId;
                 setEffect();
                 mode = 1;
-                destLoc.set(location);
+                world.getMapCoords(x,y,z,destLoc);
                 tokenSpatial = null;
                 this.duration = duration;
 
-                world.getWorldCoords(destLoc, translation);
+                translation.set(x,y,z);
                 rotation.idt();
 
                 commonSet();
