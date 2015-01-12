@@ -3,6 +3,7 @@ package asf.dungeon.view;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.fogmap.FogState;
+import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Shape;
@@ -30,7 +31,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
 
         //current active
         private FxId fxId;
-        private int mode;
+        private int mode; // 1 = static location on worldDestLoc, 2 =  follow targetTokenSpatial, 3 = projectile, 4 = spawned projectile ready to shoot
         protected AbstractTokenSpatial tokenSpatial;
         private final Matrix4 transformMatrix = new Matrix4();
         private final Vector3 translation = new Vector3();
@@ -123,6 +124,21 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
 
         }
 
+        @Override
+        public void set(FxId fxId, Token attacker, Token target) {
+                this.fxId = fxId;
+                setEffect();
+                mode = 4;
+                this.attackerToken = attacker;
+                attackerTokenSpatial = (CharacterTokenSpatial) world.getTokenSpatial(attackerToken);
+                destLoc.set(attacker.location);
+                attackerTokenSpatial.getWeaponAttachmentTranslation(worldStartLoc);
+                if (worldStartLoc.y == 0)
+                        worldStartLoc.y = 4;
+                tokenSpatial = world.getTokenSpatial(target);
+
+        }
+
         private void commonSet() {
                 //reg.setContinuous(!Float.isNaN(duration));
                 reg.setEmissionMode(RegularEmitter.EmissionMode.Enabled);
@@ -142,9 +158,13 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
 
         }
 
+        @Override
         public boolean isActive() {
                 return mode > 0;
         }
+
+        @Override
+        public Token getAttackerToken(){ return attackerToken; }
 
         @Override
         public AbstractTokenSpatial getTokenSpatial() {
@@ -188,7 +208,16 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                         }
 
 
-                } else if (mode == 3) {
+                } else if(mode == 4){
+                        if (attackerTokenSpatial.getToken().damage != null && attackerTokenSpatial.getToken().damage.isDead()) {
+                                reg.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
+                        }else if (attackerTokenSpatial.getToken().attack == null || !attackerTokenSpatial.getToken().attack.isAttacking()) {
+                                reg.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
+                        }
+                        WeaponItem weapon = attackerTokenSpatial.getToken().attack.getWeapon();
+                        attackerTokenSpatial.getWeaponAttachmentTranslation(translation);
+                        rotation.set(attackerTokenSpatial.rotation);
+                }else if (mode == 3) {
                         if (attackerToken == null || !attackerToken.attack.hasProjectile() || attackerToken.damage.isDead()) {
                                 //Gdx.app.log("Pooled PE","trigger end fx");
                                 reg.setEmissionMode(RegularEmitter.EmissionMode.EnabledUntilCycleEnd);
@@ -196,12 +225,16 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                                 return;
                         }
 
-                        UtMath.interpolate(
-                                Interpolation.pow3,
-                                attackerToken.attack.getEffectiveProjectileU(),
-                                worldStartLoc,
-                                worldDestLoc,
-                                translation);
+                        if (attackerToken.attack.getEffectiveProjectileU() > 0.25f) {
+                                UtMath.interpolate(
+                                        Interpolation.pow3,
+                                        attackerToken.attack.getEffectiveProjectileU(),
+                                        worldStartLoc,
+                                        worldDestLoc,
+                                        translation);
+                        } else {
+                                translation.set(worldStartLoc);
+                        }
                 }
 
                 //

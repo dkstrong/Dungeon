@@ -65,81 +65,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         }
 
 
-        private void refreshWeaponAttachment() {
-                WeaponItem weaponSlot = token.inventory.getWeaponSlot();
-                if (weaponSlot != loadedWeaponItem) {
-                        if (weaponSlot == null) {
-                                unloadWeaponAttachment();
-                        } else {
-                                loadedWeaponItem = weaponSlot;
-                                String weaponAssetLocation = world.assetMappings.getAssetLocation(token.inventory.getWeaponSlot().getModelId());
-                                world.assetManager.load(weaponAssetLocation, Model.class);
-                                if (!loadedWeaponItem.isRanged())
-                                        world.assetManager.load("Models/Loot/Sword/shield_01.g3db", Model.class);
-                                world.notifyOnLoaded(this);
-                        }
-                }
-        }
 
-        private void unloadWeaponAttachment() {
-                loadedWeaponItem = null;
-                weaponModelInstance = null;
-                weaponAnimController = null;
-                weaponAttackAnim = null;
-                weaponAttachmentNode = null;
-                offhandModelInstance = null;
-                offhandAttachmentNode = null;
-                attack = attackUnarmed;
-        }
-
-        @Override
-        public boolean onLoaded() {
-                if (modelInstance == null)
-                        return false;
-                WeaponItem weaponSlot = token.inventory.getWeaponSlot();
-                if (weaponSlot == null) {
-                        unloadWeaponAttachment();
-                        return true;
-                }
-                boolean offhandIsPrimary = weaponSlot.getModelId().name().contains("Bow");
-
-                weaponAttachmentNode = offhandIsPrimary ? modelInstance.getNode("attach_l", true, true) : modelInstance.getNode("attach_r", true, true);
-                if (weaponAttachmentNode == null) {
-                        unloadWeaponAttachment();
-                        loadedWeaponItem = weaponSlot; // to preferent spamming the loaded notifyable
-                        return true;
-                }
-
-                //GdxInfo.model(modelInstance.model);
-
-                String weaponAssetLocation = world.assetMappings.getAssetLocation(weaponSlot.getModelId());
-                if (!world.assetManager.isLoaded(weaponAssetLocation, Model.class))
-                        return false;
-
-                Model weaponModel = world.assetManager.get(weaponAssetLocation, Model.class);
-                weaponModelInstance = new BetterModelInstance(weaponModel);
-                if (weaponModelInstance.animations.size > 0) {
-                        weaponAnimController = new BetterAnimationController(weaponModelInstance);
-                        weaponAnimController.allowSameAnimation = true;
-                        weaponAttackAnim = weaponModelInstance.animations.get(0);
-                }
-
-
-                if (weaponSlot.isRanged()) attack = offhandIsPrimary ? attackBow : attackStaff;
-                else attack = attackSword;
-
-                if (token.modelId == ModelId.Knight && !weaponSlot.isRanged()) {
-                        Model weaponOffhandModel = world.assetManager.get("Models/Loot/Sword/shield_01.g3db", Model.class);
-                        offhandModelInstance = new BetterModelInstance(weaponOffhandModel);
-                        offhandAttachmentNode = modelInstance.getNode("shield", true, true);
-                } else {
-                        offhandModelInstance = null;
-                        offhandAttachmentNode = null;
-                }
-
-                weaponUsesBoneRotation = attack == attackSword;
-                return true;
-        }
 
         public void init(AssetManager assetManager) {
                 initialized = true;
@@ -234,6 +160,82 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
         private Animation current,
                 idle, walk, monsterTrap, sprint, rockPush, keyTurn, dazed, attack, attackUnarmed, attackSword, attackBow, attackStaff, hit, die;
 
+        private void refreshWeaponAttachment() {
+                WeaponItem weaponSlot = token.inventory.getWeaponSlot();
+                if (weaponSlot != loadedWeaponItem) {
+                        if (weaponSlot == null) {
+                                unloadWeaponAttachment();
+                        } else {
+                                loadedWeaponItem = weaponSlot;
+                                String weaponAssetLocation = world.assetMappings.getAssetLocation(token.inventory.getWeaponSlot().getModelId());
+                                world.assetManager.load(weaponAssetLocation, Model.class);
+                                if (!loadedWeaponItem.isRanged())
+                                        world.assetManager.load("Models/Loot/Sword/shield_01.g3db", Model.class);
+                                world.notifyOnLoaded(this);
+                        }
+                }
+        }
+
+        private void unloadWeaponAttachment() {
+                loadedWeaponItem = null;
+                weaponModelInstance = null;
+                weaponAnimController = null;
+                weaponAttackAnim = null;
+                weaponAttachmentNode = null;
+                offhandModelInstance = null;
+                offhandAttachmentNode = null;
+                attack = attackUnarmed;
+        }
+
+        @Override
+        public boolean onLoaded() {
+                if (modelInstance == null)
+                        return false;
+                WeaponItem weaponSlot = token.inventory.getWeaponSlot();
+                if (weaponSlot == null) {
+                        unloadWeaponAttachment();
+                        return true;
+                }
+                boolean offhandIsPrimary = weaponSlot.getModelId().name().contains("Bow");
+
+                weaponAttachmentNode = offhandIsPrimary ? modelInstance.getNode("attach_l", true, true) : modelInstance.getNode("attach_r", true, true);
+                if (weaponAttachmentNode == null) {
+                        unloadWeaponAttachment();
+                        loadedWeaponItem = weaponSlot; // to preferent spamming the loaded notifyable
+                        return true;
+                }
+
+                //GdxInfo.model(modelInstance.model);
+
+                String weaponAssetLocation = world.assetMappings.getAssetLocation(weaponSlot.getModelId());
+                if (!world.assetManager.isLoaded(weaponAssetLocation, Model.class))
+                        return false;
+
+                Model weaponModel = world.assetManager.get(weaponAssetLocation, Model.class);
+                weaponModelInstance = new BetterModelInstance(weaponModel);
+                if (weaponModelInstance.animations.size > 0) {
+                        weaponAnimController = new BetterAnimationController(weaponModelInstance);
+                        weaponAnimController.allowSameAnimation = true;
+                        weaponAttackAnim = weaponModelInstance.animations.get(0);
+                }
+
+
+                if (weaponSlot.isRanged()) attack = offhandIsPrimary ? attackBow : attackStaff;
+                else attack = attackSword;
+
+                if (token.modelId == ModelId.Knight && !weaponSlot.isRanged()) {
+                        Model weaponOffhandModel = world.assetManager.get("Models/Loot/Sword/shield_01.g3db", Model.class);
+                        offhandModelInstance = new BetterModelInstance(weaponOffhandModel);
+                        offhandAttachmentNode = modelInstance.getNode("shield", true, true);
+                } else {
+                        offhandModelInstance = null;
+                        offhandAttachmentNode = null;
+                }
+
+                weaponUsesBoneRotation = attack == attackSword;
+                return true;
+        }
+
 
         public void update(final float delta) {
                 FogState fogState = world.floorSpatial.fogMap == null ? FogState.Visible : world.floorSpatial.fogMap.getFogState(token.location.x, token.location.y);
@@ -298,6 +300,10 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                                 animController.animate(attack.id, 1, attack.duration / token.attack.getWeapon().getAttackDuration(), null, .2f);
                                 if (weaponAnimController != null)
                                         weaponAnimController.animate(weaponAttackAnim.id, 1, weaponAttackAnim.duration / token.attack.getWeapon().getAttackDuration(), null, .2f);
+                                if(token.attack.getWeapon().getProjectileFx() != null){
+                                        world.fxManager.spawnProjectile(token.attack.getWeapon().getProjectileFx(), token, token.attack.getAttackTarget());
+                                }
+
                                 current = attack;
                         }
                 } else if (token.damage != null && token.damage.isHit()) {

@@ -29,7 +29,7 @@ public abstract class AbstractTokenSpatial implements Spatial, Token.Listener{
         protected final Token token;
 
         public final Vector3 translation = new Vector3();
-        protected final Quaternion rotation = new Quaternion();
+        public final Quaternion rotation = new Quaternion();
         public float visU = 0; // how visible this object is, 0 = not drawn, 1 = fully visible, inbetween for partially visible
 
         public AbstractTokenSpatial(DungeonWorld world, Token token) {

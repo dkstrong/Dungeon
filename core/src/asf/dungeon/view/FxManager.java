@@ -210,6 +210,14 @@ public class FxManager implements Disposable {
         public void shootProjectile(FxId fxId, Token source, Token target, Pair destLoc) {
                 Array<PooledFx> pool = fxMappings[fxId.ordinal()].fxPool;
 
+                // first try to add duration to any existing effect already on this token spatial
+                for (PooledFx pooledFx : pool) {
+                        if (pooledFx.getFxId() == fxId && pooledFx.getAttackerToken() == source &&  pooledFx.getTokenSpatial() != null && pooledFx.getTokenSpatial().getToken() == target && pooledFx.getMode() == 4) {
+                                pooledFx.set(fxId, source, target, destLoc);
+                                return;
+                        }
+                }
+
                 // if no effect of this type already exists, then use an inactive one from the pool
                 for (PooledFx pooledFx : pool) {
                         if (!pooledFx.isActive()) {
@@ -223,6 +231,32 @@ public class FxManager implements Disposable {
                 pool.add(pooledFx);
                 world.addSpatial(pooledFx);
                 pooledFx.set(fxId, source, target, destLoc);
+        }
+
+        public void spawnProjectile(FxId fxId, Token source, Token target) {
+                Array<PooledFx> pool = fxMappings[fxId.ordinal()].fxPool;
+
+                // first try to add duration to any existing effect already on this token spatial
+                for (PooledFx pooledFx : pool) {
+                        if (pooledFx.getFxId() == fxId && pooledFx.getAttackerToken() == source &&  pooledFx.getTokenSpatial() != null && pooledFx.getTokenSpatial().getToken() == target && pooledFx.getMode() == 4) {
+                                pooledFx.set(fxId, source, target);
+                                return;
+                        }
+                }
+
+                // if no effect of this type already exists, then use an inactive one from the pool
+                for (PooledFx pooledFx : pool) {
+                        if (!pooledFx.isActive()) {
+                                pooledFx.set(fxId, source, target);
+                                return;
+                        }
+                }
+
+                // if there is no available particle effect in the pool, then create a new one
+                PooledFx pooledFx = makeFx(fxId);
+                pool.add(pooledFx);
+                world.addSpatial(pooledFx);
+                pooledFx.set(fxId, source, target);
         }
 
         protected void clearAll() {
@@ -304,6 +338,15 @@ public class FxManager implements Disposable {
                 public void set(FxId fxId, Token attacker, Token target, Pair destLoc);
 
                 /**
+                 * spawns a projectile to get it ready to shoot
+                 *
+                 * @param fxId
+                 * @param attacker token shooting the projectile
+                 * @param target   target being shot at (may be null)
+                 */
+                public void set(FxId fxId, Token attacker, Token target);
+
+                /**
                  * fully deactivate the Fx so it will not update or render
                  */
                 public void deactivate();
@@ -317,6 +360,11 @@ public class FxManager implements Disposable {
                 public boolean isActive();
 
                 /**
+                 * the token that is "attacking" - only valid for modes 3 and 4
+                 * @return
+                 */
+                public Token getAttackerToken();
+                /**
                  * the token spatial that the projectile is following, may be null if it does not apply
                  *
                  * @return
@@ -324,7 +372,7 @@ public class FxManager implements Disposable {
                 public AbstractTokenSpatial getTokenSpatial();
 
                 /**
-                 * 1 = static location on worldDestLoc, 2 =  follow targetTokenSpatial, 3 = projectile
+                 * 1 = static location on worldDestLoc, 2 =  follow targetTokenSpatial, 3 = projectile, 4 = spawned projectile ready to shoot
                  *
                  * @return
                  */

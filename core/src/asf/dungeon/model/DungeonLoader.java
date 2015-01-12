@@ -168,9 +168,8 @@ public class DungeonLoader {
                                 staff.identifyItem(token);
                                 token.inventory.add(staff);
                         } else if (settings.playerModel == ModelId.Archer) {
-                                WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, FxId.Arrow);
+                                WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, 2f, 1f,FxId.Arrow , 3, 2f);
                                 //bow.setCursed(true);
-                                bow.setRangedStats(3, 1);
                                 token.inventory.add(bow);
                                 token.inventory.equip(bow);
 

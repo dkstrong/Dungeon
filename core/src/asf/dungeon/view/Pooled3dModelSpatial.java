@@ -3,6 +3,7 @@ package asf.dungeon.view;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.fogmap.FogState;
+import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.token.AbstractTokenSpatial;
@@ -34,7 +35,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
 
         // current active
         private FxId fxId;
-        private int mode; // 1 = static location on worldDestLoc, 2 =  follow targetTokenSpatial, 3 = projectile
+        private int mode; // 1 = static location on worldDestLoc, 2 =  follow targetTokenSpatial, 3 = projectile, 4 = spawned projectile ready to shoot
 
         private float duration;
 
@@ -54,9 +55,9 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
         public void init(AssetManager assetManager) {
         }
 
-        private void setModel(){
-                if(modelInstance != null)
-                         return;
+        private void setModel() {
+                if (modelInstance != null)
+                        return;
                 Model model = world.fxManager.getModel(fxId);
                 modelInstance = new ModelInstance(model);
                 if (modelInstance.animations.size > 0) {
@@ -71,24 +72,24 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
         }
 
         @Override
-        public void set(FxId fxId, float x, float y, float z, float duration){
+        public void set(FxId fxId, float x, float y, float z, float duration) {
                 this.fxId = fxId;
                 setModel();
                 mode = 1;
-                world.getMapCoords(x,y,z,destLoc);
+                world.getMapCoords(x, y, z, destLoc);
                 targetTokenSpatial = null;
                 this.duration = duration;
 
-                translation.set(x,y,z);
+                translation.set(x, y, z);
                 rotation.idt();
         }
 
         @Override
-        public void set(FxId fxId, AbstractTokenSpatial followTokenSpatial, float duration){
+        public void set(FxId fxId, AbstractTokenSpatial followTokenSpatial, float duration) {
                 this.fxId = fxId;
                 setModel();
                 mode = 2;
-                this.targetTokenSpatial =followTokenSpatial;
+                this.targetTokenSpatial = followTokenSpatial;
                 this.duration = duration;
         }
 
@@ -99,10 +100,10 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                 setModel();
                 this.mode = 3;
                 this.attackerToken = attacker;
-                attackerTokenSpatial = (CharacterTokenSpatial)world.getTokenSpatial(attackerToken);
+                attackerTokenSpatial = (CharacterTokenSpatial) world.getTokenSpatial(attackerToken);
                 this.destLoc.set(destLoc);
                 attackerTokenSpatial.getWeaponAttachmentTranslation(worldStartLoc);
-                if(worldStartLoc.y == 0)
+                if (worldStartLoc.y == 0)
                         worldStartLoc.y = 4;
                 // world.getWorldCoords(attacker.move.getFloatLocation(), worldStartLoc);
                 if (target == null) {
@@ -121,26 +122,78 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
 
         }
 
+        @Override
+        public void set(FxId fxId, Token attacker, Token target) {
+                this.fxId = fxId;
+                setModel();
+                mode = 4;
+                this.attackerToken = attacker;
+                attackerTokenSpatial = (CharacterTokenSpatial) world.getTokenSpatial(attackerToken);
+                destLoc.set(attacker.location);
+                attackerTokenSpatial.getWeaponAttachmentTranslation(worldStartLoc);
+                if (worldStartLoc.y == 0)
+                        worldStartLoc.y = 4;
+                if (target == null) {
+                        targetTokenSpatial = null;
+                        world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
+                } else {
+                        targetTokenSpatial = world.getTokenSpatial(target);
+                        if (target.move == null) world.getWorldCoords(target.location.x, target.location.y, worldDestLoc);
+                        else world.getWorldCoords(target.move.getFloatLocation(), worldDestLoc);
+
+                }
+                worldDestLoc.y = worldStartLoc.y;
+                worldMoveDir.set(worldDestLoc).sub(worldStartLoc).nor();
+                rotation.setFromCross(Vector3.Z, worldMoveDir);
+
+        }
+
 
         @Override
         public void update(final float delta) {
 
-                if(mode == 1 || mode == 2){
+                if (mode == 1 || mode == 2) {
                         duration -= delta;
-                        if(duration <=0){
+                        if (duration <= 0) {
                                 deactivate();
                                 return;
                         }
 
-                        if(targetTokenSpatial != null){
+                        if (targetTokenSpatial != null) {
                                 translation.set(targetTokenSpatial.translation);
                                 //rotation.set(targetTokenSpatial.rotation) // TODO: do i want to follow rotation too?
-                                if(targetTokenSpatial.getToken().damage != null && targetTokenSpatial.getToken().damage.isDead()){
+                                if (targetTokenSpatial.getToken().damage != null && targetTokenSpatial.getToken().damage.isDead()) {
                                         duration = 0;
                                 }
                         }
                         translation.y = 4; // hover it off the ground some
-                }else if(mode == 3){
+                } else if (mode == 4) {
+                        if (attackerTokenSpatial.getToken().damage != null && attackerTokenSpatial.getToken().damage.isDead()) {
+                                deactivate();
+                                return;
+                        }
+
+                        if (attackerTokenSpatial.getToken().attack == null || !attackerTokenSpatial.getToken().attack.isAttacking()) {
+                                deactivate();
+                                return;
+                        }
+
+                        WeaponItem weapon = attackerTokenSpatial.getToken().attack.getWeapon();
+                        if(weapon.getProjectileFx() == FxId.Arrow){
+                                // bow
+                                attackerTokenSpatial.getWeaponAttachmentTranslation(translation);
+                                //rotation.set(attackerTokenSpatial.rotation);
+                                worldMoveDir.set(worldDestLoc).sub(translation).nor();
+                                rotation.setFromCross(Vector3.Z, worldMoveDir);
+                        }else{
+                                // staff
+                                attackerTokenSpatial.getWeaponAttachmentTranslation(translation);
+                                //rotation.set(attackerTokenSpatial.rotation);
+                                worldMoveDir.set(worldDestLoc).sub(translation).nor();
+                                rotation.setFromCross(Vector3.Z, worldMoveDir);
+                        }
+
+                } else if (mode == 3) {
                         if (attackerToken == null || !attackerToken.attack.hasProjectile() || attackerToken.damage.isDead()) {
                                 deactivate();
                                 return;
@@ -154,12 +207,17 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                         //MoreMath.normalize(worldMoveDir);
                         //rotation.setFromCross(Vector3.Z, worldMoveDir);
 
-                        UtMath.interpolate(
-                                Interpolation.pow3,
-                                attackerToken.attack.getEffectiveProjectileU(),
-                                worldStartLoc,
-                                worldDestLoc,
-                                translation);
+                        if (attackerToken.attack.getEffectiveProjectileU() > 0.25f) {
+                                UtMath.interpolate(
+                                        Interpolation.pow3,
+                                        attackerToken.attack.getEffectiveProjectileU(),
+                                        worldStartLoc,
+                                        worldDestLoc,
+                                        translation);
+                        } else {
+                                translation.set(worldStartLoc);
+                        }
+
 
                         //Gdx.app.log("ProjectileSpatial", "update: " + translation);
                 }
@@ -183,7 +241,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                                 fogState = FogState.Visible;
                         }
 
-                        if(fogState == FogState.Visible || fogState == FogState.MagicMapped)visU += delta * .65f;
+                        if (fogState == FogState.Visible || fogState == FogState.MagicMapped) visU += delta * .65f;
                         else visU -= delta * .75f;
                         visU = MathUtils.clamp(visU, 0, 1);
                 }
@@ -191,14 +249,14 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
 
                 for (Material material : modelInstance.materials) {
                         ColorAttribute colorAttribute = (ColorAttribute) material.get(ColorAttribute.Diffuse);
-                        if(fogState == FogState.MagicMapped){
+                        if (fogState == FogState.MagicMapped) {
                                 Color color = colorAttribute.color;
-                                color.r = MathUtils.lerp(color.r, visU*.7f, delta);
-                                color.g = MathUtils.lerp(color.g, visU*.8f, delta);
+                                color.r = MathUtils.lerp(color.r, visU * .7f, delta);
+                                color.g = MathUtils.lerp(color.g, visU * .8f, delta);
                                 color.b = visU;
                                 color.a = visU;
-                        }else{
-                                colorAttribute.color.set(visU,visU,visU,1);
+                        } else {
+                                colorAttribute.color.set(visU, visU, visU, 1);
                         }
                 }
 
@@ -211,11 +269,11 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
 
         @Override
         public void render(float delta) {
-                if( visU <=0){
+                if (visU <= 0) {
                         return;
                 }
 
-                if(mode == 3){
+                if (mode == 3) {
                         // the projectile actually spawns at the beginning of the attack animation leaving about
                         // a half second of time between projectile spawna nd when it should show up
                         // we check the effective projectile u to make sure it is positive to make sure that the
@@ -226,7 +284,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                 }
 
                 modelInstance.transform.set(
-                        translation.x , translation.y , translation.z ,
+                        translation.x, translation.y, translation.z,
                         rotation.x, rotation.y, rotation.z, rotation.w,
                         scale.x, scale.y, scale.z
                 );
@@ -241,11 +299,16 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                 mode = 0;
                 attackerToken = null;
                 visU = 0;
-                duration =0;
+                duration = 0;
         }
 
         public boolean isActive() {
                 return mode != 0;
+        }
+
+        public Token getAttackerToken(){
+
+                return attackerToken;
         }
 
         @Override

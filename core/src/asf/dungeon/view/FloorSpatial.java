@@ -66,13 +66,13 @@ public class FloorSpatial implements Spatial {
                 decalNodes = new Array<DecalNode>(false, 1024, DecalNode.class);
 
                 Texture floorTex = world.assetManager.get("Textures/Floor/floorTilesPressurePlates.png", Texture.class);
-                floorTexRegions = TextureRegion.split(floorTex, 128, 128);
+                floorTexRegions = TextureRegion.split(floorTex, 64, 64);
 
                 Texture wallTex = world.assetManager.get("Textures/Floor/wallTiles.png", Texture.class);
-                wallTexRegions = TextureRegion.split(wallTex, 128, 128);
+                wallTexRegions = TextureRegion.split(wallTex, 64, 64);
 
                 Texture pitTex = world.assetManager.get("Textures/Floor/pitTiles.png", Texture.class);
-                pitTexRegions = TextureRegion.split(pitTex, 128, 128);
+                pitTexRegions = TextureRegion.split(pitTex, 64, 64);
 
                 doorLockedTexAttribute = new TextureAttribute[8];
                 // locked by key

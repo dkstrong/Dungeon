@@ -30,7 +30,7 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
 
         // current active
         private FxId fxId;
-        private int mode;
+        private int mode; // 1 = static location on worldDestLoc, 2 =  follow targetTokenSpatial, 3 = projectile, 4 = spawned projectile ready to shoot
         private Animation animation;
         private float time;
         protected AbstractTokenSpatial tokenSpatial;
@@ -123,6 +123,16 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
 
         }
 
+        @Override
+        public void set(FxId fxId, Token attacker, Token target) {
+                this.fxId = fxId;
+                setAnimation();
+                mode = 4;
+                attackerToken = attacker;
+                tokenSpatial = world.getTokenSpatial(target);
+                this.duration = Float.NaN;
+
+        }
 
 
         @Override
@@ -149,14 +159,23 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                                 return;
                         }
                         if(tokenSpatial != null){
-                                decal.setPosition(tokenSpatial.translation.x,
-                                        tokenSpatial.translation.y+sphere.getRadius(),
-                                        tokenSpatial.translation.z);
 
-                                if(tokenSpatial.getToken().damage != null && tokenSpatial.getToken().damage.isDead()){
-                                        duration = 0;
-                                }
                         }
+
+                }else if(mode == 4){
+                        if(tokenSpatial.getToken().damage != null && tokenSpatial.getToken().damage.isDead()){
+                                deactivate();
+                                return;
+                        }
+                        if (tokenSpatial.getToken().attack == null || !tokenSpatial.getToken().attack.isAttacking()) {
+                                deactivate();
+                                return;
+                        }
+
+                        decal.setPosition(tokenSpatial.translation.x,
+                                tokenSpatial.translation.y+sphere.getRadius(),
+                                tokenSpatial.translation.z);
+
 
                 }else if(mode == 3){
                         if (attackerToken == null || !attackerToken.attack.hasProjectile() || attackerToken.damage.isDead()) {
@@ -166,12 +185,18 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                                 return;
                         }
 
-                        UtMath.interpolate(
-                                Interpolation.pow3,
-                                attackerToken.attack.getEffectiveProjectileU(),
-                                worldStartLoc,
-                                worldDestLoc,
-                                decal.getPosition());
+                        if(attackerToken.attack.getEffectiveProjectileU() > 0.25f){
+                                UtMath.interpolate(
+                                        Interpolation.pow3,
+                                        attackerToken.attack.getEffectiveProjectileU(),
+                                        worldStartLoc,
+                                        worldDestLoc,
+                                        decal.getPosition());
+                        }else{
+                                decal.setPosition(worldStartLoc);
+                        }
+
+
                         decal.setPosition(decal.getPosition().x,
                                 decal.getPosition().y+sphere.getRadius(),
                                 decal.getPosition().z);
@@ -253,6 +278,11 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
         @Override
         public void dispose() {
 
+        }
+
+        public Token getAttackerToken(){
+
+                return attackerToken;
         }
 
         @Override
