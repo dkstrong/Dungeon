@@ -499,6 +499,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 if (renderingStats != null) {
                         renderingStats.getText().setLength(0);
+//                        Ray ray = world.cam.getPickRay(Gdx.input.getX(), Gdx.input.getY());
+//                        Array<DungeonWorld.RaycastResult> intersectedTokens = world.getTokens(ray, null);
+//                        for (DungeonWorld.RaycastResult intersectedToken : intersectedTokens) {
+//                                renderingStats.getText().append(intersectedToken.token.name+" : "+intersectedToken.dist2+"\n");
+//                        }
                         renderingStats.getText().append("FPS : ").append(Gdx.graphics.getFramesPerSecond());
                         renderingStats.invalidateHierarchy();
                 }
@@ -513,7 +518,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         sb.append(localPlayerToken.damage.getHealth()).append(" / ").append(localPlayerToken.damage.getMaxHealth()).append("\n")
                                 .append(" Level ").append(localPlayerToken.experience.getLevel()).append(" (XP: ").append(localPlayerToken.experience.getXp())
                                 .append(" / ").append(localPlayerToken.experience.getRequiredXpToLevelUp());
-
+                        avatarLabel.invalidateHierarchy();
 
                         if (localPlayerToken.damage.isDead()) {
                                 targetInfoLabel.setText("GAME OVER!");
@@ -1359,18 +1364,17 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         private boolean tokenSelectCommand(int screenX, int screenY) {
                 Ray ray = world.cam.getPickRay(screenX, screenY);
-                Token targetToken = world.getToken(ray, null);
-
-                if (targetToken == null)
-                        return false;
-
-                if (targetToken == localPlayerToken) {
-                        localPlayerToken.command.consumeItem(tokenSelectForItem);
-                } else if (tokenSelectForItem.canConsume(localPlayerToken, targetToken)) {
-                        localPlayerToken.command.consumeItem(tokenSelectForItem, targetToken);
+                Array<DungeonWorld.RaycastResult> intersetedTokens = world.getTokens(ray, null);
+                for (DungeonWorld.RaycastResult raycastResult : intersetedTokens) {
+                        if (raycastResult.token == localPlayerToken) {
+                                localPlayerToken.command.consumeItem(tokenSelectForItem);
+                                return true;
+                        } else if (tokenSelectForItem.canConsume(localPlayerToken, raycastResult.token)) {
+                                localPlayerToken.command.consumeItem(tokenSelectForItem, raycastResult.token);
+                                return true;
+                        }
                 }
-
-                return true;
+                return false;
         }
         private float moveCommandDecalCount = Float.NaN;
 
@@ -1391,6 +1395,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 // attempt to target specificaly clicked token
                 if (targetToken != null) {
                         localPlayerToken.command.setTargetToken(targetToken);
+                        if(localPlayerToken.command.getTargetToken() != null)
+                                return true;
                 }
 
                 final float distance = -ray.origin.y / ray.direction.y;

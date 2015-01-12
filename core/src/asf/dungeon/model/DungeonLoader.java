@@ -39,10 +39,10 @@ import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.TokenComponent;
-import asf.dungeon.model.token.logic.FullAgroLogic;
 import asf.dungeon.model.token.logic.LocalPlayerLogic;
 import asf.dungeon.model.token.logic.Logic;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
+import asf.dungeon.model.token.logic.fsm.Monster;
 import asf.dungeon.model.token.quest.Quest;
 import asf.dungeon.utility.OutputAndroidFix;
 import asf.dungeon.view.DungeonWorld;
@@ -92,11 +92,12 @@ public class DungeonLoader {
 
                 if (settings.balanceTest) {
                         floorMapGenerator = new BalanceTestFloorGen();
-                        playerLogic = new FullAgroLogic(0);
+                        //playerLogic = new FullAgroLogic(0);
+                        playerLogic = new FsmLogic(0, null, Monster.Sleep);
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
-                                new TutorialFloorGen(),new TutorialFloorGen(),new MazeGen(15, 19),
+                                new ConnectedRoomsGen(),new TutorialFloorGen(),new MazeGen(15, 19),
                                 new ConnectedRoomsGen(), new CellularAutomataGen(),  new TestAssetsFloorGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),
@@ -168,15 +169,33 @@ public class DungeonLoader {
                                 token.inventory.add(staff);
                         } else if (settings.playerModel == ModelId.Archer) {
                                 WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, FxId.Arrow);
-                                bow.setCursed(true);
+                                //bow.setCursed(true);
                                 bow.setRangedStats(3, 1);
                                 token.inventory.add(bow);
                                 token.inventory.equip(bow);
+
+                                WeaponItem sword = new WeaponItem(ModelId.Sword_01, "Sword", 3);
+                                token.inventory.add(sword);
+                                token.get(Journal.class).learn(sword);
+
+                                WeaponItem staff = new WeaponItem(ModelId.SwordLarge, "Staff", 3, FxId.PlasmaBall);
+                                staff.identifyItem(token);
+                                token.inventory.add(staff);
                         } else if (settings.playerModel == ModelId.Mage) {
                                 WeaponItem staff = new WeaponItem(ModelId.Bow_01, "Staff", 3, FxId.PlasmaBall);
                                 staff.identifyItem(token);
                                 token.inventory.add(staff);
                                 token.inventory.equip(staff);
+
+                                WeaponItem sword = new WeaponItem(ModelId.Sword_01, "Sword", 3);
+                                token.inventory.add(sword);
+                                token.get(Journal.class).learn(sword);
+
+                                WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, FxId.Arrow);
+                                bow.setRangedStats(3, 1);
+                                token.inventory.add(bow);
+                                token.get(Journal.class).learn(bow);
+
                         } else if (settings.playerModel == ModelId.Priest) {
                                 WeaponItem sword = new WeaponItem(ModelId.SwordLarge, "Sword", 3);
                                 //sword.setAttackDuration(1);

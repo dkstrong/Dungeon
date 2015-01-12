@@ -2,12 +2,12 @@ package asf.dungeon.view;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogMapNull;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.item.KeyItem;
+import asf.dungeon.model.token.Stairs;
 import asf.dungeon.utility.BetterAnimationController;
 import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.utility.UtMath;
@@ -115,7 +115,7 @@ public class FloorSpatial implements Spatial {
                 DecalNodePit.topWallVisibleY = -tileDimensions.y;
                 DecalNodePit.sideWallVisibleY = -tileDimensions.y/2f;
 
-                Pair stairsDownLoc = floorMap.getStairsDown().getLocation();
+                Stairs stairsDown = floorMap.getStairsDown();
 
                 decalNodes.clear();
                 for (int x = 0; x < floorMap.getWidth(); x++) {
@@ -127,7 +127,7 @@ public class FloorSpatial implements Spatial {
                                         }else if(tile.isWall()){
                                                 makeDecalWall(tile, x, y);
                                         }else{
-                                                makeDecalFloor(tile, x,y, stairsDownLoc);
+                                                makeDecalFloor(tile, x,y, stairsDown);
                                         }
                                 }
                         }
@@ -198,7 +198,7 @@ public class FloorSpatial implements Spatial {
                 return Direction.West;
         }
 
-        private void makeDecalFloor(Tile tile, int x, int y, Pair stairsDownLoc) {
+        private void makeDecalFloor(Tile tile, int x, int y, Stairs stairs) {
                 world.getWorldCoords(x, y, worldCoordsTemp);
                 DecalNodeFloor decalNode;
                 if(tile.isDoor()){
@@ -216,7 +216,7 @@ public class FloorSpatial implements Spatial {
                                 rot.x,rot.y,rot.z,rot.w,
                                 1,1,1
                         );
-                }else if(stairsDownLoc.equals(x,y)){
+                }else if(stairs != null && stairs.getLocation().equals(x,y)){
                         decalNode = new DecalNodeStairsDown();
                 }else{
                         decalNode = new DecalNodeFloor();

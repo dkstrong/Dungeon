@@ -234,6 +234,42 @@ public class DungeonWorld implements Disposable {
                 return result;
         }
 
+        private final Array<RaycastResult> intersectedTokens=  new Array<RaycastResult>(true, 8, RaycastResult.class);
+        public static class RaycastResult{
+                public Token token;
+                public float dist2;
+
+                public RaycastResult(Token token, float dist2) {
+                        this.token = token;
+                        this.dist2 = dist2;
+                }
+        }
+        public Array<RaycastResult> getTokens(Ray ray, Token ignoreToken){
+                intersectedTokens.clear();
+                for (int i = 0; i < spatials.size; i++) {
+                        Spatial spatial = spatials.items[i];
+                        if (!spatial.isInitialized())
+                                continue;
+                        if (spatial instanceof AbstractTokenSpatial) {
+                                AbstractTokenSpatial tokenSpatial = (AbstractTokenSpatial) spatial;
+
+                                if (tokenSpatial.getToken() == ignoreToken) {
+                                        continue;
+                                }
+
+                                Damage damage = tokenSpatial.getToken().damage;
+                                if(damage != null && damage.isDead())
+                                        continue;
+
+                                final float dist2 = tokenSpatial.intersects(ray);
+                                if(dist2 >= 0f){
+                                        intersectedTokens.add(new RaycastResult(tokenSpatial.getToken(), dist2));
+                                }
+                        }
+                }
+                return intersectedTokens;
+        }
+
         public void render(final float delta) {
 
                 if (loading) {

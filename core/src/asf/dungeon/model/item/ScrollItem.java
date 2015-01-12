@@ -194,7 +194,12 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                                         if(!fogMap.isVisible(targetToken.location.x, targetToken.location.y))
                                                 return false;
                                 }
-                                // TODO: need to calculate the would be teleport location here, so token.canTeleport can be called
+                                // TODO: need to calculate the would be teleport location here
+                                // and then find a way to store this and recall it when consume() is called
+                                // for now will just teleporting to the same location
+                                if(!targetToken.canTeleport(targetToken.floorMap, targetToken.location.x, targetToken.location.y,targetToken.direction))
+                                     return false;
+
                                 return true;
                         default:
                                 throw new AssertionError(type);

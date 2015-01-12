@@ -1,5 +1,6 @@
 package asf.dungeon.model.token;
 
+import asf.dungeon.model.ModelId;
 import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.RingItem;
 import asf.dungeon.model.item.WeaponItem;

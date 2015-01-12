@@ -160,6 +160,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
                 if (
                         token.modelId != ModelId.Knight &&
+                                token.modelId != ModelId.Archer &&
                                 token.modelId != ModelId.Goblin &&
                                 token.modelId != ModelId.RockMonster &&
                                 token.modelId != ModelId.Skeleton) {

@@ -335,4 +335,75 @@ public class UtFloorGen {
         }
 
 
+        public static void spawnMonster(ModelId modelId, Dungeon dungeon, FloorMap floorMap, int x, int y){
+                Experience experience;
+                WeaponItem weapon;
+                if(modelId == ModelId.RockMonster){
+                        experience = new Experience(
+                                1,  // level
+                                10,  // vitality
+                                6,  // str
+                                1,  // agi
+                                1,  // int
+                                1); // luck
+                        weapon = null;
+                }else if(modelId == ModelId.Skeleton){
+                        experience = new Experience(
+                                1,  // level
+                                8,  // vitality
+                                4,  // str
+                                6,  // agi
+                                1,  // int
+                                1); // luck
+                        weapon = null;
+                }else if(modelId == ModelId.Berzerker){
+                        experience = new Experience(
+                                1,  // level
+                                8,  // vitality
+                                4,  // str
+                                6,  // agi
+                                1,  // int
+                                1); // luck
+                        weapon = new WeaponItem(ModelId.SwordLarge,"Large Sword",
+                                1 , // damage
+                                1, // attack duration
+                                1); // attack cooldown
+                }else if(modelId == ModelId.Archer){
+                        experience = new Experience(
+                                1,  // level
+                                8,  // vitality
+                                4,  // str
+                                6,  // agi
+                                1,  // int
+                                1); // luck
+                        weapon = new WeaponItem(ModelId.BowLarge, "Large Bow",
+                                1 , // damage
+                                1,  // attack duration
+                                1,  // attack cooldown
+                                FxId.Arrow, // projectile fx
+                                3, // attack range
+                                1); // projectile speed
+                }else{
+                        experience = new Experience(
+                                1,  // level
+                                8,  // vitality
+                                4,  // str
+                                6,  // agi
+                                1,  // int
+                                1); // luck
+                        weapon = null;
+                }
+                Token token = dungeon.newCharacterToken(floorMap, "Monster",
+                        modelId,
+                        new FsmLogic(1, null, Monster.Explore),
+                        //new FullAgroLogic(1),
+                        experience, x,y);
+
+                if(weapon != null){
+                        token.inventory.add(weapon);
+                        token.inventory.equip(weapon);
+                }
+        }
+
+
 }
