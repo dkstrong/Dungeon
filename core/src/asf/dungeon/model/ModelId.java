@@ -30,6 +30,7 @@ public enum ModelId {
         SwordLarge,
         Sword_01,
         BowLarge,
-        Bow_01;
+        Bow_01,
+        StaffLarge;
 
 }

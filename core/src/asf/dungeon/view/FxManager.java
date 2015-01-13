@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
+import com.badlogic.gdx.graphics.g3d.particles.ParticleShader;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
 import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
 import com.badlogic.gdx.graphics.g3d.particles.batches.PointSpriteParticleBatch;
@@ -45,11 +46,10 @@ public class FxManager implements Disposable {
                 {
                         particlesModelBatch = new ModelBatch();
                         particleBatches = new Array<ParticleBatch<?>>();
-                        PointSpriteParticleBatch pointSpriteBatch = new PointSpriteParticleBatch();
+                        PointSpriteParticleBatch pointSpriteBatch = new PointSpriteParticleBatch(500);
                         pointSpriteBatch.setCamera(world.cam);
                         particleBatches.add(pointSpriteBatch);
-                        //BillboardParticleBatchBlendable billboardParticleBatch = new BillboardParticleBatchBlendable();
-                        BillboardParticleBatch billboardParticleBatch = new BillboardParticleBatch();
+                        BillboardParticleBatch billboardParticleBatch = new BillboardParticleBatch(ParticleShader.AlignMode.Screen, true, 100);
                         billboardParticleBatch.setCamera(world.cam);
                         particleBatches.add(billboardParticleBatch);
                         ParticleEffectLoader pfxLoader = new ParticleEffectLoader(new InternalFileHandleResolver());

@@ -57,7 +57,7 @@ import java.util.Random;
 /**
  * Created by Daniel Strong on 10/20/14.
  */
-public class DungeonWorld implements Disposable {
+public class DungeonWorld implements Dungeon.Listener, Disposable {
         // shared resources
         protected final DungeonApp dungeonApp;
         protected final Settings settings;
@@ -69,7 +69,6 @@ public class DungeonWorld implements Disposable {
         public final AssetManager assetManager;
         private final ObjectSet<LoadedNotifyable> loadables;
         private final Array<Spatial> spatials;
-        private final InternalInputAdapter internalInput;
         private boolean loading;
         private boolean simulationStarted = false;
         private boolean paused = false;
@@ -114,7 +113,7 @@ public class DungeonWorld implements Disposable {
                 hudSpatial = new HudSpatial();
                 addSpatial(hudSpatial);
 
-                internalInput = new InternalInputAdapter();
+                InternalInputAdapter internalInput = new InternalInputAdapter();
                 inputMultiplexer = new InputMultiplexer(internalInput, stage);
                 Gdx.input.setInputProcessor(internalInput);
 
@@ -125,10 +124,10 @@ public class DungeonWorld implements Disposable {
 
                 if (settings.loadedDungeon != null) {
                         dungeon = settings.loadedDungeon;
-                        dungeon.setListener(internalInput);
+                        dungeon.setListener(this);
                 } else {
                         dungeon = DungeonLoader.createDungeon(settings);
-                        dungeon.setListener(internalInput);
+                        dungeon.setListener(this);
                         //saveDungeon();
                 }
 
@@ -273,9 +272,9 @@ public class DungeonWorld implements Disposable {
         public void render(final float delta) {
 
                 if (loading) {
-                        Gdx.graphics.requestRendering();
+                        if(paused)
+                                Gdx.graphics.requestRendering();
                         if (assetManager.update()) {
-                                System.out.println("loaded");
                                 loading = false;
                                 if (!simulationStarted) {
                                         if (settings.startDebugSession) {
@@ -299,9 +298,9 @@ public class DungeonWorld implements Disposable {
                                         //assetMappings.preload3dModels(assetManager); // load the remaining assets while we play the game
                                 }
 
-                                Iterator<LoadedNotifyable> i = loadables.iterator();
+                                final Iterator<LoadedNotifyable> i = loadables.iterator();
                                 while (i.hasNext()) {
-                                        LoadedNotifyable next = i.next();
+                                        final LoadedNotifyable next = i.next();
                                         if (next.onLoaded()) {
                                                 i.remove();
                                         } else {
@@ -322,14 +321,12 @@ public class DungeonWorld implements Disposable {
                 if (simulationStarted) {
                         if (!paused) {
                                 hudSpatial.updateInput(delta);
-                                if (!paused) {
-                                        dungeon.update(delta);
-                                        for (final Spatial spatial : spatials) {
-                                                if (spatial.isInitialized())
-                                                        spatial.update(delta);
-                                        }
-                                        camControl.update(delta);
+                                dungeon.update(delta);
+                                for (final Spatial spatial : spatials) {
+                                        if (spatial.isInitialized())
+                                                spatial.update(delta);
                                 }
+                                camControl.update(delta);
                         }
 
                         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -349,8 +346,6 @@ public class DungeonWorld implements Disposable {
                         fxManager.endRender();
 
                         stage.draw();
-                } else {
-
                 }
 
         }
@@ -402,8 +397,82 @@ public class DungeonWorld implements Disposable {
                 Gdx.input.setInputProcessor(null);
         }
 
+        public void saveDungeon() {
+                try {
+                        DungeonLoader.saveDungeon(dungeon, settings.getSaveFileName());
+                } catch (IOException e) {
+                        e.printStackTrace();
+                }
+        }
 
-        private class InternalInputAdapter extends InputAdapter implements Dungeon.Listener {
+        @Override
+        public void onNewPlayerToken(Token playerToken) {
+                if (playerToken != null) {
+                        inputMultiplexer.addProcessor(hudSpatial);
+                        hudSpatial.setToken(playerToken);
+                } else {
+                        inputMultiplexer.removeProcessor(hudSpatial);
+                        hudSpatial.setToken(null); // player died, remove him from the hud
+                }
+
+        }
+
+        @Override
+        public void onFloorMapChanged(FloorMap newFloorMap) {
+                fxManager.clearAll();
+                floorSpatial.setFloorMap(newFloorMap);
+        }
+
+        @Override
+        public void onTokenAdded(Token token) {
+                if (token == hudSpatial.localPlayerToken) {
+                        // dont re add the token, he already has a token spatial.
+                } else if(token.logic != null){
+                        addSpatial(new CharacterTokenSpatial(DungeonWorld.this, token));
+                }else if(token.loot != null){
+                        addSpatial(new LootTokenSpatial(DungeonWorld.this, token));
+                }else if(token.crateInventory != null){
+                        addSpatial(new CrateTokenSpatial(DungeonWorld.this, token));
+                }else if(token.get(SpikeTrap.class) != null){
+                        addSpatial(new SpikeTrapTokenSpatial(DungeonWorld.this, token));
+                }else if(token.get(Fountain.class) != null){
+                        addSpatial(new FountainTokenSpatial(DungeonWorld.this, token));
+                }else if(token.get(Torch.class) != null){
+                        addSpatial(new TorchTokenSpatial(DungeonWorld.this, token));
+                }else if(token.get(SignPostQuest.class) != null){
+                        addSpatial(new SignPostTokenSpatial(DungeonWorld.this, token));
+                }else if(token.stairs != null){
+                        addSpatial(new StairsSpatial(DungeonWorld.this, token));
+                }else if(token.get(Boulder.class) != null){
+                        addSpatial(new BoulderSpatial(DungeonWorld.this, token));
+                }else if(token.get(PressurePlate.class) != null){
+                        // Pressure plate has no dedicated spatial,  it is incorporated with FloorSpatial
+                }else{
+                        throw new AssertionError(token);
+                }
+
+        }
+
+        @Override
+        public void onTokenRemoved(Token token) {
+                if (token == hudSpatial.localPlayerToken) {
+                        if (!token.damage.isFullyDead()) {
+                                camControl.getChaseTarget().visU = 0; // this forces the player spatial to turn black and fade back in
+                        } else {
+                                //dungeonApp.setAppGameOver();
+                        }
+
+                        return;
+                }
+
+                AbstractTokenSpatial removeSpatial = getTokenSpatial(token);
+
+                if (removeSpatial != null)
+                        removeSpatial(removeSpatial);
+        }
+
+
+        private class InternalInputAdapter extends InputAdapter {
 
                 // The internal input adapter only processes input during the loading phase
 
@@ -431,79 +500,9 @@ public class DungeonWorld implements Disposable {
                         return false;
                 }
 
-                public void onNewPlayerToken(Token playerToken) {
-                        if (playerToken != null) {
-                                inputMultiplexer.addProcessor(hudSpatial);
-                                hudSpatial.setToken(playerToken);
-                        } else {
-                                inputMultiplexer.removeProcessor(hudSpatial);
-                                hudSpatial.setToken(null); // player died, remove him from the hud
-                        }
-
-                }
-
-                @Override
-                public void onFloorMapChanged(FloorMap newFloorMap) {
-                        fxManager.clearAll();
-                        floorSpatial.setFloorMap(newFloorMap);
-                }
-
-                @Override
-                public void onTokenAdded(Token token) {
-                        if (token == hudSpatial.localPlayerToken) {
-                                // dont re add the token, he already has a token spatial.
-                        } else if(token.logic != null){
-                                addSpatial(new CharacterTokenSpatial(DungeonWorld.this, token));
-                        }else if(token.loot != null){
-                                addSpatial(new LootTokenSpatial(DungeonWorld.this, token));
-                        }else if(token.crateInventory != null){
-                                addSpatial(new CrateTokenSpatial(DungeonWorld.this, token));
-                        }else if(token.get(SpikeTrap.class) != null){
-                                addSpatial(new SpikeTrapTokenSpatial(DungeonWorld.this, token));
-                        }else if(token.get(Fountain.class) != null){
-                                addSpatial(new FountainTokenSpatial(DungeonWorld.this, token));
-                        }else if(token.get(Torch.class) != null){
-                                addSpatial(new TorchTokenSpatial(DungeonWorld.this, token));
-                        }else if(token.get(SignPostQuest.class) != null){
-                                addSpatial(new SignPostTokenSpatial(DungeonWorld.this, token));
-                        }else if(token.stairs != null){
-                                addSpatial(new StairsSpatial(DungeonWorld.this, token));
-                        }else if(token.get(Boulder.class) != null){
-                                addSpatial(new BoulderSpatial(DungeonWorld.this, token));
-                        }else if(token.get(PressurePlate.class) != null){
-                                // Pressure plate has no dedicated spatial,  it is incorporated with FloorSpatial
-                        }else{
-                                throw new AssertionError(token);
-                        }
-
-                }
-
-                @Override
-                public void onTokenRemoved(Token token) {
-                        if (token == hudSpatial.localPlayerToken) {
-                                if (!token.damage.isFullyDead()) {
-                                        camControl.getChaseTarget().visU = 0; // this forces the player spatial to turn black and fade back in
-                                } else {
-                                        //dungeonApp.setAppGameOver();
-                                }
-
-                                return;
-                        }
-
-                        AbstractTokenSpatial removeSpatial = getTokenSpatial(token);
-
-                        if (removeSpatial != null)
-                                removeSpatial(removeSpatial);
-                }
         }
 
-        public void saveDungeon() {
-                try {
-                        DungeonLoader.saveDungeon(dungeon, settings.getSaveFileName());
-                } catch (IOException e) {
-                        e.printStackTrace();
-                }
-        }
+
 
         public interface LoadedNotifyable {
                 /**

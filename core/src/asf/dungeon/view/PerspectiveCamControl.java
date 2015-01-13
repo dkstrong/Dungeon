@@ -5,6 +5,7 @@ import asf.dungeon.view.token.AbstractTokenSpatial;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 /**
@@ -27,8 +28,8 @@ public class PerspectiveCamControl implements CamControl{
                 cam = new PerspectiveCamera(50, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); // 67
                 cam.position.set(-15f, 35f, 15f);  //cam.position.set(0f, 25f, 15f);
                 cam.lookAt(0, 0, 0);
-                cam.near = .1f;
-                cam.far = 300f;
+                cam.near = 1f;
+                cam.far = 100f;
                 cam.update();
                 chaseCamOffset.set(cam.position);
         }
@@ -105,10 +106,10 @@ public class PerspectiveCamControl implements CamControl{
                 if(screenX == -1){
                       dragX = -1;
                 }else if(dragX != -1){
-                        int deltaX = dragX - screenX;
-                        int deltaY = dragY - screenY;
-                        cam.position.x += deltaX/4f;
-                        cam.position.z +=deltaY/4f;
+                        Vector2 v = new Vector2(dragX - screenX, dragY - screenY);
+                        v.rotate(45);
+                        cam.position.x += v.x/4f;
+                        cam.position.z +=v.y/4f;
                 }
                 dragX = screenX;
                 dragY = screenY;

@@ -56,7 +56,7 @@ public class FloorSpatial implements Spatial {
                 world.assetManager.load("Textures/Floor/wallTiles.png", Texture.class);
                 world.assetManager.load("Textures/Floor/pitTiles.png", Texture.class);
 
-                world.assetManager.load("Models/Dungeon/Door/Door.g3db", Model.class);
+                world.assetManager.load("Models/Door/Door.g3db", Model.class);
         }
 
         @Override
@@ -204,7 +204,7 @@ public class FloorSpatial implements Spatial {
                 if(tile.isDoor()){
                         DecalNodeDoor door = new DecalNodeDoor();
                         decalNode=  door;
-                        door.modelInstance = new BetterModelInstance(world.assetManager.get("Models/Dungeon/Door/Door.g3db", Model.class));
+                        door.modelInstance = new BetterModelInstance(world.assetManager.get("Models/Door/Door.g3db", Model.class));
                         door.animController = new BetterAnimationController(door.modelInstance);
                         door.animController.paused = true;
                         Material material = door.modelInstance.materials.get(0);

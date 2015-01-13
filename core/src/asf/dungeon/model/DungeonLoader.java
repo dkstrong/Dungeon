@@ -164,7 +164,7 @@ public class DungeonLoader {
                                 token.get(Journal.class).learn(bow);
                                 //token.inventory.equip(bow);
 
-                                WeaponItem staff = new WeaponItem(ModelId.SwordLarge, "Staff", 3, FxId.PlasmaBall);
+                                WeaponItem staff = new WeaponItem(ModelId. StaffLarge, "Staff", 3, FxId.PlasmaBall);
                                 staff.identifyItem(token);
                                 token.inventory.add(staff);
                         } else if (settings.playerModel == ModelId.Archer) {
@@ -177,11 +177,11 @@ public class DungeonLoader {
                                 token.inventory.add(sword);
                                 token.get(Journal.class).learn(sword);
 
-                                WeaponItem staff = new WeaponItem(ModelId.SwordLarge, "Staff", 3, FxId.PlasmaBall);
+                                WeaponItem staff = new WeaponItem(ModelId.StaffLarge, "Staff", 3, FxId.PlasmaBall);
                                 staff.identifyItem(token);
                                 token.inventory.add(staff);
                         } else if (settings.playerModel == ModelId.Mage) {
-                                WeaponItem staff = new WeaponItem(ModelId.Bow_01, "Staff", 3, FxId.PlasmaBall);
+                                WeaponItem staff = new WeaponItem(ModelId.StaffLarge, "Staff", 3, FxId.PlasmaBall);
                                 staff.identifyItem(token);
                                 token.inventory.add(staff);
                                 token.inventory.equip(staff);

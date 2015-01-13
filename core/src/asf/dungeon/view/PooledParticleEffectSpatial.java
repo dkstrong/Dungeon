@@ -101,8 +101,6 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                 attackerTokenSpatial = (CharacterTokenSpatial)world.getTokenSpatial(attackerToken);
                 this.destLoc.set(destLoc);
                 attackerTokenSpatial.getWeaponAttachmentTranslation(worldStartLoc);
-                if(worldStartLoc.y == 0)
-                        worldStartLoc.y = 4;
                 if (target == null) {
                         tokenSpatial = null;
                         world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
@@ -111,7 +109,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                         if (target.move == null) world.getWorldCoords(target.location.x, target.location.y, worldDestLoc);
                         else world.getWorldCoords(target.move.getFloatLocation(), worldDestLoc);
                 }
-                worldDestLoc.y = worldStartLoc.y;
+                worldDestLoc.y = 4;
                 worldMoveDir.set(worldDestLoc).sub(worldStartLoc).nor();
 
                 transformMatrix.idt();
@@ -133,8 +131,6 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                 attackerTokenSpatial = (CharacterTokenSpatial) world.getTokenSpatial(attackerToken);
                 destLoc.set(attacker.location);
                 attackerTokenSpatial.getWeaponAttachmentTranslation(worldStartLoc);
-                if (worldStartLoc.y == 0)
-                        worldStartLoc.y = 4;
                 tokenSpatial = world.getTokenSpatial(target);
 
         }

@@ -103,9 +103,6 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                 attackerTokenSpatial = (CharacterTokenSpatial) world.getTokenSpatial(attackerToken);
                 this.destLoc.set(destLoc);
                 attackerTokenSpatial.getWeaponAttachmentTranslation(worldStartLoc);
-                if (worldStartLoc.y == 0)
-                        worldStartLoc.y = 4;
-                // world.getWorldCoords(attacker.move.getFloatLocation(), worldStartLoc);
                 if (target == null) {
                         targetTokenSpatial = null;
                         world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);
@@ -131,8 +128,6 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                 attackerTokenSpatial = (CharacterTokenSpatial) world.getTokenSpatial(attackerToken);
                 destLoc.set(attacker.location);
                 attackerTokenSpatial.getWeaponAttachmentTranslation(worldStartLoc);
-                if (worldStartLoc.y == 0)
-                        worldStartLoc.y = 4;
                 if (target == null) {
                         targetTokenSpatial = null;
                         world.getWorldCoords(destLoc.x, destLoc.y, worldDestLoc);

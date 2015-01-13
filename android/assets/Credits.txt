@@ -13,8 +13,10 @@ http://opengameart.org/content/low-poly-rigged-skeleton
 Goblin
 Lee Zhi Fei
 
-Rock Monster
+Rock Monster, Rat Monster
 Kevin Boyette
+
+
 
 ===Doors, Crates, Traps, Switches, etc===
 Ceramic Pitcher

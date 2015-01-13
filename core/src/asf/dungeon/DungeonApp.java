@@ -44,7 +44,7 @@ public class DungeonApp implements ApplicationListener {
                 //returnToMainMenu();
 
                 DungeonWorld.Settings settings = new DungeonWorld.Settings();
-                settings.playerModel = ModelId.Archer;
+                settings.playerModel = ModelId.Mage;
                 //settings.balanceTest = true;
 
                 //settings.startDebugSession = true;

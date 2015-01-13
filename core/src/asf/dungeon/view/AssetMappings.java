@@ -41,7 +41,7 @@ public class AssetMappings {
                 rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
                 rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
 
-                assetLocations = new String[30];
+                assetLocations = new String[31];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
                 assetLocations[ModelId.Cerberus.ordinal()] = "Models/Characters/cerberus.g3db";
@@ -69,9 +69,10 @@ public class AssetMappings {
                 assetLocations[ModelId.Key2.ordinal()] = "Models/Loot/Key/Key2.g3db";
                 assetLocations[ModelId.Key3.ordinal()] = "Models/Loot/Key/Key3.g3db";
                 assetLocations[ModelId.SwordLarge.ordinal()] = "Models/Loot/Sword/SwordLarge.g3db";
-                assetLocations[ModelId.Sword_01.ordinal()] = "Models/Loot/Sword/sword_01.g3db";
+                assetLocations[ModelId.Sword_01.ordinal()] = "Models/Loot/Sword/BasicSword.g3db";
                 assetLocations[ModelId.BowLarge.ordinal()] = "Models/Loot/Bow/BowLarge.g3db";
                 assetLocations[ModelId.Bow_01.ordinal()] = "Models/Loot/Bow/bow_01.g3db";
+                assetLocations[ModelId.StaffLarge.ordinal()] = "Models/Loot/Staff/StaffLarge.g3db";
 
                 potionDisplayColors = new Color[11];
                 potionDisplayColors[PotionItem.Color.Red.ordinal()] = com.badlogic.gdx.graphics.Color.RED;
