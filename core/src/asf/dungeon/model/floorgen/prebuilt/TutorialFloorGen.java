@@ -81,7 +81,7 @@ public class TutorialFloorGen implements FloorMapGenerator, FloorMap.MonsterSpaw
                 };
 
                 String[] signPostMessages = {"This place is cursed"};
-                FloorMap floorMap = new FloorMap(floorIndex, PreBuiltFloorGen.convertTileData(floorIndex, tileData), this);
+                FloorMap floorMap = new FloorMap(floorIndex, PreBuiltFloorGen.convertTileData(dungeon, floorIndex, tileData), this);
                 //tileData = PreBuiltFloorGen.randomizeTileData(dungeon, floorMap, tileData, roomMask);
                 PreBuiltFloorGen.spawnTokensFromTileData(dungeon, floorMap, tileData,signPostMessages);
 
@@ -108,7 +108,7 @@ public class TutorialFloorGen implements FloorMapGenerator, FloorMap.MonsterSpaw
                                 x,y);
 
                         if(modelId == ModelId.Archer){
-                                WeaponItem weapon = new WeaponItem( 2,2,1, true,3,1);
+                                WeaponItem weapon = new WeaponItem(dungeon, 2,2,1, true,3,1);
                                 token.inventory.add(weapon);
                                 token.inventory.equip(weapon);
                         }

@@ -1,7 +1,6 @@
 package asf.dungeon.model.item;
 
 import asf.dungeon.model.Dungeon;
-import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Journal;
@@ -142,22 +141,12 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
 
         public BookItem(Dungeon dungeon, Type type) {
                 this.type = type;
-                M.generateNameDesc(this);
+                dungeon.m.generateNameDesc(this);
         }
 
         @Override
         public ModelId getModelId() {
                 return ModelId.Book;
-        }
-
-        @Override
-        public String getVagueName() {
-                return M.UnidentifiedBookName;
-        }
-
-        @Override
-        public String getVagueDescription() {
-                return M.UnidentifiedBookDesc;
         }
 
         @Override

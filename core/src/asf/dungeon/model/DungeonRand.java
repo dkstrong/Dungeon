@@ -77,6 +77,10 @@ public class DungeonRand {
                         return Direction.SouthWest;
         }
 
+        public <T extends Object> T choose(T... choices){
+                return choices[random.nextInt(choices.length)];
+        }
+
         public boolean bool(float chance){
                 return random.nextFloat() < chance;
         }

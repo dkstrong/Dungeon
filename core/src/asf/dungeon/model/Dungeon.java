@@ -26,6 +26,7 @@ import com.badlogic.gdx.utils.IntMap;
  */
 public class Dungeon {
         public final DungeonRand rand;
+        public final M m;
         private final MasterJournal masterJournal;
         private final FloorMapGenerator floorMapFactory;
         private final IntMap<FloorMap> floorMaps = new IntMap<FloorMap>(2);
@@ -37,6 +38,7 @@ public class Dungeon {
 
         public Dungeon(DungeonRand rand, MasterJournal masterJournal, FloorMapGenerator floorMapFactory) {
                 this.rand = rand;
+                m =new M(rand);
                 this.masterJournal = masterJournal;
                 this.floorMapFactory = floorMapFactory;
         }

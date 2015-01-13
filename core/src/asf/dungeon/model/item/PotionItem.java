@@ -2,7 +2,6 @@ package asf.dungeon.model.item;
 
 
 import asf.dungeon.model.Dungeon;
-import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Journal;
@@ -29,25 +28,17 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         private final Type type;
         private int charges;
 
-        public String vagueName, vagueDescription;
-
         public PotionItem(Dungeon dungeon, Type type, int charges) {
                 this.dungeon = dungeon;
                 this.type = type;
                 this.charges = charges;
-                M.generateNameDesc(this);
+                dungeon.m.generateNameDesc(this);
         }
 
         @Override
         public ModelId getModelId() {
                 return ModelId.Potion;
         }
-
-        @Override
-        public String getVagueName() { return vagueName; }
-
-        @Override
-        public String getVagueDescription() { return vagueDescription; }
 
         @Override
         public boolean isIdentified(Token token) {

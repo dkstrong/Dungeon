@@ -146,55 +146,58 @@ public class DungeonLoader {
                         paralyze.identifyItem(token);
                         token.inventory.add(paralyze);
 
-                        ArmorItem armor = new ArmorItem(1);
+                        ArmorItem armor = new ArmorItem(dungeon, 1);
                         armor.identifyItem(token);
                         token.inventory.add(armor);
                         token.inventory.equip(armor);
 
                         if (settings.playerModel == ModelId.Knight) {
-                                WeaponItem sword = new WeaponItem(3);
+                                WeaponItem sword = new WeaponItem(dungeon, 3);
+
                                 //sword.setAttackDuration(1);
                                 token.inventory.add(sword);
                                 token.inventory.equip(sword);
                                 token.get(Journal.class).learn(sword);
 
-                                WeaponItem bow = new WeaponItem( 2,2,1, true,3,1);
+                                WeaponItem bow = new WeaponItem(dungeon,  2,2,1, true,3,1);
                                 token.inventory.add(bow);
                                 token.get(Journal.class).learn(bow);
                                 //token.inventory.equip(bow);
 
-                                WeaponItem staff = new WeaponItem(3,2,1,false,3,1);
+                                WeaponItem staff = new WeaponItem(dungeon, 3,2,1,false,3,1);
                                 staff.identifyItem(token);
                                 token.inventory.add(staff);
                         } else if (settings.playerModel == ModelId.Archer) {
-                                WeaponItem bow = new WeaponItem( 2,2,1, true,3,1);
+                                WeaponItem bow = new WeaponItem(dungeon,  2,2,1, true,3,1);
                                 //bow.setCursed(true);
                                 token.inventory.add(bow);
                                 token.inventory.equip(bow);
 
-                                WeaponItem sword = new WeaponItem(3,2,1);
+                                WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
                                 token.inventory.add(sword);
                                 token.get(Journal.class).learn(sword);
 
-                                WeaponItem staff = new WeaponItem(3,2,1,false,3,1);
+                                WeaponItem staff = new WeaponItem(dungeon, 3,2,1,false,3,1);
                                 staff.identifyItem(token);
                                 token.inventory.add(staff);
                         } else if (settings.playerModel == ModelId.Mage) {
-                                WeaponItem staff = new WeaponItem(3,2,1,false,3,1);
+                                WeaponItem staff = new WeaponItem(dungeon, 3,2,1,false,3,1);
+                                staff.cursed = true;
                                 staff.identifyItem(token);
+
                                 token.inventory.add(staff);
                                 token.inventory.equip(staff);
 
-                                WeaponItem sword = new WeaponItem(3,2,1);
+                                WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
                                 token.inventory.add(sword);
                                 token.get(Journal.class).learn(sword);
 
-                                WeaponItem bow = new WeaponItem( 2,2,1, true,3,1);
+                                WeaponItem bow = new WeaponItem(dungeon,  2,2,1, true,3,1);
                                 token.inventory.add(bow);
                                 token.get(Journal.class).learn(bow);
 
                         } else if (settings.playerModel == ModelId.Priest) {
-                                WeaponItem sword = new WeaponItem(3,2,1);
+                                WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
                                 //sword.setAttackDuration(1);
                                 token.inventory.add(sword);
                                 token.inventory.equip(sword);
@@ -313,6 +316,7 @@ public class DungeonLoader {
                 kryo.register(Dungeon.class);
                 kryo.register(FloorMap.class);
                 kryo.register(asf.dungeon.model.DungeonRand.class);
+                kryo.register(asf.dungeon.model.M.class);
                 kryo.register(MasterJournal.class);
                 kryo.register(ModelId.class);
                 kryo.register(asf.dungeon.model.SfxId.class);

@@ -1,6 +1,5 @@
 package asf.dungeon.model.item;
 
-import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Token;
@@ -57,7 +56,7 @@ public abstract class EquipmentItem implements Item {
         public String getNameFromJournal(Token token) {
                 boolean identified = isIdentified(token);
                 String cursedMessage;
-                if(cursed && (identified || token.inventory.isEquipped(this))) cursedMessage = M.Cursed+" ";
+                if(cursed && (identified || token.inventory.isEquipped(this))) cursedMessage = token.dungeon.m.Cursed+" ";
                 else cursedMessage="";
 
                 if (identified) return cursedMessage+getName();
@@ -68,8 +67,8 @@ public abstract class EquipmentItem implements Item {
         public String getDescriptionFromJournal(Token token) {
                 boolean identified = isIdentified(token);
                 String cursedMessage;
-                if(cursed && token.inventory.isEquipped(this)) cursedMessage = "\n\n"+M.CursedEquippedDesc;
-                else if(cursed && identified) cursedMessage = "\n\n"+M.CursedDesc;
+                if(cursed && token.inventory.isEquipped(this)) cursedMessage = "\n\n"+token.dungeon.m.CursedEquippedDesc;
+                else if(cursed && identified) cursedMessage = "\n\n"+token.dungeon.m.CursedDesc;
                 else cursedMessage="";
 
                 if (isIdentified(token)) return getDescription()+cursedMessage;

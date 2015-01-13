@@ -1,21 +1,17 @@
 package asf.dungeon.model.item;
 
-import asf.dungeon.model.M;
+import asf.dungeon.model.Dungeon;
 
 /**
  * Created by Danny on 11/18/2014.
  */
 public class ArmorItem extends EquipmentItem{
 
-        private int armor;
+        public int armor;
 
-        public ArmorItem(int armor) {
+        public ArmorItem(Dungeon dungeon, int armor) {
                 this.armor = armor;
-                M.generateNameDesc(this);
-        }
-
-        public int getArmorRating() {
-                return armor;
+                dungeon.m.generateNameDesc(this);
         }
 
         @Override

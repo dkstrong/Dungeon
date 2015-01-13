@@ -99,7 +99,7 @@ public class UtRoomSpawn {
                                 // are now null tiles in the copy.)
 
                                 if(isChokepoint && dungeon.rand.bool(.45f)){
-                                        currentSymbol = nextSymbol(currentSymbol, currentTile);
+                                        currentSymbol = nextSymbol(dungeon, currentSymbol, currentTile);
                                         currentDoorway.requiresSymbol = currentSymbol;
                                         int numKeys =1;
                                         // TODO: in order to generate more than 1 key for this doorway we need to include
@@ -130,15 +130,15 @@ public class UtRoomSpawn {
                 }
         }
 
-        private static Symbol nextSymbol(Symbol currentSymbol, Tile currentTile){
+        private static Symbol nextSymbol(Dungeon dungeon, Symbol currentSymbol, Tile currentTile){
                 if(currentSymbol == null)
                         return new CombinationDoorPuzzle();
                 else if(currentSymbol instanceof CombinationDoorPuzzle){
-                        return new KeyItem(KeyItem.Type.Red);
+                        return new KeyItem(dungeon, KeyItem.Type.Red);
                 }else if(currentSymbol instanceof KeyItem){
-                        return new KeyItem(KeyItem.Type.Gold);
+                        return new KeyItem(dungeon, KeyItem.Type.Gold);
                 }else{
-                        return new KeyItem(KeyItem.Type.Silver);
+                        return new KeyItem(dungeon, KeyItem.Type.Silver);
                 }
 
         }

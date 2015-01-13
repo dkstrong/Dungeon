@@ -2,7 +2,6 @@ package asf.dungeon.model.item;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.token.CharacterInventory;
@@ -211,33 +210,19 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
 
 
         private final Dungeon dungeon;
-        private final Symbol symbol;
         private final Type type;
         private int charges;
 
-        public String vagueName, vagueDescription;
-
         public ScrollItem(Dungeon dungeon, Type type, int charges) {
                 this.dungeon = dungeon;
-                this.symbol = dungeon.getMasterJournal().getScrollSymbol(type);
                 this.type = type;
                 this.charges = charges;
-                M.generateNameDesc(this);
+                dungeon.m.generateNameDesc(this);
         }
 
         @Override
         public ModelId getModelId() {
                 return ModelId.Scroll;
-        }
-
-        @Override
-        public String getVagueName() {
-                return vagueName;
-        }
-
-        @Override
-        public String getVagueDescription() {
-                return vagueDescription;
         }
 
         @Override
@@ -257,7 +242,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
         }
 
         public Symbol getSymbol() {
-                return symbol;
+                return dungeon.getMasterJournal().getScrollSymbol(type);
         }
 
         @Override

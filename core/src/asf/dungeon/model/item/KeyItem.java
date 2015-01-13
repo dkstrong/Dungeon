@@ -3,7 +3,6 @@ package asf.dungeon.model.item;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Symbol;
 import asf.dungeon.model.Tile;
@@ -26,9 +25,9 @@ public class KeyItem extends AbstractItem implements Item, Symbol {
 
         public static transient final Type[] typeValues = Type.values();
 
-        public KeyItem(Type type) {
+        public KeyItem(Dungeon dungeon, Type type) {
                 this.type = type;
-                M.generateNameDesc(this);
+                dungeon.m.generateNameDesc(this);
         }
 
         @Override
@@ -43,12 +42,6 @@ public class KeyItem extends AbstractItem implements Item, Symbol {
                 }
                 throw new AssertionError(type);
         }
-
-        @Override
-        public String getVagueName() { return getName();}
-
-        @Override
-        public String getVagueDescription() { return getDescription();}
 
         @Override
         public boolean isIdentified(Token token) { return true; }

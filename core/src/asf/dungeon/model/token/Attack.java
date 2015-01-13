@@ -345,7 +345,7 @@ public class Attack implements TokenComponent, Teleportable{
                                 }
 
                                 // damage absorb is the armor rating of worn armor.
-                                int armorAbsorb = targetToken.inventory.getArmorSlot() == null ? 0 : targetToken.inventory.getArmorSlot().getArmorRating();
+                                int armorAbsorb = targetToken.inventory.getArmorSlot() == null ? 0 : targetToken.inventory.getArmorSlot().armor;
 
                                 // actually since armorAbsorb is only based on the armor worn, maybe Might shoudlnt increase its effectiveness
                                 //if(targettoken.statusEffects != null && targettoken.statusEffects.hasStatusEffect(StatusEffects.Effect.Might)){

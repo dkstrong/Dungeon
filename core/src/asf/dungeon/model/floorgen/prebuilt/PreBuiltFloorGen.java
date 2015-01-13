@@ -70,7 +70,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                 };
 
-                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(floorIndex,tileData));
+                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(dungeon, floorIndex, tileData));
                 spawnTokensFromTileData(dungeon, floorMap, tileData, null);
 
                 CombinationDoorPuzzle puzzle = new CombinationDoorPuzzle();
@@ -109,7 +109,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                 };
 
-                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(floorIndex,tileData));
+                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(dungeon, floorIndex, tileData));
                 spawnTokensFromTileData(dungeon, floorMap, tileData, null);
                 return floorMap;
         }
@@ -134,7 +134,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                 };
 
-                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(floorIndex,tileData));
+                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(dungeon, floorIndex, tileData));
                 spawnTokensFromTileData(dungeon, floorMap, tileData, null);
                 return floorMap;
         }
@@ -154,7 +154,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                 };
 
-                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(floorIndex,tileData));
+                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(dungeon, floorIndex, tileData));
                 spawnTokensFromTileData(dungeon, floorMap, tileData, null);
                 return floorMap;
         }
@@ -174,13 +174,13 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                 };
 
-                FloorMap floorMap = new FloorMap(floorIndex,convertTileData(floorIndex,tileData));
+                FloorMap floorMap = new FloorMap(floorIndex,convertTileData(dungeon, floorIndex, tileData));
                 spawnTokensFromTileData(dungeon, floorMap, tileData, null);
 
                 return floorMap;
         }
 
-        protected static Tile[][] convertTileData(int floorIndex, String[] tileData){
+        protected static Tile[][] convertTileData(Dungeon dungeon, int floorIndex, String[] tileData){
                 Tile[][] tiles;
                 tiles = new Tile[tileData[0].length()][tileData.length];
                 for (int y = 0; y < tileData.length; y++) {
@@ -194,7 +194,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                 } else if(charAt == '+'){ // Door
                                         tiles[x][y] = Tile.makeDoor();
                                 } else if(charAt == '/'){ // Locked Door
-                                        tiles[x][y] = Tile.makeDoor(new KeyItem(KeyItem.Type.Silver));
+                                        tiles[x][y] = Tile.makeDoor(new KeyItem(dungeon, KeyItem.Type.Silver));
                                 }  else if(charAt != ' '){ // Floor
                                         tiles[x][y] = Tile.makeFloor();
                                 }
@@ -276,7 +276,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                         signPost.add(new SignPostQuest(signPostMessages[nextSignPostMessage++]));
                                         dungeon.newToken(signPost, floorMap, x,y);
                                 } else if(charAt == 'k') { // key
-                                        KeyItem keyItem = new KeyItem(KeyItem.Type.Silver);
+                                        KeyItem keyItem = new KeyItem(dungeon, KeyItem.Type.Silver);
                                         if(dungeon.rand.random.nextBoolean()){
                                                 dungeon.newCrateToken(floorMap, ModelId.Barrel.name(), ModelId.Barrel, keyItem, x, y);
                                         }else{
@@ -290,7 +290,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                                 new Experience(1, 8, 4, 6, 1,1),
                                                 x,y);
                                         if(modelId == ModelId.Archer){
-                                                WeaponItem weapon = new WeaponItem( 2,2,1, true,3,1);
+                                                WeaponItem weapon = new WeaponItem(dungeon,  2,2,1, true,3,1);
                                                 token.inventory.add(weapon);
                                                 token.inventory.equip(weapon);
                                         }

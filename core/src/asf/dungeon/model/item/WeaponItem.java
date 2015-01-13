@@ -1,7 +1,7 @@
 package asf.dungeon.model.item;
 
+import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FxId;
-import asf.dungeon.model.M;
 
 /**
  * Created by Danny on 11/18/2014.
@@ -59,23 +59,23 @@ public class WeaponItem extends EquipmentItem{
         public WeaponItem() {
         }
 
-        public WeaponItem(int damage) {
+        public WeaponItem(Dungeon dungeon,int damage) {
                 this.damage = damage;
                 range = 0;
-                M.generateNameDesc(this);
+                dungeon.m.generateNameDesc(this);
         }
 
         // sword
-        public WeaponItem(int damage, float attackDuration, float attackCooldown) {
+        public WeaponItem(Dungeon dungeon, int damage, float attackDuration, float attackCooldown) {
                 this.damage = damage;
                 this.attackDuration = attackDuration;
                 this.attackCooldown = attackCooldown;
                 range = 0;
-                M.generateNameDesc(this);
+                dungeon.m.generateNameDesc(this);
         }
 
         // bow or staff
-        public WeaponItem(int damage, float attackDuration, float attackCooldown, boolean bow, float range, float projectileSpeed){
+        public WeaponItem(Dungeon dungeon, int damage, float attackDuration, float attackCooldown, boolean bow, float range, float projectileSpeed){
                 this.damage = damage;
                 this.attackDuration = attackDuration;
                 this.attackCooldown = attackCooldown;
@@ -83,7 +83,7 @@ public class WeaponItem extends EquipmentItem{
                 this.range = range;
                 if(range <1) throw new IllegalArgumentException("range must be greater than 0");
                 this.projectileSpeed = projectileSpeed;
-                M.generateNameDesc(this);
+                dungeon.m.generateNameDesc(this);
         }
 
         public WeaponItem(String name, int damage, float attackDuration, float attackCooldown, boolean bow, float range, float projectileSpeed){

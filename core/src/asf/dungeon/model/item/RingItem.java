@@ -1,15 +1,14 @@
 package asf.dungeon.model.item;
 
-import asf.dungeon.model.M;
-import asf.dungeon.model.ModelId;
+import asf.dungeon.model.Dungeon;
 
 /**
  * Created by Danny on 11/18/2014.
  */
 public class RingItem extends EquipmentItem{
 
-        public RingItem(ModelId modelId, String name, String desc) {
-                M.generateNameDesc(this);
+        public RingItem(Dungeon dungeon) {
+                dungeon.m.generateNameDesc(this);
         }
 
         @Override

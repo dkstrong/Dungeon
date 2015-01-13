@@ -26,7 +26,7 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
 
                 };
 
-                FloorMap floorMap = new FloorMap(floorIndex, PreBuiltFloorGen.convertTileData(floorIndex, tileData), this);
+                FloorMap floorMap = new FloorMap(floorIndex, PreBuiltFloorGen.convertTileData(dungeon, floorIndex, tileData), this);
                 PreBuiltFloorGen.spawnTokensFromTileData(dungeon, floorMap, tileData, null);
                 //UtFloorGen.spawnCharacters(dungeon, floorMap);
                 //UtFloorGen.spawnRandomCrates(dungeon, floorMap);

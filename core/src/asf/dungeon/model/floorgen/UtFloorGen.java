@@ -104,7 +104,7 @@ public class UtFloorGen {
                                 x, y);
 
                         if (modelId == ModelId.Archer) {
-                                WeaponItem weapon = new WeaponItem(1, 2,1,true,3,1);
+                                WeaponItem weapon = new WeaponItem(dungeon, 1, 2,1,true,3,1);
                                 characterToken.inventory.add(weapon);
                                 characterToken.inventory.equals(weapon);
                         }
@@ -363,7 +363,7 @@ public class UtFloorGen {
                                 6,  // agi
                                 1,  // int
                                 1); // luck
-                        weapon = new WeaponItem(
+                        weapon = new WeaponItem(dungeon,
                                 1 , // damage
                                 1, // attack duration
                                 1); // attack cooldown
@@ -375,7 +375,7 @@ public class UtFloorGen {
                                 6,  // agi
                                 1,  // int
                                 1); // luck
-                        weapon = new WeaponItem(
+                        weapon = new WeaponItem(dungeon,
                                 1 , // damage
                                 1,  // attack duration
                                 1,  // attack cooldown

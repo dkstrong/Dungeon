@@ -141,7 +141,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                                 x,y);
 
                         if(modelId == ModelId.Archer){
-                                WeaponItem weapon = new WeaponItem( 2,2,1, true,3,1);
+                                WeaponItem weapon = new WeaponItem(dungeon, 2,2,1, true,3,1);
                                 token.inventory.add(weapon);
                                 token.inventory.equip(weapon);
                         }

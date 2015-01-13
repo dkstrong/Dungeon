@@ -180,10 +180,13 @@ public class CharacterInventory implements Inventory, Teleportable {
         public boolean canChangeEquipment() {
                 if (token.attack != null && (token.attack.isAttacking() || token.attack.hasProjectile()))
                         return false;
-
+                if(token.damage != null && (token.damage.isDead() || token.damage.isHit()))
+                        return false;
                 if(token.statusEffects != null && (token.statusEffects.has(StatusEffect.Paralyze) || token.statusEffects.has(StatusEffect.Frozen))  )
                         return false;
-                return timeSinceComabt > 5f;
+
+                //return timeSinceComabt > 5f;
+                return true;
         }
 
         private boolean hasRequiredStatsToChangeEquipment(EquipmentItem currentSlot, EquipmentItem otherSlot1, EquipmentItem otherSlot2, EquipmentItem item){

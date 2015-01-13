@@ -791,7 +791,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 if (item instanceof EquipmentItem ) {
                         if (!localPlayerToken.inventory.canChangeEquipment() || ((EquipmentItem) item).cursed) {
-                                description.append("\n\nYou can not change Equipment during battle.");
+                                if(!localPlayerToken.inventory.canChangeEquipment())
+                                        description.append("\n\nYou can not change Equipment during battle.");
+                                // cursed message is already added on the equipment description..
                                 useLabel.setText("");
                                 discardLabel.setText("");
                                 itemWindowUseButton.setDisabled(true);
