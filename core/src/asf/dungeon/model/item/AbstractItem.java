@@ -7,7 +7,19 @@ import asf.dungeon.model.token.Token;
  */
 public abstract class AbstractItem implements Item{
 
+        public String name;
+        public String description;
 
+
+        @Override
+        public String getName() {
+                return name;
+        }
+
+        @Override
+        public String getDescription() {
+                return description;
+        }
 
         @Override
         public String getNameFromJournal(Token token) {

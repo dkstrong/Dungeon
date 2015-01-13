@@ -790,7 +790,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 Label discardLabel = (Label) itemWindowDiscardButton.getChildren().get(0);
 
                 if (item instanceof EquipmentItem ) {
-                        if (!localPlayerToken.inventory.canChangeEquipment() || ((EquipmentItem) item).isCursed()) {
+                        if (!localPlayerToken.inventory.canChangeEquipment() || ((EquipmentItem) item).cursed) {
                                 description.append("\n\nYou can not change Equipment during battle.");
                                 useLabel.setText("");
                                 discardLabel.setText("");
@@ -1501,7 +1501,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         localPlayerToken.inventory.unequip(item);
                                 } else {
                                         boolean valid = localPlayerToken.inventory.equip(item);
-                                        if (valid && item.isCursed())
+                                        if (valid && item.cursed)
                                                 appendToGameLog("You grip the " + item.getNameFromJournal(localPlayerToken) + " tightly. You are powerless to remove it.");
 
                                 }

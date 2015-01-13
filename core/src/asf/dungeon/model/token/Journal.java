@@ -97,7 +97,7 @@ public class Journal implements TokenComponent{
                 float currentStudy = equipmentStudy.get(item,0f);
                 currentStudy+=amount;
 
-                if(currentStudy >= item.getComplexity()){
+                if(currentStudy >= item.complexity){
                         this.equipment.add(item);
                         equipmentStudy.remove(item);
                         if(token.listener != null)

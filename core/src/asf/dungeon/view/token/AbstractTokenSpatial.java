@@ -85,7 +85,7 @@ public abstract class AbstractTokenSpatial implements Spatial, Token.Listener{
         public void onAttack(Token target, Pair targetLocation, boolean ranged) {
 
                 if (ranged) {
-                        world.fxManager.shootProjectile(token.attack.getWeapon().getProjectileFx(), token, target, targetLocation);
+                        world.fxManager.shootProjectile(token.attack.getWeapon().projectileFx, token, target, targetLocation);
                 }
 
                 if (world.hudSpatial.localPlayerToken == token)

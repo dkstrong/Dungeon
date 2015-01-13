@@ -191,31 +191,31 @@ public class CharacterInventory implements Inventory, Teleportable {
                 int agi = token.experience.getAgility();
                 int ine = token.experience.getIntelligence();
                 if(item != null){
-                        str += item.getStrengthMod();
-                        agi += item.getAgilityMod();
-                        ine += item.getIntelligenceMod();
+                        str += item.strengthMod;
+                        agi += item.agilityMod;
+                        ine += item.intelligenceMod;
                 }
                 if(currentSlot != null){
-                        if(currentSlot.isCursed()) return false;
-                        str -= currentSlot.getStrengthMod();
-                        agi -= currentSlot.getAgilityMod();
-                        ine -= currentSlot.getAgilityMod();
+                        if(currentSlot.cursed) return false;
+                        str -= currentSlot.strengthMod;
+                        agi -= currentSlot.agilityMod;
+                        ine -= currentSlot.intelligenceMod;
                 }
                 if(item != null){
-                        if(str < item.getRequiredStrength()) return false;
-                        if(agi < item.getRequiredAgility()) return false;
-                        if(ine < item.getRequiredIntelligence()) return false;
+                        if(str < item.requiredStrength) return false;
+                        if(agi < item.requiredAgility) return false;
+                        if(ine < item.requiredIntelligence) return false;
                 }
                 if(otherSlot1 != null){
-                        if(str < otherSlot1.getRequiredStrength()) return false;
-                        if(agi < otherSlot1.getRequiredAgility()) return false;
-                        if(ine < otherSlot1.getRequiredIntelligence()) return false;
+                        if(str < otherSlot1.requiredStrength) return false;
+                        if(agi < otherSlot1.requiredAgility) return false;
+                        if(ine < otherSlot1.requiredIntelligence) return false;
                 }
 
                 if(otherSlot2 != null){
-                        if(str < otherSlot2.getRequiredStrength()) return false;
-                        if(agi < otherSlot2.getRequiredAgility()) return false;
-                        if(ine < otherSlot2.getRequiredIntelligence()) return false;
+                        if(str < otherSlot2.requiredStrength) return false;
+                        if(agi < otherSlot2.requiredAgility) return false;
+                        if(ine < otherSlot2.requiredIntelligence) return false;
                 }
                 return true;
         }

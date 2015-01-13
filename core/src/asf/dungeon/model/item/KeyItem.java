@@ -3,6 +3,7 @@ package asf.dungeon.model.item;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Symbol;
 import asf.dungeon.model.Tile;
@@ -27,6 +28,7 @@ public class KeyItem extends AbstractItem implements Item, Symbol {
 
         public KeyItem(Type type) {
                 this.type = type;
+                M.generateNameDesc(this);
         }
 
         @Override
@@ -40,16 +42,6 @@ public class KeyItem extends AbstractItem implements Item, Symbol {
                                 return ModelId.Key3;
                 }
                 throw new AssertionError(type);
-        }
-
-        @Override
-        public String getName() {
-                return type.name()+" Key";
-        }
-
-        @Override
-        public String getDescription() {
-                return "This key can be used to open a locked "+ type.name()+" door.";
         }
 
         @Override

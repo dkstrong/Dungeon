@@ -66,7 +66,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
                 // check to see if the token spawned with a projectile, spawn the projectile with it if thats the case
                 if (token.attack != null && token.attack.hasProjectile()) {
-                        world.fxManager.shootProjectile(token.attack.getWeapon().getProjectileFx(), token, token.attack.getProjectileAttackTarget(), token.attack.getProjectileAttackCoord());
+                        world.fxManager.shootProjectile(token.attack.getWeapon().projectileFx, token, token.attack.getProjectileAttackTarget(), token.attack.getProjectileAttackCoord());
                 }
 
         }
@@ -314,11 +314,11 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
                 } else if (token.attack != null && token.attack.isAttacking()) {
                         if (current != attack) {
-                                animController.animate(attack.id, 1, attack.duration / token.attack.getWeapon().getAttackDuration(), null, .2f);
+                                animController.animate(attack.id, 1, attack.duration / token.attack.getWeapon().attackDuration, null, .2f);
                                 if (weaponAnimController != null)
-                                        weaponAnimController.animate(weaponAttackAnim.id, 1, weaponAttackAnim.duration / token.attack.getWeapon().getAttackDuration(), null, .2f);
-                                if(token.attack.getWeapon().getProjectileFx() != null){
-                                        world.fxManager.spawnProjectile(token.attack.getWeapon().getProjectileFx(), token, token.attack.getAttackTarget());
+                                        weaponAnimController.animate(weaponAttackAnim.id, 1, weaponAttackAnim.duration / token.attack.getWeapon().attackDuration, null, .2f);
+                                if(token.attack.getWeapon().projectileFx != null){
+                                        world.fxManager.spawnProjectile(token.attack.getWeapon().projectileFx, token, token.attack.getAttackTarget());
                                 }
 
                                 current = attack;

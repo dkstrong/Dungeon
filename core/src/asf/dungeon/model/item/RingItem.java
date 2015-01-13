@@ -8,22 +8,9 @@ import asf.dungeon.model.ModelId;
  */
 public class RingItem extends EquipmentItem{
 
-
-
         public RingItem(ModelId modelId, String name, String desc) {
-                super(modelId, name, desc);
-
+                M.generateNameDesc(this);
         }
-        @Override
-        public String getVagueName() {
-                return M.Unidentified+" "+M.Ring;
-        }
-
-        @Override
-        public String getVagueDescription() {
-                return M.UnidentifiedRingDesc;
-        }
-
 
         @Override
         public String toString() {

@@ -66,14 +66,14 @@ public class Attack implements TokenComponent, Teleportable{
 
                 if(isAttacking()){
                         attackU += delta;
-                        if (attackU >= weapon.getAttackDuration()) {
+                        if (attackU >= weapon.attackDuration) {
                                 if(!sentAttackResult){
                                         sendAttackResult();
                                 }
                                 meleeAttackTarget = null;
-                                attackCoolDown = weapon.getAttackCooldown();
+                                attackCoolDown = weapon.attackCooldown;
                                 sentAttackResult = false;
-                        }else if(attackU >= weapon.getAttackDuration()/2f && !sentAttackResult){
+                        }else if(attackU >= weapon.attackDuration/2f && !sentAttackResult){
                                 sendAttackResult();
                                 sentAttackResult = true;
                         }
@@ -107,7 +107,7 @@ public class Attack implements TokenComponent, Teleportable{
          * only meant to be used by Monster Trap to keep it from attackign right after waking up
          */
         protected void restartWeaponCooldown(){
-                attackCoolDown = weapon.getAttackCooldown();
+                attackCoolDown = weapon.attackCooldown;
         }
 
         private boolean attackCommandTarget(float delta){
@@ -157,7 +157,7 @@ public class Attack implements TokenComponent, Teleportable{
                                         meleeAttackTarget = t;
                                         rangedAttack = false;
                                         attackU = 0;
-                                        meleeAttackTarget.damage.setHitDuration(weapon.getAttackDuration(), token);
+                                        meleeAttackTarget.damage.setHitDuration(weapon.attackDuration, token);
                                         sentAttackResult = false;
                                         return true;
                                 }
@@ -178,14 +178,14 @@ public class Attack implements TokenComponent, Teleportable{
                 if(rangedAttack){
                         if(inAttackRangeOfCommandTarget){ // target is still in range, were going to hit him
                                 projectileAttackCoord.set(meleeAttackTarget.location);
-                                attackProjectileMaxU =  token.distance(projectileAttackCoord) / weapon.getProjectileSpeed();
+                                attackProjectileMaxU =  token.distance(projectileAttackCoord) / weapon.projectileSpeed;
                                 projectileAttackTarget = meleeAttackTarget;
                                 meleeAttackTarget.damage.setHitDuration(attackProjectileMaxU, token);
                         }else{ // target got out of range, were going to gurantee miss
                                 // TODO: instead of just uses the next closest tile, we need to ensure that the projectile
                                 // wont be shot over the max range of the weapon (this could happen if the target teleports)
                                 token.floorMap.getNextClosestLegalLocation(token.location, meleeAttackTarget.location, projectileAttackCoord);
-                                attackProjectileMaxU =  token.distance(projectileAttackCoord) / weapon.getProjectileSpeed();
+                                attackProjectileMaxU =  token.distance(projectileAttackCoord) / weapon.projectileSpeed;
                                 projectileAttackTarget = null;
                         }
                         attackProjectileU = 0;
@@ -227,7 +227,7 @@ public class Attack implements TokenComponent, Teleportable{
                 float distance = token.distance(target);
                 // not sure why i need distance-1, but in order to actually have the right range i have to subtract 1
 
-                if(distance > weapon.getRange())
+                if(distance > weapon.range)
                         return false;
 
                 if(!includeDirAndVisibilityTest)
@@ -328,7 +328,7 @@ public class Attack implements TokenComponent, Teleportable{
                         }else{
                                 // damage done has a minimum of weapon damage and maximum of strength
                                 int strength = token.experience.getStrength();
-                                int weaponDmg = weapon.getDamage();
+                                int weaponDmg = weapon.damage;
                                 if(weaponDmg <strength) out.damage = token.dungeon.rand.range(weaponDmg, strength);
                                 else out.damage = weaponDmg;
 

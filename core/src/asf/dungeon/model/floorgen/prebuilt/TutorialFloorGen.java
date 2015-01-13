@@ -2,7 +2,6 @@ package asf.dungeon.model.floorgen.prebuilt;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.item.WeaponItem;
@@ -109,7 +108,7 @@ public class TutorialFloorGen implements FloorMapGenerator, FloorMap.MonsterSpaw
                                 x,y);
 
                         if(modelId == ModelId.Archer){
-                                WeaponItem weapon = new WeaponItem(ModelId.SwordLarge,"Bow", 1, FxId.Arrow);
+                                WeaponItem weapon = new WeaponItem( 2,2,1, true,3,1);
                                 token.inventory.add(weapon);
                                 token.inventory.equip(weapon);
                         }

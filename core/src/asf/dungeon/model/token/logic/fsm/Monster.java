@@ -99,7 +99,7 @@ public enum Monster implements State {
         ChaseKeepDistance {
                 @Override
                 public void begin(FsmLogic fsm, Token token, Command command) {
-                        moveToSafeDistance(fsm, token, command, token.attack.getWeapon().getRange());
+                        moveToSafeDistance(fsm, token, command, token.attack.getWeapon().range);
                 }
 
                 @Override
@@ -120,7 +120,7 @@ public enum Monster implements State {
                         } else if (command.getTargetToken() != null) {
                                 // if elected to hold position because already at a good range, then continualy check
                                 // distance to target and move back if needed
-                                moveToSafeDistance(fsm, token, command, token.attack.getWeapon().getRange());
+                                moveToSafeDistance(fsm, token, command, token.attack.getWeapon().range);
                         }
 
 

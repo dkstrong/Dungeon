@@ -3,7 +3,6 @@ package asf.dungeon.model.floorgen;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
-import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
@@ -105,7 +104,7 @@ public class UtFloorGen {
                                 x, y);
 
                         if (modelId == ModelId.Archer) {
-                                WeaponItem weapon = new WeaponItem(ModelId.SwordLarge, "Bow", 1, FxId.Arrow);
+                                WeaponItem weapon = new WeaponItem(1, 2,1,true,3,1);
                                 characterToken.inventory.add(weapon);
                                 characterToken.inventory.equals(weapon);
                         }
@@ -364,7 +363,7 @@ public class UtFloorGen {
                                 6,  // agi
                                 1,  // int
                                 1); // luck
-                        weapon = new WeaponItem(ModelId.SwordLarge,"Large Sword",
+                        weapon = new WeaponItem(
                                 1 , // damage
                                 1, // attack duration
                                 1); // attack cooldown
@@ -376,11 +375,11 @@ public class UtFloorGen {
                                 6,  // agi
                                 1,  // int
                                 1); // luck
-                        weapon = new WeaponItem(ModelId.BowLarge, "Large Bow",
+                        weapon = new WeaponItem(
                                 1 , // damage
                                 1,  // attack duration
                                 1,  // attack cooldown
-                                FxId.Arrow, // projectile fx
+                                true,
                                 3, // attack range
                                 1); // projectile speed
                 }else{

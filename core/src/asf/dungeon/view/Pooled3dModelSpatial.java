@@ -174,7 +174,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                         }
 
                         WeaponItem weapon = attackerTokenSpatial.getToken().attack.getWeapon();
-                        if(weapon.getProjectileFx() == FxId.Arrow){
+                        if(weapon.bow){
                                 // bow
                                 attackerTokenSpatial.getWeaponAttachmentTranslation(translation);
                                 //rotation.set(attackerTokenSpatial.rotation);

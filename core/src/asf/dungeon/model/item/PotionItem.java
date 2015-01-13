@@ -2,6 +2,7 @@ package asf.dungeon.model.item;
 
 
 import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Journal;
@@ -28,10 +29,13 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         private final Type type;
         private int charges;
 
+        public String vagueName, vagueDescription;
+
         public PotionItem(Dungeon dungeon, Type type, int charges) {
                 this.dungeon = dungeon;
                 this.type = type;
                 this.charges = charges;
+                M.generateNameDesc(this);
         }
 
         @Override
@@ -40,26 +44,10 @@ public class PotionItem extends AbstractItem implements ConsumableItem, Stackabl
         }
 
         @Override
-        public String getName() {
-                return type.name() + " Potion";
-        }
+        public String getVagueName() { return vagueName; }
 
         @Override
-        public String getDescription() {
-                return "This is a " + getName() + ". Go ahead. Drink it.";
-        }
-
-        @Override
-        public String getVagueName() {
-                Color color = getColor();
-                return color.name() + " Potion";
-        }
-
-        @Override
-        public String getVagueDescription() {
-                Color color = getColor();
-                return "A mysterious " + color.name().toLowerCase() + " potion. The effects of drinking this are not known.";
-        }
+        public String getVagueDescription() { return vagueDescription; }
 
         @Override
         public boolean isIdentified(Token token) {

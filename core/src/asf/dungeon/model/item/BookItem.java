@@ -1,6 +1,7 @@
 package asf.dungeon.model.item;
 
 import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Journal;
@@ -103,7 +104,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                         RingItem ring = (RingItem) targetItem;
                 }else if(type == Type.RemoveCurse){
                         EquipmentItem equipment = (EquipmentItem ) targetItem;
-                        equipment.setCursed(false);
+                        equipment.cursed =false;
                         // TODO: this is a weird place to invoke onInventoryChanged, i might want to come up with a way to channel this through inventory
                         if(token.listener != null)
                                 token.listener.onInventoryChanged();
@@ -131,20 +132,17 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                 }else if(type == Type.RemoveCurse){
                         if(targetItem instanceof EquipmentItem){
                                 EquipmentItem equipment = (EquipmentItem ) targetItem;
-                                return equipment.isCursed();
+                                return equipment.cursed;
                         }
                 }
                 return false;
         }
 
-
-
-        private final Symbol symbol;
         private final Type type;
 
         public BookItem(Dungeon dungeon, Type type) {
-                this.symbol = dungeon.getMasterJournal().getBookSymbol(type);
                 this.type = type;
+                M.generateNameDesc(this);
         }
 
         @Override
@@ -153,24 +151,13 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
         }
 
         @Override
-        public String getName() {
-                return "Tome of "+type.name();
-
-        }
-
-        @Override
-        public String getDescription() {
-                return "This is a "+getName()+". It can only be used once. Use it well.";
-        }
-
-        @Override
         public String getVagueName() {
-                return "Unidentified Tome";
+                return M.UnidentifiedBookName;
         }
 
         @Override
         public String getVagueDescription() {
-                return "An unidentified Tome. Who knows what will happen once read out loud?";
+                return M.UnidentifiedBookDesc;
         }
 
         @Override
@@ -192,7 +179,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                 return type;
         }
 
-        public Symbol getSymbol() {
-                return symbol;
+        public Symbol getSymbol(Dungeon dungeon) {
+                return dungeon.getMasterJournal().getBookSymbol(type);
         }
 }

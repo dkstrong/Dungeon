@@ -2,6 +2,7 @@ package asf.dungeon.model.item;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.token.CharacterInventory;
@@ -214,11 +215,14 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
         private final Type type;
         private int charges;
 
+        public String vagueName, vagueDescription;
+
         public ScrollItem(Dungeon dungeon, Type type, int charges) {
                 this.dungeon = dungeon;
                 this.symbol = dungeon.getMasterJournal().getScrollSymbol(type);
                 this.type = type;
                 this.charges = charges;
+                M.generateNameDesc(this);
         }
 
         @Override
@@ -226,25 +230,14 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                 return ModelId.Scroll;
         }
 
-
-        @Override
-        public String getName() {
-                return "Scroll of "+type.name();
-        }
-
-        @Override
-        public String getDescription() {
-                return "This is a "+getName()+". Use it well.";
-        }
-
         @Override
         public String getVagueName() {
-                return "Unidentified Scroll";
+                return vagueName;
         }
 
         @Override
         public String getVagueDescription() {
-                return "An unidentified scroll. Who knows what will happen when read out loud?";
+                return vagueDescription;
         }
 
         @Override

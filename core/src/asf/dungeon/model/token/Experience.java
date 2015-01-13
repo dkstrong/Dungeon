@@ -1,6 +1,5 @@
 package asf.dungeon.model.token;
 
-import asf.dungeon.model.ModelId;
 import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.RingItem;
 import asf.dungeon.model.item.WeaponItem;
@@ -123,11 +122,11 @@ public class Experience implements TokenComponent{
 
 
                 // experience
-                vitalityMod = (weapon == null ? 0 : weapon.getVitalityMod()) + (armor == null ? 0 : armor.getVitalityMod())+ (ring == null ? 0 : ring.getVitalityMod());
-                strengthMod = (weapon == null ? 0 : weapon.getStrengthMod()) + (armor == null ? 0 : armor.getStrengthMod())+ (ring == null ? 0 : ring.getStrengthMod());
-                agilityMod = (weapon == null ? 0 : weapon.getAgilityMod()) + (armor == null ? 0 : armor.getAgilityMod())+ (ring == null ? 0 : ring.getAgilityMod());
-                intelligenceMod = (weapon == null ? 0 : weapon.getIntelligenceMod()) + (armor == null ? 0 : armor.getIntelligenceMod())+ (ring == null ? 0 : ring.getIntelligenceMod());
-                luckMod = (weapon == null ? 0 : weapon.getLuckMod()) + (armor == null ? 0 : armor.getLuckMod())+ (ring == null ? 0 : ring.getLuckMod());
+                vitalityMod = (weapon == null ? 0 : weapon.vitalityMod) + (armor == null ? 0 : armor.vitalityMod)+ (ring == null ? 0 : ring.vitalityMod);
+                strengthMod = (weapon == null ? 0 : weapon.strengthMod) + (armor == null ? 0 : armor.strengthMod)+ (ring == null ? 0 : ring.strengthMod);
+                agilityMod = (weapon == null ? 0 : weapon.agilityMod) + (armor == null ? 0 : armor.agilityMod)+ (ring == null ? 0 : ring.agilityMod);
+                intelligenceMod = (weapon == null ? 0 : weapon.intelligenceMod) + (armor == null ? 0 : armor.intelligenceMod)+ (ring == null ? 0 : ring.intelligenceMod);
+                luckMod = (weapon == null ? 0 : weapon.luckMod) + (armor == null ? 0 : armor.luckMod)+ (ring == null ? 0 : ring.luckMod);
 
                 int vitality = getVitality();
                 int strength = getStrength();

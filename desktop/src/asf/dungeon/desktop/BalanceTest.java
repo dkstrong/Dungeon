@@ -245,21 +245,21 @@ public class BalanceTest implements Dungeon.Listener, Token.Listener {
                         token2.damage.getMaxHealth());
                 printLabel("Strength");
                 printInfo("Attack Duration",
-                        token1.attack.getWeapon().getAttackDuration(),
-                        token2.attack.getWeapon().getAttackDuration());
+                        token1.attack.getWeapon().attackDuration,
+                        token2.attack.getWeapon().attackDuration);
                 printInfo("Attack Range",
-                        token1.attack.getWeapon().getRange(),
-                        token2.attack.getWeapon().getRange());
+                        token1.attack.getWeapon().range,
+                        token2.attack.getWeapon().range);
                 printLabel("Agility");
                 printInfo("Move Speed",
                         token1.move.getMoveSpeed(),
                         token2.move.getMoveSpeed());
                 printInfo("Attack Cooldown",
-                        token1.attack.getWeapon().getAttackCooldown(),
-                        token2.attack.getWeapon().getAttackCooldown());
+                        token1.attack.getWeapon().attackCooldown,
+                        token2.attack.getWeapon().attackCooldown);
                 printInfo("Projectile Speed",
-                        token1.attack.getWeapon().getProjectileSpeed(),
-                        token2.attack.getWeapon().getProjectileSpeed());
+                        token1.attack.getWeapon().projectileSpeed,
+                        token2.attack.getWeapon().projectileSpeed);
                 printLabel("Luck");
                 printInfo("Critical Hit",
                         token1.attack.getCriticalHitChance(),

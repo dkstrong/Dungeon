@@ -146,57 +146,55 @@ public class DungeonLoader {
                         paralyze.identifyItem(token);
                         token.inventory.add(paralyze);
 
-                        ArmorItem armor = new ArmorItem(ModelId.SwordLarge, "Simple Armor", 1);
+                        ArmorItem armor = new ArmorItem(1);
                         armor.identifyItem(token);
                         token.inventory.add(armor);
                         token.inventory.equip(armor);
 
                         if (settings.playerModel == ModelId.Knight) {
-                                WeaponItem sword = new WeaponItem(ModelId.Sword_01, "Sword", 3);
+                                WeaponItem sword = new WeaponItem(3);
                                 //sword.setAttackDuration(1);
                                 token.inventory.add(sword);
                                 token.inventory.equip(sword);
                                 token.get(Journal.class).learn(sword);
 
-                                WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, FxId.Arrow);
-                                bow.setRangedStats(3, 1);
+                                WeaponItem bow = new WeaponItem( 2,2,1, true,3,1);
                                 token.inventory.add(bow);
                                 token.get(Journal.class).learn(bow);
                                 //token.inventory.equip(bow);
 
-                                WeaponItem staff = new WeaponItem(ModelId. StaffLarge, "Staff", 3, FxId.PlasmaBall);
+                                WeaponItem staff = new WeaponItem(3,2,1,false,3,1);
                                 staff.identifyItem(token);
                                 token.inventory.add(staff);
                         } else if (settings.playerModel == ModelId.Archer) {
-                                WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, 2f, 1f,FxId.Arrow , 3, 2f);
+                                WeaponItem bow = new WeaponItem( 2,2,1, true,3,1);
                                 //bow.setCursed(true);
                                 token.inventory.add(bow);
                                 token.inventory.equip(bow);
 
-                                WeaponItem sword = new WeaponItem(ModelId.Sword_01, "Sword", 3);
+                                WeaponItem sword = new WeaponItem(3,2,1);
                                 token.inventory.add(sword);
                                 token.get(Journal.class).learn(sword);
 
-                                WeaponItem staff = new WeaponItem(ModelId.StaffLarge, "Staff", 3, FxId.PlasmaBall);
+                                WeaponItem staff = new WeaponItem(3,2,1,false,3,1);
                                 staff.identifyItem(token);
                                 token.inventory.add(staff);
                         } else if (settings.playerModel == ModelId.Mage) {
-                                WeaponItem staff = new WeaponItem(ModelId.StaffLarge, "Staff", 3, FxId.PlasmaBall);
+                                WeaponItem staff = new WeaponItem(3,2,1,false,3,1);
                                 staff.identifyItem(token);
                                 token.inventory.add(staff);
                                 token.inventory.equip(staff);
 
-                                WeaponItem sword = new WeaponItem(ModelId.Sword_01, "Sword", 3);
+                                WeaponItem sword = new WeaponItem(3,2,1);
                                 token.inventory.add(sword);
                                 token.get(Journal.class).learn(sword);
 
-                                WeaponItem bow = new WeaponItem(ModelId.Bow_01, "Bow", 2, FxId.Arrow);
-                                bow.setRangedStats(3, 1);
+                                WeaponItem bow = new WeaponItem( 2,2,1, true,3,1);
                                 token.inventory.add(bow);
                                 token.get(Journal.class).learn(bow);
 
                         } else if (settings.playerModel == ModelId.Priest) {
-                                WeaponItem sword = new WeaponItem(ModelId.SwordLarge, "Sword", 3);
+                                WeaponItem sword = new WeaponItem(3,2,1);
                                 //sword.setAttackDuration(1);
                                 token.inventory.add(sword);
                                 token.inventory.equip(sword);
