@@ -231,11 +231,6 @@ public class DungeonApp implements ApplicationListener {
         }
 
         public interface Resolver {
-                public int getInterstitialAdState();
-
-                public void loadInterstitialAd();
-
-                public void showInterstitialAd();
 
                 public void showDebugWindow();
         }
