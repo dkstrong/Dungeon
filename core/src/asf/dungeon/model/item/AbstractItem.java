@@ -12,7 +12,7 @@ public abstract class AbstractItem implements Item{
         public String vagueName, vagueDescription;
 
         @Override
-        public String getName() {
+        public String getAbbrName() {
                 return name;
         }
 

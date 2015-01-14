@@ -105,7 +105,7 @@ public class WeaponItem extends EquipmentItem{
 
         @Override
         public String toString() {
-                return String.format("%s (%s)", getName(), damage);
+                return String.format("%s (%s)", getAbbrName(), damage);
         }
 
 }

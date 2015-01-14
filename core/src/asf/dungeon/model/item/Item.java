@@ -8,7 +8,11 @@ import asf.dungeon.model.token.Token;
  */
 public interface Item  {
 
-        public String getName();
+        /**
+         * an abbreviated name for this item, should not give away the identity of the item.
+         * @return
+         */
+        public String getAbbrName();
 
         public ModelId getModelId();
 

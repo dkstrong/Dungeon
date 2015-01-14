@@ -36,12 +36,8 @@ public abstract class EquipmentItem implements Item {
         }
 
         @Override
-        public String getName() {
-                if(cursed){
-                        return M.Cursed+" " + name + (nameSuffix != null ? nameSuffix : "");
-                }else{
-                        return (namePrefix != null ? namePrefix : "") + name + (nameSuffix != null ? nameSuffix : "");
-                }
+        public String getAbbrName() {
+                return name;
         }
 
         @Override

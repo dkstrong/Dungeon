@@ -16,7 +16,7 @@ public class ArmorItem extends EquipmentItem{
 
         @Override
         public String toString() {
-                return String.format("%s (%s)", getName(), armor);
+                return String.format("%s (%s)", getAbbrName(), armor);
         }
 
 }

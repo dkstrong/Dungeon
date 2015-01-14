@@ -994,7 +994,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         if (book.getType() == BookItem.Type.MagicMapping) {
                                 appendToGameLog("The layout of this floor has become revealed to you.");
                         } else {
-                                appendToGameLog("You just read " + item.getName());
+                                appendToGameLog("You just read " + item.getNameFromJournal(localPlayerToken));
                         }
 
                         if (out.targetItem != null || book.getType() == BookItem.Type.ExtraQuickSlot) {
@@ -1053,14 +1053,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 if (journalObject instanceof EquipmentItem) {
                         EquipmentItem item = (EquipmentItem) journalObject;
                         if (study) {
-                                this.appendToGameLog(String.format("You've used %s long enough that you now understand its secrets.", item.getName()));
+                                this.appendToGameLog(String.format("You've used %s long enough that you now understand its secrets.", item.getNameFromJournal(localPlayerToken)));
                         } else {
-                                this.appendToGameLog(String.format("You now understand the secrets of %s.", item.getName()));
+                                this.appendToGameLog(String.format("You now understand the secrets of %s.", item.getNameFromJournal(localPlayerToken)));
                         }
                 } else if (journalObject instanceof Item) {
                         Item item = (Item) journalObject;
                         if (study)
-                                this.appendToGameLog("You have identified " + item.getName());
+                                this.appendToGameLog("You have identified " + item.getNameFromJournal(localPlayerToken));
                 }
 
 

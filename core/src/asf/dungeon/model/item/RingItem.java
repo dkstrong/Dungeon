@@ -13,7 +13,7 @@ public class RingItem extends EquipmentItem{
 
         @Override
         public String toString() {
-                return getName();
+                return getAbbrName();
         }
 
 }

@@ -245,7 +245,7 @@ public class Dungeon {
 
         public Token newLootToken(FloorMap fm, Item item, int x, int y) {
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
-                Token t = new Token(this,  nextTokenId++, item.getName(), item.getModelId());
+                Token t = new Token(this,  nextTokenId++, item.getAbbrName(), item.getModelId());
                 t.add(new Loot(t, item));
                 moveToken(t, fm, x,y,t.direction);
                 return t;
