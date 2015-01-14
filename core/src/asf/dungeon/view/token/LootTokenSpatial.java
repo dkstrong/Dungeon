@@ -149,13 +149,13 @@ public class LootTokenSpatial extends AbstractTokenSpatial {
                 }
                 if(token.loot.isBeingThrown()){
                         if(current != dropped){
-                                animController.animate(idle.id, -1, 1, null, 0);
+                                animController.animate(idle, -1, 1, null, 0);
                                 current = dropped;
                                 visU = maxVisU;
                         }
                 }else if(current!= dropped){
-                        animController.animate(dropped.id, 1, 1, null, 0);
-                        animController.queue(idle.id,-1,1,null,.015f*dropped.duration);
+                        animController.animate(dropped, 1, 1, null, 0);
+                        animController.queue(idle,-1,1,null,.015f*dropped.duration);
                         current = dropped;
                 }
 

@@ -27,7 +27,7 @@ public class Command implements TokenComponent, Teleportable{
         protected Token targetItemToken;
         protected Item targetItem;
 
-        private Choice chatChoice;
+        private transient Choice chatChoice;
 
         public Command(Token token) {
                 this.token = token;
@@ -40,8 +40,7 @@ public class Command implements TokenComponent, Teleportable{
 
         @Override
         public void teleport(FloorMap fm, int x, int y, Direction direction) {
-                location.set(x,y);
-                targetToken = null;
+                setLocation(x,y);
         }
 
         @Override

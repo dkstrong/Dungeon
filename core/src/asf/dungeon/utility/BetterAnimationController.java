@@ -7,6 +7,11 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Pool;
 
 /**
+ * Used with BetterModelInstance
+ *
+ * uses the BetterModelInstance class as a target, also uses animation references instead of their
+ * string Ids when calling animations.
+ *
  * Created by Daniel Strong on 12/15/2014.
  */
 public class BetterAnimationController extends BetterBaseAnimationController {
@@ -178,7 +183,7 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param id The ID of the {@link Animation} within the {@link ModelInstance}.
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc setAnimation (final String id) {
+        public AnimationDesc setAnimation (final Animation id) {
                 return setAnimation(id, 1, 1.0f, null);
         }
 
@@ -188,7 +193,7 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          *           loop the animation.
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc setAnimation (final String id, int loopCount) {
+        public AnimationDesc setAnimation (final Animation id, int loopCount) {
                 return setAnimation(id, loopCount, 1.0f, null);
         }
 
@@ -197,7 +202,7 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param listener The {@link AnimationListener} which will be informed when the animation is looped or completed.
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc setAnimation (final String id, final AnimationListener listener) {
+        public AnimationDesc setAnimation (final Animation id, final AnimationListener listener) {
                 return setAnimation(id, 1, 1.0f, listener);
         }
 
@@ -208,7 +213,7 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param listener The {@link AnimationListener} which will be informed when the animation is looped or completed.
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc setAnimation (final String id, int loopCount, final AnimationListener listener) {
+        public AnimationDesc setAnimation (final Animation id, int loopCount, final AnimationListener listener) {
                 return setAnimation(id, loopCount, 1.0f, listener);
         }
 
@@ -222,7 +227,7 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param listener The {@link AnimationListener} which will be informed when the animation is looped or completed.
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc setAnimation (final String id, int loopCount, float speed, final AnimationListener listener) {
+        public AnimationDesc setAnimation (final Animation id, int loopCount, float speed, final AnimationListener listener) {
                 return setAnimation(id, 0f, -1f, loopCount, speed, listener);
         }
 
@@ -238,16 +243,11 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param listener The {@link AnimationListener} which will be informed when the animation is looped or completed.
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc setAnimation (final String id, float offset, float duration, int loopCount, float speed,
+        public AnimationDesc setAnimation (final Animation id, float offset, float duration, int loopCount, float speed,
                                            final AnimationListener listener) {
                 return setAnimation(obtain(id, offset, duration, loopCount, speed, listener));
         }
 
-        /** Set the active animation, replacing any current animation. */
-        protected AnimationDesc setAnimation (final Animation anim, float offset, float duration, int loopCount, float speed,
-                                              final AnimationListener listener) {
-                return setAnimation(obtain(anim, offset, duration, loopCount, speed, listener));
-        }
 
         /** Set the active animation, replacing any current animation. */
         protected AnimationDesc setAnimation (final AnimationDesc anim) {
@@ -272,7 +272,7 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param transitionTime The time to transition the new animation on top of the currently playing animation (if any).
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc animate (final String id, float transitionTime) {
+        public AnimationDesc animate (final Animation id, float transitionTime) {
                 return animate(id, 1, 1.0f, null, transitionTime);
         }
 
@@ -282,7 +282,7 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param transitionTime The time to transition the new animation on top of the currently playing animation (if any).
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc animate (final String id, final AnimationListener listener, float transitionTime) {
+        public AnimationDesc animate (final Animation id, final AnimationListener listener, float transitionTime) {
                 return animate(id, 1, 1.0f, listener, transitionTime);
         }
 
@@ -294,7 +294,7 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param transitionTime The time to transition the new animation on top of the currently playing animation (if any).
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc animate (final String id, int loopCount, final AnimationListener listener, float transitionTime) {
+        public AnimationDesc animate (final Animation id, int loopCount, final AnimationListener listener, float transitionTime) {
                 return animate(id, loopCount, 1.0f, listener, transitionTime);
         }
 
@@ -309,7 +309,7 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param transitionTime The time to transition the new animation on top of the currently playing animation (if any).
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc animate (final String id, int loopCount, float speed, final AnimationListener listener,
+        public AnimationDesc animate (final Animation id, int loopCount, float speed, final AnimationListener listener,
                                       float transitionTime) {
                 return animate(id, 0f, -1f, loopCount, speed, listener, transitionTime);
         }
@@ -327,15 +327,9 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param transitionTime The time to transition the new animation on top of the currently playing animation (if any).
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc animate (final String id, float offset, float duration, int loopCount, float speed,
+        public AnimationDesc animate (final Animation id, float offset, float duration, int loopCount, float speed,
                                       final AnimationListener listener, float transitionTime) {
                 return animate(obtain(id, offset, duration, loopCount, speed, listener), transitionTime);
-        }
-
-        /** Changes the current animation by blending the new on top of the old during the transition time. */
-        protected AnimationDesc animate (final Animation anim, float offset, float duration, int loopCount, float speed,
-                                         final AnimationListener listener, float transitionTime) {
-                return animate(obtain(anim, offset, duration, loopCount, speed, listener), transitionTime);
         }
 
         /** Changes the current animation by blending the new on top of the old during the transition time. */
@@ -373,7 +367,7 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param transitionTime The time to transition the new animation on top of the currently playing animation (if any).
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc queue (final String id, int loopCount, float speed, final AnimationListener listener, float transitionTime) {
+        public AnimationDesc queue (final Animation id, int loopCount, float speed, final AnimationListener listener, float transitionTime) {
                 return queue(id, 0f, -1f, loopCount, speed, listener, transitionTime);
         }
 
@@ -391,15 +385,9 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param transitionTime The time to transition the new animation on top of the currently playing animation (if any).
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc queue (final String id, float offset, float duration, int loopCount, float speed,
+        public AnimationDesc queue (final Animation id, float offset, float duration, int loopCount, float speed,
                                     final AnimationListener listener, float transitionTime) {
                 return queue(obtain(id, offset, duration, loopCount, speed, listener), transitionTime);
-        }
-
-        /** Queue an animation to be applied when the current is finished. If current is continuous it will be synced on next loop. */
-        protected AnimationDesc queue (final Animation anim, float offset, float duration, int loopCount, float speed,
-                                       final AnimationListener listener, float transitionTime) {
-                return queue(obtain(anim, offset, duration, loopCount, speed, listener), transitionTime);
         }
 
         /** Queue an animation to be applied when the current is finished. If current is continuous it will be synced on next loop. */
@@ -426,7 +414,7 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param transitionTime The time to transition the new animation on top of the currently playing animation (if any).
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc action (final String id, int loopCount, float speed, final AnimationListener listener,
+        public AnimationDesc action (final Animation id, int loopCount, float speed, final AnimationListener listener,
                                      float transitionTime) {
                 return action(id, 0, -1f, loopCount, speed, listener, transitionTime);
         }
@@ -444,15 +432,9 @@ public class BetterAnimationController extends BetterBaseAnimationController {
          * @param transitionTime The time to transition the new animation on top of the currently playing animation (if any).
          * @return The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation
          *         is completed. */
-        public AnimationDesc action (final String id, float offset, float duration, int loopCount, float speed,
+        public AnimationDesc action (final Animation id, float offset, float duration, int loopCount, float speed,
                                      final AnimationListener listener, float transitionTime) {
                 return action(obtain(id, offset, duration, loopCount, speed, listener), transitionTime);
-        }
-
-        /** Apply an action animation on top of the current animation. */
-        protected AnimationDesc action (final Animation anim, float offset, float duration, int loopCount, float speed,
-                                        final AnimationListener listener, float transitionTime) {
-                return action(obtain(anim, offset, duration, loopCount, speed, listener), transitionTime);
         }
 
         /** Apply an action animation on top of the current animation. */

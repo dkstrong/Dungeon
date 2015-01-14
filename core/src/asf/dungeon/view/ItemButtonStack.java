@@ -19,10 +19,10 @@ import com.badlogic.gdx.utils.SnapshotArray;
  */
 public class ItemButtonStack extends Stack implements DungeonWorld.LoadedNotifyable {
 
-        private Skin skin;
-        private HudSpatial hud;
+        private final Skin skin;
+        private final HudSpatial hud;
         private Item item;
-        private Button button;
+        private final Button button;
         private Image itemImage;
         private Table labelsTable;
         private boolean isQuickSlot = false;
@@ -36,6 +36,10 @@ public class ItemButtonStack extends Stack implements DungeonWorld.LoadedNotifya
                 button.addCaptureListener(hud);
                 button.setUserObject(this);
                 setItem( item);
+        }
+
+        public void setDisabled(boolean disabled){
+                button.setDisabled(disabled);
         }
 
         @Override

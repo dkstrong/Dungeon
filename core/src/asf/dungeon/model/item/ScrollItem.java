@@ -130,6 +130,12 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                                        out.didSomething = false;
                                 }
                         }
+
+                        if(out.didSomething){
+                                if(token.command.getTargetToken() == targetToken){
+                                        token.command.setLocation(token.location);
+                                }
+                        }
                 }else if(type == Type.Confusion){
                         // causes target to become confused, may attack other monsters
                         targetToken.statusEffects.add(StatusEffect.Confused, 20);

@@ -28,4 +28,8 @@ public abstract class AbstractItem implements Item{
                 return vagueDescription;
         }
 
+        @Override
+        public String toString() {
+                return name;
+        }
 }

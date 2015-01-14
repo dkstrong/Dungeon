@@ -231,25 +231,26 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 //inventoryWindow.debugAll();
                 {
 
-                        inputModeLabel = new Label("Inventory and Stats", skin);
+                        inputModeLabel = new Label("Inventory", skin);
 
                         inputModeCancelButton = new Button(skin);
                         inputModeCancelButton.add(new Label("Cancel", skin));
                         inputModeCancelButton.addCaptureListener(this);
 
+                        final int numCols = 2;
                         inputModeHorizontalGroup = new HorizontalGroup();
                         inputModeHorizontalGroup.addActor(inputModeLabel);
-                        inventoryWindow.add(inputModeHorizontalGroup).colspan(3);
+                        inventoryWindow.add(inputModeHorizontalGroup).colspan(numCols);
 
                         inventoryWindow.row();
                         inventoryWindow.add(equipmentTable).fill().expand();
                         inventoryWindow.add(backPackTable).fill().expand();
 
-                        Label descriptionLabel = new Label("Hero Stats", skin);
-                        descriptionLabel.setWrap(true);
-                        ScrollPane scrollPane = new ScrollPane(descriptionLabel, skin);
-                        scrollPane.setUserObject("Hero Stats");
-                        inventoryWindow.add(scrollPane).fill().expand();
+                        //Label descriptionLabel = new Label("Hero Stats", skin);
+                        //descriptionLabel.setWrap(true);
+                        //ScrollPane scrollPane = new ScrollPane(descriptionLabel, skin);
+                        //scrollPane.setUserObject("Hero Stats");
+                        //inventoryWindow.add(scrollPane).fill().expand();
 
 
                         inventoryWindow.row();
@@ -263,7 +264,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         setInventoryWindowVisible(false);
                                 }
                         });
-                        inventoryWindow.add(closeButton).colspan(3);
+                        inventoryWindow.add(closeButton).colspan(numCols);
                 }
 
 
@@ -677,38 +678,41 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         }
                 }
 
-                StringBuilder sb = heroStatsLabel.getText();
-                sb.setLength(0);
-                Damage damage = localPlayerToken.get(Damage.class);
-                Experience experience = localPlayerToken.get(Experience.class);
-                sb.append(localPlayerToken.name).append("\n").append("Level ").append(localPlayerToken.experience.getLevel()).append("\n\n");
-                sb.append("HP: ").append(damage.getHealth()).append(" / ").append(damage.getMaxHealth()).append("\n\n");
+                if(heroStatsLabel != null){
+                        StringBuilder sb = heroStatsLabel.getText();
+                        sb.setLength(0);
+                        Damage damage = localPlayerToken.get(Damage.class);
+                        Experience experience = localPlayerToken.get(Experience.class);
+                        sb.append(localPlayerToken.name).append("\n").append("Level ").append(localPlayerToken.experience.getLevel()).append("\n\n");
+                        sb.append("HP: ").append(damage.getHealth()).append(" / ").append(damage.getMaxHealth()).append("\n\n");
 
-                String vit = experience.getVitalityBase() + (experience.getVitalityMod() > 0 ? " + " + experience.getVitalityMod() : "");
-                String str = experience.getStrengthBase() + (experience.getStrengthMod() > 0 ? " + " + experience.getStrengthMod() : "");
-                String agi = experience.getAgilityBase() + (experience.getAgilityMod() > 0 ? " + " + experience.getAgilityMod() : "");
-                String inte = experience.getIntelligenceBase() + (experience.getIntelligenceMod() > 0 ? " + " + experience.getIntelligenceMod() : "");
-                String lck = experience.getLuckBase() + (experience.getLuckMod() > 0 ? " + " + experience.getLuckMod() : "");
+                        String vit = experience.getVitalityBase() + (experience.getVitalityMod() > 0 ? " + " + experience.getVitalityMod() : "");
+                        String str = experience.getStrengthBase() + (experience.getStrengthMod() > 0 ? " + " + experience.getStrengthMod() : "");
+                        String agi = experience.getAgilityBase() + (experience.getAgilityMod() > 0 ? " + " + experience.getAgilityMod() : "");
+                        String inte = experience.getIntelligenceBase() + (experience.getIntelligenceMod() > 0 ? " + " + experience.getIntelligenceMod() : "");
+                        String lck = experience.getLuckBase() + (experience.getLuckMod() > 0 ? " + " + experience.getLuckMod() : "");
 
-                sb.append("Vit: ").append(vit).append("\n");
-                sb.append("Str: ").append(str).append("\n");
-                sb.append("Agi: ").append(agi).append("\n");
-                sb.append("Int: ").append(inte).append("\n");
-                sb.append("Luck: ").append(lck).append("\n");
+                        sb.append("Vit: ").append(vit).append("\n");
+                        sb.append("Str: ").append(str).append("\n");
+                        sb.append("Agi: ").append(agi).append("\n");
+                        sb.append("Int: ").append(inte).append("\n");
+                        sb.append("Luck: ").append(lck).append("\n");
 
 
-                sb.append("\n");
+                        sb.append("\n");
 
-                StatusEffects statusEffets = localPlayerToken.get(StatusEffects.class);
-                if (statusEffets.has(StatusEffect.Paralyze)) {
-                        sb.append("You are paralyzed\n");
+                        StatusEffects statusEffets = localPlayerToken.get(StatusEffects.class);
+                        if (statusEffets.has(StatusEffect.Paralyze)) {
+                                sb.append("You are paralyzed\n");
+                        }
+
+                        if (statusEffets.has(StatusEffect.Poison)) {
+                                sb.append("You are poisoned\n");
+                        }
+
+                        heroStatsLabel.invalidateHierarchy();
                 }
 
-                if (statusEffets.has(StatusEffect.Poison)) {
-                        sb.append("You are poisoned\n");
-                }
-
-                heroStatsLabel.setText(sb);
 
 
                 //
@@ -1150,18 +1154,17 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         // I call this the frankenloop, it iterates over both equipment and backpack buttons to check if they can be used with the user selected item
                         while (i < n || p) {
                                 Actor actor = p ? equipmentChildren.get(i) : backpackChildren.get(i);
-                                if (actor instanceof Button) {
-                                        Button button = (Button) actor;
-                                        Object uo = button.getUserObject();
+                                if (actor instanceof ItemButtonStack) {
+                                        ItemButtonStack button = (ItemButtonStack) actor;
+                                        Item targetItem = button.getItem();
                                         boolean validItem;
-                                        if (uo instanceof Item) {
-                                                Item targetItem = (Item) uo;
+                                        if (targetItem!= null) {
                                                 validItem = itemSelectForItem.canConsume(localPlayerToken, targetItem);
                                         } else {
                                                 validItem = false;
                                         }
                                         if (validItem) numValid++;
-                                        button.setVisible(validItem);
+                                        button.setVisible(validItem); // TODO: instead of making button invisible, make it "greyed out"
                                         button.setDisabled(!validItem);
                                 }
                                 i++;
@@ -1203,8 +1206,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         // the return of the frrrannkeeenloooop
                         while (i < n || p) {
                                 Actor actor = p ? equipmentChildren.get(i) : backpackChildren.get(i);
-                                if (actor instanceof Button) {
-                                        Button button = (Button) actor;
+                                if (actor instanceof ItemButtonStack) {
+                                        ItemButtonStack button = (ItemButtonStack) actor;
                                         button.setVisible(true);
                                         button.setDisabled(false);
                                 }

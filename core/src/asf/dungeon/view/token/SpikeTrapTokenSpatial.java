@@ -107,7 +107,7 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
 
         @Override
         public void onSpikeTrapHidden() {
-                animController.animate("Idle", 1, 1, null, 0);
+                animController.animate(modelInstance.getAnimation("Idle"), 1, 1, null, 0);
                 revealed =false;
         }
 
@@ -115,14 +115,14 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
         public void onSpikeTrapTriggered() {
                 // TODO: need to slow down the nimation some in the model, for now i wil ljust run it at a lower speed
                 // TODO: Spike Trap model also needs to be changed to have 9 larger spikes instead of 16 smaller ones, as it is now its hard to see on android
-                animController.animate("Activate", 1, .85f, null, 0);
+                animController.animate(modelInstance.getAnimation("Activate"), 1, .85f, null, 0);
                 revealed =true;
                 visU = .85f;
         }
 
         @Override
         public void onSpikeTrapDefused() {
-                animController.animate("Idle", 1, 1, null, 0);
+                animController.animate(modelInstance.getAnimation("Idle"), 1, 1, null, 0);
                 revealed =true;
                 visU = .85f;
         }

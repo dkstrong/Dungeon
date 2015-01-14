@@ -86,7 +86,10 @@ public enum Monster implements State {
 
                 @Override
                 public void update(FsmLogic fsm, Token token, Command command, float delta) {
-                        if (fsm.target.statusEffects == null || !fsm.target.statusEffects.has(StatusEffect.LuresMonsters)) {
+                        if(fsm.target == null){
+                                fsm.setState(Sleep);
+                                return;
+                        }else if (fsm.target.statusEffects == null || !fsm.target.statusEffects.has(StatusEffect.LuresMonsters)) {
                                 fsm.setState(Explore);
                                 return;
                         }
@@ -107,7 +110,10 @@ public enum Monster implements State {
 
                         if (checkForConfused(fsm, token, command))
                                 return;
-                        if (!fsm.target.damage.isAttackable()) {
+                        if(fsm.target == null){
+                                fsm.setState(Sleep);
+                                return;
+                        }else if (!fsm.target.damage.isAttackable()) {
                                 fsm.setState(Explore);
                         } else if (!token.attack.isOnAttackCooldown()) {
                                 fsm.setState(Chase);
@@ -136,7 +142,10 @@ public enum Monster implements State {
 
                 @Override
                 public void update(FsmLogic fsm, Token token, Command command, float delta) {
-                        if (!fsm.target.damage.isAttackable()) {
+                        if(fsm.target == null){
+                                fsm.setState(Sleep);
+                                return;
+                        }else if (!fsm.target.damage.isAttackable()) {
                                 fsm.setState(Explore);
                                 return;
                         }

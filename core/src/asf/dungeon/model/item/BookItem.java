@@ -131,7 +131,7 @@ public class BookItem extends AbstractItem implements ConsumableItem.TargetsItem
                 }else if(type == Type.RemoveCurse){
                         if(targetItem instanceof EquipmentItem){
                                 EquipmentItem equipment = (EquipmentItem ) targetItem;
-                                return equipment.cursed;
+                                return equipment.cursed && (token.inventory.isEquipped(equipment) || equipment.isIdentified(token));
                         }
                 }
                 return false;

@@ -4,6 +4,7 @@ import asf.dungeon.model.Direction;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.item.WeaponItem;
+import asf.dungeon.model.token.SpikeTrap;
 import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
@@ -146,7 +147,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 if (monsterTrap == null) monsterTrap = idle;
 
                 if(token.monsterTrap != null)
-                        animController.animate(monsterTrap.id, -1, 0f, null, 0.3f);
+                        animController.animate(monsterTrap, -1, 0f, null, 0.3f);
 
                 // check to see if token spawned with status effects already on, if so then shot their Fx and hud information
                 if (token.statusEffects != null) {
@@ -305,85 +306,89 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
         private void updateIfNotFogBlocked(float delta) {
 
-                if (token.damage != null && token.damage.isDead()) {
+                if (token.damage.isDead()) {
                         if (current != die) {
-                                animController.animate(die.id, 1, 1, null, .2f); // die.duration / token.damage.getDeathDuration()
+                                animController.animate(die, 1, 1, null, .2f); // die.duration / token.damage.getDeathDuration()
                                 current = die;
                                 world.sounds.play(token.damage.getDeathSfx());
                         }
 
                 } else if (token.attack != null && token.attack.isAttacking()) {
                         if (current != attack) {
-                                animController.animate(attack.id, 1, attack.duration / token.attack.getWeapon().attackDuration, null, .2f);
+                                animController.animate(attack, 1, attack.duration / token.attack.getWeapon().attackDuration, null, .2f);
                                 if (weaponAnimController != null)
-                                        weaponAnimController.animate(weaponAttackAnim.id, 1, weaponAttackAnim.duration / token.attack.getWeapon().attackDuration, null, .2f);
+                                        weaponAnimController.animate(weaponAttackAnim, 1, weaponAttackAnim.duration / token.attack.getWeapon().attackDuration, null, .2f);
                                 if(token.attack.getWeapon().projectileFx != null){
                                         world.fxManager.spawnProjectile(token.attack.getWeapon().projectileFx, token, token.attack.getAttackTarget());
                                 }
 
                                 current = attack;
                         }
-                } else if (token.damage != null && token.damage.isHit()) {
+                } else if (token.damage.isHit()) {
                         if (current != hit) {
                                 if (world.hudSpatial.localPlayerToken == token) {
                                         world.hudSpatial.setMapViewMode(false); // if being attacked, force out of map view mode to make it easier to respond
                                 }
 
-                                if (hit == null) {
-                                        throw new Error(token.name);
+                                if(token.damage.getHitSource().get(SpikeTrap.class) != null ){
+                                        animController.animate(hit, .75f, -1,1, hit.duration/ (token.damage.getHitDuration()+0.75f),null,0.2f);
+                                }else{
+                                        animController.animate(hit, 1, hit.duration / token.damage.getHitDuration(), null, .2f);
                                 }
-                                animController.animate(hit.id, 1, hit.duration / token.damage.getHitDuration(), null, .2f);
                                 current = hit;
                                 world.sounds.play(token.damage.getHitSfx());
                         }
-                } else if (token.inventory != null && token.inventory.isKeyTurn()) {
+                } else if (token.inventory.isKeyTurn()) {
                         if (current != keyTurn) {
-                                animController.animate(keyTurn.id, 1, 1f, null, 0.3f);
+                                animController.animate(keyTurn, 1, 1f, null, 0.3f);
                                 current = keyTurn;
                         }
                 } else if (token.move.isPushingBoulder()) {
                         if (current != rockPush) {
-                                animController.animate(rockPush.id, -1, 1, null, 0.3f);
+                                animController.animate(rockPush, 1, null, 0.3f);
                                 current = rockPush;
                         }
-                } else if (token.move != null && token.move.isMoving() && !(token.attack != null && token.attack.isInRangeOfAttackTarget())) {
-                        if (token.statusEffects.has(StatusEffect.Speed)) { // TODO: may be excesive checking for Speed
+                }else if (token.statusEffects.has(StatusEffect.Paralyze)) {
+                        if (current != dazed) {
+                                animController.animate(dazed, -1, 1f, null, 0.3f);
+                                current = dazed;
+                        }
+                }else  if (token.statusEffects.has(StatusEffect.Frozen)) {
+                        if (current != dazed) {
+                                animController.animate(dazed, -1, 0, null, 0.3f);
+                                current = dazed;
+                        }
+                } else if(token.move.isMoving() && (token.attack == null || !token.attack.isInRangeOfAttackTarget())){
+                        if (token.statusEffects.has(StatusEffect.Speed)) {
                                 if (current != sprint) {
                                         float v = UtMath.scalarLimitsInterpolation(token.move.getMoveSpeed(), 1, 10, .91f, 1.25f);
-                                        animController.animate(sprint.id, -1, v, null, 0.3f);
+                                        animController.animate(sprint, -1, v, null, 0.3f);
                                         current = sprint;
                                 }
                         } else {
                                 if (current != walk) {
                                         float v = UtMath.scalarLimitsInterpolation(token.move.getMoveSpeed(), 1, 10, 1f, 1.5f);
-                                        animController.animate(walk.id, -1, v, null, 0.3f);
+                                        animController.animate(walk, -1, v, null, 0.3f);
                                         current = walk;
                                 }
                         }
-                } else {
-
-                        if (token.statusEffects.has(StatusEffect.Paralyze)) {
-                                if (current != dazed) {
-                                        animController.animate(dazed.id, -1, 1f, null, 0.3f);
-                                        current = dazed;
+                }else{
+                        if(token.monsterTrap == null || token.monsterTrap.isAwake()){
+                                if (current != idle) {
+                                        animController.animate(idle, -1, 1f, null, 0.3f);
+                                        current = idle;
                                 }
-                        } else {
-                                if(token.monsterTrap == null || token.monsterTrap.isAwake()){
-                                        if (current != idle) {
-                                                animController.animate(idle.id, -1, 1f, null, 0.3f);
-                                                current = idle;
-                                        }
-                                }else{
-                                        if(token.monsterTrap.isTriggered() && current != monsterTrap){
-                                                animController.animate(monsterTrap.id, 1, 1f, null, 0.3f);
-                                                animController.queue(idle.id, -1, 1f, null, 03f);
-                                                current = monsterTrap;
-                                        }
+                        }else{
+                                if(token.monsterTrap.isTriggered() && current != monsterTrap){
+                                        animController.animate(monsterTrap, 1, 1f, null, 0.3f);
+                                        animController.queue(idle, -1, 1f, null, 03f);
+                                        current = monsterTrap;
                                 }
-
                         }
-
                 }
+
+
+
 
 
                 if (token.damage != null && !token.damage.isDead() && token.attack != null && token.attack.isAttackingRanged()) {

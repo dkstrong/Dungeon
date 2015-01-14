@@ -132,17 +132,28 @@ public class DungeonLoader {
                         token.inventory.add(potion);
                         //token.inventory.equip(potion);
 
-                        BookItem book = new BookItem(dungeon, BookItem.Type.MagicMapping);
+                        BookItem book = new BookItem(dungeon, BookItem.Type.Identify);
                         token.inventory.add(book);
+                        book.identifyItem(token);
 
-                        book = new BookItem(dungeon, BookItem.Type.MagicMapping);
+                        book = new BookItem(dungeon, BookItem.Type.Identify);
                         token.inventory.add(book);
+                        book.identifyItem(token);
+
+                        book = new BookItem(dungeon, BookItem.Type.RemoveCurse);
+                        token.inventory.add(book);
+                        book.identifyItem(token);
+
+                        book = new BookItem(dungeon, BookItem.Type.RemoveCurse);
+                        token.inventory.add(book);
+                        book.identifyItem(token);
+
 
                         PotionItem health = new PotionItem(dungeon, PotionItem.Type.Speed, 4);
                         health.identifyItem(token);
                         token.inventory.add(health);
 
-                        PotionItem paralyze = new PotionItem(dungeon, PotionItem.Type.Paralyze, 4);
+                        PotionItem paralyze = new PotionItem(dungeon, PotionItem.Type.Health, 4);
                         paralyze.identifyItem(token);
                         token.inventory.add(paralyze);
 
@@ -189,7 +200,7 @@ public class DungeonLoader {
 
                                 WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
                                 token.inventory.add(sword);
-                                //sword.cursed = true;
+                                sword.cursed = true;
                                 //sword.identifyItem(token);
 
                                 WeaponItem bow = new WeaponItem(dungeon,  2,2,1, true,3,1);

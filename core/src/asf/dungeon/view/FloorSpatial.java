@@ -537,11 +537,11 @@ public class FloorSpatial implements Spatial {
                 @Override
                 protected void render(FloorSpatial floor, float delta) {
                         if(tile.isDoorOpened() && !animToggle){
-                                animController.setAnimation("Open",1,1,this);
+                                animController.setAnimation(modelInstance.getAnimation("Open"),1,1,this);
                                 animController.paused = false;
                                 animToggle = true;
                         }else if(!tile.isDoorOpened() && animToggle){
-                                animController.setAnimation("Open",1,-1,this);
+                                animController.setAnimation(modelInstance.getAnimation("Open"),1,-1,this);
                                 animController.paused = false;
                                 animToggle = false;
                         }
