@@ -36,21 +36,6 @@ public class DesktopLauncher implements DungeonApp.Resolver{
 	}
         private static DungeonApp dungeonApp;
 
-        @Override
-        public int getInterstitialAdState() {
-                return 0;
-        }
-
-        @Override
-        public void loadInterstitialAd() {
-
-        }
-
-        @Override
-        public void showInterstitialAd() {
-
-        }
-
         private DesktopDebugSession debugSession;
 
         @Override
