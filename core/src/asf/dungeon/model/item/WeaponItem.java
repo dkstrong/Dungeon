@@ -89,7 +89,6 @@ public class WeaponItem extends EquipmentItem{
         public WeaponItem(String name, int damage, float attackDuration, float attackCooldown, boolean bow, float range, float projectileSpeed){
                 this.name = name;
                 description = name;
-                vagueName = name;
                 vagueDescription = description;
                 this.damage = damage;
                 this.attackDuration = attackDuration;

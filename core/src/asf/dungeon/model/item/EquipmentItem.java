@@ -1,5 +1,6 @@
 package asf.dungeon.model.item;
 
+import asf.dungeon.model.M;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.token.Journal;
 import asf.dungeon.model.token.Token;
@@ -10,9 +11,9 @@ import asf.dungeon.model.token.Token;
 public abstract class EquipmentItem implements Item {
 
         public ModelId modelId;
-        public String name;
+        public String name, namePrefix, nameSuffix;
         public String description;
-        public String vagueName, vagueDescription;
+        public String vagueDescription;
         /**
          *
          * @return how complex the item is / how long it takes to manually identify it.
@@ -36,43 +37,36 @@ public abstract class EquipmentItem implements Item {
 
         @Override
         public String getName() {
-                return name;
+                if(cursed){
+                        return M.Cursed+" " + name + (nameSuffix != null ? nameSuffix : "");
+                }else{
+                        return (namePrefix != null ? namePrefix : "") + name + (nameSuffix != null ? nameSuffix : "");
+                }
         }
-
-        @Override
-        public String getDescription() {
-                return description;
-        }
-
-        @Override
-        public String getVagueName() {
-                return vagueName;
-        }
-
-        @Override
-        public String getVagueDescription() {return vagueDescription; }
 
         @Override
         public String getNameFromJournal(Token token) {
                 boolean identified = isIdentified(token);
-                String cursedMessage;
-                if(cursed && (identified || token.inventory.isEquipped(this))) cursedMessage = token.dungeon.m.Cursed+" ";
-                else cursedMessage="";
+                String actualPrefix;
 
-                if (identified) return cursedMessage+getName();
-                return cursedMessage+getVagueName();
+                if(cursed && (identified || token.inventory.isEquipped(this))) actualPrefix = M.Cursed+" ";
+                else actualPrefix= identified && namePrefix != null ? namePrefix : "";
+
+                if (identified) return actualPrefix+name+(nameSuffix != null ? nameSuffix : "");
+                return actualPrefix+name;
         }
 
         @Override
         public String getDescriptionFromJournal(Token token) {
                 boolean identified = isIdentified(token);
                 String cursedMessage;
+
                 if(cursed && token.inventory.isEquipped(this)) cursedMessage = "\n\n"+token.dungeon.m.CursedEquippedDesc;
                 else if(cursed && identified) cursedMessage = "\n\n"+token.dungeon.m.CursedDesc;
-                else cursedMessage="";
+                else cursedMessage= identified ? "" : "\n\nThis item is not identified.";
 
-                if (isIdentified(token)) return getDescription()+cursedMessage;
-                return getVagueDescription()+cursedMessage;
+                if (identified) return description+cursedMessage;
+                return vagueDescription+cursedMessage;
         }
 
         @Override

@@ -9,10 +9,14 @@ import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.WeaponItem;
 
 /**
+ * There is still lots of work to do, but this class will eventually contain all gameplay messages and the code
+ * that generates them.
+ *
  * Created by Danny on 11/22/2014.
  */
 public class M {
-        public final transient String Cursed="Cursed";
+        public static final transient String Unidentified = "Unidentified";
+        public static final transient String Cursed="Cursed";
         public final transient String CursedDesc = "This item is cursed.";
 
         private DungeonRand rand;
@@ -27,6 +31,12 @@ public class M {
                         "This item is cursed and you are powerless to remove it.",
                         "The curse on this equipment prevents you from removing it."
                 );
+        }
+
+        private static String asSuffix(String suffixAdjective, String suffixNoun){
+                if(suffixNoun == null) return null;
+                if(suffixAdjective == null) return " of "+suffixNoun;
+                return " of "+suffixAdjective +" "+suffixNoun;
         }
 
         public void generateNameDesc(KeyItem key){
@@ -62,20 +72,28 @@ public class M {
                         if(weapon.bow){
                                 weapon.modelId = ModelId.Bow_01;
                                 weapon.projectileFx = FxId.Arrow;
-                                weapon.name = "Bow";
+                                //weapon.namePrefix = rand.choose("Archer's","Worn","Ancient","Recursive", "Reflex", "Wooden", "Extant", "Hunting")+" ";
+                                weapon.name = rand.choose("Bow","Longbow","Shortbow", "Flatbow");
+                                //weapon.nameSuffix = M.asSuffix(rand.choose("Shiny","Bold","Edged","Black"), rand.choose("Darkness","Goodness", "Shards"));
                                 weapon.description ="A sturdy bow.";
                         }else{
                                 weapon.modelId = ModelId.StaffLarge;
                                 weapon.projectileFx = FxId.PlasmaBall;
-                                weapon.name = "Staff";
+                                //weapon.namePrefix = rand.choose("Mages's","Great","Ancient","Good","Well built","Powerful","Sturdy")+" ";
+                                weapon.name = rand.choose("Staff","Cane","Stave", "Wand","Pole","Rod");
+                                //weapon.nameSuffix = M.asSuffix(rand.choose("Illusive","Bold","Light","Black"), rand.choose("Trickery","Superstition","Sorvery","Devilry","Wizardry", "Magic"));
                                 weapon.description = "A magical staff.";
                         }
                 }else{
+
+                        //String adjBad = rand.choose("Weak","Pathetic","Rusted","Dull","Uninteresting");
                         weapon.modelId = ModelId.Sword_01;
-                        weapon.name = "Sword";
+                        //weapon.namePrefix = rand.choose("Strong","Sturdy","Sharp", "Clean")+" ";
+                        weapon.name = rand.choose("Blade","Saber","Sword","Broadsword","Longsword","Claymore","Cutlas","Creese","Rapier", "Scimitar","Falchion");
+                        //weapon.nameSuffix = M.asSuffix(rand.choose("Glowing","Bold","Edged","Black"), rand.choose("Darkness","Steel", "Iron","Shards"));
+
                         weapon.description = "A basic sword.";
                 }
-                weapon.vagueName = "Unidentified Weapon";
                 weapon.vagueDescription = "A mysterious weapon, who knows what it will do once equipped?";
         }
 
@@ -83,7 +101,6 @@ public class M {
                 armor.modelId = ModelId.SwordLarge;
                 armor.name = "Armor";
                 armor.description = "Some armor";
-                armor.vagueName = "Unidentified Armor";
                 armor.vagueDescription = "Mysterious armor, who knows what it will do once equipped?";
         }
 
@@ -91,7 +108,6 @@ public class M {
                 ring.modelId = ModelId.SwordLarge;
                 ring.name = "Ring";
                 ring.description = "A ring";
-                ring.vagueName = "Unidentified Ring";
                 ring.vagueDescription = "A mysterious ring, who knows what it will do once equipped?";
         }
 

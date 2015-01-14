@@ -128,7 +128,7 @@ public class DungeonWorld implements Dungeon.Listener, Disposable {
                 } else {
                         dungeon = DungeonLoader.createDungeon(settings);
                         dungeon.setListener(this);
-                        saveDungeon();
+                        //saveDungeon();
                 }
 
 

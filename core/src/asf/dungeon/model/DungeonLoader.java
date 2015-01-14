@@ -182,7 +182,6 @@ public class DungeonLoader {
                                 token.inventory.add(staff);
                         } else if (settings.playerModel == ModelId.Mage) {
                                 WeaponItem staff = new WeaponItem(dungeon, 3,2,1,false,3,1);
-                                staff.cursed = true;
                                 staff.identifyItem(token);
 
                                 token.inventory.add(staff);
@@ -190,11 +189,12 @@ public class DungeonLoader {
 
                                 WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
                                 token.inventory.add(sword);
-                                token.get(Journal.class).learn(sword);
+                                //sword.cursed = true;
+                                //sword.identifyItem(token);
 
                                 WeaponItem bow = new WeaponItem(dungeon,  2,2,1, true,3,1);
                                 token.inventory.add(bow);
-                                token.get(Journal.class).learn(bow);
+                                //bow.identifyItem(token);
 
                         } else if (settings.playerModel == ModelId.Priest) {
                                 WeaponItem sword = new WeaponItem(dungeon, 3,2,1);

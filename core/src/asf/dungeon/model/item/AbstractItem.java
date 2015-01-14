@@ -9,7 +9,6 @@ public abstract class AbstractItem implements Item{
 
         public String name;
         public String description;
-
         public String vagueName, vagueDescription;
 
         @Override
@@ -18,26 +17,15 @@ public abstract class AbstractItem implements Item{
         }
 
         @Override
-        public String getDescription() {
-                return description;
-        }
-
-        @Override
-        public String getVagueName() { return vagueName; }
-
-        @Override
-        public String getVagueDescription() { return vagueDescription; }
-
-        @Override
         public String getNameFromJournal(Token token) {
-                if (isIdentified(token)) return getName();
-                return getVagueName();
+                if (isIdentified(token)) return name;
+                return vagueName;
         }
 
         @Override
         public String getDescriptionFromJournal(Token token) {
-                if (isIdentified(token)) return getDescription();
-                return getVagueDescription();
+                if (isIdentified(token)) return description;
+                return vagueDescription;
         }
 
 }

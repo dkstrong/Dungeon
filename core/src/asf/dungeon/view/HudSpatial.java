@@ -790,20 +790,26 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 Label discardLabel = (Label) itemWindowDiscardButton.getChildren().get(0);
 
                 if (item instanceof EquipmentItem ) {
-                        if (!localPlayerToken.inventory.canChangeEquipment() || ((EquipmentItem) item).cursed) {
-                                if(!localPlayerToken.inventory.canChangeEquipment())
-                                        description.append("\n\nYou can not change Equipment during battle.");
-                                // cursed message is already added on the equipment description..
+                        if(!localPlayerToken.inventory.canChangeEquipment()){
+                                description.append("\n\nYou can not change Equipment during battle.");
                                 useLabel.setText("");
                                 discardLabel.setText("");
                                 itemWindowUseButton.setDisabled(true);
                                 itemWindowDiscardButton.setDisabled(true);
-                        } else if (localPlayerToken.inventory.isEquipped(item)) {
-                                useLabel.setText("Unequip");
-                                discardLabel.setText("Throw");
-                                itemWindowUseButton.setDisabled(false);
-                                itemWindowDiscardButton.setDisabled(false);
-                        } else {
+                        }else if(localPlayerToken.inventory.isEquipped(item)){
+                                if(((EquipmentItem) item).cursed){
+                                        // cant unequip cursed item
+                                        useLabel.setText("");
+                                        discardLabel.setText("");
+                                        itemWindowUseButton.setDisabled(true);
+                                        itemWindowDiscardButton.setDisabled(true);
+                                }else{
+                                        useLabel.setText("Unequip");
+                                        discardLabel.setText("Throw");
+                                        itemWindowUseButton.setDisabled(false);
+                                        itemWindowDiscardButton.setDisabled(false);
+                                }
+                        }else{
                                 useLabel.setText("Equip");
                                 discardLabel.setText("Throw");
                                 itemWindowUseButton.setDisabled(false);
