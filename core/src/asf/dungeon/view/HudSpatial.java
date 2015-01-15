@@ -412,13 +412,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         graphicsWidth * .5f,
                         buttonSize * .25f);
 
-                float windowWidth = graphicsWidth * .85f;
-                float windowHeight = Gdx.graphics.getHeight() - 15 - 15;
+
+                float windowHeight = graphicsHeight - 35 - 35;
                 float windowButtonSize = windowHeight * (1 / 5f);
+                float windowWidth = windowButtonSize * 6.5f;
                 float windowCloseButtonSize = windowButtonSize * .5f;
                 inventoryWindow.setBounds(
                         (graphicsWidth - windowWidth) * .5f,
-                        ((graphicsHeight - windowHeight) * .5f),
+                        (graphicsHeight - windowHeight) * .5f,
                         windowWidth,
                         windowHeight);
 
@@ -848,6 +849,16 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         private void setInventoryWindowVisible(boolean visible) {
+                if(!visible && itemSelectMode){
+                        // if in item select mode when closing window, then end item select mode
+                        if(itemSelectForItem.isIdentified(localPlayerToken)){
+                                this.setItemSelectMode(null);
+                        }else{
+                                // if the item select mode is for an unidentifed item, the window cant be
+                                // closed and the item must be used.
+                              return;
+                        }
+                }
 
                 setHudElementsVisible(!visible);
                 if (visible) {
@@ -1239,7 +1250,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         } else
                                 inputModeCancelButton.remove();
                 } else {
-                        inputModeLabel.setText("Inventory and Stats");
+                        inputModeLabel.setText("Inventory");
                         inputModeCancelButton.remove();
                 }
         }

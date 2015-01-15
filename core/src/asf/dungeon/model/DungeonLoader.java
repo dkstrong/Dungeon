@@ -127,8 +127,8 @@ public class DungeonLoader {
                         //token.inventory.add(new KeyItem(KeyItem.Type.Gold));
                         //token.inventory.add(new KeyItem(KeyItem.Type.Red));
 
-                        ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 4);
-                        potion.identifyItem(token);
+                        ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 1);
+                        //potion.identifyItem(token);
                         token.inventory.add(potion);
                         //token.inventory.equip(potion);
 
@@ -142,11 +142,11 @@ public class DungeonLoader {
 
                         book = new BookItem(dungeon, BookItem.Type.RemoveCurse);
                         token.inventory.add(book);
-                        book.identifyItem(token);
+                        //book.identifyItem(token);
 
                         book = new BookItem(dungeon, BookItem.Type.RemoveCurse);
                         token.inventory.add(book);
-                        book.identifyItem(token);
+                        //book.identifyItem(token);
 
 
                         PotionItem health = new PotionItem(dungeon, PotionItem.Type.Speed, 4);
@@ -185,6 +185,7 @@ public class DungeonLoader {
                                 token.inventory.equip(bow);
 
                                 WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
+                                sword.cursed = true;
                                 token.inventory.add(sword);
                                 token.get(Journal.class).learn(sword);
 
