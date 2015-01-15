@@ -25,18 +25,25 @@ public class PerspectiveCamControl implements CamControl{
         private int dragX = -1, dragY;
 
         public PerspectiveCamControl() {
+
                 cam = new PerspectiveCamera(50, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); // 67
                 cam.position.set(-15f, 35f, 15f);  //cam.position.set(0f, 25f, 15f);
                 cam.lookAt(0, 0, 0);
                 cam.near = 1f;
                 cam.far = 100f;
-                cam.update();
+                resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
                 chaseCamOffset.set(cam.position);
+
         }
 
         public void resize(int width, int height){
                 cam.viewportWidth = width;
                 cam.viewportHeight = height;
+                cam.fieldOfView = 50;
+                if(height>width){
+                        cam.fieldOfView = 65; // TODO: better calculate the fov
+                }
+
                 cam.update();
         }
 

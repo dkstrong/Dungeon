@@ -41,14 +41,17 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
@@ -94,7 +97,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private Table inventoryWindow;
         private HorizontalGroup inputModeHorizontalGroup;
         private Label inputModeLabel;
-        private Button inputModeCancelButton;
+        private Button inputModeCancelButton, inventoryCloseButton;
         private Table equipmentTable, backPackTable;
         private final Array<ItemButtonStack> inventoryEquipmentButtons = new Array<ItemButtonStack>(true, 6, ItemButtonStack.class);
         private final Array<ItemButtonStack> inventoryBackPackButtons = new Array<ItemButtonStack>(true, 16, ItemButtonStack.class);
@@ -237,12 +240,31 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         inputModeCancelButton.add(new Label("Cancel", skin));
                         inputModeCancelButton.addCaptureListener(this);
 
-                        final int numCols = 2;
                         inputModeHorizontalGroup = new HorizontalGroup();
                         inputModeHorizontalGroup.addActor(inputModeLabel);
-                        inventoryWindow.add(inputModeHorizontalGroup).colspan(numCols);
 
-                        inventoryWindow.row();
+                        Container<HorizontalGroup> inputModeContainer = new Container<HorizontalGroup>(inputModeHorizontalGroup);
+                        inputModeContainer.align(Align.bottom);
+
+                        inventoryCloseButton = new Button(skin);
+                        inventoryCloseButton.add("Close");
+                        inventoryCloseButton.addCaptureListener(new ChangeListener() {
+                                @Override
+                                public void changed(ChangeEvent event, Actor actor) {
+                                        setInventoryWindowVisible(false);
+                                }
+                        });
+                        Container<Button> closeContainer = new Container<Button>(inventoryCloseButton);
+
+                        closeContainer.align(Align.topRight);
+
+                        Stack header = new Stack();
+                        header.setTouchable(Touchable.childrenOnly);
+                        header.add(inputModeContainer);
+                        header.add(closeContainer);
+                        inventoryWindow.add(header).colspan(2).fill().padBottom(0).spaceBottom(0);
+
+                        inventoryWindow.row().spaceTop(0).padTop(0).padBottom(10);
                         inventoryWindow.add(equipmentTable).fill().expand();
                         inventoryWindow.add(backPackTable).fill().expand();
 
@@ -252,19 +274,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         //scrollPane.setUserObject("Hero Stats");
                         //inventoryWindow.add(scrollPane).fill().expand();
 
-
-                        inventoryWindow.row();
-                        Button closeButton = new Button(skin);
-                        closeButton.add("Close");
-
-                        closeButton.setUserObject("Close");
-                        closeButton.addCaptureListener(new ChangeListener() {
-                                @Override
-                                public void changed(ChangeEvent event, Actor actor) {
-                                        setInventoryWindowVisible(false);
-                                }
-                        });
-                        inventoryWindow.add(closeButton).colspan(numCols);
                 }
 
 
@@ -413,8 +422,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         buttonSize * .25f);
 
 
-                float windowHeight = graphicsHeight - 35 - 35;
-                float windowButtonSize = windowHeight * (1 / 5f);
+                float windowHeight = graphicsHeight *.8f;
+                float windowButtonSize = windowHeight * (1 / 4.63f);
                 float windowWidth = windowButtonSize * 6.5f;
                 float windowCloseButtonSize = windowButtonSize * .5f;
                 inventoryWindow.setBounds(
@@ -423,17 +432,10 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         windowWidth,
                         windowHeight);
 
+                Container<Button> closeContainer = ((Container<Button>)inventoryCloseButton.getParent());
+                closeContainer.prefSize(windowCloseButtonSize, windowCloseButtonSize * .5f).
+                        pad(windowCloseButtonSize * .15f, 0, 0, windowCloseButtonSize * .15f);
 
-                for (Cell cell : inventoryWindow.getCells()) {
-                        String uoVal = String.valueOf(cell.getActor().getUserObject());
-                        if (uoVal.equals("Close")) {
-                                cell.prefSize(windowCloseButtonSize, windowCloseButtonSize * .5f).pad(windowCloseButtonSize * .35f, 0, windowCloseButtonSize * .15f, 0);
-                        } else {
-
-                                cell.prefSize(windowButtonSize, windowButtonSize);
-                        }
-
-                }
 
 
                 int buttonI =0;
@@ -1187,15 +1189,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                         }
 
-                        SnapshotArray<Actor> avatarWindowChildren = inventoryWindow.getChildren();
-                        for (Actor avatarWindowChild : avatarWindowChildren) {
-                                String uo = String.valueOf(avatarWindowChild.getUserObject());
-                                if (uo.equals("Close")) {
-
-                                        avatarWindowChild.setVisible(false);
-                                }
-                        }
-
+                        inventoryCloseButton.setVisible(itemSelectForItem.isIdentified(localPlayerToken));
 
                         if (numValid == 0 && !itemSelectForItem.isIdentified(localPlayerToken)) {
                                 //no valid items to target, if item is not identified force targeting on itself
@@ -1231,14 +1225,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                         }
 
-                        SnapshotArray<Actor> avatarWindowChildren = inventoryWindow.getChildren();
-                        for (Actor avatarWindowChild : avatarWindowChildren) {
-                                String uo = String.valueOf(avatarWindowChild.getUserObject());
-                                if (uo.equals("Close")) {
-
-                                        avatarWindowChild.setVisible(true);
-                                }
-                        }
+                        inventoryCloseButton.setVisible(true);
                         this.setInventoryWindowVisible(false);
                 }
 
