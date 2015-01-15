@@ -60,9 +60,7 @@ public class WeaponItem extends EquipmentItem{
         }
 
         public WeaponItem(Dungeon dungeon,int damage) {
-                this.damage = damage;
-                range = 0;
-                dungeon.m.generateNameDesc(this);
+                this(dungeon, damage,2,1);
         }
 
         // sword

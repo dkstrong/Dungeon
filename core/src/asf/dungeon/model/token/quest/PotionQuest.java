@@ -12,14 +12,14 @@ public class PotionQuest extends Quest {
 
         private WeaponItem makeSword(Interactor interactor, boolean uncursed){
                 if(uncursed){
-                        WeaponItem weapon = new WeaponItem(interactor.token.dungeon, 3);
+                        WeaponItem weapon = new WeaponItem(interactor.token.dungeon, 3,2,1);
                         weapon.name = "Traveler's Sword";
                         weapon.vagueDescription = "A mysterious sword offered to you by a lost traveler. Who knows what it may do once equipped?";
 
                         return weapon;
                 }else{
                         boolean chanceCursed = interactor.token.dungeon.rand.bool(.75f - (interactor.token.experience.getLuck()/100f));
-                        WeaponItem weapon = new WeaponItem(interactor.token.dungeon, chanceCursed ? 1 : 3);
+                        WeaponItem weapon = new WeaponItem(interactor.token.dungeon, chanceCursed ? 1 : 3,2,1);
                         weapon.name = "Traveler's Sword";
                         weapon.vagueDescription = "A mysterious sword offered to you by a lost traveler. Who knows what it may do once equipped?";
                         weapon.cursed = chanceCursed;

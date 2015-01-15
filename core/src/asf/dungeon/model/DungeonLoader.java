@@ -163,7 +163,7 @@ public class DungeonLoader {
                         token.inventory.equip(armor);
 
                         if (settings.playerModel == ModelId.Knight) {
-                                WeaponItem sword = new WeaponItem(dungeon, 3);
+                                WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
 
                                 //sword.setAttackDuration(1);
                                 token.inventory.add(sword);
