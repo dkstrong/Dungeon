@@ -16,7 +16,6 @@ import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Damage;
-import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
@@ -57,6 +56,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SnapshotArray;
@@ -86,27 +86,30 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private ProgressBar healthProgressBar;
         private Label avatarLabel;
         private HorizontalGroup avatarStatusEffectsGroup;
-        private Image[] statusEffectImage;
+        private Container[] statusEffectImage;
+        private Container<HorizontalGroup> keyIconGroupContainer;
         private HorizontalGroup keyIconsGroup;
-        private Image[] keyIconImage;
+        private Container[] keyIconImage;
         private Label renderingStats;
         private final Array<DamageLabel> damageInfoLabels = new Array<DamageLabel>(false, 8, DamageLabel.class);
         private final Decal moveCommandDecal = new Decal();
         private final Decal targetCommandDecal = new Decal();
         //inventory hud
         private Table inventoryWindow;
-        private HorizontalGroup inputModeHorizontalGroup;
         private Label inputModeLabel;
-        private Button inputModeCancelButton, inventoryCloseButton;
-        private Table equipmentTable, backPackTable;
-        private final Array<ItemButtonStack> inventoryEquipmentButtons = new Array<ItemButtonStack>(true, 6, ItemButtonStack.class);
+        private Button inventoryCloseButton;
+        private Table backPackTable;
         private final Array<ItemButtonStack> inventoryBackPackButtons = new Array<ItemButtonStack>(true, 16, ItemButtonStack.class);
         private Window itemWindow;
+        private ScrollPane itemWindowScrollPane;
         private Label itemWindowLabel;
+        private ItemButtonStack itemWindowThumbnailButton;
         private Button itemWindowUseButton, itemWindowDiscardButton, itemWindowBackButton;
         //chat hud
         private Table chatWindow;
-        private Label chatLabel;
+        private Image chatImage;
+        private ScrollPane chatLabelScrollPane;
+        private Label chatTitleLabel, chatLabel;
         private VerticalGroup buttonGroup;
         private final Array<Button> chatChoiceButtons = new Array<Button>(true, 4, Button.class);
         // input mode
@@ -117,6 +120,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private boolean mapViewMode = false;
         // temp
         private final Vector3 tempVec = new Vector3();
+
 
         protected void setToken(Token token) {
                 localPlayerToken = token;
@@ -174,37 +178,40 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
 
                 StatusEffect[] values = StatusEffects.effectValues;
-                statusEffectImage = new Image[values.length];
-                // TODO: need to use texture regions here
+                statusEffectImage = new Container[values.length];
                 for (StatusEffect value : values) {
                         int i = value.ordinal();
-                        statusEffectImage[i] = new Image(world.pack.findRegion(world.assetMappings.getHudStatusEffectIcon(value)));
-                        //statusEffectImage[i].setScaling(Scaling.fit);
-                        statusEffectImage[i].setScaling(Scaling.fillY);
-                        statusEffectImage[i].setAlign(Align.bottomLeft);
-                        //avatarStatusEffectsGroup.addActor(statusEffectImage[i]);
+                        statusEffectImage[i] = new Container<Actor>(new Image(
+                                new TextureRegionDrawable(world.pack.findRegion(world.assetMappings.getHudStatusEffectIcon(value))),
+                                Scaling.fit, Align.center
+                        ));
                 }
 
+
                 keyIconsGroup = new HorizontalGroup();
-                world.stage.addActor(keyIconsGroup);
                 keyIconsGroup.align(Align.topRight);
+                keyIconsGroup.reverse();
+                world.stage.addActor(keyIconsGroup);
 
                 KeyItem.Type[] keyTypes = KeyItem.typeValues;
-                keyIconImage = new Image[keyTypes.length];
+                keyIconImage = new Container[keyTypes.length];
                 for (KeyItem.Type keyType : keyTypes) {
                         int i = keyType.ordinal();
-                        keyIconImage[i] = new Image(world.pack.findRegion(world.assetMappings.getKeyIcon(keyType)));
+                        keyIconImage[i] = new Container<Actor>(new Image(
+                                new TextureRegionDrawable(world.pack.findRegion(world.assetMappings.getKeyIcon(keyType))),
+                                Scaling.fit, Align.center
+                        ));
                 }
 
 
                 if (showRenderingStasLabel) {
                         renderingStats = new Label("", skin);
                         world.stage.addActor(renderingStats);
-                        renderingStats.setAlignment(Align.topLeft);
+                        renderingStats.setAlignment(Align.topRight);
                 }
 
                 gameLogLabel = new Label(null, skin);
-                gameLogLabel.setAlignment(Align.topLeft, Align.topLeft);
+                gameLogLabel.setAlignment(Align.bottomLeft, Align.bottomLeft);
                 //gameLogLabel.debug();
 
 
@@ -227,7 +234,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 //inventoryWindow.setMovable(false);
                 inventoryWindow.addCaptureListener(this);
                 //inventoryWindow.removeActor(inventoryWindow.getButtonTable());
-                equipmentTable = new Table(skin);
                 backPackTable = new Table(skin);
                 //inventoryWindow.debug();
                 //world.stage.addActor(inventoryWindow);
@@ -236,53 +242,24 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                         inputModeLabel = new Label("Inventory", skin);
 
-                        inputModeCancelButton = new Button(skin);
-                        inputModeCancelButton.add(new Label("Cancel", skin));
-                        inputModeCancelButton.addCaptureListener(this);
-
-                        inputModeHorizontalGroup = new HorizontalGroup();
-                        inputModeHorizontalGroup.addActor(inputModeLabel);
-
-                        Container<HorizontalGroup> inputModeContainer = new Container<HorizontalGroup>(inputModeHorizontalGroup);
+                        Container<Label> inputModeContainer = new Container<Label>(inputModeLabel);
                         inputModeContainer.align(Align.bottom);
 
                         inventoryCloseButton = new Button(skin);
                         inventoryCloseButton.add("Close");
-                        inventoryCloseButton.addCaptureListener(new ChangeListener() {
-                                @Override
-                                public void changed(ChangeEvent event, Actor actor) {
-                                        setInventoryWindowVisible(false);
-                                }
-                        });
+                        inventoryCloseButton.addCaptureListener(this);
                         Container<Button> closeContainer = new Container<Button>(inventoryCloseButton);
-
                         closeContainer.align(Align.topRight);
 
                         Stack header = new Stack();
                         header.setTouchable(Touchable.childrenOnly);
                         header.add(inputModeContainer);
                         header.add(closeContainer);
-                        inventoryWindow.add(header).colspan(2).fill().padBottom(0).spaceBottom(0);
+                        inventoryWindow.add(header).fill().padBottom(0).spaceBottom(0);
 
                         inventoryWindow.row().spaceTop(0).padTop(0).padBottom(10);
-                        inventoryWindow.add(equipmentTable).fill().expand();
                         inventoryWindow.add(backPackTable).fill().expand();
-
-                        //Label descriptionLabel = new Label("Hero Stats", skin);
-                        //descriptionLabel.setWrap(true);
-                        //ScrollPane scrollPane = new ScrollPane(descriptionLabel, skin);
-                        //scrollPane.setUserObject("Hero Stats");
-                        //inventoryWindow.add(scrollPane).fill().expand();
-
                 }
-
-
-                for(int i=0; i<3+numQuickSlots;i++){
-                        ItemButtonStack equipmentButton = new ItemButtonStack(skin, this, null);
-                        inventoryEquipmentButtons.add(equipmentButton);
-                }
-
-
 
                 for (int j = 0; j < 4; j++) {
                         backPackTable.row();
@@ -303,43 +280,67 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 //world.stage.addActor(itemWindow);
                 //itemWindow.debugAll();
                 {
+                        itemWindow.row();
 
-                        itemWindow.defaults().space(6);
-                        itemWindow.row().space(20);
+                        itemWindowThumbnailButton = new ItemButtonStack(skin, this, null);
+                        itemWindowThumbnailButton.setTouchable(Touchable.disabled);
+
                         itemWindowLabel = new Label("Some information about this item.", skin);
-                        itemWindow.add(itemWindowLabel).colspan(3);
+                        itemWindowLabel.setWrap(true);
+                        itemWindowLabel.setFillParent(true);
+                        itemWindowScrollPane = new ScrollPane(itemWindowLabel, skin);
+                        itemWindowScrollPane.setForceScroll(false,false);
+                        itemWindowScrollPane.setFadeScrollBars(true);
 
-                        itemWindow.row().spaceTop(60);
+                        itemWindow.add(itemWindowThumbnailButton).colspan(1);
+                        itemWindow.add(itemWindowScrollPane).colspan(2).fill().expand();
+
+                        itemWindow.row();
 
                         itemWindowUseButton = new Button(skin);
-
                         itemWindowUseButton.add("Use");
                         itemWindowUseButton.addCaptureListener(this);
-                        itemWindow.add(itemWindowUseButton);
 
                         itemWindowDiscardButton = new Button(skin);
                         itemWindowDiscardButton.add("Discard");
                         itemWindowDiscardButton.addCaptureListener(this);
-                        itemWindow.add(itemWindowDiscardButton);
 
                         itemWindowBackButton = new Button(skin);
                         itemWindowBackButton.add("Back");
                         itemWindowBackButton.addCaptureListener(this);
-                        itemWindow.add(itemWindowBackButton);
+
+                        Table buttonsTable = new Table(skin);
+                        buttonsTable.add(itemWindowUseButton);
+                        buttonsTable.add(itemWindowDiscardButton);
+                        buttonsTable.add(itemWindowBackButton);
+                        itemWindow.add(buttonsTable).colspan(3);
+
+
                 }
 
                 chatWindow = new Table(skin);
                 chatWindow.setBackground("default-rect");
                 {
-                        chatWindow.row();
+                        chatTitleLabel = new Label("Chat Label", skin);
+                        chatImage = new Image(new TextureRegionDrawable(), Scaling.fillY, Align.center);
+
+                        Table chatImageTable = new Table(skin);
+                        chatImageTable.add(chatTitleLabel);
+                        chatImageTable.row();
+                        chatImageTable.add(chatImage);
+
                         chatLabel = new Label("Chat Label", skin);
                         chatLabel.setWrap(true);
-                        ScrollPane scrollPane = new ScrollPane(chatLabel, skin);
-                        chatWindow.add(scrollPane).fill().expand().colspan(3);
+                        chatLabelScrollPane = new ScrollPane(chatLabel, skin);
+
                         chatWindow.row();
+                        chatWindow.add(chatImageTable);
+                        chatWindow.add(chatLabelScrollPane).fill().expand();
 
                         buttonGroup = new VerticalGroup();
-                        chatWindow.add(buttonGroup).colspan(3);
+                        chatWindow.row();
+                        chatWindow.add(buttonGroup).colspan(2);
+
                         for (int i = 0; i < 4; i++) {
                                 Button button = new Button(skin);
                                 button.addCaptureListener(this);
@@ -348,22 +349,20 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 }
 
-
                 resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
                 refreshInventoryElements();
 
-
                 moveCommandDecal.setTextureRegion(world.pack.findRegion("Textures/MoveCommandMarker"));
                 moveCommandDecal.setBlending(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
                 moveCommandDecal.setDimensions(world.floorSpatial.tileDimensions.x, world.floorSpatial.tileDimensions.z);
-                moveCommandDecal.setColor(1,1,1,1);
+                moveCommandDecal.setColor(1, 1, 1, 1);
                 moveCommandDecal.rotateX(-90);
 
                 targetCommandDecal.setTextureRegion(world.pack.findRegion("Textures/TargetCommandMarker"));
                 targetCommandDecal.setBlending(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-                targetCommandDecal.setDimensions(world.floorSpatial.tileDimensions.x*1.1f, world.floorSpatial.tileDimensions.z*1.1f);
-                targetCommandDecal.setColor(1,1,1,1);
+                targetCommandDecal.setDimensions(world.floorSpatial.tileDimensions.x * 1.1f, world.floorSpatial.tileDimensions.z * 1.1f);
+                targetCommandDecal.setColor(1, 1, 1, 1);
                 targetCommandDecal.rotateX(-90);
 
         }
@@ -373,45 +372,55 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         return;
 
                 float margin = 15;
-                float buttonSize = 100;
+                float buttonSize = graphicsWidth > graphicsHeight ? 125f : (graphicsWidth-margin*5f) / 4f;
+
 
                 avatarButton.setBounds(margin, margin, buttonSize, buttonSize);
 
                 healthProgressBar.setBounds(
-                        margin + buttonSize,
-                        margin + buttonSize - buttonSize * .27f,
+                        margin,
+                        graphicsHeight- margin*3f,
                         buttonSize * 1.5f,
                         buttonSize * .333f);
 
                 avatarLabel.setBounds(
-                        margin + buttonSize,
-                        margin - buttonSize * .233f,
+                        margin*1.5f,
+                        graphicsHeight-margin - buttonSize,
                         buttonSize, buttonSize);
 
 
+                float effectIconSize = buttonSize * 0.27f;
                 avatarStatusEffectsGroup.setBounds(
-                        margin + buttonSize + margin * .25f,
                         margin,
-                        buttonSize * .333f,
-                        buttonSize * .333f);
+                        graphicsHeight- buttonSize*0.7f-margin,
+                        graphicsWidth,
+                        effectIconSize);
 
+                for (Container container : statusEffectImage) {
+                        container.pad(0,0, 0, effectIconSize*.25f).prefSize(effectIconSize, effectIconSize).maxSize(effectIconSize,effectIconSize).minSize(effectIconSize,effectIconSize).fill();
+                }
+
+                float keyIconSize = buttonSize*.75f;
                 keyIconsGroup.setBounds(
-                        graphicsWidth - buttonSize*3.75f - margin,
-                        graphicsHeight - buttonSize * .333f - margin,
-                        buttonSize * .333f,
-                        buttonSize * .333f);
+                        -margin * 0.5f,
+                        graphicsHeight - keyIconSize * 0.85f,
+                        graphicsWidth,
+                        keyIconSize);
 
+                for (Container container : keyIconImage) {
+                        container.prefSize(keyIconSize,keyIconSize).maxSize(keyIconSize,keyIconSize).minSize(keyIconSize,keyIconSize).fill();
+                }
 
                 if (renderingStats != null)
                         renderingStats.setBounds(
-                                margin,
-                                graphicsHeight - buttonSize- margin,
+                                graphicsWidth - buttonSize - margin,
+                                graphicsHeight - buttonSize -buttonSize- margin,
                                 buttonSize, buttonSize);
 
 
                 gameLogLabel.setBounds(
                         margin,
-                        graphicsHeight - margin - buttonSize,
+                        margin + buttonSize,
                         graphicsWidth * .5f,
                         buttonSize);
 
@@ -421,52 +430,32 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         graphicsWidth * .5f,
                         buttonSize * .25f);
 
-
-                float windowHeight = graphicsHeight *.8f;
-                float windowButtonSize = windowHeight * (1 / 4.63f);
-                float windowWidth = windowButtonSize * 6.5f;
-                float windowCloseButtonSize = windowButtonSize * .5f;
-                inventoryWindow.setBounds(
-                        (graphicsWidth - windowWidth) * .5f,
-                        (graphicsHeight - windowHeight) * .5f,
-                        windowWidth,
-                        windowHeight);
-
-                Container<Button> closeContainer = ((Container<Button>)inventoryCloseButton.getParent());
-                closeContainer.prefSize(windowCloseButtonSize, windowCloseButtonSize * .5f).
-                        pad(windowCloseButtonSize * .15f, 0, 0, windowCloseButtonSize * .15f);
-
-
-
-                int buttonI =0;
-                int numQuickSlots = localPlayerToken.inventory.numQuickSlots();
-                equipmentTable.clearChildren();
-                for (int j = 0; j < 4; j++) {
-                        equipmentTable.row();
-                        for (int i = 0; i < 2; i++) {
-                                if ((j == 0 || j == 2) && i == 1) {
-                                        continue;
-                                } else if (buttonI - 3 >= numQuickSlots) {
-                                        continue;
-                                }
-                                Cell<ItemButtonStack> cell = equipmentTable.add(inventoryEquipmentButtons.get(buttonI++));
-                                cell.prefSize(windowButtonSize, windowButtonSize).minSize(windowButtonSize, windowButtonSize);
-                                // top cell needs extra padding on top
-                                if (j == 2) {
-                                        cell.padTop(20);
-                                }
-                                // if only cell on the row, make its colspan be 2
-                                if (j == 0 || j == 2 || (j == 3 && numQuickSlots == 2)) {
-                                        cell.colspan(2);
-                                } else {
-
-                                }
-                        }
+                float invWindowHeight,invWindowButtonSize,invWindowWidth,invWindowCloseButtonSize;
+                if (graphicsWidth > graphicsHeight) {
+                        invWindowHeight = graphicsHeight * .8f;
+                        invWindowButtonSize = invWindowHeight * (1 / 4.75f);
+                        invWindowWidth = invWindowButtonSize * 4.4f;
+                        invWindowCloseButtonSize = invWindowButtonSize * .5f;
+                }else{
+                        invWindowWidth = graphicsWidth -30;
+                        invWindowButtonSize = invWindowWidth * (1 / 4f);
+                        invWindowHeight = invWindowButtonSize * 4.75f;
+                        invWindowCloseButtonSize = invWindowButtonSize * .5f;
                 }
+
+                inventoryWindow.setBounds(
+                        (graphicsWidth - invWindowWidth) * .5f,
+                        (graphicsHeight - invWindowHeight) * .5f,
+                        invWindowWidth,
+                        invWindowHeight);
+
+                Container<Button> closeContainer = ((Container<Button>) inventoryCloseButton.getParent());
+                closeContainer.prefSize(invWindowCloseButtonSize, invWindowCloseButtonSize * .5f).
+                        pad(invWindowCloseButtonSize * .15f, 0, 0, invWindowCloseButtonSize * .15f);
 
 
                 for (Cell cell : backPackTable.getCells()) {
-                        cell.prefSize(windowButtonSize, windowButtonSize).minSize(windowButtonSize, windowButtonSize);
+                        cell.prefSize(invWindowButtonSize, invWindowButtonSize).minSize(invWindowButtonSize, invWindowButtonSize);
                 }
 
                 float quickXOffset = buttonSize + margin;
@@ -477,10 +466,19 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 buttonSize);
                 }
 
-                float itemWindowHeight = graphicsHeight * .5f;
-                float itemWindowWidth = itemWindowHeight * 1.75f;
-                float itemWindowButtonSizeX = windowButtonSize * 1.25f;
-                float itemWindowButtonSizeY = windowButtonSize * .75f;
+                float itemWindowHeight, itemWindowWidth,itemWindowButtonSizeX,itemWindowButtonSizeY;
+                if(graphicsWidth > graphicsHeight){
+                        itemWindowHeight = graphicsHeight * .5f;
+                        itemWindowWidth = itemWindowHeight * 1.75f;
+                        itemWindowButtonSizeX = invWindowButtonSize * 1.25f;
+                        itemWindowButtonSizeY = invWindowButtonSize * .75f;
+                }else{
+                        itemWindowWidth = invWindowWidth * .95f;
+                        itemWindowHeight = invWindowHeight * .65f;
+                        itemWindowButtonSizeX = itemWindowWidth * (1/4f);
+                        itemWindowButtonSizeY = itemWindowButtonSizeX * .5f;
+                }
+                float itemThumbnailSize = invWindowButtonSize * 1.5f;
 
                 itemWindow.setBounds(
                         (graphicsWidth - itemWindowWidth) * .5f,
@@ -489,12 +487,85 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         itemWindowHeight);
 
                 for (Cell cell : itemWindow.getCells()) {
-                        if (cell.getActor() instanceof Button) {
-                                cell.prefSize(itemWindowButtonSizeX, itemWindowButtonSizeY).minSize(itemWindowButtonSizeX, itemWindowButtonSizeY);
+                        if (cell.getActor() == itemWindowThumbnailButton) {
+                                cell.prefSize(itemThumbnailSize, itemThumbnailSize).maxSize(itemThumbnailSize, itemThumbnailSize).minSize(itemThumbnailSize, itemThumbnailSize).
+                                        padLeft(20);
+                        }else if (cell.getActor() == itemWindowScrollPane) {
+                                cell.prefHeight(itemThumbnailSize).maxHeight(itemThumbnailSize).padRight(20);
+                        }else if(cell.getActor() instanceof Table){
+                                Table buttonsTable = (Table) cell.getActor();
+                                buttonsTable.getCells().get(0).prefSize(itemWindowButtonSizeX, itemWindowButtonSizeY).minSize(itemWindowButtonSizeX, itemWindowButtonSizeY);
+                                buttonsTable.getCells().get(1).prefSize(itemWindowButtonSizeX, itemWindowButtonSizeY).minSize(itemWindowButtonSizeX, itemWindowButtonSizeY).pad(0,20,0,20);
+                                buttonsTable.getCells().get(2).prefSize(itemWindowButtonSizeX, itemWindowButtonSizeY).minSize(itemWindowButtonSizeX, itemWindowButtonSizeY);
+                                cell.padBottom(30);
                         }
                 }
 
-                refreshChatWindowElements();
+                resizeChatWindowElements(graphicsWidth, graphicsHeight);
+
+        }
+
+        private void resizeChatWindowElements(int graphicsWidth, int graphicsHeight) {
+                if (chatWindow.getParent() == null)
+                        return;
+                Dialouge dialouge = (Dialouge) chatWindow.getUserObject();
+                Choice[] choices = dialouge.getChoices(localPlayerToken.interactor);
+                int longestButtonText = 0;
+                int buttonI = 0;
+                for (Choice choice : choices) {
+                        if (choice != null) {
+                                longestButtonText = UtMath.largest(longestButtonText, choice.getText().length());
+                                Button button = chatChoiceButtons.get(buttonI);
+                                button.pad(15, 10, 15, 10);
+                                button.clearChildren();
+                                button.add(choice.getText());
+                                button.setUserObject(choice);
+                                if (button.getParent() == null)
+                                        buttonGroup.addActor(button);
+                                buttonI++;
+                        }
+                }
+
+                for (; buttonI < 4; buttonI++) {
+                        Button button = chatChoiceButtons.get(buttonI);
+                        button.setUserObject(null);
+                        button.remove();
+                }
+
+                chatTitleLabel.setText(localPlayerToken.interactor.chattingWith.name);
+                ((TextureRegionDrawable)(chatImage.getDrawable())).setRegion(world.pack.findRegion(world.assetMappings.getInventoryItemTextureAssetLocation(null)));
+                chatLabel.setText(dialouge.getMessage(localPlayerToken.interactor));
+                float chatWindowWidth = graphicsWidth * UtMath.scalarLimitsInterpolation(longestButtonText, 25f, 75f, .3f, .5f);
+                if(chatWindowWidth < 500) chatWindowWidth = 500;
+                float chatWindowHeight = chatWindowWidth;
+                float chatImageSize = chatWindowWidth *.25f;
+
+                chatWindow.setBounds(
+                        (graphicsWidth - chatWindowWidth) * .5f,
+                        (graphicsHeight - chatWindowHeight) * .5f,
+                        chatWindowWidth,
+                        chatWindowHeight);
+
+                for (Cell cell : chatWindow.getCells()) {
+
+                        if (cell.getActor() instanceof Table) {
+                                Table chatImageTable = (Table) cell.getActor();
+                                chatImageTable.getCells().get(1).prefSize(chatImageSize, chatImageSize).minSize(chatImageSize, chatImageSize).maxSize(chatImageSize,chatImageSize);
+                                cell.padTop(20);
+                        }else if (cell.getActor() instanceof ScrollPane) {
+                                cell.prefSize(chatWindowWidth, chatWindowHeight).maxSize(chatWindowWidth, chatWindowHeight);
+                                cell.padRight(20).padTop(20);
+                        } else if (cell.getActor() instanceof VerticalGroup) {
+                                //cell.prefSize(itemWindowButtonSizeX, itemWindowButtonSizeY).minSize(itemWindowButtonSizeX, itemWindowButtonSizeY);
+                                cell.padBottom(20).padTop(20);
+                        }
+                }
+
+                buttonGroup.space(15);
+
+                chatLabelScrollPane.setScrollX(0);
+                chatLabelScrollPane.setScrollY(0);
+
 
         }
 
@@ -519,8 +590,8 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                         StringBuilder sb = avatarLabel.getText();
                         sb.setLength(0);
-                        sb.append(localPlayerToken.damage.getHealth()).append(" / ").append(localPlayerToken.damage.getMaxHealth()).append("\n")
-                                .append(" Level ").append(localPlayerToken.experience.getLevel()).append(" (XP: ").append(localPlayerToken.experience.getXp())
+                        sb.append("  ").append(localPlayerToken.damage.getHealth()).append(" / ").append(localPlayerToken.damage.getMaxHealth()).append("\n")
+                                .append("Level ").append(localPlayerToken.experience.getLevel()).append(" (XP: ").append(localPlayerToken.experience.getXp())
                                 .append(" / ").append(localPlayerToken.experience.getRequiredXpToLevelUp());
                         avatarLabel.invalidateHierarchy();
 
@@ -580,16 +651,16 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         @Override
         public void render(float delta) {
-                if(localPlayerToken!= null){
-                        if(localPlayerToken.command.getTargetToken() != null){
+                if (localPlayerToken != null) {
+                        if (localPlayerToken.command.getTargetToken() != null) {
                                 moveCommandDecalCount = 0;
-                                float x= localPlayerToken.command.getTargetToken().getFloatLocationX();
+                                float x = localPlayerToken.command.getTargetToken().getFloatLocationX();
                                 float y = localPlayerToken.command.getTargetToken().getFloatLocationY();
-                                targetCommandDecal.setPosition(world.getWorldCoords(x,y,targetCommandDecal.getPosition()));
+                                targetCommandDecal.setPosition(world.getWorldCoords(x, y, targetCommandDecal.getPosition()));
                                 targetCommandDecal.translateY(0.2f);
                                 world.decalBatch.add(targetCommandDecal);
-                        }else if(moveCommandDecalCount >0){
-                                moveCommandDecalCount-=delta;
+                        } else if (moveCommandDecalCount > 0) {
+                                moveCommandDecalCount -= delta;
                                 world.decalBatch.add(moveCommandDecal);
                         }
                 }
@@ -669,68 +740,20 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         private void refreshInventoryElements() {
                 //Gdx.app.log("HudSpatial", "refresh inventory elements");
-                // refresh hero stats
-                SnapshotArray<Actor> children = inventoryWindow.getChildren();
-                Label heroStatsLabel = null;
-                for (Actor child : children) {
-                        String uoName = String.valueOf(child.getUserObject());
-                        if (uoName.equals("Hero Stats")) {
-                                ScrollPane scrollPane = (ScrollPane) child;
-                                heroStatsLabel = (Label) scrollPane.getChildren().get(0);
-                                break;
-                        }
-                }
-
-                if(heroStatsLabel != null){
-                        StringBuilder sb = heroStatsLabel.getText();
-                        sb.setLength(0);
-                        Damage damage = localPlayerToken.get(Damage.class);
-                        Experience experience = localPlayerToken.get(Experience.class);
-                        sb.append(localPlayerToken.name).append("\n").append("Level ").append(localPlayerToken.experience.getLevel()).append("\n\n");
-                        sb.append("HP: ").append(damage.getHealth()).append(" / ").append(damage.getMaxHealth()).append("\n\n");
-
-                        String vit = experience.getVitalityBase() + (experience.getVitalityMod() > 0 ? " + " + experience.getVitalityMod() : "");
-                        String str = experience.getStrengthBase() + (experience.getStrengthMod() > 0 ? " + " + experience.getStrengthMod() : "");
-                        String agi = experience.getAgilityBase() + (experience.getAgilityMod() > 0 ? " + " + experience.getAgilityMod() : "");
-                        String inte = experience.getIntelligenceBase() + (experience.getIntelligenceMod() > 0 ? " + " + experience.getIntelligenceMod() : "");
-                        String lck = experience.getLuckBase() + (experience.getLuckMod() > 0 ? " + " + experience.getLuckMod() : "");
-
-                        sb.append("Vit: ").append(vit).append("\n");
-                        sb.append("Str: ").append(str).append("\n");
-                        sb.append("Agi: ").append(agi).append("\n");
-                        sb.append("Int: ").append(inte).append("\n");
-                        sb.append("Luck: ").append(lck).append("\n");
-
-
-                        sb.append("\n");
-
-                        StatusEffects statusEffets = localPlayerToken.get(StatusEffects.class);
-                        if (statusEffets.has(StatusEffect.Paralyze)) {
-                                sb.append("You are paralyzed\n");
-                        }
-
-                        if (statusEffets.has(StatusEffect.Poison)) {
-                                sb.append("You are poisoned\n");
-                        }
-
-                        heroStatsLabel.invalidateHierarchy();
-                }
-
-
 
                 //
-                // refresh inventory
+                // refresh key display
                 for (KeyItem.Type typeValue : KeyItem.typeValues) {
-                        if(localPlayerToken.inventory.containsKey(typeValue)){
+                        if (localPlayerToken.inventory.containsKey(typeValue)) {
                                 keyIconsGroup.addActor(keyIconImage[typeValue.ordinal()]);
-                        }else{
+                        } else {
                                 keyIconImage[typeValue.ordinal()].remove();
                         }
                 }
 
                 int numQuickSlots = localPlayerToken.inventory.numQuickSlots();
                 if (quickButtons.length != numQuickSlots) {
-                        // ensure there are enough quick slot elements on the screen (on main hud and in inventory)
+                        // ensure there are enough quick slot elements on the screen (on main hud)
                         int i = quickButtons.length;
                         quickButtons = Arrays.copyOf(quickButtons, numQuickSlots);
                         for (; i < numQuickSlots; i++) {
@@ -738,40 +761,35 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 quickButton.setQuickSlot(true);
                                 world.stage.addActor(quickButton);
                                 quickButtons[i] = quickButton;
-
-                                ItemButtonStack equipmentButton = new ItemButtonStack(skin, this, null);
-                                inventoryEquipmentButtons.add(equipmentButton);
                         }
 
                         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
                 }
                 for (int i = 0; i < numQuickSlots; i++) {
-                        QuickItem quickItem = localPlayerToken.inventory.getQuickSlot(i);
-                        quickButtons[i].setItem(quickItem);
+                        quickButtons[i].setItem(localPlayerToken.inventory.getQuickSlot(i));
                 }
 
 
                 // if the inventory window is open, then refresh the inventory window
                 if (backPackTable.getParent() != null) {
                         // update the equipped item buttons
-                        WeaponItem weaponSlot = localPlayerToken.inventory.getWeaponSlot();
-                        inventoryEquipmentButtons.get(0).setItem(weaponSlot);
-                        ArmorItem armorSlot = localPlayerToken.inventory.getArmorSlot();
-                        inventoryEquipmentButtons.get(1).setItem(armorSlot);
-                        RingItem ringSlot = localPlayerToken.inventory.getRingSlot();
-                        inventoryEquipmentButtons.get(2).setItem(ringSlot);
-                        for (int i = 0; i < numQuickSlots; i++)
-                                inventoryEquipmentButtons.get(i + 3).setItem(localPlayerToken.inventory.getQuickSlot(i));
-
-
-                        //update the backpack item buttons
                         int buttonI = 0;
+                        WeaponItem weaponSlot = localPlayerToken.inventory.getWeaponSlot();
+                        if (weaponSlot != null) inventoryBackPackButtons.get(buttonI++).setItem(weaponSlot);
+                        ArmorItem armorSlot = localPlayerToken.inventory.getArmorSlot();
+                        if (armorSlot != null) inventoryBackPackButtons.get(buttonI++).setItem(armorSlot);
+                        RingItem ringSlot = localPlayerToken.inventory.getRingSlot();
+                        if (ringSlot != null) inventoryBackPackButtons.get(buttonI++).setItem(ringSlot);
+                        for (int i = 0; i < numQuickSlots; i++) {
+                                QuickItem quickItem = localPlayerToken.inventory.getQuickSlot(i);
+                                if (quickItem != null) inventoryBackPackButtons.get(buttonI++).setItem(quickItem);
+                        }
+                        //update the backpack item buttons
                         for (int i = 0; i < localPlayerToken.inventory.size(); i++) {
                                 Item item = localPlayerToken.inventory.get(i);
                                 if (localPlayerToken.inventory.isEquipped(item))
                                         continue;
-                                inventoryBackPackButtons.get(buttonI).setItem(item);
-                                buttonI++;
+                                inventoryBackPackButtons.get(buttonI++).setItem(item);
                         }
 
                         // remaining buttons get set to null
@@ -788,7 +806,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private void setItemWindowContents(Item item) {
                 itemWindow.setTitle(item.getNameFromJournal(localPlayerToken));
                 itemWindow.setUserObject(item);
-
+                itemWindowThumbnailButton.setItem(item);
+                itemWindowScrollPane.setScrollX(0);
+                itemWindowScrollPane.setScrollY(0);
                 StringBuilder description = itemWindowLabel.getText();
                 description.setLength(0);
                 description.append(item.getDescriptionFromJournal(localPlayerToken));
@@ -796,33 +816,33 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 Label useLabel = (Label) itemWindowUseButton.getChildren().get(0);
                 Label discardLabel = (Label) itemWindowDiscardButton.getChildren().get(0);
 
-                if (item instanceof EquipmentItem ) {
-                        if(!localPlayerToken.inventory.canChangeEquipment()){
+                if (item instanceof EquipmentItem) {
+                        if (!localPlayerToken.inventory.canChangeEquipment()) {
                                 description.append("\n\nYou can not change Equipment during battle.");
                                 useLabel.setText("");
                                 discardLabel.setText("");
                                 itemWindowUseButton.setDisabled(true);
                                 itemWindowDiscardButton.setDisabled(true);
-                        }else if(localPlayerToken.inventory.isEquipped(item)){
-                                if(((EquipmentItem) item).cursed){
+                        } else if (localPlayerToken.inventory.isEquipped(item)) {
+                                if (((EquipmentItem) item).cursed) {
                                         // cant unequip cursed item
                                         useLabel.setText("");
                                         discardLabel.setText("");
                                         itemWindowUseButton.setDisabled(true);
                                         itemWindowDiscardButton.setDisabled(true);
-                                }else{
+                                } else {
                                         useLabel.setText("Unequip");
                                         discardLabel.setText("Throw");
                                         itemWindowUseButton.setDisabled(false);
                                         itemWindowDiscardButton.setDisabled(false);
                                 }
-                        }else{
+                        } else {
                                 useLabel.setText("Equip");
                                 discardLabel.setText("Throw");
                                 itemWindowUseButton.setDisabled(false);
                                 itemWindowDiscardButton.setDisabled(false);
                         }
-                } else if(item instanceof QuickItem){
+                } else if (item instanceof QuickItem) {
                         if (localPlayerToken.inventory.isEquipped(item)) {
                                 useLabel.setText("Unequip");
                         } else {
@@ -840,7 +860,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         discardLabel.setText("Throw");
                         itemWindowUseButton.setDisabled(false);
                         itemWindowDiscardButton.setDisabled(false);
-                }else{
+                } else {
                         useLabel.setText("");
                         discardLabel.setText("Throw");
                         itemWindowUseButton.setDisabled(true);
@@ -851,14 +871,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         private void setInventoryWindowVisible(boolean visible) {
-                if(!visible && itemSelectMode){
+                if (!visible && itemSelectMode) {
                         // if in item select mode when closing window, then end item select mode
-                        if(itemSelectForItem.isIdentified(localPlayerToken)){
+                        if (itemSelectForItem.isIdentified(localPlayerToken)) {
                                 this.setItemSelectMode(null);
-                        }else{
+                        } else {
                                 // if the item select mode is for an unidentifed item, the window cant be
                                 // closed and the item must be used.
-                              return;
+                                return;
                         }
                 }
 
@@ -890,60 +910,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
         }
 
-        private void refreshChatWindowElements() {
-                if (chatWindow.getParent() == null)
-                        return;
-                Dialouge dialouge = (Dialouge) chatWindow.getUserObject();
-                Choice[] choices = dialouge.getChoices(localPlayerToken.interactor);
-                int longestButtonText = 0;
-                int buttonI = 0;
-                for (Choice choice : choices) {
-                        if (choice != null) {
-                                longestButtonText = UtMath.largest(longestButtonText, choice.getText().length());
-                                Button button = chatChoiceButtons.get(buttonI);
-                                button.pad(15, 10, 15, 10);
-                                button.clearChildren();
-                                button.add(choice.getText());
-                                button.setUserObject(choice);
-                                if (button.getParent() == null)
-                                        buttonGroup.addActor(button);
-                                buttonI++;
-                        }
-                }
-
-                for (; buttonI < 4; buttonI++) {
-                        Button button = chatChoiceButtons.get(buttonI);
-                        button.setUserObject(null);
-                        button.remove();
-                }
-
-                chatLabel.setText(dialouge.getMessage(localPlayerToken.interactor));
-                float chatWindowWidth = Gdx.graphics.getWidth() * UtMath.scalarLimitsInterpolation(longestButtonText, 25f, 75f, .3f, .5f);
-                float chatWindowHeight = chatWindowWidth;
-                float windowButtonSize = chatWindowHeight * (1 / 5f);
-                float itemWindowButtonSizeX = windowButtonSize * 1.25f;
-                float itemWindowButtonSizeY = windowButtonSize * .75f;
-
-                chatWindow.setBounds(
-                        (Gdx.graphics.getWidth() - chatWindowWidth) * .5f,
-                        (Gdx.graphics.getHeight() - chatWindowHeight) * .5f,
-                        chatWindowWidth,
-                        chatWindowHeight);
-
-                for (Cell cell : chatWindow.getCells()) {
-                        String uoVal = String.valueOf(cell.getActor().getUserObject());
-                        if (cell.getActor() instanceof ScrollPane) {
-                                cell.prefSize(chatWindowWidth, chatWindowHeight).maxSize(chatWindowWidth, chatWindowHeight);
-                        } else if (cell.getActor() instanceof Button) {
-                                cell.prefSize(itemWindowButtonSizeX, itemWindowButtonSizeY).minSize(itemWindowButtonSizeX, itemWindowButtonSizeY);
-                        }
-                }
-
-                buttonGroup.space(15);
-
-
-        }
-
         private void setChatWindowVisible(Dialouge dialouge) {
                 if (tokenSelectMode) {
                         /* actually staying in token select mode might not be an issue..
@@ -960,144 +926,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 if (dialouge != null) {
                         if (chatWindow.getParent() == null)
                                 world.stage.addActor(chatWindow);
-                        refreshChatWindowElements();
+                        resizeChatWindowElements(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
                         world.setPaused(true);
                 } else {
                         chatWindow.remove();
                         world.setPaused(false);
                 }
-        }
-
-        @Override
-        public void onPathBlocked(Pair nextLocation, Tile nextTile) {
-                if (nextTile.isDoor() && nextTile.isDoorLocked()) {
-                        if(nextTile.doorSymbol instanceof CombinationDoorPuzzle){
-                                this.appendToGameLog("The door is shut tight.");
-                        }else if(nextTile.doorSymbol instanceof KeyItem){
-                                if (localPlayerToken.inventory.containsKey((KeyItem) nextTile.doorSymbol)) {
-                                        this.appendToGameLog("Tap on door again to unlock door.");
-                                } else {
-                                        this.appendToGameLog("You do not have the key to unlock this door.");
-                                }
-                        }else{
-                                throw new AssertionError(nextTile.doorSymbol);
-                        }
-
-                }
-        }
-
-        @Override
-        public void onUseItem(Item item, CharacterInventory.UseItemOutcome out) {
-                if (!out.didSomething) {
-                        this.appendToGameLog("A bright light flashed, but nothing happened.");
-                        return;
-                }
-                if (item instanceof PotionItem) {
-                        this.appendToGameLog("You just drank " + item.getNameFromJournal(localPlayerToken));
-                } else if (item instanceof ScrollItem) {
-                        ScrollItem scroll = (ScrollItem) item;
-                        if (scroll.getType() == ScrollItem.Type.Lightning) {
-                                spawnDamageInfoLabel(String.valueOf(out.damage), out.targetToken, Color.RED);
-                        } else if (scroll.getType() == ScrollItem.Type.Teleportation) {
-                                if (out.targetToken == localPlayerToken) {
-                                        this.appendToGameLog("You just teleported to somewhere else on the level.");
-                                } else {
-                                        this.appendToGameLog("You just teleported " + out.targetToken.name + " to somewhere else on the level.");
-                                }
-
-                        }
-                } else if (item instanceof BookItem) {
-                        BookItem book = (BookItem) item;
-                        if (book.getType() == BookItem.Type.MagicMapping) {
-                                appendToGameLog("The layout of this floor has become revealed to you.");
-                        } else {
-                                appendToGameLog("You just read " + item.getNameFromJournal(localPlayerToken));
-                        }
-
-                        if (out.targetItem != null || book.getType() == BookItem.Type.ExtraQuickSlot) {
-                                // immediatly bring up the inventory window so the user can see the result of using the book on this item
-                                this.setInventoryWindowVisible(true);
-                        }
-                } else if (item instanceof KeyItem){
-                        KeyItem key = (KeyItem) item;
-                        appendToGameLog("You unlocked the door with a "+key.getType()+" Key.");
-                }
-
-        }
-
-        @Override
-        public void onAttack(Token target, Pair targetLocation, boolean ranged) {
-
-        }
-
-        @Override
-        public void onAttacked(Token attacker, Token target, Attack.AttackOutcome attackOutcome) {
-                if (attackOutcome.dodge) {
-                        //System.out.println(String.format("%s dodged attack from %s", target.name, attacker.name));
-                        spawnDamageInfoLabel("MISS", target, Color.YELLOW);
-                } else {
-                        //System.out.println(String.format("%s received %s damage from %s", target.name, damage, attacker.name));
-                        spawnDamageInfoLabel(String.valueOf(attackOutcome.damage), target, Color.RED);
-                }
-
-        }
-
-        @Override
-        public void onFsmStateChange(FsmLogic fsm, State oldState, State newState) {
-
-        }
-
-        @Override
-        public void onInventoryChanged() {
-                refreshInventoryElements();
-        }
-
-        @Override
-        public void onStatusEffectChange(StatusEffect effect, float duration) {
-                Image statusImage = statusEffectImage[effect.ordinal()];
-                if (duration == 0) {
-                        statusImage.remove();
-                } else if (statusImage.getParent() == null) {
-                        avatarStatusEffectsGroup.addActor(statusImage);
-                }
-
-        }
-
-        @Override
-        public void onLearned(Object journalObject, boolean study) {
-
-                refreshInventoryElements();
-                if (journalObject instanceof EquipmentItem) {
-                        EquipmentItem item = (EquipmentItem) journalObject;
-                        if (study) {
-                                this.appendToGameLog(String.format("You've used %s long enough that you now understand its secrets.", item.getNameFromJournal(localPlayerToken)));
-                        } else {
-                                this.appendToGameLog(String.format("You now understand the secrets of %s.", item.getNameFromJournal(localPlayerToken)));
-                        }
-                } else if (journalObject instanceof Item) {
-                        Item item = (Item) journalObject;
-                        if (study)
-                                this.appendToGameLog("You have identified " + item.getNameFromJournal(localPlayerToken));
-                }
-
-
-        }
-
-
-        @Override
-        public void onInteract(Quest quest, Dialouge dialouge) {
-                this.setChatWindowVisible(dialouge);
-        }
-
-        @Override
-        public boolean isInitialized() {
-                return initialized;
-        }
-
-        @Override
-        public void dispose() {
-                initialized = false;
-
         }
 
         public void setMapViewMode(boolean mapViewMode) {
@@ -1159,34 +993,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
 
                         int numValid = 0;
-                        SnapshotArray<Actor> equipmentChildren = equipmentTable.getChildren();
                         SnapshotArray<Actor> backpackChildren = backPackTable.getChildren();
-                        int i = 0;
-                        int n = equipmentChildren.size;
-                        boolean p = true;
-                        // I call this the frankenloop, it iterates over both equipment and backpack buttons to check if they can be used with the user selected item
-                        while (i < n || p) {
-                                Actor actor = p ? equipmentChildren.get(i) : backpackChildren.get(i);
-                                if (actor instanceof ItemButtonStack) {
-                                        ItemButtonStack button = (ItemButtonStack) actor;
-                                        Item targetItem = button.getItem();
-                                        boolean validItem;
-                                        if (targetItem!= null) {
-                                                validItem = itemSelectForItem.canConsume(localPlayerToken, targetItem);
-                                        } else {
-                                                validItem = false;
-                                        }
-                                        if (validItem) numValid++;
-                                        button.setVisible(validItem); // TODO: instead of making button invisible, make it "greyed out"
-                                        button.setDisabled(!validItem);
-                                }
-                                i++;
-                                if (i >= n && p) {
-                                        n = backpackChildren.size;
-                                        i = 0;
-                                        p = false;
-                                }
-
+                        for (Actor backpackChild : backpackChildren) {
+                                ItemButtonStack button = (ItemButtonStack) backpackChild;
+                                Item targetItem = button.getItem();
+                                boolean validItem = itemSelectForItem.canConsume(localPlayerToken, targetItem);
+                                if (validItem) numValid++;
+                                button.setVisible(validItem); // TODO: instead of making button invisible, make it "greyed out"
+                                button.setDisabled(!validItem);
                         }
 
                         inventoryCloseButton.setVisible(itemSelectForItem.isIdentified(localPlayerToken));
@@ -1203,52 +1017,166 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         }
                 } else {
                         // turn off item select mode
-                        SnapshotArray<Actor> equipmentChildren = equipmentTable.getChildren();
                         SnapshotArray<Actor> backpackChildren = backPackTable.getChildren();
-                        int i = 0;
-                        int n = equipmentChildren.size;
-                        boolean p = true;
-                        // the return of the frrrannkeeenloooop
-                        while (i < n || p) {
-                                Actor actor = p ? equipmentChildren.get(i) : backpackChildren.get(i);
-                                if (actor instanceof ItemButtonStack) {
-                                        ItemButtonStack button = (ItemButtonStack) actor;
-                                        button.setVisible(true);
-                                        button.setDisabled(false);
-                                }
-                                i++;
-                                if (i >= n && p) {
-                                        n = backpackChildren.size;
-                                        i = 0;
-                                        p = false;
-                                }
-
+                        for (Actor backpackChild : backpackChildren) {
+                                ItemButtonStack button = (ItemButtonStack) backpackChild;
+                                button.setVisible(true);
+                                button.setDisabled(false);
                         }
-
                         inventoryCloseButton.setVisible(true);
                         this.setInventoryWindowVisible(false);
                 }
 
                 if (itemSelectMode) {
                         inputModeLabel.setText("Choose item to use with " + itemSelectForItem.getNameFromJournal(localPlayerToken) + "     ");
-                        if (itemSelectForItem.isIdentified(localPlayerToken)) {
-                                if (inputModeCancelButton.getParent() == null)
-                                        inputModeHorizontalGroup.addActor(inputModeCancelButton);
-                        } else
-                                inputModeCancelButton.remove();
+                        if (itemSelectForItem.isIdentified(localPlayerToken))
+                                ((Label)inventoryCloseButton.getChildren().get(0)).setText("Cancel");
+                        else
+                                ((Label)inventoryCloseButton.getChildren().get(0)).setText("Close");
                 } else {
                         inputModeLabel.setText("Inventory");
-                        inputModeCancelButton.remove();
+                        ((Label)inventoryCloseButton.getChildren().get(0)).setText("Close");
                 }
         }
+
+        @Override
+        public void onPathBlocked(Pair nextLocation, Tile nextTile) {
+                if (nextTile.isDoor() && nextTile.isDoorLocked()) {
+                        if (nextTile.doorSymbol instanceof CombinationDoorPuzzle) {
+                                this.appendToGameLog("The door is shut tight.");
+                        } else if (nextTile.doorSymbol instanceof KeyItem) {
+                                if (localPlayerToken.inventory.containsKey((KeyItem) nextTile.doorSymbol)) {
+                                        this.appendToGameLog("Tap on door again to unlock door.");
+                                } else {
+                                        this.appendToGameLog("You do not have the key to unlock this door.");
+                                }
+                        } else {
+                                throw new AssertionError(nextTile.doorSymbol);
+                        }
+
+                }
+        }
+
+        @Override
+        public void onUseItem(Item item, CharacterInventory.UseItemOutcome out) {
+                if (!out.didSomething) {
+                        this.appendToGameLog("A bright light flashed, but nothing happened.");
+                        return;
+                }
+                if (item instanceof PotionItem) {
+                        this.appendToGameLog("You just drank " + item.getNameFromJournal(localPlayerToken));
+                } else if (item instanceof ScrollItem) {
+                        ScrollItem scroll = (ScrollItem) item;
+                        if (scroll.getType() == ScrollItem.Type.Lightning) {
+                                spawnDamageInfoLabel(String.valueOf(out.damage), out.targetToken, Color.RED);
+                        } else if (scroll.getType() == ScrollItem.Type.Teleportation) {
+                                if (out.targetToken == localPlayerToken) {
+                                        this.appendToGameLog("You just teleported to somewhere else on the level.");
+                                } else {
+                                        this.appendToGameLog("You just teleported " + out.targetToken.name + " to somewhere else on the level.");
+                                }
+
+                        }
+                } else if (item instanceof BookItem) {
+                        BookItem book = (BookItem) item;
+                        if (book.getType() == BookItem.Type.MagicMapping) {
+                                appendToGameLog("The layout of this floor has become revealed to you.");
+                        } else {
+                                appendToGameLog("You just read " + item.getNameFromJournal(localPlayerToken));
+                        }
+
+                        if (out.targetItem != null || book.getType() == BookItem.Type.ExtraQuickSlot) {
+                                // immediatly bring up the inventory window so the user can see the result of using the book on this item
+                                this.setInventoryWindowVisible(true);
+                        }
+                } else if (item instanceof KeyItem) {
+                        KeyItem key = (KeyItem) item;
+                        appendToGameLog("You unlocked the door with a " + key.getType() + " Key.");
+                }
+
+        }
+
+        @Override
+        public void onAttack(Token target, Pair targetLocation, boolean ranged) {
+
+        }
+
+        @Override
+        public void onAttacked(Token attacker, Token target, Attack.AttackOutcome attackOutcome) {
+                if (attackOutcome.dodge) {
+                        //System.out.println(String.format("%s dodged attack from %s", target.name, attacker.name));
+                        spawnDamageInfoLabel("MISS", target, Color.YELLOW);
+                } else {
+                        //System.out.println(String.format("%s received %s damage from %s", target.name, damage, attacker.name));
+                        spawnDamageInfoLabel(String.valueOf(attackOutcome.damage), target, Color.RED);
+                }
+
+        }
+
+        @Override
+        public void onFsmStateChange(FsmLogic fsm, State oldState, State newState) {
+
+        }
+
+        @Override
+        public void onInventoryChanged() {
+                refreshInventoryElements();
+        }
+
+        @Override
+        public void onStatusEffectChange(StatusEffect effect, float duration) {
+                Container statusImage = statusEffectImage[effect.ordinal()];
+                if (duration == 0) {
+                        statusImage.remove();
+                } else if (statusImage.getParent() == null) {
+                        avatarStatusEffectsGroup.addActor(statusImage);
+                }
+
+        }
+
+        @Override
+        public void onLearned(Object journalObject, boolean study) {
+
+                refreshInventoryElements();
+                if (journalObject instanceof EquipmentItem) {
+                        EquipmentItem item = (EquipmentItem) journalObject;
+                        if (study) {
+                                this.appendToGameLog(String.format("You've used %s long enough that you now understand its secrets.", item.getNameFromJournal(localPlayerToken)));
+                        } else {
+                                this.appendToGameLog(String.format("You now understand the secrets of %s.", item.getNameFromJournal(localPlayerToken)));
+                        }
+                } else if (journalObject instanceof Item) {
+                        Item item = (Item) journalObject;
+                        if (study)
+                                this.appendToGameLog("You have identified " + item.getNameFromJournal(localPlayerToken));
+                }
+
+
+        }
+
+        @Override
+        public void onInteract(Quest quest, Dialouge dialouge) {
+                this.setChatWindowVisible(dialouge);
+        }
+
+        @Override
+        public boolean isInitialized() {
+                return initialized;
+        }
+
+        @Override
+        public void dispose() {
+                initialized = false;
+
+        }
+
+        private float lastTouchTimer = 0;
 
         /**
          * called before dungeon.update() to do user input related updates
          *
          * @param delta
          */
-        private float lastTouchTimer = 0;
-
         protected void updateInput(float delta) {
                 if (mapViewMode) {
                         // end map view mode by double tapping
@@ -1385,14 +1313,14 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
                 return false;
         }
+
         private float moveCommandDecalCount = Float.NaN;
 
-        private void setMoveCommandMark(Pair location){
+        private void setMoveCommandMark(Pair location) {
 
                 moveCommandDecal.setPosition(world.getWorldCoords(location, moveCommandDecal.getPosition()));
                 moveCommandDecal.translateY(0.2f);
                 moveCommandDecalCount = 2;
-
 
 
         }
@@ -1404,7 +1332,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 // attempt to target specificaly clicked token
                 if (targetToken != null) {
                         localPlayerToken.command.setTargetToken(targetToken);
-                        if(localPlayerToken.command.getTargetToken() != null)
+                        if (localPlayerToken.command.getTargetToken() != null)
                                 return true;
                 }
 
@@ -1537,20 +1465,22 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 setItemWindowVisible(false);
                 } else if (event.getListenerActor() == itemWindowBackButton) {
                         setItemWindowVisible(false);
-                } else if (event.getListenerActor() == inputModeCancelButton) {
+                } else if (event.getListenerActor() == inventoryCloseButton) {
                         if (itemSelectMode) {
                                 setItemSelectMode(null);
                                 this.setInventoryWindowVisible(true);
+                        }else{
+                                setInventoryWindowVisible(false);
                         }
-                }else if (event.getListenerActor() instanceof Button) {
+                } else if (event.getListenerActor() instanceof Button) {
                         // an inventory, quick slot, or chat choice button
                         Button button = (Button) event.getListenerActor();
                         Object uo = button.getUserObject();
-                        if(uo instanceof ItemButtonStack){
+                        if (uo instanceof ItemButtonStack) {
                                 // inventory or quickslot button
                                 ItemButtonStack itemButtonStack = (ItemButtonStack) uo;
                                 Item item = itemButtonStack.getItem();
-                                if (inventoryEquipmentButtons.contains(itemButtonStack, true) || inventoryBackPackButtons.contains(itemButtonStack, true)) {
+                                if (inventoryBackPackButtons.contains(itemButtonStack, true)) {
                                         // inventory screen button
                                         if (item != null) {
                                                 if (itemSelectMode) {
@@ -1582,7 +1512,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                         // this should mean the item was null, means quickslot had nothing assigned.
                                         // if i add more types of buttons i might want to do quickButtons.contains(button) instead
                                 }
-                        }else if (chatChoiceButtons.contains(button, true)) {
+                        } else if (chatChoiceButtons.contains(button, true)) {
                                 // chat choice button
                                 Choice choice = (Choice) event.getListenerActor().getUserObject();
                                 localPlayerToken.command.setChatChoice(choice);

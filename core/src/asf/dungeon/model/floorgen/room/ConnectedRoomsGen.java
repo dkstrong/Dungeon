@@ -128,7 +128,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 int countTeam1 = floorMap.getTokensOnTeam(1).size;
                 if(countTeam1 <2){
                         int x, y;
-                        ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Skeleton : ModelId.Skeleton;
+                        ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Rat : ModelId.Skeleton;
                         do{
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());

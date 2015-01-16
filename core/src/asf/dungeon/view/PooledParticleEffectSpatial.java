@@ -313,6 +313,6 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
 
         @Override
         public void dispose() {
-
+                effect.dispose();
         }
 }

@@ -141,24 +141,10 @@ public class CharacterInventory implements Inventory, Teleportable {
                 return items.size;
         }
 
-        public int sizeInBackpack() {
-                int subMax = 0;
-                if (weaponSlot != null) subMax++;
-                if (armorSlot != null) subMax++;
-                if (ringSlot != null) subMax++;
-                for (int i = 0; i < numQuickSlots(); i++) {
-                        if (quickSlots[i] != null) subMax++;
-                }
-                return items.size - subMax;
-
-        }
-
-        public int maxBackpackSlots() {
-                return 16;
-        }
+        public static transient final int maxBackpackSlots = 16;
 
         public boolean isFull() {
-                return sizeInBackpack() >= maxBackpackSlots();
+                return items.size >= maxBackpackSlots;
         }
 
         protected void resetCombatTimer() {
@@ -301,9 +287,6 @@ public class CharacterInventory implements Inventory, Teleportable {
                 if (item == null || !canChangeEquipment())
                         return false;
 
-                // if unequipping an item and the inventory is full, it can still go through if the item will be discarded
-                if(isFull() && !forDiscard) return false;
-
                 if (weaponSlot == item) {
                         if(!hasRequiredStatsToChangeEquipment(weaponSlot, armorSlot, ringSlot, null)) return false;
                         weaponSlot = null;
@@ -325,7 +308,6 @@ public class CharacterInventory implements Inventory, Teleportable {
         private boolean unequip(QuickItem item, boolean forDiscard){
                 if (item == null )
                         return false;
-                if(isFull() && !forDiscard) return false;
 
                 for (int i = 0; i < numQuickSlots(); i++) {
                         if (quickSlots[i] == item)

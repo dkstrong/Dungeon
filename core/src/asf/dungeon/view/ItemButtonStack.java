@@ -100,6 +100,7 @@ public class ItemButtonStack extends Stack implements DungeonWorld.LoadedNotifya
                         return itemImage;
                 itemImage = new Image();
                 itemImage.setTouchable(Touchable.disabled);
+                //itemImage.setScaling(Scaling.fillY);
                 return itemImage;
         }
 

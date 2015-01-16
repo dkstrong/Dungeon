@@ -101,6 +101,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                                 token.modelId != ModelId.Archer &&
                                 token.modelId != ModelId.Mage &&
                                 token.modelId != ModelId.Goblin &&
+                                token.modelId != ModelId.Rat &&
                                 token.modelId != ModelId.RockMonster &&
                                 token.modelId != ModelId.Skeleton) {
                         float s = .45f;

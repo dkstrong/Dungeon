@@ -7,11 +7,23 @@ public enum StatusEffect {
 
         Heal(){
                 @Override
+                protected void begin(Token token) {
+                        token.statusEffects.remove(StatusEffect.Poison);
+                }
+
+                @Override
                 protected void apply(Token token) {
                         token.damage.addHealth(1);
                 }
         },
         Poison(){
+                @Override
+                protected void begin(Token token) {
+                        token.statusEffects.remove(StatusEffect.Heal);
+                        token.statusEffects.remove(StatusEffect.Paralyze);
+
+                }
+
                 @Override
                 protected void apply(Token token) {
                         token.damage.addHealth(-1);
@@ -23,28 +35,92 @@ public enum StatusEffect {
                 @Override
                 protected void begin(Token token) {
                         token.statusEffects.remove(StatusEffect.Burning);
+                        token.statusEffects.remove(StatusEffect.Invisibility);
+                        token.statusEffects.remove(StatusEffect.Speed);
                 }
         },
         Burning(){
                 @Override
                 protected void begin(Token token) {
                         token.statusEffects.remove(StatusEffect.Frozen);
+                        token.statusEffects.remove(StatusEffect.Invisibility);
+                        token.statusEffects.remove(StatusEffect.Speed);
                 }
                 @Override
                 protected void apply(Token token) {
                         token.damage.addHealth(-1);
                 }
         },
-        Paralyze(), // StatusEffects.update() checks for this and blocks the stack if paralyzed, Inventory
+        Paralyze(){
+                // StatusEffects.update() checks for this and blocks the stack if paralyzed, Inventory
+
+                @Override
+                protected void begin(Token token) {
+                        token.statusEffects.remove(StatusEffect.Invisibility);
+                        token.statusEffects.remove(StatusEffect.Speed);
+                        token.statusEffects.remove(StatusEffect.Poison);
+                        token.statusEffects.remove(StatusEffect.MindVision);
+                        token.statusEffects.remove(StatusEffect.ItemVision);
+                }
+        },
         Invisibility(), // Damage checks for this and sets not attackable is invisible
-        MindVision(), // StatusEffects.update() checks for this, reveals tiles of monster tokens
-        ItemVision(), // StatusEffects.update() checks for tihs, reveals tiles of crates and loot
-        Blind(), // Experience.recalcStats() checks for this, redudes visibility to 1 tile
+        MindVision(){
+                // StatusEffects.update() checks for this, reveals tiles of monster tokens
+                @Override
+                protected void begin(Token token) {
+                        token.statusEffects.remove(StatusEffect.Confused);
+                        token.statusEffects.remove(StatusEffect.Blind);
+                }
+        },
+        ItemVision(){
+                // StatusEffects.update() checks for tihs, reveals tiles of crates and loot
+                @Override
+                protected void begin(Token token) {
+                        token.statusEffects.remove(StatusEffect.Confused);
+                        token.statusEffects.remove(StatusEffect.Blind);
+                }
+        },
+        Blind(){
+                // Experience.recalcStats() checks for this, redudes visibility to 1 tile
+                @Override
+                protected void begin(Token token) {
+                        token.statusEffects.remove(StatusEffect.MindVision);
+                        token.statusEffects.remove(StatusEffect.ItemVision);
+                }
+        },
         Might(), // Attack.sendDamageToAttackTarget() checks for this, increases damage dealt and reduces damage received
-        Speed(), // Experience.recalcStats() checks for this and gives 35% speed increase
-        Confused(), // Monster FSM checks for this
-        ScaresMonsters(), // TODO: Monster FSM checks for this, runs from this token's location if nearby
-        LuresMonsters(); // Monster.Sleep and Monster.Explore will be lured to this token's location
+        Speed(){
+                // Experience.recalcStats() checks for this and gives 35% speed increase
+                @Override
+                protected void begin(Token token) {
+                        token.statusEffects.remove(StatusEffect.Paralyze);
+                }
+        },
+        Confused(){
+                // Monster FSM checks for this
+
+                @Override
+                protected void begin(Token token) {
+                        token.statusEffects.remove(StatusEffect.MindVision);
+                        token.statusEffects.remove(StatusEffect.ItemVision);
+                }
+        },
+        ScaresMonsters(){
+                // TODO: Monster FSM checks for this, runs from this token's location if nearby
+
+                @Override
+                protected void begin(Token token) {
+                        token.statusEffects.remove(StatusEffect.LuresMonsters);
+                }
+        },
+        LuresMonsters(){
+                // Monster.Sleep and Monster.Explore will be lured to this token's location
+
+                @Override
+                protected void begin(Token token) {
+                        token.statusEffects.remove(StatusEffect.ScaresMonsters);
+                }
+        };
         /**
          * called when the status effect is added
          * @param token

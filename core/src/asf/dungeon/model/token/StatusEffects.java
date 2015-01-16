@@ -84,11 +84,12 @@ public class StatusEffects implements TokenComponent{
                 durations.add(Float.NaN);
                 // following the logic from the bottom of addStatusEffect(Effect,float,int)
 
+                statusEffect.begin(token);
                 if(token.experience != null)
                         token.experience.recalcStats();
                 if(token.listener != null)
                         token.listener.onStatusEffectChange(statusEffect, Float.NaN);
-                statusEffect.begin(token);
+
         }
         public void add(StatusEffect statusEffect, float duration){
                 add(statusEffect, duration, 1);
@@ -112,12 +113,12 @@ public class StatusEffects implements TokenComponent{
                         durations.add(duration);
                 }
 
-
+                statusEffect.begin(token);
                 if(token.experience != null)
                         token.experience.recalcStats();
                 if(token.listener != null)
                         token.listener.onStatusEffectChange(statusEffect, duration);
-                statusEffect.begin(token);
+
         }
 
         public void remove(StatusEffect statusEffect){

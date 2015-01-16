@@ -120,12 +120,12 @@ public class DungeonLoader {
                                 new Experience(1, 20, 6, 3, 1, 1),
                                 0, 0);
 
-                        //token.statusEffects.addStatusEffect(StatusEffects.Effect.Blind);
+
+                        token.statusEffects.add(StatusEffect.Blind);
+                        token.statusEffects.add(StatusEffect.Paralyze);
                         token.inventory.setNumQuickSlots(3);
 
-                        //token.inventory.add(new KeyItem(KeyItem.Type.Silver));
-                        //token.inventory.add(new KeyItem(KeyItem.Type.Gold));
-                        //token.inventory.add(new KeyItem(KeyItem.Type.Red));
+
 
                         ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 1);
                         //potion.identifyItem(token);
@@ -161,6 +161,10 @@ public class DungeonLoader {
                         armor.identifyItem(token);
                         token.inventory.add(armor);
                         token.inventory.equip(armor);
+
+                        token.inventory.add(new KeyItem(dungeon, KeyItem.Type.Silver));
+                        token.inventory.add(new KeyItem(dungeon,KeyItem.Type.Gold));
+                        token.inventory.add(new KeyItem(dungeon, KeyItem.Type.Red));
 
                         if (settings.playerModel == ModelId.Knight) {
                                 WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
@@ -202,7 +206,7 @@ public class DungeonLoader {
                                 WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
                                 token.inventory.add(sword);
                                 sword.cursed = true;
-                                //sword.identifyItem(token);
+                                sword.identifyItem(token);
 
                                 WeaponItem bow = new WeaponItem(dungeon,  2,2,1, true,3,1);
                                 token.inventory.add(bow);
