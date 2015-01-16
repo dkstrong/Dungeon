@@ -12,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -35,6 +34,7 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
         private ImageButton soundButton;
         @Override
         public void show() {
+                //app.dungeonWorld.hudSpatial.
                 stage = app.stage;
                 Gdx.input.setInputProcessor(new InputMultiplexer(this, stage));
                 Skin skin = app.skin;
@@ -49,19 +49,15 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
                 soundButton.addCaptureListener(this);
                 soundButton.setChecked(!app.music.isMusicEnabled());
 
-                Table table = new Table(skin);
-                stage.addActor(table);
-                table.setFillParent(true);
-
 
                 window = new Window(i18n.get("paused"),skin);
-                table.add(window).minSize(Gdx.graphics.getWidth()*.75f, Gdx.graphics.getHeight()*.75f);
+                stage.addActor(window);
 
                 //window.setFillParent(true);
 
                 window.center();
                 window.setMovable(false);
-                window.setModal(true);
+                window.setModal(false);
                 window.addCaptureListener(this);
                 window.removeActor(window.getButtonTable());
 
@@ -81,10 +77,17 @@ public class PauseScreen implements Screen, InputProcessor, EventListener {
         }
 
         @Override
-        public void resize(int width, int height) {
+        public void resize(int graphicsWidth, int graphicsHeight) {
+                float width = graphicsWidth * 0.7f;
+                float height = graphicsHeight * 0.65f;
+                window.setBounds(
+                        (graphicsWidth-width)*0.5f,
+                        (graphicsHeight-height)*0.5f,
+                        width,
+                        height);
                 soundButton.setBounds(
-                        Gdx.graphics.getWidth() - 110,
-                        Gdx.graphics.getHeight() - 110,
+                        graphicsWidth - 110,
+                        graphicsHeight - 110,
                         100,100);
         }
 

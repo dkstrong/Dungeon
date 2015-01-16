@@ -414,7 +414,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 if (renderingStats != null)
                         renderingStats.setBounds(
                                 graphicsWidth - buttonSize - margin,
-                                graphicsHeight - buttonSize -buttonSize- margin,
+                                graphicsHeight - buttonSize*1.5f - margin,
                                 buttonSize, buttonSize);
 
 
@@ -731,6 +731,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 healthProgressBar.setVisible(visible);
                 avatarLabel.setVisible(visible);
                 avatarStatusEffectsGroup.setVisible(visible);
+                keyIconsGroup.setVisible(visible);
                 gameLogLabel.setVisible(visible);
                 targetInfoLabel.setVisible(visible);
                 for (ItemButtonStack quickButton : quickButtons) {

@@ -73,6 +73,7 @@ public class DungeonApp implements ApplicationListener {
                         stage.getViewport().update(width, height, true);
                 if (screen != null)
                         screen.resize(width, height);
+                //Gdx.graphics.requestRendering();
         }
 
         @Override
