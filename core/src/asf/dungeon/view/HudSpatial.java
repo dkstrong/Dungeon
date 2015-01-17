@@ -15,7 +15,6 @@ import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.CharacterInventory;
-import asf.dungeon.model.token.Damage;
 import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
@@ -81,13 +80,12 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private Label gameLogLabel, targetInfoLabel;
         private float gameLogDisplayCountdown = Float.NaN;
         private float gameOverCountdown = .75f;
-        private Button avatarButton;
+        private Button inventoryButton;
         private ItemButtonStack[] quickButtons;
-        private ProgressBar healthProgressBar;
-        private Label avatarLabel;
+        private ProgressBar healthProgressBar, experienceProgressBar;
+        private Label avatarInfoLabel;
         private HorizontalGroup avatarStatusEffectsGroup;
         private Container[] statusEffectImage;
-        private Container<HorizontalGroup> keyIconGroupContainer;
         private HorizontalGroup keyIconsGroup;
         private Container[] keyIconImage;
         private Label renderingStats;
@@ -156,26 +154,32 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
                 skin = world.assetManager.get("Skins/BasicSkin/uiskin.json", Skin.class);
 
-                avatarButton = new Button(skin);
-                world.stage.addActor(avatarButton);
-                avatarButton.add(new Label("Inventory", skin));
-                avatarButton.addCaptureListener(this);
+                inventoryButton = new Button(skin);
+                world.stage.addActor(inventoryButton);
+                inventoryButton.add(new Label("Inventory", skin));
+                inventoryButton.addCaptureListener(this);
 
-                Damage damage = localPlayerToken.get(Damage.class);
-                healthProgressBar = new ProgressBar(0, damage.getMaxHealth(), 1, false, skin, "default");
-                healthProgressBar.setValue(damage.getHealth());
+                healthProgressBar = new ProgressBar(0, localPlayerToken.damage.getMaxHealth(), 1, false, skin, "default");
+                healthProgressBar.setValue(localPlayerToken.damage.getHealth());
                 healthProgressBar.setAnimateInterpolation(Interpolation.linear);
                 healthProgressBar.setAnimateDuration(1f);
                 world.stage.addActor(healthProgressBar);
 
-                avatarLabel = new Label("Knight\nLevel 1\nXP 25/100", skin);
-                world.stage.addActor(avatarLabel);
-                avatarLabel.setAlignment(Align.topLeft);
+                experienceProgressBar = new ProgressBar(
+                        localPlayerToken.experience.getXpAtStartOfLevel(),
+                        localPlayerToken.experience.getRequiredXpToLevelUp(),1,false,skin,"default");
+                experienceProgressBar.setValue(localPlayerToken.experience.getXp());
+                experienceProgressBar.setAnimateInterpolation(Interpolation.linear);
+                experienceProgressBar.setAnimateDuration(2f);
+                world.stage.addActor(experienceProgressBar);
+
+                avatarInfoLabel = new Label("Knight\nLevel 1\nXP 25/100", skin);
+                avatarInfoLabel.setAlignment(Align.topLeft);
+                world.stage.addActor(avatarInfoLabel);
 
                 avatarStatusEffectsGroup = new HorizontalGroup();
                 world.stage.addActor(avatarStatusEffectsGroup);
                 avatarStatusEffectsGroup.align(Align.bottomLeft);
-
 
                 StatusEffect[] values = StatusEffects.effectValues;
                 statusEffectImage = new Container[values.length];
@@ -367,29 +371,36 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         }
 
-        protected void resize(int graphicsWidth, int graphicsHeight) {
-                if (avatarButton == null)
+        protected void resize(final int graphicsWidth, final int graphicsHeight) {
+                if (inventoryButton == null)
                         return;
 
-                float margin = 15;
-                float buttonSize = graphicsWidth > graphicsHeight ? 125f : (graphicsWidth-margin*5f) / 4f;
+                final float margin = 15;
+                final float buttonSize = graphicsWidth > graphicsHeight ? 125f : (graphicsWidth-margin*5f) / 4f;
 
 
-                avatarButton.setBounds(margin, margin, buttonSize, buttonSize);
+                inventoryButton.setBounds(margin, margin, buttonSize, buttonSize);
 
+                final float progressBarHeight = buttonSize * 0.333f;
                 healthProgressBar.setBounds(
-                        margin,
-                        graphicsHeight- margin*3f,
-                        buttonSize * 1.5f,
-                        buttonSize * .333f);
+                        0,
+                        graphicsHeight-progressBarHeight/2f,
+                        graphicsWidth,
+                        progressBarHeight);
 
-                avatarLabel.setBounds(
-                        margin*1.5f,
-                        graphicsHeight-margin - buttonSize,
+                experienceProgressBar.setBounds(
+                        0,
+                        -progressBarHeight/2f,
+                        graphicsWidth,
+                        progressBarHeight);
+
+                avatarInfoLabel.setBounds(
+                        margin * 0.5f,
+                        graphicsHeight - buttonSize - margin * 0.75f,
                         buttonSize, buttonSize);
 
 
-                float effectIconSize = buttonSize * 0.27f;
+                final float effectIconSize = buttonSize * 0.27f;
                 avatarStatusEffectsGroup.setBounds(
                         margin,
                         graphicsHeight- buttonSize*0.7f-margin,
@@ -458,7 +469,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         cell.prefSize(invWindowButtonSize, invWindowButtonSize).minSize(invWindowButtonSize, invWindowButtonSize);
                 }
 
-                float quickXOffset = buttonSize + margin;
+                final float quickXOffset = buttonSize + margin;
                 for (int i = 0; i < quickButtons.length; i++) {
                         quickButtons[i].setBounds(graphicsWidth - (quickXOffset * (i + 1)),
                                 margin,
@@ -584,16 +595,19 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 }
 
                 if (localPlayerToken != null) {
+                        // TODO: this might be better to be done with events instead of polling
                         healthProgressBar.setRange(0, localPlayerToken.damage.getMaxHealth());
                         healthProgressBar.setValue(localPlayerToken.damage.getHealth());
                         healthProgressBar.act(delta);
 
-                        StringBuilder sb = avatarLabel.getText();
+                        experienceProgressBar.setRange(localPlayerToken.experience.getXpAtStartOfLevel(), localPlayerToken.experience.getRequiredXpToLevelUp());
+                        experienceProgressBar.setValue(localPlayerToken.experience.getXp());
+                        experienceProgressBar.act(delta);
+
+                        StringBuilder sb = avatarInfoLabel.getText();
                         sb.setLength(0);
-                        sb.append("  ").append(localPlayerToken.damage.getHealth()).append(" / ").append(localPlayerToken.damage.getMaxHealth()).append("\n")
-                                .append("Level ").append(localPlayerToken.experience.getLevel()).append(" (XP: ").append(localPlayerToken.experience.getXp())
-                                .append(" / ").append(localPlayerToken.experience.getRequiredXpToLevelUp());
-                        avatarLabel.invalidateHierarchy();
+                        sb.append("Floor ").append(localPlayerToken.floorMap.index+1);
+                        avatarInfoLabel.invalidateHierarchy();
 
                         if (localPlayerToken.damage.isDead()) {
                                 targetInfoLabel.setText("GAME OVER!");
@@ -727,9 +741,9 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         private void setHudElementsVisible(boolean visible) {
-                avatarButton.setVisible(visible);
+                inventoryButton.setVisible(visible);
                 healthProgressBar.setVisible(visible);
-                avatarLabel.setVisible(visible);
+                avatarInfoLabel.setVisible(visible);
                 avatarStatusEffectsGroup.setVisible(visible);
                 keyIconsGroup.setVisible(visible);
                 gameLogLabel.setVisible(visible);
@@ -1427,7 +1441,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         return false;
                 }
 
-                if (event.getListenerActor() == avatarButton) {
+                if (event.getListenerActor() == inventoryButton) {
                         if (!tokenSelectMode)
                                 setInventoryWindowVisible(true);
                 } else if (event.getListenerActor() == itemWindowUseButton) {

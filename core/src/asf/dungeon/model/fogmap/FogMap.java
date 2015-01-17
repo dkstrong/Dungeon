@@ -1,6 +1,7 @@
 package asf.dungeon.model.fogmap;
 
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.token.Token;
 import com.badlogic.gdx.utils.Array;
@@ -114,7 +115,10 @@ public class FogMap {
 
                 for (int x = 0; x < fog.length; x++) {
                         for (int y = 0; y < fog[x].length; y++) {
-                                if (isStepVisibleMapCoord(x, y)) {
+                                // the || statement is used to reveal corners of a room, but does not work when blind (radius = 1)
+                                // this check cant be done in calcStep() beause calcStep() does vision checking
+                                // in a manhatten style so room corners can never be reached
+                                if (isStepVisibleMapCoord(x, y) || (radius > 1 && floorMap.tiles[x][y]!=null && floorMap.tiles[x][y].isWall() && Pair.distanceFree(xCenter, yCenter, x, y) == 1)) {
                                         fog[x][y] = FogState.Visible;
                                 } else if (fog[x][y] == FogState.Visible) {
                                         fog[x][y] = FogState.Visited;
@@ -143,37 +147,45 @@ public class FogMap {
 
         private void setVisibleAdjacent(int xLocal, int yLocal, int xWorld, int yWorld){
 
-                // TODO: need to do something similiar for wall tiles in the corner of rooms
 
-                // if this is a door tile, set the adjcant wall tiles to visible
                 Tile tile = floorMap.getTile(xWorld, yWorld);
-                if(tile == null || !tile.isDoor()){
-                    return;
+                if(tile == null){
+                        return;
+                }
+                if(tile.isDoor()){
+                        // if this is a door tile, set the adjcant wall tiles to visible
+                        // this prevents doors from seeming unattached to anything
+                        if(xLocal -1 >=0){
+                                Tile west = floorMap.getTile(xWorld-1, yWorld);
+                                if(west != null && west.isWall())
+                                        stepResult[xLocal -1][yLocal] = 1;
+                        }
+
+                        if(xLocal +1 < stepResult.length){
+                                Tile east = floorMap.getTile(xWorld+1, yWorld);
+                                if(east != null && east.isWall())
+                                        stepResult[xLocal +1][yLocal] = 1;
+                        }
+
+                        if(yLocal -1 >= 0){
+                                Tile south = floorMap.getTile(xWorld, yWorld-1);
+                                if(south != null && south.isWall())
+                                        stepResult[xLocal][yLocal-1] = 1;
+                        }
+
+                        if(yLocal +1 < stepResult[0].length){
+                                Tile north = floorMap.getTile(xWorld, yWorld+1);
+                                if(north != null && north.isWall())
+                                        stepResult[xLocal][yLocal+1] = 1;
+                        }
                 }
 
-                if(xLocal -1 >=0){
-                        Tile west = floorMap.getTile(xWorld-1, yWorld);
-                        if(west != null && west.isWall())
-                                stepResult[xLocal -1][yLocal] = 1;
-                }
+                // TODO: I was thinking about using some kind of similiar code to this for making room corners
+                // visible. but I'm using the || statement on line 121 to do this.
+                // prefrebly id do that check here so room corners can be revealed without having to be directly next to them
+                // but rather just having the room corner without the sight radius
 
-                if(xLocal +1 < stepResult.length){
-                        Tile east = floorMap.getTile(xWorld+1, yWorld);
-                        if(east != null && east.isWall())
-                                stepResult[xLocal +1][yLocal] = 1;
-                }
 
-                if(yLocal -1 >= 0){
-                        Tile south = floorMap.getTile(xWorld, yWorld-1);
-                        if(south != null && south.isWall())
-                                stepResult[xLocal][yLocal-1] = 1;
-                }
-
-                if(yLocal +1 < stepResult[0].length){
-                        Tile north = floorMap.getTile(xWorld, yWorld+1);
-                        if(north != null && north.isWall())
-                                stepResult[xLocal][yLocal+1] = 1;
-                }
 
         }
 

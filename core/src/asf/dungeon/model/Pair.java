@@ -57,8 +57,9 @@ public class Pair {
 
         /**
          * distance between these two tile locations
-         * note that distance is determind as number of moves to go from location A to location B with diagonal turned on
-         * <p/>
+         * note that distance is determined as  the number of moves to go from location A to location B with diagonal turned OFF
+         * Sometimes called manhattan distance
+         *
          * this is often a different distance value than what is conventionally known as "distance"
          *
          * @param targetLocation
@@ -70,8 +71,9 @@ public class Pair {
 
         /**
          * distance between these two tile locations
-         * note that distance is determind as number of moves to go from location A to location B with diagonal turned on
-         * <p/>
+         * note that distance is determined as  the number of moves to go from location A to location B with diagonal turned OFF
+         * Sometimes called manhattan distance
+         *
          * this is often a different distance value than what is conventionally known as "distance"
          *
          * @param targetX
@@ -84,10 +86,31 @@ public class Pair {
                 return xDistance + yDistance;
         }
 
+        /**
+         * distance between two tiles locations
+         * this distance is determined as the number of moves to go from location A to location B with daigonal turned ON
+         *
+         * thi is often a different distance value from what is conventionally known as "distnace"
+         * @param targetX
+         * @param targetY
+         * @return
+         */
+        public int distanceFree(int targetX, int targetY){
+                int xDistance = Math.abs(targetX - x);
+                int yDistance = Math.abs(targetY - y);
+                return xDistance < yDistance ? xDistance : yDistance;
+        }
+
         public static int distance(int startX, int startY, int targetX, int targetY){
                 int xDistance = Math.abs(targetX - startX);
                 int yDistance = Math.abs(targetY - startY);
                 return xDistance + yDistance;
+        }
+
+        public static int distanceFree(int startX, int startY, int targetX, int targetY){
+                int xDistance = Math.abs(targetX - startX);
+                int yDistance = Math.abs(targetY - startY);
+                return xDistance > yDistance ? xDistance : yDistance;
         }
 
         /**
