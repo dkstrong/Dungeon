@@ -120,9 +120,6 @@ public class DungeonLoader {
                                 new Experience(1, 20, 6, 3, 1, 1),
                                 0, 0);
 
-
-                        token.statusEffects.add(StatusEffect.Blind);
-                        token.statusEffects.add(StatusEffect.Paralyze);
                         token.inventory.setNumQuickSlots(3);
 
 

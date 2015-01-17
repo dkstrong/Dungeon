@@ -119,7 +119,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         // temp
         private final Vector3 tempVec = new Vector3();
 
-
         protected void setToken(Token token) {
                 localPlayerToken = token;
                 if (localPlayerToken != null) {
