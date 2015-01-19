@@ -71,8 +71,8 @@ task packImages(type: JavaExec){
     args = []
 }
 
-task flame(type: JavaExec){
+task hiero(type: JavaExec){
     classpath = sourceSets.main.runtimeClasspath
-    main = 'com.badlogic.gdx.tools.flame.FlameMain'
+    main = 'com.badlogic.gdx.tools.hiero.Hiero'
     args = []
 }

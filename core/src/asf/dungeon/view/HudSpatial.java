@@ -139,9 +139,6 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         @Override
         public void preload(DungeonWorld world) {
                 this.world = world;
-                //skin = new Skin(Gdx.files.internal());
-
-                world.assetManager.load("Skins/BasicSkin/uiskin.json", Skin.class);
 
         }
 
@@ -151,8 +148,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                 if (localPlayerToken == null) {
                         return;
                 }
-                skin = world.assetManager.get("Skins/BasicSkin/uiskin.json", Skin.class);
-                
+                skin = world.dungeonApp.skin;
 
                 inventoryButton = new Button(skin);
                 world.stage.addActor(inventoryButton);
@@ -170,7 +166,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         localPlayerToken.experience.getRequiredXpToLevelUp(),1,false,skin,"yellow");
                 experienceProgressBar.setValue(localPlayerToken.experience.getXp());
                 experienceProgressBar.setAnimateInterpolation(Interpolation.linear);
-                experienceProgressBar.setAnimateDuration(2f);
+                experienceProgressBar.setAnimateDuration(.5f);
                 world.stage.addActor(experienceProgressBar);
 
                 targetHealthProgressBar = new ProgressBar(0,10,1,false, skin,"default");

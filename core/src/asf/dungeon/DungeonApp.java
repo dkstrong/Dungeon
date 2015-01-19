@@ -28,7 +28,7 @@ public class DungeonApp implements ApplicationListener {
         public DungeonWorld dungeonWorld;
         private Resolver platformActionResolver;
         protected Stage stage;
-        protected Skin skin;
+        public Skin skin;
         protected TextureAtlas pack;
         protected I18NBundle i18n;
 
@@ -36,6 +36,7 @@ public class DungeonApp implements ApplicationListener {
         public void create() {
                 Gdx.input.setCatchMenuKey(true);
                 Gdx.input.setCatchBackKey(true);
+                skin = new Skin(Gdx.files.internal("Packs/GameSkin.json"));
                 prefs = Gdx.app.getPreferences("Dungeon");
                 //prefs.putBoolean("musicEnabled", false); // temporarily force disabled for ios, need to convert all sounds non ogg
                 music.setMusicEnabled(prefs.getBoolean("musicEnabled", true));
@@ -114,6 +115,8 @@ public class DungeonApp implements ApplicationListener {
                 unloadWorld();
                 setScreen(null);
                 music.dispose();
+                skin.dispose();
+                skin = null;
         }
 
         public void setScreen(Screen screen) {
@@ -123,8 +126,8 @@ public class DungeonApp implements ApplicationListener {
                 if (this.screen != null) {
                         if (stage == null) {
                                 stage = new Stage(new ScreenViewport());
-                                skin = new Skin(Gdx.files.internal("Skins/BasicSkin/uiskin.json"));
-                                pack = new TextureAtlas(Gdx.files.internal("Packs/Menu.atlas"));
+                                //pack = new TextureAtlas(Gdx.files.internal("Packs/Menu.atlas"));
+                                pack = skin.getAtlas(); // TODO: when i have more assets, ill need to have a seperate menu atlas for menu only assets
                                 FileHandle baseFileHandle = Gdx.files.internal("i18n/Menu");
                                 Locale locale = new Locale("en");
                                 i18n = I18NBundle.createBundle(baseFileHandle, locale);
@@ -135,9 +138,7 @@ public class DungeonApp implements ApplicationListener {
                         if (stage != null) {
                                 stage.dispose();
                                 stage = null;
-                                skin.dispose();
-                                skin = null;
-                                pack.dispose();
+                                //pack.dispose();
                                 pack = null;
                                 i18n = null; // does not need to be disposed
                         }

@@ -2,6 +2,12 @@ package asf.dungeon.desktop;
 
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
 /**
  *
  *
@@ -17,9 +23,11 @@ public class Packer {
                 packerSettings.minHeight = 512;
                 packerSettings.maxWidth = 512;
                 packerSettings.maxHeight = 512;
-                packerSettings.pot = true;
-                packerSettings.square = true;
-                TexturePacker.processIfModified(packerSettings, "../images/Menu", "../android/assets/Packs","Menu");
+                packerSettings.paddingX = 1;
+                packerSettings.paddingY = 1;
+                TexturePacker.processIfModified(packerSettings, "../images/GameSkin", "../android/assets/Packs","GameSkin");
+
+                 copy("../images/GameSkin","../android/assets/Packs",".fnt",".json");
 
                 TexturePacker.Settings packerSettings2 = new TexturePacker.Settings();
                 packerSettings2.minWidth = 512;
@@ -31,6 +39,7 @@ public class Packer {
                 packerSettings2.paddingY=0;
                 packerSettings2.pot = true;
                 packerSettings2.square = true;
+                packerSettings2.combineSubdirectories = true;
                 TexturePacker.processIfModified(packerSettings2, "../images/Game", "../android/assets/Packs","Game");
 
                 TexturePacker.Settings packerSettings3 = new TexturePacker.Settings();
@@ -45,6 +54,38 @@ public class Packer {
                 packerSettings3.square = true;
                 packerSettings3.grid = true;
                 TexturePacker.processIfModified(packerSettings3, "../images/Particle", "../android/assets/ParticleEffects","Particle");
+
+
+        }
+
+        private static void copy(String src, String dst, final String... extensions){
+                System.out.println("Copying");
+                File srcDir = new File(src);
+
+                File[] files = srcDir.listFiles(new FilenameFilter() {
+                        @Override
+                        public boolean accept(File dir, String name) {
+                                for (String extension : extensions)
+                                        if(name.endsWith(extension))
+                                                return true;
+                                return false;
+                        }
+                });
+
+                for (File file : files) {
+                        File newLoc = new File(dst+"\\"+file.getName());
+                        System.out.println("Writing: "+dst+"\\"+file.getName());
+                        try {
+                                Files.copy(file.toPath(), newLoc.toPath(),
+                                        StandardCopyOption.REPLACE_EXISTING,
+                                        StandardCopyOption.COPY_ATTRIBUTES);
+                        } catch (IOException e) {
+                                e.printStackTrace();
+                                System.exit(1);
+                        }
+
+                }
+
 
         }
 }
