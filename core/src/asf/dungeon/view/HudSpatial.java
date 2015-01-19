@@ -82,7 +82,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         private float gameOverCountdown = .75f;
         private Button inventoryButton;
         private ItemButtonStack[] quickButtons;
-        private ProgressBar healthProgressBar, experienceProgressBar;
+        private ProgressBar healthProgressBar, experienceProgressBar, targetHealthProgressBar;
         private Label avatarInfoLabel;
         private HorizontalGroup avatarStatusEffectsGroup;
         private Container[] statusEffectImage;
@@ -152,6 +152,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         return;
                 }
                 skin = world.assetManager.get("Skins/BasicSkin/uiskin.json", Skin.class);
+                
 
                 inventoryButton = new Button(skin);
                 world.stage.addActor(inventoryButton);
@@ -166,11 +167,16 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 experienceProgressBar = new ProgressBar(
                         localPlayerToken.experience.getXpAtStartOfLevel(),
-                        localPlayerToken.experience.getRequiredXpToLevelUp(),1,false,skin,"default");
+                        localPlayerToken.experience.getRequiredXpToLevelUp(),1,false,skin,"yellow");
                 experienceProgressBar.setValue(localPlayerToken.experience.getXp());
                 experienceProgressBar.setAnimateInterpolation(Interpolation.linear);
                 experienceProgressBar.setAnimateDuration(2f);
                 world.stage.addActor(experienceProgressBar);
+
+                targetHealthProgressBar = new ProgressBar(0,10,1,false, skin,"default");
+                targetHealthProgressBar.setValue(10);
+                targetHealthProgressBar.setAnimateInterpolation(Interpolation.linear);
+                targetHealthProgressBar.setAnimateDuration(1f);
 
                 avatarInfoLabel = new Label("Knight\nLevel 1\nXP 25/100", skin);
                 avatarInfoLabel.setAlignment(Align.topLeft);
@@ -436,9 +442,18 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
                 targetInfoLabel.setBounds(
                         graphicsWidth * .25f,
-                        graphicsHeight - margin - buttonSize * .5f,
+                        graphicsHeight - margin - buttonSize*.75f ,
                         graphicsWidth * .5f,
                         buttonSize * .25f);
+
+                final float targetHealthBarWidth = graphicsWidth * .333f;
+                final float targetHealthBarHeight = progressBarHeight*0.5f;
+                targetHealthProgressBar.setBounds(
+                        (graphicsWidth - targetHealthBarWidth)*0.5f,
+                        graphicsHeight - margin - buttonSize*.75f -targetHealthBarHeight,
+                        targetHealthBarWidth,
+                        targetHealthBarHeight
+                );
 
                 float invWindowHeight,invWindowButtonSize,invWindowWidth,invWindowCloseButtonSize;
                 if (graphicsWidth > graphicsHeight) {
@@ -579,6 +594,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 
         }
 
+        private Token lastTargetToken;
         @Override
         public void update(float delta) {
 
@@ -611,14 +627,30 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                         if (localPlayerToken.damage.isDead()) {
                                 targetInfoLabel.setText("GAME OVER!");
                                 gameOverCountdown -= delta;
+                                targetHealthProgressBar.remove();
                         } else if (tokenSelectMode) {
                                 targetInfoLabel.setText("Choose target for " + tokenSelectForItem.getNameFromJournal(localPlayerToken));
+                                targetHealthProgressBar.remove();
                         } else {
                                 Token targetToken = localPlayerToken.command.getTargetToken();
-                                if (targetToken == null)
+                                if (targetToken == null) {
                                         targetInfoLabel.setText(null);
-                                else {
+                                        targetHealthProgressBar.remove();
+                                }else {
                                         targetInfoLabel.setText("Target: " + targetToken.name);
+                                        if(targetToken.damage != null){
+                                                world.stage.addActor(targetHealthProgressBar);
+                                                targetHealthProgressBar.setRange(0,targetToken.damage.getMaxHealth());
+                                                targetHealthProgressBar.setValue(targetToken.damage.getHealth());
+                                                if(targetToken == lastTargetToken)
+                                                        targetHealthProgressBar.act(delta);
+                                                else
+                                                        targetHealthProgressBar.act(1f);
+                                                lastTargetToken = targetToken;
+                                        }else{
+                                                targetHealthProgressBar.remove();
+                                        }
+
                                 }
                         }
 
