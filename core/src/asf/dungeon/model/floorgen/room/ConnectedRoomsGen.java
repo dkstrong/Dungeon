@@ -89,6 +89,10 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                         loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
                         dungeon.newToken(spikeTrap, floorMap, loc.x, loc.y);
 
+                        Token trainingDummy = new Token(dungeon, "Training Dummy", ModelId.TrainingDummy);
+                        loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
+                        dungeon.newToken(trainingDummy, floorMap, loc.x, loc.y);
+
 
                 }else{
                         Room roomEnd = rooms.get(dungeon.rand.random.nextInt(rooms.size));

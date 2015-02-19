@@ -1,6 +1,6 @@
-These are the references for all art assets.
+These are the references for all art assets
 
-===Characters And Monsters===
+### Characters And Monsters
 Animated Heroes (Knight, Archer, Mage, Priest)
 Clement Wu, Nikolaus, Botanic
 Reskinned and Reanimated by Kevin Boyette
@@ -17,8 +17,13 @@ Rock Monster, Rat Monster
 Kevin Boyette
 
 
+Training Dummy
+Danimal
+http://opengameart.org/content/mecha-training-dummy
+reanimated by Daniel Strong
 
-===Doors, Crates, Traps, Switches, etc===
+
+### Doors, Crates, Traps, Switches, etc
 Ceramic Pitcher
 Aare
 URL: http://opengameart.org/content/ceramic-bear-mug
@@ -49,7 +54,18 @@ Stairs
 Clint Bellanger
 URL: http://opengameart.org/content/low-poly-stairs
 
-===Loot===
+### Decor
+
+Table, chair, bench
+Enetheru
+nicholas.samuel@gmail.com
+http://opengameart.org/content/wooden-furniture
+
+Stacked Barrels
+yd
+http://opengameart.org/content/three-barrels
+
+### Loot
 Bow_01
 Kevin Boyette
 
@@ -81,11 +97,15 @@ Book
 Aare
 http://opengameart.org/content/old-book
 
-===Textures===
+### Textures
 Floor and Wall textures
 Spiney
 URL: http://opengameart.org/users/spiney, http://opengameart.org/node/12116
 CC-BY
+
+Grass
+para
+http://opengameart.org/content/synthetic-grass-texture-pack
 
 Pit textures
 'Unnamed' ( (Viktor.Hahn@web.de )
@@ -105,10 +125,10 @@ CC0
 Wooden particle texture
 Kevin Boyette
 
-===Interface===
+### Interface
 
 
-===Music===
+### Music
 
 http://opengameart.org/content/walking-with-poseidon
 http://opengameart.org/content/arabesque
@@ -116,11 +136,9 @@ http://opengameart.org/content/ritual
 
 
 
-
-
--------------------
--- considering
-------------------
+### -------------------
+### -- considering
+### ------------------
 
 These assets may be used in the game, you may or may not see them in some builds.
 
@@ -149,3 +167,10 @@ http://opengameart.org/content/spell-book
 
 Music
 http://opengameart.org/content/magical-theme
+
+Weapons
+http://opengameart.org/content/staff-1
+http://opengameart.org/content/simple-axe
+
+Decor
+http://opengameart.org/content/medieval-props-textured

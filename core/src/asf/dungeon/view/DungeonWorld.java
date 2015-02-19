@@ -20,6 +20,7 @@ import asf.dungeon.view.token.AbstractTokenSpatial;
 import asf.dungeon.view.token.BoulderSpatial;
 import asf.dungeon.view.token.CharacterTokenSpatial;
 import asf.dungeon.view.token.CrateTokenSpatial;
+import asf.dungeon.view.token.DecorTokenSpatial;
 import asf.dungeon.view.token.FountainTokenSpatial;
 import asf.dungeon.view.token.LootTokenSpatial;
 import asf.dungeon.view.token.SignPostTokenSpatial;
@@ -448,7 +449,8 @@ public class DungeonWorld implements Dungeon.Listener, Disposable {
                 }else if(token.get(PressurePlate.class) != null){
                         // Pressure plate has no dedicated spatial,  it is incorporated with FloorSpatial
                 }else{
-                        throw new AssertionError(token);
+                        addSpatial(new DecorTokenSpatial(DungeonWorld.this, token));
+                        //throw new AssertionError(token);
                 }
 
         }

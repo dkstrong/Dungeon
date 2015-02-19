@@ -20,6 +20,7 @@ import static asf.dungeon.utility.UtDebugPrint.out;
  */
 public class FloorMap  implements UtDebugPrint.Debuggable{
         public final int index;
+        public final FloorType floorType;
         public final Tile[][] tiles;
         public final Pathfinder pathfinder;
         private final MonsterSpawner monsterSpawner;
@@ -31,6 +32,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         public FloorMap(int index, Tile[][] tiles,MonsterSpawner monsterSpawner) {
                 //UtFloorGen.printFloorTile(tiles);
                 this.index = index;
+                floorType = index == 0 ? FloorType.Grassy : FloorType.Dungeon;
                 this.tiles = tiles;
                 pathfinder = new Pathfinder(this);
                 this.monsterSpawner = monsterSpawner;

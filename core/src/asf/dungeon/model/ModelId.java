@@ -13,6 +13,7 @@ public enum ModelId {
         Goblin,
         RockMonster,
         Rat,
+        TrainingDummy,
         CeramicPitcher,
         Crate,
         Barrel,
@@ -32,6 +33,6 @@ public enum ModelId {
         Sword_01,
         BowLarge,
         Bow_01,
-        StaffLarge;
+        StaffLarge
 
 }

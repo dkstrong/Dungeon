@@ -328,6 +328,7 @@ public class DungeonLoader {
                 kryo.register(Direction.class);
                 kryo.register(Dungeon.class);
                 kryo.register(FloorMap.class);
+                kryo.register(FloorType.class);
                 kryo.register(asf.dungeon.model.DungeonRand.class);
                 kryo.register(asf.dungeon.model.M.class);
                 kryo.register(MasterJournal.class);

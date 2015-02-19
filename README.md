@@ -17,15 +17,13 @@ Wooden Crate, Wooden Barrel, Wood Particles, Rock Monster, Rat Monster, Skinning
 
 Goblin Monster - Lee Zhi Fei
 
-
+And also thanks to the many OpenGameArt.org contributors listed in ArtCredits.txt
 
 ### Important Art License Info
 
 Dungeon uses many art assets created by others. Most art in this game is CC0 or CC-BY licensed. However some
 assets in Dungeon are released under other licenses. If You wish to use art assets from Dungeon in your own game
 it's important you contact the person who contributed that art work to make sure they are ok with you using it.
-
-For a list of all art contributors see android/assets/Credits.txt
 
 ### Source Code License
 

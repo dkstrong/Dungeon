@@ -52,48 +52,104 @@ public class FloorSpatial implements Spatial {
         @Override
         public void preload(DungeonWorld world) {
                 this.world = world;
-                world.assetManager.load("Textures/Floor/floorTilesPressurePlates.png", Texture.class);
-                world.assetManager.load("Textures/Floor/wallTiles.png", Texture.class);
                 world.assetManager.load("Textures/Floor/pitTiles.png", Texture.class);
-
                 world.assetManager.load("Models/Door/Door.g3db", Model.class);
+        }
+
+        private void loadFloorMap(FloorMap floorMap){
+
+                if(this.floorMap==null){
+                        this.floorMap = floorMap;
+                }else if(this.floorMap.floorType == floorMap.floorType){
+                        this.floorMap = floorMap;
+                        return;
+                }else{
+                        world.assetManager.unload(world.assetMappings.getFloorAssetLocation(this.floorMap.floorType));
+                        world.assetManager.unload(world.assetMappings.getWallAssetLocation(this.floorMap.floorType));
+                        this.floorMap = floorMap;
+                }
+
+                initialized = false;
+                world.assetManager.load(world.assetMappings.getFloorAssetLocation(this.floorMap.floorType), Texture.class);
+                if(world.assetMappings.isWallAssetTexture(this.floorMap.floorType))
+                        world.assetManager.load(world.assetMappings.getWallAssetLocation(this.floorMap.floorType), Texture.class);
+                else
+                        world.assetManager.load(world.assetMappings.getWallAssetLocation(this.floorMap.floorType), Model.class);
+
         }
 
         @Override
         public void init(AssetManager assetManager) {
                 initialized = true;
-                fogAlpha = new float[5];
-                decalNodes = new Array<DecalNode>(false, 1024, DecalNode.class);
 
-                Texture floorTex = world.assetManager.get("Textures/Floor/floorTilesPressurePlates.png", Texture.class);
+                if(fogAlpha== null){
+                        fogAlpha = new float[5];
+                        decalNodes = new Array<DecalNode>(false, 1024, DecalNode.class);
+
+                        doorLockedTexAttribute = new TextureAttribute[8];
+                        doorLockedTexAttribute[KeyItem.Type.Silver.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedSilver"));
+                        doorLockedTexAttribute[KeyItem.Type.Silver.ordinal()+3] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorSilver"));
+                        doorLockedTexAttribute[KeyItem.Type.Gold.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedGold"));
+                        doorLockedTexAttribute[KeyItem.Type.Gold.ordinal()+3] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorGold"));
+                        doorLockedTexAttribute[KeyItem.Type.Red.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedRed"));
+                        doorLockedTexAttribute[KeyItem.Type.Red.ordinal()+3] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorRed"));
+                        doorLockedTexAttribute[doorLockedTexAttribute.length-2] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLocked"));
+                        doorLockedTexAttribute[doorLockedTexAttribute.length-1] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/Door"));
+
+                        Texture pitTex = world.assetManager.get("Textures/Floor/pitTiles.png", Texture.class);
+                        pitTexRegions = TextureRegion.split(pitTex, 64, 64);
+                }
+
+                Texture floorTex = world.assetManager.get(world.assetMappings.getFloorAssetLocation(this.floorMap.floorType), Texture.class);
                 floorTexRegions = TextureRegion.split(floorTex, 64, 64);
 
-                Texture wallTex = world.assetManager.get("Textures/Floor/wallTiles.png", Texture.class);
+                Texture wallTex = world.assetManager.get(world.assetMappings.getWallAssetLocation(this.floorMap.floorType), Texture.class);
                 wallTexRegions = TextureRegion.split(wallTex, 64, 64);
 
-                Texture pitTex = world.assetManager.get("Textures/Floor/pitTiles.png", Texture.class);
-                pitTexRegions = TextureRegion.split(pitTex, 64, 64);
 
-                doorLockedTexAttribute = new TextureAttribute[8];
-                // locked by key
-
-                doorLockedTexAttribute[KeyItem.Type.Silver.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedSilver"));
-                doorLockedTexAttribute[KeyItem.Type.Silver.ordinal()+3] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorSilver"));
-                doorLockedTexAttribute[KeyItem.Type.Gold.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedGold"));
-                doorLockedTexAttribute[KeyItem.Type.Gold.ordinal()+3] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorGold"));
-                doorLockedTexAttribute[KeyItem.Type.Red.ordinal()] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLockedRed"));
-                doorLockedTexAttribute[KeyItem.Type.Red.ordinal()+3] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorRed"));
-                doorLockedTexAttribute[doorLockedTexAttribute.length-2] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/DoorLocked"));
-                doorLockedTexAttribute[doorLockedTexAttribute.length-1] = TextureAttribute.createDiffuse(world.pack.findRegion("Models/Dungeon/Door/Door"));
-
-                setFloorMap(floorMap);
+                applyFloorMap();
         }
 
         public void setFloorMap(FloorMap floorMap){
-                this.floorMap = floorMap;
-                if(!isInitialized())
-                        return;
+                loadFloorMap(floorMap);
+                if(initialized)
+                        applyFloorMap();
+        }
 
+
+
+        @Override
+        public void update(float delta) {
+
+        }
+
+        @Override
+        public void render(float delta) {
+                for (DecalNode decalNode : decalNodes) {
+                        decalNode.render(this, delta);
+                }
+        }
+
+        public Color getDecalNodeColorAt(int x, int y){
+                for (DecalNode decalNode : decalNodes) {
+                        if(decalNode.x==x && decalNode.y ==y){
+                                return decalNode.decal.getColor();
+                        }
+                }
+                throw new IllegalArgumentException("No decal node at the coordinates "+x+", "+y);
+        }
+
+        @Override
+        public void dispose() {
+                initialized = false;
+        }
+
+        @Override
+        public boolean isInitialized() {
+                return initialized;
+        }
+
+        private void applyFloorMap(){
                 if( world.getLocalPlayerToken() != null && world.getLocalPlayerToken().fogMapping != null){
                         fogMap = world.getLocalPlayerToken().fogMapping.getFogMap(floorMap);
                         if(fogMap == null){
@@ -132,38 +188,6 @@ public class FloorSpatial implements Spatial {
                                 }
                         }
                 }
-
-        }
-
-        @Override
-        public void update(float delta) {
-
-        }
-
-        @Override
-        public void render(float delta) {
-                for (DecalNode decalNode : decalNodes) {
-                        decalNode.render(this, delta);
-                }
-        }
-
-        public Color getDecalNodeColorAt(int x, int y){
-                for (DecalNode decalNode : decalNodes) {
-                        if(decalNode.x==x && decalNode.y ==y){
-                                return decalNode.decal.getColor();
-                        }
-                }
-                throw new IllegalArgumentException("No decal node at the coordinates "+x+", "+y);
-        }
-
-        @Override
-        public void dispose() {
-                initialized = false;
-        }
-
-        @Override
-        public boolean isInitialized() {
-                return initialized;
         }
 
         private static int isFloorOrPit(Tile t){

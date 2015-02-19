@@ -1,6 +1,7 @@
 package asf.dungeon.view;
 
 import asf.dungeon.model.Direction;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.FxId;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.SfxId;
@@ -26,6 +27,9 @@ import com.badlogic.gdx.math.Quaternion;
 public class AssetMappings {
         private final Quaternion[] rotations;
         private final String[] assetLocations;
+        private final String[] floorAssetLocations;
+        private final String[] wallAssetLocations;
+        private final boolean[] isWallAssetTexture;
         private final Color[] potionDisplayColors;
         private final FxId[] statusEffectsFxIds;
         private final String[][] soundLocations;
@@ -41,7 +45,7 @@ public class AssetMappings {
                 rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
                 rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
 
-                assetLocations = new String[32];
+                assetLocations = new String[33];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
                 assetLocations[ModelId.Cerberus.ordinal()] = "Models/Characters/cerberus.g3db";
@@ -54,6 +58,7 @@ public class AssetMappings {
                 assetLocations[ModelId.Goblin.ordinal()] = "Models/Characters/Goblin.g3db";
                 assetLocations[ModelId.RockMonster.ordinal()] = "Models/Characters/rockMonster_01.g3db";
                 assetLocations[ModelId.Rat.ordinal()] = "Models/Characters/rat.g3db";
+                assetLocations[ModelId.TrainingDummy.ordinal()] = "Models/Characters/training_dummy.g3db";
                 assetLocations[ModelId.CeramicPitcher.ordinal()] = "Models/Crates/CeramicPitcher.g3db";
                 assetLocations[ModelId.Crate.ordinal()] = "Models/Crates/crate_01.g3db";
                 assetLocations[ModelId.Barrel.ordinal()] = "Models/Crates/barrel_01.g3db";
@@ -74,6 +79,18 @@ public class AssetMappings {
                 assetLocations[ModelId.BowLarge.ordinal()] = "Models/Loot/Bow/BowLarge.g3db";
                 assetLocations[ModelId.Bow_01.ordinal()] = "Models/Loot/Bow/bow_01.g3db";
                 assetLocations[ModelId.StaffLarge.ordinal()] = "Models/Loot/Staff/StaffLarge.g3db";
+
+                floorAssetLocations = new String[2];
+                floorAssetLocations[FloorType.Grassy.ordinal()] = "Textures/Floor/ground_grass_gen_08.png";
+                floorAssetLocations[FloorType.Dungeon.ordinal()] = "Textures/Floor/floorTilesPressurePlates.png";
+
+                wallAssetLocations = new String[2];
+                wallAssetLocations[FloorType.Grassy.ordinal()] = "Textures/Floor/wallTiles.png";
+                wallAssetLocations[FloorType.Dungeon.ordinal()] = "Textures/Floor/wallTiles.png";
+
+                isWallAssetTexture = new boolean[2];
+                isWallAssetTexture[FloorType.Grassy.ordinal()] = !wallAssetLocations[FloorType.Grassy.ordinal()].contains(".g3db");
+                isWallAssetTexture[FloorType.Dungeon.ordinal()] = !wallAssetLocations[FloorType.Dungeon.ordinal()].contains(".g3db");
 
                 potionDisplayColors = new Color[11];
                 potionDisplayColors[PotionItem.Color.Red.ordinal()] = com.badlogic.gdx.graphics.Color.RED;
@@ -132,6 +149,19 @@ public class AssetMappings {
         public String getAssetLocation(ModelId modelId) {
                 return assetLocations[modelId.ordinal()];
         }
+
+        public String getFloorAssetLocation(FloorType floorType){
+                return floorAssetLocations[floorType.ordinal()];
+        }
+
+        public String getWallAssetLocation(FloorType floorType){
+                return wallAssetLocations[floorType.ordinal()];
+        }
+
+        public boolean isWallAssetTexture(FloorType floorType){
+                return isWallAssetTexture[floorType.ordinal()];
+        }
+
 
         public String[][] getSoundLocations(){
                 return soundLocations;
