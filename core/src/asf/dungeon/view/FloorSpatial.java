@@ -57,7 +57,7 @@ public class FloorSpatial implements Spatial {
         }
 
         private void loadFloorMap(FloorMap floorMap){
-
+                fogMap = null;
                 if(this.floorMap==null){
                         this.floorMap = floorMap;
                 }else if(this.floorMap.floorType == floorMap.floorType){
@@ -71,10 +71,9 @@ public class FloorSpatial implements Spatial {
 
                 initialized = false;
                 world.assetManager.load(world.assetMappings.getFloorAssetLocation(this.floorMap.floorType), Texture.class);
-                if(world.assetMappings.isWallAssetTexture(this.floorMap.floorType))
-                        world.assetManager.load(world.assetMappings.getWallAssetLocation(this.floorMap.floorType), Texture.class);
-                else
-                        world.assetManager.load(world.assetMappings.getWallAssetLocation(this.floorMap.floorType), Model.class);
+                world.assetManager.load(world.assetMappings.getWallAssetLocation(this.floorMap.floorType), Texture.class);
+
+                world.goToLoadingScreen();
 
         }
 
@@ -188,6 +187,8 @@ public class FloorSpatial implements Spatial {
                                 }
                         }
                 }
+                world.returnFromLoadingScreen();
+
         }
 
         private static int isFloorOrPit(Tile t){

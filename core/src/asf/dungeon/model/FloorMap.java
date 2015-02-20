@@ -404,9 +404,8 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         @Override
         public List<String> toDebugInfo() {
                 List<String> out= UtDebugPrint.object(this);
-                List<String> out2 = toTileStrings();
-                out.add("");
-                out.addAll(out2);
+                out.add("Map Display");
+                out.addAll(toTileStrings());
                 return out;
         }
 
@@ -424,11 +423,11 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                                                 Token token = tokens.items[i];
                                                 if(token.location.x != x || token.location.y != y) continue;
                                                 char c= token.toCharacter();
-                                                if(Character.isLetter(c)){
+                                                //if(Character.isLetter(c) ){
                                                         s+= c;
                                                         printedToken = true;
                                                         break;
-                                                }
+                                                //}
 
                                         }
                                         if(!printedToken) s += tile.toCharacter();

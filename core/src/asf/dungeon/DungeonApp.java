@@ -1,5 +1,6 @@
 package asf.dungeon;
 
+import asf.dungeon.model.ModelId;
 import asf.dungeon.model.SongId;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.Application;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.Locale;
+import java.util.Random;
 
 /**
  * the skin used for the stages is loaded and stored and dungeon app for effecient reuse as its also used by the in game hud.
@@ -41,15 +43,15 @@ public class DungeonApp implements ApplicationListener {
                 //prefs.putBoolean("musicEnabled", false); // temporarily force disabled for ios, need to convert all sounds non ogg
                 music.setMusicEnabled(prefs.getBoolean("musicEnabled", true));
                 music.setMasterVolume(prefs.getFloat("masterVolume", 1f));
-                returnToMainMenu();
+                //returnToMainMenu();
 
-                //DungeonWorld.Settings settings = new DungeonWorld.Settings();
-                //settings.playerModel = ModelId.Archer;
+                DungeonWorld.Settings settings = new DungeonWorld.Settings();
+                settings.playerModel = ModelId.Knight;
                 //settings.balanceTest = true;
 
-                //settings.startDebugSession = true;
-                //settings.random = new Random(5);
-                //loadWorld(settings);
+                settings.startDebugSession = true;
+                settings.random = new Random(5);
+                loadWorld(settings);
 
         }
 

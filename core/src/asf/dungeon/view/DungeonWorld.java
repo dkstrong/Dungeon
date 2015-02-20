@@ -1,6 +1,7 @@
 package asf.dungeon.view;
 
 import asf.dungeon.DungeonApp;
+import asf.dungeon.LoadingScreen;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.DungeonLoader;
 import asf.dungeon.model.FloorMap;
@@ -270,6 +271,18 @@ public class DungeonWorld implements Dungeon.Listener, Disposable {
                 return intersectedTokens;
         }
 
+        protected void goToLoadingScreen(){
+                if(!simulationStarted) return;
+                dungeonApp.setScreen(new LoadingScreen(dungeonApp));
+                Gdx.input.setInputProcessor(null);
+        }
+
+        protected void returnFromLoadingScreen(){
+                dungeonApp.setScreen(null);
+                Gdx.input.setInputProcessor(inputMultiplexer);
+                Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
+        }
+
         public void render(final float delta) {
 
                 if (loading) {
@@ -282,7 +295,7 @@ public class DungeonWorld implements Dungeon.Listener, Disposable {
                                                 if(dungeonApp.getPlatformActionResolver()!=null)
                                                         dungeonApp.getPlatformActionResolver().showDebugWindow();
                                         }
-                                        Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);
+
                                         //Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
                                         pack =  assetManager.get("Packs/Game.atlas", TextureAtlas.class);
                                         sounds.init();
@@ -290,7 +303,7 @@ public class DungeonWorld implements Dungeon.Listener, Disposable {
                                         simulationStarted = true;
 
                                         dungeonApp.onSimulationStarted(); // inform the dungeon app to close the loading screen
-                                        Gdx.input.setInputProcessor(inputMultiplexer);
+                                        returnFromLoadingScreen();
                                         setPaused(false); // call this to apply the gameplay input processors
 
                                         dungeonApp.music.setPlaylist(SongId.MainTheme, SongId.Arabesque, SongId.RitualNorm);
@@ -319,7 +332,7 @@ public class DungeonWorld implements Dungeon.Listener, Disposable {
                 }
 
 
-                if (simulationStarted) {
+                if (simulationStarted && floorSpatial.isInitialized()) {
                         if (!paused) {
                                 hudSpatial.updateInput(delta);
                                 dungeon.update(delta);

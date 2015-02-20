@@ -29,7 +29,6 @@ public class AssetMappings {
         private final String[] assetLocations;
         private final String[] floorAssetLocations;
         private final String[] wallAssetLocations;
-        private final boolean[] isWallAssetTexture;
         private final Color[] potionDisplayColors;
         private final FxId[] statusEffectsFxIds;
         private final String[][] soundLocations;
@@ -45,7 +44,7 @@ public class AssetMappings {
                 rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
                 rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
 
-                assetLocations = new String[33];
+                assetLocations = new String[36];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
                 assetLocations[ModelId.Cerberus.ordinal()] = "Models/Characters/cerberus.g3db";
@@ -64,10 +63,13 @@ public class AssetMappings {
                 assetLocations[ModelId.Barrel.ordinal()] = "Models/Crates/barrel_01.g3db";
                 assetLocations[ModelId.Chest.ordinal()] = "Models/Crates/chest_01.g3db";
                 assetLocations[ModelId.Fountain.ordinal()] = "Models/Fountain/Fountain.g3db";
+                assetLocations[ModelId.Torch.ordinal()] = "Models/Torch/Torch.g3db";
                 assetLocations[ModelId.SignPost.ordinal()] = "Models/SignPost/SignPost.g3db";
                 assetLocations[ModelId.SpikeTrap.ordinal()] = "Models/SpikeTrap/SpikeTrap.g3db";
                 assetLocations[ModelId.Boulder.ordinal()] = "Models/Boulder/Boulder.g3db";
-                assetLocations[ModelId.Torch.ordinal()] = "Models/Torch/Torch.g3db";
+                assetLocations[ModelId.StairsUp.ordinal()] = "Models/Stairs/StairsUp.g3db";
+                assetLocations[ModelId.StairsDown.ordinal()] = "Models/Stairs/StairsDown.g3db";
+                assetLocations[ModelId.Church.ordinal()] = "Models/Church/Church.g3db";
                 assetLocations[ModelId.Potion.ordinal()] = "Models/Loot/Potion/PotionSmall.g3db";
                 assetLocations[ModelId.Scroll.ordinal()] = "Models/Loot/Scroll/Scroll.g3db";
                 assetLocations[ModelId.Book.ordinal()] = "Models/Loot/Book/Book.g3db";
@@ -81,16 +83,12 @@ public class AssetMappings {
                 assetLocations[ModelId.StaffLarge.ordinal()] = "Models/Loot/Staff/StaffLarge.g3db";
 
                 floorAssetLocations = new String[2];
-                floorAssetLocations[FloorType.Grassy.ordinal()] = "Textures/Floor/ground_grass_gen_08.png";
+                floorAssetLocations[FloorType.Grassy.ordinal()] = "Textures/Floor/floorGrassyTiles.png";
                 floorAssetLocations[FloorType.Dungeon.ordinal()] = "Textures/Floor/floorTilesPressurePlates.png";
 
                 wallAssetLocations = new String[2];
-                wallAssetLocations[FloorType.Grassy.ordinal()] = "Textures/Floor/wallTiles.png";
+                wallAssetLocations[FloorType.Grassy.ordinal()] = "Textures/Floor/wallGrassyTiles.png";
                 wallAssetLocations[FloorType.Dungeon.ordinal()] = "Textures/Floor/wallTiles.png";
-
-                isWallAssetTexture = new boolean[2];
-                isWallAssetTexture[FloorType.Grassy.ordinal()] = !wallAssetLocations[FloorType.Grassy.ordinal()].contains(".g3db");
-                isWallAssetTexture[FloorType.Dungeon.ordinal()] = !wallAssetLocations[FloorType.Dungeon.ordinal()].contains(".g3db");
 
                 potionDisplayColors = new Color[11];
                 potionDisplayColors[PotionItem.Color.Red.ordinal()] = com.badlogic.gdx.graphics.Color.RED;
@@ -157,11 +155,6 @@ public class AssetMappings {
         public String getWallAssetLocation(FloorType floorType){
                 return wallAssetLocations[floorType.ordinal()];
         }
-
-        public boolean isWallAssetTexture(FloorType floorType){
-                return isWallAssetTexture[floorType.ordinal()];
-        }
-
 
         public String[][] getSoundLocations(){
                 return soundLocations;

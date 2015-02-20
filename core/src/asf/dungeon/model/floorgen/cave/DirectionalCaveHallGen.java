@@ -37,11 +37,11 @@ public class DirectionalCaveHallGen implements FloorMapGenerator {
 
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
 
-                for (int x = 0; x < tiles.length; x++){
-                        for (int y = 0; y < tiles[0].length; y++){
-                                tiles[x][y] = Tile.makeWall();
-                        }
-                }
+//                for (int x = 0; x < tiles.length; x++){
+//                        for (int y = 0; y < tiles[0].length; y++){
+//                                tiles[x][y] = Tile.makeWall();
+//                        }
+//                }
 
                 for(int k=0;k< numberOfGenerations; k++){
                         generate(dungeon, tiles);
@@ -49,7 +49,7 @@ public class DirectionalCaveHallGen implements FloorMapGenerator {
 
 
 
-                UtFloorGen.ensureEdgesAreWalls(tiles);
+                UtFloorGen.ensureFloorsAreSurroundedWithWalls(tiles);
                 UtFloorGen.floodFillSmallerAreas(tiles);
 
                 FloorMap floorMap = new FloorMap(floorIndex, tiles);
@@ -70,16 +70,16 @@ public class DirectionalCaveHallGen implements FloorMapGenerator {
                                 int val = dungeon.rand.range(1, 2) * dungeon.rand.sign();
                                 currentWidth += val;
                                 if(currentWidth <3) currentWidth =3;
-                                else if(currentWidth >= tiles.length) currentWidth = tiles.length -1;
+                                else if(currentWidth > tiles.length-2) currentWidth = tiles.length -2;
 
                         }
 
                         if(dungeon.rand.bool(windyness)){
                                 int val = dungeon.rand.range(1, 2) * dungeon.rand.sign();
                                 x+= val;
-                                if(x <0) x= 0;
-                                else if(x >= tiles.length-currentWidth) x = tiles.length-currentWidth-1;
                         }
+                        if(x <0) x= 0;
+                        else if(x > tiles.length-currentWidth) x = tiles.length-currentWidth;
 
                         carveRow(tiles, x, y, currentWidth);
 

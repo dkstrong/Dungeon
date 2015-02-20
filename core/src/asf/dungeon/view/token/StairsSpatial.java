@@ -27,25 +27,16 @@ public class StairsSpatial extends AbstractTokenSpatial{
 
         @Override
         public void preload(DungeonWorld world) {
-                if(token.stairs.isStairsUp()){
-                        world.assetManager.load("Models/Stairs/StairsUp.g3db", Model.class);
-                }else{
-                        world.assetManager.load("Models/Stairs/StairsDown.g3db", Model.class);
-                }
-
+                world.assetManager.load(world.assetMappings.getAssetLocation(token.modelId), Model.class);
         }
 
         @Override
         public void init(AssetManager assetManager) {
                 initialized = true;
 
-                if(token.stairs.isStairsUp()){
-                        Model model = assetManager.get("Models/Stairs/StairsUp.g3db", Model.class);
-                        modelInstance = new BetterModelInstance(model);
-                }else{
-                        Model model = assetManager.get("Models/Stairs/StairsDown.g3db", Model.class);
-                        modelInstance = new BetterModelInstance(model);
-                }
+                Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId), Model.class);
+                modelInstance = new BetterModelInstance(model);
+
                 Material material = modelInstance.materials.get(0);
                 colorAttribute = (ColorAttribute)material.get(ColorAttribute.Diffuse);
 

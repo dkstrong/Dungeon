@@ -14,8 +14,8 @@ public class DesktopLauncher implements DungeonApp.Resolver{
                 if(osName.contains("win") || osName.contains("mac")){
                         config.width = 1280;
                         config.height = 720;
-                        config.width = 515;
-                        config.height = 825;
+                        //config.width = 515;
+                        //config.height = 825;
                 }else{
                         config.width = 800;
                         config.height = 480;

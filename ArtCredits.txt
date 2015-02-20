@@ -26,7 +26,7 @@ reanimated by Daniel Strong
 ### Doors, Crates, Traps, Switches, etc
 Ceramic Pitcher
 Aare
-URL: http://opengameart.org/content/ceramic-bear-mug
+http://opengameart.org/content/ceramic-bear-mug
 
 Fountains, Chests, Barrels
 Danimal
@@ -52,7 +52,11 @@ Kevin Boyette
 
 Stairs
 Clint Bellanger
-URL: http://opengameart.org/content/low-poly-stairs
+http://opengameart.org/content/low-poly-stairs
+
+Church
+yd
+http://opengameart.org/content/church
 
 ### Decor
 

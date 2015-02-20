@@ -176,7 +176,11 @@ public class UtFloorGen {
         }
 
 
-
+        public static boolean isWalkable(Tile[][] tiles, int x, int y) {
+                if (x < 0 || x >= tiles.length || y < 0 || y >= tiles[0].length)
+                        return false;
+                return tiles[x][y] != null && (tiles[x][y].isFloor() || tiles[x][y].isDoor() || tiles[x][y].isPit());
+        }
 
         public static boolean isWall(Tile[][] tiles, int x, int y) {
                 if (x < 0 || x >= tiles.length || y < 0 || y >= tiles[0].length)
@@ -194,6 +198,26 @@ public class UtFloorGen {
                 if (x < 0 || x >= tiles.length || y < 0 || y >= tiles[0].length)
                         return false;
                 return tiles[x][y] != null && tiles[x][y].isFloor();
+        }
+
+        /**
+         * counts how many floor, door, or pit tiles surround this tile (not counting this tile)
+         * @param tiles
+         * @param x
+         * @param y
+         * @return
+         */
+        public static int countFloors(Tile[][] tiles, int x, int y){
+                int countWalkable = 0;
+                if (isWalkable(tiles, x - 1, y)) countWalkable++;
+                if (isWalkable(tiles, x + 1, y)) countWalkable++;
+                if (isWalkable(tiles, x, y + 1)) countWalkable++;
+                if (isWalkable(tiles, x, y - 1)) countWalkable++;
+                if (isWalkable(tiles, x - 1, y + 1)) countWalkable++;
+                if (isWalkable(tiles, x + 1, y + 1)) countWalkable++;
+                if (isWalkable(tiles, x - 1, y - 1)) countWalkable++;
+                if (isWalkable(tiles, x + 1, y - 1)) countWalkable++;
+                return countWalkable;
         }
 
         /**
@@ -239,6 +263,30 @@ public class UtFloorGen {
                                 if (y == 0) tiles[x][y] = Tile.makeWall();
                                 if (y == tiles[0].length - 1) tiles[x][y] = Tile.makeWall();
 
+                        }
+                }
+        }
+
+        public static void ensureFloorsAreSurroundedWithWalls(Tile[][] tiles){
+                for (int x = 0; x < tiles.length; x++) {
+                        for (int y = 0; y < tiles[0].length; y++) {
+                                if(tiles[x][y] != null && tiles[x][y].isFloor()){
+                                        if (x == 0) tiles[x][y] = Tile.makeWall();
+                                        if (x == tiles.length - 1) tiles[x][y] = Tile.makeWall();
+                                        if (y == 0) tiles[x][y] = Tile.makeWall();
+                                        if (y == tiles[0].length - 1) tiles[x][y] = Tile.makeWall();
+
+                                        if(x > 0 && tiles[x-1][y] == null) tiles[x-1][y] = Tile.makeWall();
+                                        if(x<tiles.length-2 && tiles[x+1][y] == null) tiles[x+1][y] = Tile.makeWall();
+                                        if(y > 0 && tiles[x][y-1] == null) tiles[x][y-1] = Tile.makeWall();
+                                        if(y<tiles[0].length-2 && tiles[x][y+1] == null) tiles[x][y+1] = Tile.makeWall();
+
+                                }else if(tiles[x][y] == null && countFloors(tiles, x, y) > 0){
+                                        if (x == 0) tiles[x][y] = Tile.makeWall();
+                                        if (x == tiles.length - 1) tiles[x][y] = Tile.makeWall();
+                                        if (y == 0) tiles[x][y] = Tile.makeWall();
+                                        if (y == tiles[0].length - 1) tiles[x][y] = Tile.makeWall();
+                                }
                         }
                 }
         }

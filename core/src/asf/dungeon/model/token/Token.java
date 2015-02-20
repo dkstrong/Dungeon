@@ -24,7 +24,7 @@ import com.badlogic.gdx.utils.Array;
 public class Token {
         public final Dungeon dungeon;
         private int id;
-        public final ModelId modelId;
+        public ModelId modelId;
         /**
          * the name of this character or item for the interfce
          */
