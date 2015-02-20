@@ -339,8 +339,7 @@ public class Move implements TokenComponent , Teleportable{
 
         protected void setMoveSpeed(float moveSpeed) {
                 this.moveSpeed = moveSpeed;
-                // 0.70710678118 = sqrt(.5)
-                this.moveSpeedDiagonal = this.moveSpeed * 0.70710678118f;
+                this.moveSpeedDiagonal = this.moveSpeed * 0.70710678118f;  // 0.70710678118 = sqrt(.5)
 
         }
 

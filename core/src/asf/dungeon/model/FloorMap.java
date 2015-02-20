@@ -244,6 +244,12 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                 return tokensAt;
         }
 
+        public boolean hasCharacterTokensAt(int x, int y){
+                for (Token t : tokens)
+                        if(t.logic != null && t.location.x == x && t.location.y == y) return true;
+                return false;
+        }
+
 
 
         /**
