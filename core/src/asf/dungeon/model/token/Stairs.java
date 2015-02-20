@@ -44,9 +44,13 @@ public class Stairs implements TokenComponent, Teleportable{
         @Override
         public void teleport(FloorMap fm, int x, int y, Direction direction) {
                 if(isStairsUp()){
-                        token.modelId = token.floorMap.floorType == FloorType.Grassy ? ModelId.StairsUp : ModelId.StairsUp;
+                        token.modelId = token.floorMap.floorType == FloorType.Grassy ? ModelId.StairsUp :
+                                        token.floorMap.floorType == FloorType.Church ? ModelId.ChurchDoor :
+                                                ModelId.StairsUp;
                 }else{
-                        token.modelId = token.floorMap.floorType == FloorType.Grassy ? ModelId.Church : ModelId.StairsDown;
+                        token.modelId = token.floorMap.floorType == FloorType.Grassy ? ModelId.Church :
+                                        token.floorMap.floorType == FloorType.Church ? ModelId.StairsDown :
+                                        ModelId.StairsDown;
                 }
         }
 }

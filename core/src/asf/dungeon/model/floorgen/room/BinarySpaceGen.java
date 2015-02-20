@@ -2,6 +2,7 @@ package asf.dungeon.model.floorgen.room;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.UtFloorGen;
@@ -32,9 +33,19 @@ public class BinarySpaceGen implements FloorMapGenerator {
         private int numberOfSubdivisions = 4;
         private Dungeon dungeon;
 
+        public BinarySpaceGen() {
+        }
+
+        public BinarySpaceGen(int minFloorWidth, int maxFloorWidth, int minFloorHeight, int maxFloorHeight, int numberOfSubdivisions) {
+                this.minFloorWidth = minFloorWidth;
+                this.maxFloorWidth = maxFloorWidth;
+                this.minFloorHeight = minFloorHeight;
+                this.maxFloorHeight = maxFloorHeight;
+                this.numberOfSubdivisions = numberOfSubdivisions;
+        }
 
         @Override
-        public FloorMap generate(Dungeon dungeon, int floorIndex) {
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex) {
                 this.dungeon = dungeon;
                 int floorWidth = dungeon.rand.range(minFloorWidth, maxFloorWidth);
                 int floorHeight = dungeon.rand.range(minFloorHeight, maxFloorHeight);
@@ -50,7 +61,7 @@ public class BinarySpaceGen implements FloorMapGenerator {
                 fillTunnels(tiles, baseRoomCell.childCell1, baseRoomCell.childCell2);
                 UtRoomCarve.carveDoors(dungeon, floorIndex, tiles, rooms);
 
-                FloorMap floorMap = new FloorMap(floorIndex, tiles);
+                FloorMap floorMap = new FloorMap(floorType, floorIndex, tiles, null);
                 UtRoomSpawn.spawnStairs(dungeon, floorMap, rooms);
                 UtRoomSpawn.carveLockedDoorsAndSpawnKeys(dungeon, floorMap, rooms);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);

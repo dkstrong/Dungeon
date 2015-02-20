@@ -2,6 +2,7 @@ package asf.dungeon.model.floorgen.prebuilt;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.item.WeaponItem;
@@ -16,7 +17,7 @@ import asf.dungeon.model.token.logic.fsm.Monster;
 public class TutorialFloorGen implements FloorMapGenerator, FloorMap.MonsterSpawner{
 
 
-        public FloorMap generate(Dungeon dungeon, int floorIndex){
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex){
 
                 String[] tileData = new String[]{
                         "           |||||||                             ",
@@ -81,7 +82,7 @@ public class TutorialFloorGen implements FloorMapGenerator, FloorMap.MonsterSpaw
                 };
 
                 String[] signPostMessages = {"This place is cursed"};
-                FloorMap floorMap = new FloorMap(floorIndex, PreBuiltFloorGen.convertTileData(dungeon, floorIndex, tileData), this);
+                FloorMap floorMap = new FloorMap(floorType, floorIndex, PreBuiltFloorGen.convertTileData(dungeon, floorIndex, tileData), this);
                 //tileData = PreBuiltFloorGen.randomizeTileData(dungeon, floorMap, tileData, roomMask);
                 PreBuiltFloorGen.spawnTokensFromTileData(dungeon, floorMap, tileData,signPostMessages);
 

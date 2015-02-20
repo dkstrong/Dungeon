@@ -66,7 +66,7 @@ public class Dungeon {
                 if (floorMap == null) {
                         //Gdx.app.log("Dungeon", "generateFloor: " + floorIndex);
 
-                        floorMap = floorMapFactory.generate(this, floorIndex);
+                        floorMap = floorMapFactory.generate(this, null, floorIndex);
 
                         floorMaps.put(floorIndex, floorMap);
                 }

@@ -26,6 +26,7 @@ public enum ModelId {
         StairsUp,
         StairsDown,
         Church,
+        ChurchDoor,
         Potion,
         Scroll,
         Book,

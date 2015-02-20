@@ -3,6 +3,7 @@ package asf.dungeon.model.floorgen.prebuilt;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
@@ -31,7 +32,7 @@ import com.badlogic.gdx.utils.Array;
  */
 public class PreBuiltFloorGen implements FloorMapGenerator {
 
-        public FloorMap generate(Dungeon dungeon, int floorIndex){
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex){
                 FloorMap floorMap;
                 if(floorIndex == 0){
                         floorMap = puzzleRoom(dungeon, floorIndex);
@@ -70,7 +71,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                 };
 
-                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(dungeon, floorIndex, tileData));
+                FloorMap floorMap = new FloorMap(null, floorIndex, convertTileData(dungeon, floorIndex, tileData));
                 spawnTokensFromTileData(dungeon, floorMap, tileData, null);
 
                 CombinationDoorPuzzle puzzle = new CombinationDoorPuzzle();
@@ -109,7 +110,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                 };
 
-                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(dungeon, floorIndex, tileData));
+                FloorMap floorMap = new FloorMap(null, floorIndex, convertTileData(dungeon, floorIndex, tileData));
                 spawnTokensFromTileData(dungeon, floorMap, tileData, null);
                 return floorMap;
         }
@@ -134,7 +135,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                 };
 
-                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(dungeon, floorIndex, tileData));
+                FloorMap floorMap = new FloorMap(null, floorIndex, convertTileData(dungeon, floorIndex, tileData));
                 spawnTokensFromTileData(dungeon, floorMap, tileData, null);
                 return floorMap;
         }
@@ -154,7 +155,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                 };
 
-                FloorMap floorMap = new FloorMap(floorIndex, convertTileData(dungeon, floorIndex, tileData));
+                FloorMap floorMap = new FloorMap(null, floorIndex, convertTileData(dungeon, floorIndex, tileData));
                 spawnTokensFromTileData(dungeon, floorMap, tileData, null);
                 return floorMap;
         }
@@ -174,7 +175,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                 };
 
-                FloorMap floorMap = new FloorMap(floorIndex,convertTileData(dungeon, floorIndex, tileData));
+                FloorMap floorMap = new FloorMap(null, floorIndex,convertTileData(dungeon, floorIndex, tileData));
                 spawnTokensFromTileData(dungeon, floorMap, tileData, null);
 
                 return floorMap;

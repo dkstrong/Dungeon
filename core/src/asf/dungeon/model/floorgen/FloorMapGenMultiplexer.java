@@ -3,6 +3,7 @@ package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 
 /**
  * Created by danny on 10/26/14.
@@ -17,16 +18,17 @@ public class FloorMapGenMultiplexer implements FloorMapGenerator{
                 this.randomFactories = randomFactories;
         }
 
-        public FloorMap generate(Dungeon dungeon, int floorIndex){
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex){
 
                 FloorMap floorMap = null;
                 int tries = 0;
                 do{
                         try{
                                 if(floorIndex < factories.length){
-                                        floorMap = factories[floorIndex].generate(dungeon, floorIndex);
+                                        FloorType ft = floorIndex == 0 ? FloorType.Grassy : floorIndex == 1 ? FloorType.Church : FloorType.Dungeon;
+                                        floorMap = factories[floorIndex].generate(dungeon, ft, floorIndex);
                                 }else{
-                                        floorMap = randomFactories[dungeon.rand.random.nextInt(randomFactories.length)].generate(dungeon, floorIndex);
+                                        floorMap = randomFactories[dungeon.rand.random.nextInt(randomFactories.length)].generate(dungeon, null, floorIndex);
                                 }
                         }catch(InvalidGenerationException ex){
                                 System.err.println("FloorMapGenMultiplexer: Unable to generate floor index: "+floorIndex);

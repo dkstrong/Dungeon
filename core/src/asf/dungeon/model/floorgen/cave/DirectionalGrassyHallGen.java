@@ -3,6 +3,7 @@ package asf.dungeon.model.floorgen.cave;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.UtFloorGen;
@@ -11,7 +12,8 @@ import asf.dungeon.model.token.Token;
 
 /**
  *
- * based off of DirectionalCaveHallGen. Meant to be the first level of the game
+ * based off of DirectionalCaveHallGen. Meant to be the first level of the game, only really
+ * intended to be used with FloorType.Grassy
  *
  * Created by Danny on 11/4/2014.
  */
@@ -26,9 +28,10 @@ public class DirectionalGrassyHallGen implements FloorMapGenerator {
         private float roughness = .15f; // [0,1] How much the cave varies in width. This should be a rough value, and should not reflect exactly in the level created.
         private float windyness = .8f; // [0,1] How much the cave varies in positioning. How much a path through it needs to 'wind' and 'swerve'.
 
-                private static final int finishYOffset = 4;
+        private static final int finishYOffset = 4;
+
         @Override
-        public FloorMap generate(Dungeon dungeon, int floorIndex) {
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex) {
 
 
                 int floorWidth = dungeon.rand.range(minFloorWidth, maxFloorWidth);
@@ -47,7 +50,7 @@ public class DirectionalGrassyHallGen implements FloorMapGenerator {
                 //UtFloorGen.floodFillSmallerAreas(tiles);
                 //UtFloorGen.printFloorTile(tiles);
 
-                FloorMap floorMap = new FloorMap(floorIndex, tiles);
+                FloorMap floorMap = new FloorMap(floorType, floorIndex, tiles, null);
                 placeUpStairs(dungeon, floorMap, spawnX, spawnY, endX);
                 //UtFloorGen.spawnCharacters(dungeon, floorMap);
                 //UtFloorGen.spawnRandomCrates(dungeon, floorMap);

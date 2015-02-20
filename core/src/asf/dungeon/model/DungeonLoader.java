@@ -99,7 +99,10 @@ public class DungeonLoader {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
                                 new DirectionalGrassyHallGen(),
-                                new ConnectedRoomsGen(),new TutorialFloorGen(),new MazeGen(15, 19),
+                                new ZeldaGen(6,8,12),
+                                new BinarySpaceGen(10,25,20,35,4),
+                                new ConnectedRoomsGen(),
+                                new TutorialFloorGen(),new MazeGen(15, 19),
                                 new ConnectedRoomsGen(), new CellularAutomataGen(),  new TestAssetsFloorGen(),
                                 new CellularAutomataGen(), new RandomWalkGen(), new CellularAutomataGen(),
                                 new PreBuiltFloorGen(),

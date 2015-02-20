@@ -3,6 +3,7 @@ package asf.dungeon.model.floorgen.room;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Pathfinder;
@@ -349,25 +350,74 @@ public class UtRoomSpawn {
                 if (!valid) throw new InvalidGenerationException("Couldn't find location for up stairs");
         }
 
+        private static Direction getRoomEdgeWithoutDoors(Dungeon dungeon, FloorMap floorMap, Room room){
+                return Direction.North;
+        }
+
         private static boolean spawnStairsInRoom(Dungeon dungeon, FloorMap floorMap, Room room, int floorIndexTo ){
-                if (room.x1 + 2 >= room.x2 - 2 || room.y1 + 2 >= room.y2 - 2) {
-                        return false; // room too small
+                if(floorMap.floorType == FloorType.Church && floorIndexTo < floorMap.index){
+                        // the church up stairs must be placed on the wall because it is a door, wall tile becomes
+                        // a faux wall
+
+                        Direction roomEdge = getRoomEdgeWithoutDoors(dungeon, floorMap, room);
+
+                        int x=room.x1+2,y = room.y1;
+                        boolean foundLoc = false;
+                        if(roomEdge == Direction.North || roomEdge == Direction.South){
+                                y= roomEdge == Direction.North ? room.y2 : room.y1;
+                                for(int tries = 0; tries< 10; tries++){
+                                        x = dungeon.rand.range(room.x1 + 2, room.x2 - 2);
+                                        Tile t = floorMap.getTile(x,y);
+                                        if(t!=null && t.isWall()){
+                                                foundLoc = true;
+                                                break;
+                                        }
+                                }
+                        }else if(roomEdge == Direction.West || roomEdge == Direction.East){
+                                x = roomEdge == Direction.West ? room.x1 : room.x2;
+                                for(int tries = 0; tries< 10; tries++){
+                                        y = dungeon.rand.range(room.y1 + 2, room.y2 - 2);
+                                        Tile t = floorMap.getTile(x,y);
+                                        if(t!=null && t.isWall()){
+                                                foundLoc = true;
+                                                break;
+                                        }
+                                }
+                        }else{
+                                return false;
+                        }
+                        if(!foundLoc) return false;
+
+                        floorMap.tiles[x][y] = Tile.makeFloor();
+                        Token stairsToken = new Token(dungeon, "Stairs", ModelId.ChurchDoor);
+                        stairsToken.add(new Stairs(stairsToken, floorIndexTo));
+                        stairsToken.direction = roomEdge;
+                        dungeon.newToken(stairsToken, floorMap, x,y);
+
+                        room.containsStairsTo = floorIndexTo;
+
+                        return true;
+                }else{
+                        if (room.x1 + 2 >= room.x2 - 2 || room.y1 + 2 >= room.y2 - 2) {
+                                return false; // room too small
+                        }
+
+                        int x,y;
+                        do{
+                                x = dungeon.rand.range(room.x1 + 2, room.x2 - 2);
+                                y = dungeon.rand.range(room.y1 + 2, room.y2 - 2);
+                        }while(floorMap.isLocationBlocked(x,y));
+
+                        Token stairsToken = new Token(dungeon, "Stairs", null);
+                        stairsToken.add(new Stairs(stairsToken, floorIndexTo));
+                        stairsToken.direction = Direction.East;
+                        dungeon.newToken(stairsToken, floorMap, x,y);
+
+                        room.containsStairsTo = floorIndexTo;
+
+                        return true;
                 }
 
-                int x,y;
-                do{
-                        x = dungeon.rand.range(room.x1 + 2, room.x2 - 2);
-                        y = dungeon.rand.range(room.y1 + 2, room.y2 - 2);
-                }while(floorMap.isLocationBlocked(x,y));
-
-                Token stairsToken = new Token(dungeon, "Stairs", null);
-                stairsToken.add(new Stairs(stairsToken, floorIndexTo));
-                stairsToken.direction = Direction.East;
-                dungeon.newToken(stairsToken, floorMap, x,y);
-
-                room.containsStairsTo = floorIndexTo;
-
-                return true;
         }
 
         public static Pair getRandomLocToSpawnCharacter(Dungeon dungeon, FloorMap floorMap, Room room, Tile[][] validLocations){

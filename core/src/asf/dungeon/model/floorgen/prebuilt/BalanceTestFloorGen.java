@@ -2,6 +2,7 @@ package asf.dungeon.model.floorgen.prebuilt;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.UtFloorGen;
@@ -11,7 +12,7 @@ import asf.dungeon.model.floorgen.UtFloorGen;
  */
 public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterSpawner{
 
-        public FloorMap generate(Dungeon dungeon, int floorIndex){
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex){
                 String[] tileData = new String[]{
                         "---------------",
                         "|.............|",
@@ -26,7 +27,7 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
 
                 };
 
-                FloorMap floorMap = new FloorMap(floorIndex, PreBuiltFloorGen.convertTileData(dungeon, floorIndex, tileData), this);
+                FloorMap floorMap = new FloorMap(floorType, floorIndex, PreBuiltFloorGen.convertTileData(dungeon, floorIndex, tileData), this);
                 PreBuiltFloorGen.spawnTokensFromTileData(dungeon, floorMap, tileData, null);
                 //UtFloorGen.spawnCharacters(dungeon, floorMap);
                 //UtFloorGen.spawnRandomCrates(dungeon, floorMap);

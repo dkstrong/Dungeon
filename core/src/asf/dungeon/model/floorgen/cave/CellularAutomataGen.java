@@ -2,6 +2,7 @@ package asf.dungeon.model.floorgen.cave;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.UtFloorGen;
@@ -34,7 +35,7 @@ public class CellularAutomataGen implements FloorMapGenerator {
 
 
         @Override
-        public FloorMap generate(Dungeon dungeon, int floorIndex) {
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex) {
                 numberOfGenerations = 0;
                 wallLimit = 0;
                 int floorWidth = dungeon.rand.range(minFloorWidth, maxFloorWidth);
@@ -61,7 +62,7 @@ public class CellularAutomataGen implements FloorMapGenerator {
                 UtFloorGen.ensureEdgesAreWalls(tiles);
                 UtFloorGen.floodFillSmallerAreas(tiles);
 
-                FloorMap floorMap = new FloorMap(floorIndex, tiles);
+                FloorMap floorMap = new FloorMap(floorType, floorIndex, tiles);
                 UtFloorGen.placeUpStairs(dungeon, floorMap);
                 UtFloorGen.placeDownStairs(dungeon, floorMap);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);

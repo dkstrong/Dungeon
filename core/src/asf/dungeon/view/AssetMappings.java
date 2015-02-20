@@ -44,7 +44,7 @@ public class AssetMappings {
                 rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
                 rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
 
-                assetLocations = new String[36];
+                assetLocations = new String[37];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
                 assetLocations[ModelId.Cerberus.ordinal()] = "Models/Characters/cerberus.g3db";
@@ -70,6 +70,7 @@ public class AssetMappings {
                 assetLocations[ModelId.StairsUp.ordinal()] = "Models/Stairs/StairsUp.g3db";
                 assetLocations[ModelId.StairsDown.ordinal()] = "Models/Stairs/StairsDown.g3db";
                 assetLocations[ModelId.Church.ordinal()] = "Models/Church/Church.g3db";
+                assetLocations[ModelId.ChurchDoor.ordinal()] = "Models/Church/ChurchDoor.g3db";
                 assetLocations[ModelId.Potion.ordinal()] = "Models/Loot/Potion/PotionSmall.g3db";
                 assetLocations[ModelId.Scroll.ordinal()] = "Models/Loot/Scroll/Scroll.g3db";
                 assetLocations[ModelId.Book.ordinal()] = "Models/Loot/Book/Book.g3db";
@@ -82,12 +83,14 @@ public class AssetMappings {
                 assetLocations[ModelId.Bow_01.ordinal()] = "Models/Loot/Bow/bow_01.g3db";
                 assetLocations[ModelId.StaffLarge.ordinal()] = "Models/Loot/Staff/StaffLarge.g3db";
 
-                floorAssetLocations = new String[2];
+                floorAssetLocations = new String[3];
                 floorAssetLocations[FloorType.Grassy.ordinal()] = "Textures/Floor/floorGrassyTiles.png";
+                floorAssetLocations[FloorType.Church.ordinal()] = "Textures/Floor/floorChurchTiles.png";
                 floorAssetLocations[FloorType.Dungeon.ordinal()] = "Textures/Floor/floorTilesPressurePlates.png";
 
-                wallAssetLocations = new String[2];
+                wallAssetLocations = new String[3];
                 wallAssetLocations[FloorType.Grassy.ordinal()] = "Textures/Floor/wallGrassyTiles.png";
+                wallAssetLocations[FloorType.Church.ordinal()] = "Textures/Floor/wallChurchTiles.png";
                 wallAssetLocations[FloorType.Dungeon.ordinal()] = "Textures/Floor/wallTiles.png";
 
                 potionDisplayColors = new Color[11];

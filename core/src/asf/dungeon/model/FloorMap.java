@@ -26,17 +26,18 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         private final MonsterSpawner monsterSpawner;
         protected SnapshotArray <Token> tokens = new SnapshotArray<Token>(true, 16, Token.class);
 
-        public FloorMap(int index, Tile[][] tiles) {
-                this(index, tiles, null);
+        public FloorMap(FloorType floorType, int index, Tile[][] tiles) {
+                this(floorType, index, tiles, null);
         }
-        public FloorMap(int index, Tile[][] tiles,MonsterSpawner monsterSpawner) {
+        public FloorMap(FloorType floorType, int index, Tile[][] tiles, MonsterSpawner monsterSpawner) {
                 //UtFloorGen.printFloorTile(tiles);
+                this.floorType = floorType == null ? FloorType.Dungeon : floorType;
                 this.index = index;
-                floorType = index == 0 ? FloorType.Grassy : FloorType.Dungeon;
                 this.tiles = tiles;
                 pathfinder = new Pathfinder(this);
                 this.monsterSpawner = monsterSpawner;
         }
+
 
         protected void update(Dungeon dungeon, float delta){
 

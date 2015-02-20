@@ -3,6 +3,7 @@ package asf.dungeon.model.floorgen.room;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
@@ -26,11 +27,18 @@ public class ZeldaGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
         private int maxRoomSize = 7;
         private int maxRooms = 8;
 
+        public ZeldaGen() {
+        }
+
+        public ZeldaGen(int minRoomSize, int maxRoomSize, int maxRooms) {
+                this.minRoomSize = minRoomSize;
+                this.maxRoomSize = maxRoomSize;
+                this.maxRooms = maxRooms;
+        }
+
         @Override
-        public FloorMap generate(Dungeon dungeon, int floorIndex) {
-                minRoomSize = 6;
-                maxRoomSize = 8;
-                maxRooms = 12;
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex) {
+                //floorType = FloorType.Church;
                 int roomSize = dungeon.rand.range(minRoomSize, maxRoomSize);
                 int numRooms = maxRooms - dungeon.rand.random.nextInt(Math.round(maxRooms * .25f));
                 int halfRooms = Math.round(numRooms / 2f);
@@ -69,7 +77,7 @@ public class ZeldaGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
                 Tile[][] tiles = new Tile[(roomSize * halfRooms) + 1][(roomSize * halfRooms) + 1];
                 UtRoomCarve.fillAndCarve(dungeon, floorIndex, tiles, rooms);
 
-                FloorMap floorMap = new FloorMap(floorIndex, tiles, this);
+                FloorMap floorMap = new FloorMap(floorType, floorIndex, tiles, this);
                 UtRoomSpawn.spawnStairs(dungeon, floorMap, rooms);
                 UtRoomSpawn.carveLockedDoorsAndSpawnKeys(dungeon, floorMap, rooms);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);

@@ -2,6 +2,7 @@ package asf.dungeon.model.floorgen.cave;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.UtFloorGen;
@@ -24,7 +25,7 @@ public class MazeGen implements FloorMapGenerator {
                 this.height = height;
         }
 
-        public FloorMap generate(Dungeon dungeon, int floorIndex){
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex){
                 this.dungeon = dungeon;
                 int w = Math.round(width/2f);
                 int h = Math.round(height/2f);
@@ -42,7 +43,7 @@ public class MazeGen implements FloorMapGenerator {
                 gen(tiles, 0, 0,visited);
 
 
-                FloorMap floorMap = new FloorMap(floorIndex,tiles);
+                FloorMap floorMap = new FloorMap(floorType, floorIndex,tiles);
 
                 // upper stairs is on bottom left
                 outerloop:

@@ -2,6 +2,7 @@ package asf.dungeon.model.floorgen;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 
 import java.io.Serializable;
 
@@ -10,7 +11,7 @@ import java.io.Serializable;
  */
 public interface FloorMapGenerator extends Serializable {
 
-        public FloorMap generate(Dungeon dungeon, int floorIndex) throws InvalidGenerationException;
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex) throws InvalidGenerationException;
 
 
 }

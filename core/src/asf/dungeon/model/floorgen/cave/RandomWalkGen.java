@@ -2,6 +2,7 @@ package asf.dungeon.model.floorgen.cave;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
@@ -23,7 +24,7 @@ public class RandomWalkGen implements FloorMapGenerator {
 
 
         @Override
-        public FloorMap generate(Dungeon dungeon, int floorIndex) {
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex) {
 
 
                 int floorWidth = dungeon.rand.range(minFloorWidth, maxFloorWidth);
@@ -68,7 +69,7 @@ public class RandomWalkGen implements FloorMapGenerator {
 
                 UtFloorGen.ensureEdgesAreWalls(tiles);
 
-                FloorMap floorMap = new FloorMap(floorIndex, tiles);
+                FloorMap floorMap = new FloorMap(floorType, floorIndex, tiles);
                 UtFloorGen.placeUpStairs(dungeon, floorMap);
                 UtFloorGen.placeDownStairs(dungeon, floorMap);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);

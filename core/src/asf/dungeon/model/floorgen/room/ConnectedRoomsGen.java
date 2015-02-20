@@ -2,6 +2,7 @@ package asf.dungeon.model.floorgen.room;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
@@ -36,7 +37,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
         private int maxRooms = 8;
 
         @Override
-        public FloorMap generate(Dungeon dungeon, int floorIndex) {
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex) {
                  minRoomSize = 6;
                  maxRoomSize = 9;
                  minFloorWidth = 40;
@@ -71,7 +72,7 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 UtRoomCarve.fillAndCarve(dungeon, floorIndex, tiles, rooms);
 
 
-                FloorMap floorMap = new FloorMap(floorIndex, tiles, this);
+                FloorMap floorMap = new FloorMap(floorType, floorIndex, tiles, this);
                 UtRoomSpawn.spawnStairs(dungeon, floorMap, rooms);
                 UtRoomSpawn.carveLockedDoorsAndSpawnKeys(dungeon, floorMap, rooms);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);

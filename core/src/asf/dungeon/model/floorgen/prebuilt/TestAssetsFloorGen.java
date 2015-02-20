@@ -2,6 +2,7 @@ package asf.dungeon.model.floorgen.prebuilt;
 
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Sector;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
@@ -23,7 +24,7 @@ import asf.dungeon.model.token.quest.SignPostQuest;
 public class TestAssetsFloorGen implements FloorMapGenerator, FloorMap.MonsterSpawner{
 
 
-        public FloorMap generate(Dungeon dungeon, int floorIndex){
+        public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex){
 
                 String[] tileData = new String[]{
                         "-------------------",
@@ -47,7 +48,7 @@ public class TestAssetsFloorGen implements FloorMapGenerator, FloorMap.MonsterSp
 
 
 
-                FloorMap floorMap = new FloorMap(floorIndex, PreBuiltFloorGen.convertTileData(dungeon, floorIndex, tileData), this);
+                FloorMap floorMap = new FloorMap(floorType, floorIndex, PreBuiltFloorGen.convertTileData(dungeon, floorIndex, tileData), this);
                 PreBuiltFloorGen.spawnTokensFromTileData(dungeon, floorMap, tileData, null);
 
                 PotionItem.Type[] potionValues = PotionItem.Type.values();

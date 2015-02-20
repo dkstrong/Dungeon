@@ -5,5 +5,6 @@ package asf.dungeon.model;
  */
 public enum FloorType {
         Grassy,
+        Church,
         Dungeon
 }
