@@ -2,6 +2,7 @@ package asf.dungeon.view;
 
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogMapNull;
@@ -242,7 +243,11 @@ public class FloorSpatial implements Spatial {
                                 1,1,1
                         );
                 }else if(stairs != null && stairs.getLocation().equals(x,y)){
-                        decalNode = new DecalNodeStairsDown();
+                        if(stairs.token.modelId == ModelId.Church){
+                                decalNode = new DecalNodeFloor();
+                        }else{
+                                decalNode = new DecalNodeStairsDown();
+                        }
                 }else{
                         decalNode = new DecalNodeFloor();
                 }

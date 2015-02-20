@@ -18,10 +18,10 @@ import asf.dungeon.model.token.Token;
 public class DirectionalGrassyHallGen implements FloorMapGenerator {
 
 
-        private int minFloorWidth = 20;
+        private int minFloorWidth = 18;
         private int maxFloorWidth = 25;
-        private int minFloorHeight = 20;
-        private int maxFloorHeight = 25;
+        private int minFloorHeight = 45;
+        private int maxFloorHeight = 55;
 
         private float roughness = .15f; // [0,1] How much the cave varies in width. This should be a rough value, and should not reflect exactly in the level created.
         private float windyness = .8f; // [0,1] How much the cave varies in positioning. How much a path through it needs to 'wind' and 'swerve'.
@@ -40,6 +40,7 @@ public class DirectionalGrassyHallGen implements FloorMapGenerator {
                 Tile[][] tiles = new Tile[floorWidth][floorHeight];
 
                 generate(dungeon, tiles, spawnX, spawnY + 5);
+                //generate(dungeon, tiles, spawnX, spawnY + 5); // TOOD: if i do second genertion it should end on the path of the first generation
                 generateStartingArea(dungeon, tiles, spawnX, spawnY);
                 int endX = generateFinishingArea(dungeon, tiles, spawnX);
                 UtFloorGen.ensureFloorsAreSurroundedWithWalls(tiles);
@@ -110,6 +111,13 @@ public class DirectionalGrassyHallGen implements FloorMapGenerator {
                         }
                 }
 
+                for(int i= 0; i < tiles.length; i++){
+                        for(int j = tiles[0].length-1; j > finishY-7; j--){
+                                tiles[i][j] = null;
+                                tiles[i][j] = null;
+                        }
+                }
+
                 for(int i=0; i < 6; i++){
                         for(int j = finishY-1; j > finishY-7; j--){
                                 tiles[finishX+i][j] = Tile.makeFloor();
@@ -118,9 +126,9 @@ public class DirectionalGrassyHallGen implements FloorMapGenerator {
                 }
 
                 for(int j =tiles[0].length-2; j >=finishY; j--){
-                        tiles[finishX][j] = Tile.makePit();
-                        tiles[finishX+1][j] = Tile.makePit();
-                        tiles[finishX-1][j] = Tile.makePit();
+                        tiles[finishX][j] = Tile.makeFauxWall();
+                        tiles[finishX+1][j] = Tile.makeFauxWall();
+                        tiles[finishX-1][j] = Tile.makeFauxWall();
                 }
 
                 for(int i=2; i <= 3; i++){
