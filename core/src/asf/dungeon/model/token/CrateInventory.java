@@ -40,7 +40,7 @@ public class CrateInventory implements Inventory {
                 boolean valid = discard(item);
                 if(!valid) return false;
 
-                token.dungeon.newToken(TokenFactory.loot(token.dungeon, item), token.floorMap, token.location.x, token.location.y);
+                token.dungeon.addToken(TokenFactory.loot(token.dungeon, item), token.floorMap, token.location.x, token.location.y);
 
                 return true;
         }

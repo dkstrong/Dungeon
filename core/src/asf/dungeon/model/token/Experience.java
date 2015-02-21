@@ -9,7 +9,7 @@ import asf.dungeon.utility.UtMath;
  * Created by Danny on 11/11/2014.
  */
 public class Experience implements TokenComponent{
-        public Token token;
+        public final Token token;
         public int xp;
         public int level;
         public int vitality; // number of max hit points
@@ -25,20 +25,6 @@ public class Experience implements TokenComponent{
 
         public Experience(Token token) {
                 this.token = token;
-        }
-
-        public Experience(int level, int vitality, int strength, int agility, int intelligence, int luck) {
-                this.level = level;
-                this.vitality = vitality;
-                this.strength = strength;
-                this.agility = agility;
-                this.intelligence = intelligence;
-                this.luck = luck;
-        }
-
-        public void setToken(Token token) {
-                this.token = token;
-                recalcStats();
         }
 
         @Override

@@ -121,7 +121,7 @@ public class DungeonLoader {
 
                 if (spawn) {
                         Token token = TokenFactory.playerCharacterToken(dungeon,"Player 1", settings.playerModel, playerLogic);
-                        dungeon.newPlayerCharacterToken(token, dungeon.generateFloor(0));
+                        dungeon.addPlayerToken(token, dungeon.generateFloor(0));
                 } else {
                         dungeon.setCurrentFloor(0);
                 }

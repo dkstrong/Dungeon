@@ -1,6 +1,7 @@
 package asf.dungeon.model.token;
 
 import asf.dungeon.model.Dungeon;
+import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.BookItem;
@@ -144,13 +145,13 @@ public class TokenFactory {
                 return t;
         }
 
-        public static Token characterToken(Dungeon dungeon, String name, ModelId modelId, Logic logic, Experience experience){
-                Token t = new Token(dungeon, name, modelId);
+        public static Token characterToken(Dungeon dungeon, ModelId modelId, Logic logic, FloorMap floorMap){
+                Token t = new Token(dungeon, modelId.name(), modelId);
                 t.add(logic);
                 t.add(new Command(t));
                 //t.add(new FogMapping(t));
                 //t.add(new Journal());
-                t.add(experience);
+                t.add(new Experience(t));
                 t.add(new CharacterInventory(t));
                 t.add(new StatusEffects(t));
                 t.add(new Damage(t));
@@ -160,26 +161,20 @@ public class TokenFactory {
                 t.move.setPicksUpItems(false);
                 t.damage.setDeathDuration(3f);
                 t.damage.setDeathRemovalDuration(10f);
-                t.experience.setToken(t);
-                t.experience.recalcStats();
+                calculateExperience(dungeon, t, floorMap);
                 if(t.logic!=null)t.logic.setToken(t);
 
-                if(modelId == ModelId.Archer){
-                        WeaponItem weapon = new WeaponItem(dungeon,  2,2,1, true,3,1);
-                        t.inventory.add(weapon);
-                        t.inventory.equip(weapon);
-                }
                 return t;
         }
 
-        public static Token trapCharacterToken(Dungeon dungeon, String name, ModelId modelId, Logic logic, Experience experience){
-                Token t = new Token(dungeon, name, modelId);
+        public static Token trapCharacterToken(Dungeon dungeon, ModelId modelId, Logic logic, FloorMap floorMap){
+                Token t = new Token(dungeon, modelId.name(), modelId);
                 t.add(new MonsterTrap(t));
                 t.add(logic);
                 t.add(new Command(t));
                 //t.add(new FogMapping(t));
                 //t.add(new Journal());
-                t.add(experience);
+                t.add(new Experience(t));
                 t.add(new CharacterInventory(t));
                 t.add(new StatusEffects(t));
                 t.add(new Damage(t));
@@ -189,9 +184,67 @@ public class TokenFactory {
                 t.move.setPicksUpItems(false);
                 t.damage.setDeathDuration(3f);
                 t.damage.setDeathRemovalDuration(10f);
-                t.experience.recalcStats();
+                calculateExperience(dungeon, t, floorMap);
                 if(t.logic!=null)t.logic.setToken(t);
                 return t;
+        }
+
+        private static void calculateExperience(Dungeon dungeon, Token t, FloorMap floorMap){
+
+                if(t.modelId == ModelId.RockMonster){
+                        t.experience.level = 1;
+                        t.experience.vitality = 10;
+                        t.experience.strength = 6;
+                        t.experience.agility = 1;
+                        t.experience.intelligence = 1;
+                        t.experience.luck = 1;
+                }else if(t.modelId == ModelId.Skeleton){
+                        t.experience.level = 1;
+                        t.experience.vitality = 8;
+                        t.experience.strength = 4;
+                        t.experience.agility = 6;
+                        t.experience.intelligence = 1;
+                        t.experience.luck = 1;
+                }else if(t.modelId == ModelId.Berzerker){
+                        t.experience.level = 1;
+                        t.experience.vitality = 8;
+                        t.experience.strength = 4;
+                        t.experience.agility = 6;
+                        t.experience.intelligence = 1;
+                        t.experience.luck = 1;
+
+                        WeaponItem weapon = new WeaponItem(dungeon,
+                                1 , // damage
+                                1, // attack duration
+                                1); // attack cooldown
+                        t.inventory.add(weapon);
+                        t.inventory.equip(weapon);
+                }else if(t.modelId == ModelId.Archer){
+                        t.experience.level = 1;
+                        t.experience.vitality = 8;
+                        t.experience.strength = 4;
+                        t.experience.agility = 6;
+                        t.experience.intelligence = 1;
+                        t.experience.luck = 1;
+
+                        WeaponItem weapon = new WeaponItem(dungeon,
+                                1 , // damage
+                                1,  // attack duration
+                                1,  // attack cooldown
+                                true,
+                                3, // attack range
+                                1); // projectile speed
+                        t.inventory.add(weapon);
+                        t.inventory.equip(weapon);
+                }else{
+                        t.experience.level = 1;
+                        t.experience.vitality = 8;
+                        t.experience.strength = 4;
+                        t.experience.agility = 6;
+                        t.experience.intelligence = 1;
+                        t.experience.luck = 1;
+                }
+                t.experience.recalcStats();
         }
 
         public static Token questCharacterToken(Dungeon dungeon, String name, ModelId modelId, Logic logic, Quest quest){

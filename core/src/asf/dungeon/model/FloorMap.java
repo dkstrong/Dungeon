@@ -135,7 +135,7 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
 
         public boolean hasNonStairTokensAt(int x, int y){
                 for(Token token : tokens){
-                        if(token.location.x ==x && token.location.y == y && token.stairs != null){
+                        if(token.location.x ==x && token.location.y == y && token.stairs == null){
                                 return true;
                         }
                 }

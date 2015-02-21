@@ -107,22 +107,24 @@ public class Dungeon {
                 return floorMaps.get(floorIndex);
         }
 
-        public Token newPlayerCharacterToken(Token token, FloorMap fm){
+        public Token addPlayerToken(Token token, FloorMap fm){
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
+                if(localPlayerToken!= null) throw new IllegalArgumentException("already have local player token");
                 token.setId(nextTokenId++);
                 localPlayerToken = token;
                 moveToken(token, fm);
                 return token;
         }
-        public Token newPlayerCharacterToken(Token token, FloorMap fm,int x,int y,Direction direction){
+        public Token addPlayerToken(Token token, FloorMap fm, int x, int y, Direction direction){
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
+                if(localPlayerToken!= null) throw new IllegalArgumentException("already have local player token");
                 token.setId(nextTokenId++);
                 localPlayerToken = token;
                 moveToken(token, fm,x,y,direction);
                 return token;
         }
 
-        public Token newToken(Token token, FloorMap fm, int x, int y){
+        public Token addToken(Token token, FloorMap fm, int x, int y){
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 token.setId(nextTokenId++);
                 moveToken(token, fm, x,y,token.direction);

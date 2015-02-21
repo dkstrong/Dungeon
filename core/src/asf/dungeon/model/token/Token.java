@@ -141,9 +141,6 @@ public class Token {
         public boolean canTeleport(FloorMap fm, int x, int y, Direction dir) {
                 Tile tile = fm.getTile(x, y);
                 if (tile == null || tile.isDoor() || tile.blockMovement) return false;
-                //if(fm.hasNonStairTokensAt(x, y)) return false;
-                // this used to not do the hasNonStairTokensAt check, going to try it out. so i can use
-                // canTeleport() for finding spawn locations
 
                 for (TokenComponent c : components) {
                         if(c instanceof Teleportable && !((Teleportable) c ).canTeleport(fm,x, y, dir))

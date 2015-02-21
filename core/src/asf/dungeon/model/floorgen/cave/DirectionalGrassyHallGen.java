@@ -61,12 +61,12 @@ public class DirectionalGrassyHallGen implements FloorMapGenerator {
                 Token stairsToken = new Token(dungeon, "Stairs", null);
                 stairsToken.add(new Stairs(stairsToken, floorMap.index - 1));
                 stairsToken.direction = Direction.East;
-                dungeon.newToken(stairsToken, floorMap, spawnX,spawnY);
+                dungeon.addToken(stairsToken, floorMap, spawnX, spawnY);
 
                 Token stairsDownToken = new Token(dungeon, "Stairs", null);
                 stairsDownToken.add(new Stairs(stairsDownToken, floorMap.index + 1));
                 stairsDownToken.direction = Direction.South;
-                dungeon.newToken(stairsDownToken, floorMap, endX,floorMap.tiles[0].length-finishYOffset);
+                dungeon.addToken(stairsDownToken, floorMap, endX, floorMap.tiles[0].length - finishYOffset);
         }
 
         private void generateStartingArea(Dungeon dungeon, Tile[][] tiles, int x, int y){

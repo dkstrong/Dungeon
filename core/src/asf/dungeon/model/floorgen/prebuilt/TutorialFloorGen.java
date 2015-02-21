@@ -5,7 +5,6 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.FloorType;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
-import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.TokenFactory;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
@@ -97,13 +96,12 @@ public class TutorialFloorGen implements FloorMapGenerator, FloorMap.MonsterSpaw
                 if(countTeam1 <2){
                         int x, y;
                         ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Skeleton : ModelId.Skeleton;
+                        Token t = TokenFactory.characterToken(dungeon, modelId, new FsmLogic(1, null, Monster.Sleep), floorMap);
                         do{
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                        }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
-
-                        Token t = TokenFactory.characterToken(dungeon, modelId.name(), modelId, new FsmLogic(1, null, Monster.Sleep), new Experience(1, 8, 4, 6, 1,1));
-                        dungeon.newToken(t, floorMap,x,y);
+                        }while(!t.canSpawn(floorMap,x,y,t.direction));
+                        dungeon.addToken(t, floorMap, x, y);
 
                 }
         }

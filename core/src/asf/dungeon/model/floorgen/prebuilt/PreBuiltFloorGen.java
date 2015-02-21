@@ -12,7 +12,6 @@ import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.token.Boulder;
-import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.PressurePlate;
 import asf.dungeon.model.token.SpikeTrap;
@@ -78,7 +77,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                 Token plateToken = new Token(dungeon, "Pressure Plate", null);
                 plateToken.add(new PressurePlate(plateToken, puzzle));
-                dungeon.newToken(plateToken, floorMap, 10, 10);
+                dungeon.addToken(plateToken, floorMap, 10, 10);
 
                 puzzle.addPiece(plateToken, true);
                 puzzle.lockDoor(dungeon, floorMap, floorMap.getTile(9, 9));
@@ -86,7 +85,7 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
 
                 Token boulderToken = new Token(dungeon, "Boulder", ModelId.Boulder);
                 boulderToken.add(new Boulder(boulderToken));
-                dungeon.newToken(boulderToken, floorMap, 5, 11);
+                dungeon.addToken(boulderToken, floorMap, 5, 11);
 
                 return floorMap;
         }
@@ -245,57 +244,57 @@ public class PreBuiltFloorGen implements FloorMapGenerator {
                                         Token stairsToken = new Token(dungeon, "Stairs", null);
                                         stairsToken.add(new Stairs(stairsToken, floorMap.index - 1));
                                         stairsToken.direction = Direction.East;
-                                        dungeon.newToken(stairsToken, floorMap, x,y);
+                                        dungeon.addToken(stairsToken, floorMap, x, y);
                                 } else if(charAt == '&'){ // Stairs Down
                                         Token stairsToken = new Token(dungeon, "Stairs", null);
                                         stairsToken.add(new Stairs(stairsToken, floorMap.index+1));
                                         stairsToken.direction = Direction.East;
-                                        dungeon.newToken(stairsToken, floorMap, x,y);
+                                        dungeon.addToken(stairsToken, floorMap, x, y);
                                 } else if(charAt == 'c') { // Wooden Barrel (empty)
                                         Token t = TokenFactory.crate(dungeon,ModelId.Barrel, null);
-                                        dungeon.newToken(t,floorMap,x,y);
+                                        dungeon.addToken(t, floorMap, x, y);
                                 } else if(charAt == 'C') { // Wooden Crate (empty)
                                         Token t = TokenFactory.crate(dungeon,ModelId.Crate, null);
-                                        dungeon.newToken(t,floorMap,x,y);
+                                        dungeon.addToken(t, floorMap, x, y);
                                 } else if(charAt == 'h') { // Wooden Barrel health potion
                                         Token t = TokenFactory.crate(dungeon,ModelId.Crate, new PotionItem(dungeon, PotionItem.Type.Health, 1));
-                                        dungeon.newToken(t, floorMap, x, y);
+                                        dungeon.addToken(t, floorMap, x, y);
                                 } else if(charAt == 's') { // Spike Trap
                                         Token spikeTrap = new Token(dungeon, "Spike Trap", ModelId.SpikeTrap);
                                         spikeTrap.add(new SpikeTrap(spikeTrap));
-                                        dungeon.newToken(spikeTrap, floorMap, x, y);
+                                        dungeon.addToken(spikeTrap, floorMap, x, y);
                                 } else if(charAt == 'b') { // Boulder
                                         Token boulderToken = new Token(dungeon, "Boulder", ModelId.Boulder);
                                         boulderToken.add(new Boulder(boulderToken));
-                                        dungeon.newToken(boulderToken, floorMap, x, y);
+                                        dungeon.addToken(boulderToken, floorMap, x, y);
                                 } else if(charAt == 't') { // Traveler
                                         Token t = TokenFactory.questCharacterToken(dungeon,"Traveler", ModelId.Priest,new FsmLogic(2, null, QuestNPC.PauseThenMove), new PotionQuest());
-                                        dungeon.newToken(t, floorMap, x, y);
+                                        dungeon.addToken(t, floorMap, x, y);
                                 } else if (charAt == 'f') { // fountain
                                         Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
                                         fountainToken.add(new Fountain(fountainToken, dungeon.rand.potionType()));
-                                        dungeon.newToken(fountainToken, floorMap, x, y);
+                                        dungeon.addToken(fountainToken, floorMap, x, y);
                                 } else if(charAt == 'p') { // sign post
                                         Token signPost = new Token(dungeon, "Sign Post", ModelId.SignPost);
                                         signPost.add(new SignPostQuest(signPostMessages[nextSignPostMessage++]));
-                                        dungeon.newToken(signPost, floorMap, x,y);
+                                        dungeon.addToken(signPost, floorMap, x, y);
                                 } else if(charAt == 'k') { // key
                                         KeyItem keyItem = new KeyItem(dungeon, KeyItem.Type.Silver);
                                         if(dungeon.rand.random.nextBoolean()){
                                                 Token t = TokenFactory.crate(dungeon, ModelId.Barrel, keyItem);
-                                                dungeon.newToken(t, floorMap, x, y);
+                                                dungeon.addToken(t, floorMap, x, y);
                                         }else{
                                                 Token t = TokenFactory.loot(dungeon, keyItem);
-                                                dungeon.newToken(t, floorMap, x, y);
+                                                dungeon.addToken(t, floorMap, x, y);
                                         }
                                 } else if(charAt == 'm') { // monster
                                         ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Skeleton : ModelId.RockMonster;
-                                        Token t = TokenFactory.characterToken(dungeon, modelId.name(), modelId, new FsmLogic(1, null, Monster.Sleep), new Experience(1, 8, 4, 6, 1,1));
-                                        dungeon.newToken(t, floorMap, x, y);
+                                        Token t = TokenFactory.characterToken(dungeon,  modelId, new FsmLogic(1, null, Monster.Sleep), floorMap);
+                                        dungeon.addToken(t, floorMap, x, y);
                                 } else if(charAt == 'M') { // monster trap
                                         ModelId modelId = ModelId.RockMonster;
-                                        Token t = TokenFactory.trapCharacterToken(dungeon, "Rock Monster Trap",modelId,new FsmLogic(1, null, Monster.Sleep),new Experience(1, 8, 4, 1, 1,1) );
-                                        dungeon.newToken(t, floorMap, x, y);
+                                        Token t = TokenFactory.trapCharacterToken(dungeon, modelId,new FsmLogic(1, null, Monster.Sleep),floorMap );
+                                        dungeon.addToken(t, floorMap, x, y);
                                 }
                         }
                 }

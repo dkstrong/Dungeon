@@ -9,7 +9,6 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.UtFloorGen;
-import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.TokenFactory;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
@@ -103,14 +102,12 @@ public class ZeldaGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
                 if (countTeam1 < 2) {
                         int x, y;
                         ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Skeleton : ModelId.Skeleton;
+                        Token token = TokenFactory.characterToken(dungeon, modelId, new FsmLogic(1, null, Monster.Sleep), floorMap);
                         do {
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                        } while (floorMap.getTile(x, y) == null || !floorMap.getTile(x, y).isFloor() || floorMap.hasTokensAt(x, y));
-
-                        Token token = TokenFactory.characterToken(dungeon, modelId.name(), modelId, new FsmLogic(1, null, Monster.Sleep), new Experience(1, 8, 4, 6, 1, 1));
-
-                        dungeon.newToken(token, floorMap, x, y);
+                        } while (!token.canSpawn(floorMap,x,y,token.direction));
+                        dungeon.addToken(token, floorMap, x, y);
 
                 }
         }

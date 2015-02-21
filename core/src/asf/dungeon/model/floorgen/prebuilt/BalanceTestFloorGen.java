@@ -5,7 +5,10 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.FloorType;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
-import asf.dungeon.model.floorgen.UtFloorGen;
+import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.TokenFactory;
+import asf.dungeon.model.token.logic.fsm.FsmLogic;
+import asf.dungeon.model.token.logic.fsm.Monster;
 
 /**
  * Created by Danny on 11/4/2014.
@@ -40,14 +43,14 @@ public class BalanceTestFloorGen implements FloorMapGenerator, FloorMap.MonsterS
                 int countTeam1 = floorMap.getTokensOnTeam(1).size;
                 if(countTeam1 == 0){
                         int x, y;
+                        ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Skeleton : ModelId.RockMonster;
+                        Token t = TokenFactory.characterToken(dungeon, modelId, new FsmLogic(1, null, Monster.Explore), floorMap);
                         do{
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                        }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
+                        }while(!t.canSpawn(floorMap,x,y,t.direction));
 
-                        ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Skeleton : ModelId.RockMonster;
-
-                        UtFloorGen.spawnMonster(modelId, dungeon, floorMap, x, y);
+                        dungeon.addToken(t, floorMap, x, y);
 
                 }
         }

@@ -52,7 +52,7 @@ public class MazeGen implements FloorMapGenerator {
                                 if(!tiles[x][y].blockMovement && !tiles[x][y].blockVision){
                                         Token stairsToken = new Token(dungeon, "Stairs", null);
                                         stairsToken.add(new Stairs(stairsToken, floorMap.index - 1));
-                                        dungeon.newToken(stairsToken, floorMap, x,y);
+                                        dungeon.addToken(stairsToken, floorMap, x, y);
                                         break outerloop;
                                 }
                         }
@@ -66,7 +66,7 @@ public class MazeGen implements FloorMapGenerator {
                                 if(!tiles[x][y].blockMovement && !tiles[x][y].blockVision){
                                         Token stairsToken = new Token(dungeon, "Stairs", null);
                                         stairsToken.add(new Stairs(stairsToken, floorMap.index + 1));
-                                        dungeon.newToken(stairsToken, floorMap, x,y);
+                                        dungeon.addToken(stairsToken, floorMap, x, y);
                                         break outerloop;
                                 }
                         }

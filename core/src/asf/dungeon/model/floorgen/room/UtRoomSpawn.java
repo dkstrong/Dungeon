@@ -147,21 +147,16 @@ public class UtRoomSpawn {
 
         public static void spawnTokenForSymbol(Dungeon dungeon, FloorMap floorMap, Room room, Tile[][] validLocations, Symbol symbol){
                 if(symbol instanceof KeyItem){
-                        Pair pair= UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, room, validLocations);
-                        if(dungeon.rand.random.nextBoolean()){
-                                Token t = TokenFactory.crate(dungeon, ModelId.CeramicPitcher, (KeyItem)symbol);
-                                dungeon.newToken(t, floorMap, pair.x, pair.y);
-                        }else{
-                                Token t = TokenFactory.loot(dungeon, (KeyItem)symbol);
-                                dungeon.newToken(t, floorMap, pair.x, pair.y);
-                        }
+                        Token t = dungeon.rand.random.nextBoolean() ?  TokenFactory.crate(dungeon, ModelId.CeramicPitcher, (KeyItem)symbol) : TokenFactory.loot(dungeon, (KeyItem)symbol);
+                        Pair pair= UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, room, t, validLocations);
+                        dungeon.addToken(t, floorMap, pair.x, pair.y);
                 }else if(symbol instanceof CombinationDoorPuzzle){
                         CombinationDoorPuzzle puzzle = (CombinationDoorPuzzle) symbol;
                         Token torchToken = new Token(dungeon, "Torch", ModelId.Torch);
                         torchToken.add(new Torch(torchToken, false, puzzle));
                         torchToken.add(new TorchQuest());
-                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, room, validLocations);
-                        dungeon.newToken(torchToken, floorMap, loc.x, loc.y);
+                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, room, torchToken, validLocations);
+                        dungeon.addToken(torchToken, floorMap, loc.x, loc.y);
                         puzzle.addPiece(torchToken, true);
                 }
 
@@ -330,15 +325,9 @@ public class UtRoomSpawn {
 
         public static void spawnLootInRoom(Dungeon dungeon, FloorMap floorMap, Room room, ModelId spawnInCrate, Item item, Tile[][] validLocations) {
 
-                Pair pair = getRandomLocToSpawnCharacter(dungeon, floorMap, room, validLocations);
-
-                if(spawnInCrate != null){
-                        Token t = TokenFactory.crate(dungeon, spawnInCrate, item);
-                        dungeon.newToken(t, floorMap, pair.x, pair.y);
-                }else{
-                        Token t = TokenFactory.loot(dungeon, item);
-                        dungeon.newToken(t, floorMap, pair.x, pair.y);
-                }
+                Token t = spawnInCrate != null ? TokenFactory.crate(dungeon, spawnInCrate, item) :TokenFactory.loot(dungeon, item);
+                Pair pair = getRandomLocToSpawnCharacter(dungeon, floorMap, room, t, validLocations);
+                dungeon.addToken(t, floorMap, pair.x, pair.y);
         }
 
         public static void spawnStairs(Dungeon dungeon, FloorMap floorMap, Array<Room> rooms){
@@ -398,7 +387,7 @@ public class UtRoomSpawn {
                         Token stairsToken = new Token(dungeon, "Stairs", ModelId.ChurchDoor);
                         stairsToken.add(new Stairs(stairsToken, floorIndexTo));
                         stairsToken.direction = roomEdge;
-                        dungeon.newToken(stairsToken, floorMap, x,y);
+                        dungeon.addToken(stairsToken, floorMap, x, y);
 
                         room.containsStairsTo = floorIndexTo;
 
@@ -417,7 +406,7 @@ public class UtRoomSpawn {
                         Token stairsToken = new Token(dungeon, "Stairs", null);
                         stairsToken.add(new Stairs(stairsToken, floorIndexTo));
                         stairsToken.direction = Direction.East;
-                        dungeon.newToken(stairsToken, floorMap, x,y);
+                        dungeon.addToken(stairsToken, floorMap, x, y);
 
                         room.containsStairsTo = floorIndexTo;
 
@@ -426,7 +415,16 @@ public class UtRoomSpawn {
 
         }
 
-        public static Pair getRandomLocToSpawnCharacter(Dungeon dungeon, FloorMap floorMap, Room room, Tile[][] validLocations){
+        /**
+         * finds a valid spawn location which isnt next to a door..
+         * @param dungeon
+         * @param floorMap
+         * @param room
+         * @param t
+         * @param validLocations
+         * @return
+         */
+        public static Pair getRandomLocToSpawnCharacter(Dungeon dungeon, FloorMap floorMap, Room room, Token t, Tile[][] validLocations){
                 Pair pair = new Pair();
                 for(int tries= 0; tries < 20; ++tries){
                         pair.x = dungeon.rand.range(room.x1, room.x2);
@@ -434,11 +432,12 @@ public class UtRoomSpawn {
                         if(validLocations != null && validLocations[pair.x][pair.y] == null) continue;
                         Tile tile = floorMap.getTile(pair.x, pair.y);
                         if(tile == null || !tile.isFloor()) continue;
+                        if(!t.canSpawn(floorMap,pair.x, pair.y, t.direction)) continue;
                         if(floorMap.getTile(pair.x+1,pair.y).isDoor()) continue;
                         if(floorMap.getTile(pair.x-1,pair.y).isDoor()) continue;
                         if(floorMap.getTile(pair.x,pair.y+1).isDoor()) continue;
                         if(floorMap.getTile(pair.x,pair.y-1).isDoor()) continue;
-                        if(floorMap.hasTokensAt(pair.x, pair.y)) continue;
+
                         return pair;
 
                 }

@@ -9,8 +9,6 @@ import asf.dungeon.model.Tile;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
 import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.model.item.PotionItem;
-import asf.dungeon.model.item.WeaponItem;
-import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.SpikeTrap;
 import asf.dungeon.model.token.Token;
@@ -79,29 +77,30 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
 
+                // TODO: should remove this stuff here, mostly for testing
                 if(floorIndex ==0){
                         Room roomEnd = rooms.get(rooms.size-1);
 
                         Token traveler = TokenFactory.questCharacterToken(dungeon,"Traveler", ModelId.Priest, new FsmLogic(2,roomEnd, QuestNPC.PauseThenMove),new PotionQuest());
-                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
-                        dungeon.newToken(traveler, floorMap, loc.x, loc.y);
+                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd,traveler, null);
+                        dungeon.addToken(traveler, floorMap, loc.x, loc.y);
 
                         Token spikeTrap = new Token(dungeon, "Spike Trap", ModelId.SpikeTrap);
                         spikeTrap.add(new SpikeTrap(spikeTrap));
-                        loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
-                        dungeon.newToken(spikeTrap, floorMap, loc.x, loc.y);
+                        loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, spikeTrap,null);
+                        dungeon.addToken(spikeTrap, floorMap, loc.x, loc.y);
 
                         Token trainingDummy = new Token(dungeon, "Training Dummy", ModelId.TrainingDummy);
-                        loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
-                        dungeon.newToken(trainingDummy, floorMap, loc.x, loc.y);
+                        loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd,trainingDummy, null);
+                        dungeon.addToken(trainingDummy, floorMap, loc.x, loc.y);
 
 
                 }else{
                         Room roomEnd = rooms.get(dungeon.rand.random.nextInt(rooms.size));
                         Token fountainToken = new Token(dungeon, "Fountain", ModelId.Fountain);
                         fountainToken.add(new Fountain(fountainToken, PotionItem.Type.Health));
-                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
-                        dungeon.newToken(fountainToken, floorMap, loc.x, loc.y);
+                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, fountainToken, null);
+                        dungeon.addToken(fountainToken, floorMap, loc.x, loc.y);
                         //Gdx.app.log("ConnectedRoomGen","fountain at: "+loc);
                 }
 
@@ -135,21 +134,12 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                 if(countTeam1 <2){
                         int x, y;
                         ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Rat : ModelId.Skeleton;
+                        Token token = TokenFactory.characterToken(dungeon, modelId, new FsmLogic(1, null, Monster.Sleep),floorMap );
                         do{
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                        }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
-
-                        Token token = TokenFactory.characterToken(dungeon,modelId.name(), modelId, new FsmLogic(1, null, Monster.Sleep),new Experience(1, 8, 4, 6, 1,1) );
-
-
-                        if(modelId == ModelId.Archer){
-                                WeaponItem weapon = new WeaponItem(dungeon, 2,2,1, true,3,1);
-                                token.inventory.add(weapon);
-                                token.inventory.equip(weapon);
-                        }
-
-                        dungeon.newToken(token, floorMap, x, y);
+                        }while(!token.canSpawn(floorMap,x,y,token.direction));
+                        dungeon.addToken(token, floorMap, x, y);
 
                 }
         }

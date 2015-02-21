@@ -11,9 +11,7 @@ import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
-import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Decor;
-import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Stairs;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.TokenFactory;
@@ -90,13 +88,13 @@ public class UtFloorGen {
                 //characters = new String[]{};
                 int x, y;
                 for (ModelId modelId : characters) {
+                        Token t = TokenFactory.characterToken(dungeon, modelId, new FsmLogic(1, null, Monster.Sleep), floorMap);
                         do {
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                        } while (floorMap.getTile(x, y) == null || !floorMap.getTile(x, y).isFloor() || floorMap.hasTokensAt(x, y));
+                        } while (!t.canSpawn(floorMap,x,y,t.direction));
 
-                        Token t = TokenFactory.characterToken(dungeon, modelId.name(), modelId, new FsmLogic(1, null, Monster.Sleep),new Experience(1,8,4,6,1,1));
-                        dungeon.newToken(t, floorMap,x,y);
+                        dungeon.addToken(t, floorMap, x, y);
 
                 }
 
@@ -124,10 +122,8 @@ public class UtFloorGen {
                         for(int tries=0; tries < 20; tries++){
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                                if(floorMap.hasTokensAt(x,y)) // TODO: should this be wrapped in to canTeleport?
-                                        continue;
-                                if(token.canTeleport(floorMap, x, y, token.direction)){
-                                        dungeon.newToken(token, floorMap, x, y);
+                                if(token.canSpawn(floorMap,x,y,token.direction)){
+                                        dungeon.addToken(token, floorMap, x, y);
                                         break;
                                 }
                         }
@@ -157,7 +153,7 @@ public class UtFloorGen {
                                 item = new BookItem(dungeon, BookItem.Type.Experience);
                         }
 
-                        dungeon.newToken(TokenFactory.crate(dungeon, ModelId.Crate, item), floorMap, x, y);
+                        dungeon.addToken(TokenFactory.crate(dungeon, ModelId.Crate, item), floorMap, x, y);
                 }
 
         }
@@ -180,7 +176,7 @@ public class UtFloorGen {
 
                                 int numWalls = countWalls(floorMap.getTiles(), x, y);
                                 if (treasurePlacementLimt <= numWalls) {
-                                        dungeon.newToken(TokenFactory.crate(dungeon, modelId, new PotionItem(dungeon, PotionItem.Type.Health, 1)), floorMap,x,y);
+                                        dungeon.addToken(TokenFactory.crate(dungeon, modelId, new PotionItem(dungeon, PotionItem.Type.Health, 1)), floorMap, x, y);
 
 
                                         countSpawn++;
@@ -375,7 +371,7 @@ public class UtFloorGen {
                         Token stairsToken = new Token(dungeon, "Stairs", null);
                         stairsToken.add(new Stairs(stairsToken, floorMap.index - 1));
                         stairsToken.direction = Direction.East;
-                        dungeon.newToken(stairsToken, floorMap, x,y);
+                        dungeon.addToken(stairsToken, floorMap, x, y);
                         return;
                 } while (true);
         }
@@ -394,79 +390,9 @@ public class UtFloorGen {
                         Token stairsToken = new Token(dungeon, "Stairs", null);
                         stairsToken.add(new Stairs(stairsToken, floorMap.index + 1));
                         stairsToken.direction = Direction.East;
-                        dungeon.newToken(stairsToken, floorMap, x,y);
+                        dungeon.addToken(stairsToken, floorMap, x, y);
                         return;
                 } while (true);
-        }
-
-
-        public static void spawnMonster(ModelId modelId, Dungeon dungeon, FloorMap floorMap, int x, int y){
-                Experience experience;
-                WeaponItem weapon;
-                if(modelId == ModelId.RockMonster){
-                        experience = new Experience(
-                                1,  // level
-                                10,  // vitality
-                                6,  // str
-                                1,  // agi
-                                1,  // int
-                                1); // luck
-                        weapon = null;
-                }else if(modelId == ModelId.Skeleton){
-                        experience = new Experience(
-                                1,  // level
-                                8,  // vitality
-                                4,  // str
-                                6,  // agi
-                                1,  // int
-                                1); // luck
-                        weapon = null;
-                }else if(modelId == ModelId.Berzerker){
-                        experience = new Experience(
-                                1,  // level
-                                8,  // vitality
-                                4,  // str
-                                6,  // agi
-                                1,  // int
-                                1); // luck
-                        weapon = new WeaponItem(dungeon,
-                                1 , // damage
-                                1, // attack duration
-                                1); // attack cooldown
-                }else if(modelId == ModelId.Archer){
-                        experience = new Experience(
-                                1,  // level
-                                8,  // vitality
-                                4,  // str
-                                6,  // agi
-                                1,  // int
-                                1); // luck
-                        weapon = new WeaponItem(dungeon,
-                                1 , // damage
-                                1,  // attack duration
-                                1,  // attack cooldown
-                                true,
-                                3, // attack range
-                                1); // projectile speed
-                }else{
-                        experience = new Experience(
-                                1,  // level
-                                8,  // vitality
-                                4,  // str
-                                6,  // agi
-                                1,  // int
-                                1); // luck
-                        weapon = null;
-                }
-                //new FullAgroLogic(1)
-                Token t = TokenFactory.characterToken(dungeon, "Monster", modelId, new FsmLogic(1, null, Monster.Explore), experience);
-                if(weapon != null){
-                        t.inventory.add(weapon);
-                        t.inventory.equip(weapon);
-                }
-                dungeon.newToken(t, floorMap,x,y);
-
-
         }
 
 
