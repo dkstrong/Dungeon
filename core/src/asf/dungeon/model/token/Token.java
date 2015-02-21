@@ -133,8 +133,29 @@ public class Token {
                 }
         }
 
-        public boolean canSpawn(FloorMap fm, int x, int y, Direction dir){
+        /**
+         * used for finding ideal locations to spawn this token, it tries
+         * to avoid spawning too close to doors, and spawning on other tokens.
+         * @param fm
+         * @param x
+         * @param y
+         * @param dir
+         * @return
+         */
+        public boolean isGoodSpawnLocation(FloorMap fm, int x, int y, Direction dir){
+                Tile tile = fm.getTile(x, y);
+                if(tile == null || !tile.isFloor()) return false;
                 if (fm.hasTokensAt(x,y)) return false;
+
+                tile = fm.getTile(x+1,y);
+                if(tile == null || tile.isDoor()) return false;
+                tile = fm.getTile(x-1,y);
+                if(tile == null || tile.isDoor()) return false;
+                tile = fm.getTile(x,y+1);
+                if(tile == null || tile.isDoor()) return false;
+                tile = fm.getTile(x,y-1);
+                if(tile == null || tile.isDoor()) return false;
+
                 return canTeleport(fm, x, y, dir);
         }
 

@@ -106,7 +106,7 @@ public class ZeldaGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
                         do {
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                        } while (!token.canSpawn(floorMap,x,y,token.direction));
+                        } while (!token.isGoodSpawnLocation(floorMap, x, y, token.direction));
                         dungeon.addToken(token, floorMap, x, y);
 
                 }

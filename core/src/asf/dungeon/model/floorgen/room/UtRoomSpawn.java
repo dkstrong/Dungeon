@@ -430,14 +430,7 @@ public class UtRoomSpawn {
                         pair.x = dungeon.rand.range(room.x1, room.x2);
                         pair.y = dungeon.rand.range(room.y1, room.y2);
                         if(validLocations != null && validLocations[pair.x][pair.y] == null) continue;
-                        Tile tile = floorMap.getTile(pair.x, pair.y);
-                        if(tile == null || !tile.isFloor()) continue;
-                        if(!t.canSpawn(floorMap,pair.x, pair.y, t.direction)) continue;
-                        if(floorMap.getTile(pair.x+1,pair.y).isDoor()) continue;
-                        if(floorMap.getTile(pair.x-1,pair.y).isDoor()) continue;
-                        if(floorMap.getTile(pair.x,pair.y+1).isDoor()) continue;
-                        if(floorMap.getTile(pair.x,pair.y-1).isDoor()) continue;
-
+                        if(!t.isGoodSpawnLocation(floorMap, pair.x, pair.y, t.direction)) continue;
                         return pair;
 
                 }

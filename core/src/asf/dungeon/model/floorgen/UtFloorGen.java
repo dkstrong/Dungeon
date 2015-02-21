@@ -92,7 +92,7 @@ public class UtFloorGen {
                         do {
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                        } while (!t.canSpawn(floorMap,x,y,t.direction));
+                        } while (!t.isGoodSpawnLocation(floorMap, x, y, t.direction));
 
                         dungeon.addToken(t, floorMap, x, y);
 
@@ -122,7 +122,7 @@ public class UtFloorGen {
                         for(int tries=0; tries < 20; tries++){
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                                if(token.canSpawn(floorMap,x,y,token.direction)){
+                                if(token.isGoodSpawnLocation(floorMap, x, y, token.direction)){
                                         dungeon.addToken(token, floorMap, x, y);
                                         break;
                                 }

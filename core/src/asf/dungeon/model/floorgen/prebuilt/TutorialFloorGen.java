@@ -100,7 +100,7 @@ public class TutorialFloorGen implements FloorMapGenerator, FloorMap.MonsterSpaw
                         do{
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                        }while(!t.canSpawn(floorMap,x,y,t.direction));
+                        }while(!t.isGoodSpawnLocation(floorMap, x, y, t.direction));
                         dungeon.addToken(t, floorMap, x, y);
 
                 }
