@@ -134,6 +134,7 @@ public class Token {
         }
 
         public boolean canTeleport(FloorMap fm, int x, int y, Direction dir) {
+                // TODO: how does this prevent from teleporting onto a blocking token? does this prevent that/should it?
                 Tile tile = fm.getTile(x, y);
                 if (tile == null || tile.isDoor() || tile.blockMovement) {
                         return false;

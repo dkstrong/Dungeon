@@ -90,6 +90,8 @@ public enum Direction {
                 throw new AssertionError(degrees);
         }
 
+        public boolean isCardinal(){ return this == North || this== East || this == West || this==South;}
+
         public boolean isDiagonal() {
                 return this == NorthEast || this == NorthWest || this == SouthEast || this == SouthWest;
         }

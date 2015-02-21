@@ -38,7 +38,7 @@ public class ZeldaGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
 
         @Override
         public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex) {
-                //floorType = FloorType.Church;
+                floorType = FloorType.Church;
                 int roomSize = dungeon.rand.range(minRoomSize, maxRoomSize);
                 int numRooms = maxRooms - dungeon.rand.random.nextInt(Math.round(maxRooms * .25f));
                 int halfRooms = Math.round(numRooms / 2f);
@@ -80,8 +80,10 @@ public class ZeldaGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
                 FloorMap floorMap = new FloorMap(floorType, floorIndex, tiles, this);
                 UtRoomSpawn.spawnStairs(dungeon, floorMap, rooms);
                 UtRoomSpawn.carveLockedDoorsAndSpawnKeys(dungeon, floorMap, rooms);
-                UtFloorGen.spawnCharacters(dungeon, floorMap);
+                //UtFloorGen.spawnCharacters(dungeon, floorMap);
+                UtFloorGen.spawnDecor(dungeon, floorMap);
                 UtFloorGen.spawnRandomCrates(dungeon, floorMap);
+
 
                 return floorMap;
         }

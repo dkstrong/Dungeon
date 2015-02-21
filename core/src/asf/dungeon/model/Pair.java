@@ -1,7 +1,11 @@
 package asf.dungeon.model;
 
 
+import com.badlogic.gdx.math.MathUtils;
+
 /**
+ * bassically a Vector2 but uses integers. Useful for representing coordinates
+ * on a board
  * Created by danny on 10/21/14.
  */
 public class Pair {
@@ -32,6 +36,61 @@ public class Pair {
                 x = pair.x;
                 y = pair.y;
                 return this;
+        }
+
+        public Pair rotate(float degrees){
+                float radians = degrees * MathUtils.degreesToRadians;
+                float cos = (float)Math.cos(radians);
+                float sin = (float)Math.sin(radians);
+
+                float newX = this.x * cos - this.y * sin;
+                float newY = this.x * sin + this.y * cos;
+
+                this.x = Math.round(newX);
+                this.y = Math.round(newY);
+
+                return this;
+        }
+
+        public Pair rotate(float degrees, int originX, int originY){
+                float radians = degrees * MathUtils.degreesToRadians;
+                float cos = (float)Math.cos(radians);
+                float sin = (float)Math.sin(radians);
+
+                float newX = cos * (x-originX) - sin * (y-originY) + originX;
+                float newY = sin * (x-originX) + cos * (y-originY) + originY;
+
+                this.x = Math.round(newX);
+                this.y = Math.round(newY);
+
+                return this;
+        }
+
+        public Pair rotate(Direction currentDirection, Direction targetDirection){
+                int degrees = targetDirection.degrees - currentDirection.degrees;
+                if(degrees == 0)
+                        return this;
+                else if(degrees == 90 || degrees == -270){
+                        int xTemp = this.x;
+                        this.x = -y;
+                        y = xTemp;
+                        return this;
+                } else if(degrees == 180 || degrees == -180){
+                        int xTemp = this.x;
+                        this.x = -y;
+                        y = -xTemp;
+                        return this;
+                } else if(degrees == -90 || degrees == 270){
+                        int xTemp = this.x;
+                        this.x = y;
+                        y = -xTemp;
+                        return this;
+                }else{
+                        // TODO: this should also handle 45 degree increments
+                        // 45 degree increments wont work the way expected rotation works
+                        // and does it in more of a manhattany way.
+                        return rotate(degrees);
+                }
         }
 
         public Direction direction(Pair to) {

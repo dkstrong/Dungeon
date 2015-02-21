@@ -98,6 +98,7 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
+                                new ZeldaGen(6,8,12),
                                 new DirectionalGrassyHallGen(),
                                 new ZeldaGen(6,8,12),
                                 new BinarySpaceGen(10,25,20,35,4),
@@ -354,6 +355,7 @@ public class DungeonLoader {
 
                 kryo.register(Attack.class);
                 kryo.register(Damage.class);
+                kryo.register(asf.dungeon.model.token.Decor.class);
                 kryo.register(Experience.class);
                 kryo.register(FogMapping.class);
                 kryo.register(asf.dungeon.model.token.Fountain.class);

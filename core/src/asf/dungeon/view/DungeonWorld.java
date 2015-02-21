@@ -10,6 +10,7 @@ import asf.dungeon.model.Pair;
 import asf.dungeon.model.SongId;
 import asf.dungeon.model.token.Boulder;
 import asf.dungeon.model.token.Damage;
+import asf.dungeon.model.token.Decor;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.PressurePlate;
 import asf.dungeon.model.token.SpikeTrap;
@@ -461,9 +462,11 @@ public class DungeonWorld implements Dungeon.Listener, Disposable {
                         addSpatial(new BoulderSpatial(DungeonWorld.this, token));
                 }else if(token.get(PressurePlate.class) != null){
                         // Pressure plate has no dedicated spatial,  it is incorporated with FloorSpatial
-                }else{
+                }else if(token.get(Decor.class) != null){
                         addSpatial(new DecorTokenSpatial(DungeonWorld.this, token));
-                        //throw new AssertionError(token);
+                }else{
+                        //addSpatial(new DecorTokenSpatial(DungeonWorld.this, token));
+                        throw new AssertionError(token);
                 }
 
         }

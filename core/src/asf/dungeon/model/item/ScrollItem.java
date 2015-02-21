@@ -116,7 +116,7 @@ public class ScrollItem extends AbstractItem implements QuickItem, ConsumableIte
                         int tries=0, x,y;
                         Dungeon dungeon = token.dungeon;
                         FloorMap floorMap = token.floorMap;
-                        while(tries < 10){
+                        while(tries < 20){
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
                                 if(targetToken.canTeleport(floorMap,x,y, token.direction)){

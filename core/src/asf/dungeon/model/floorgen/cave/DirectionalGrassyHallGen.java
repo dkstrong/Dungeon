@@ -129,9 +129,9 @@ public class DirectionalGrassyHallGen implements FloorMapGenerator {
                 }
 
                 for(int j =tiles[0].length-2; j >=finishY; j--){
-                        tiles[finishX][j] = Tile.makeFauxWall();
-                        tiles[finishX+1][j] = Tile.makeFauxWall();
-                        tiles[finishX-1][j] = Tile.makeFauxWall();
+                        tiles[finishX][j] = Tile.makeInvisibleWall();
+                        tiles[finishX+1][j] = Tile.makeInvisibleWall();
+                        tiles[finishX-1][j] = Tile.makeInvisibleWall();
                 }
 
                 for(int i=2; i <= 3; i++){

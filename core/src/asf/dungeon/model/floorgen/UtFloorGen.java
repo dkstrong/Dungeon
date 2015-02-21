@@ -3,6 +3,7 @@ package asf.dungeon.model.floorgen;
 import asf.dungeon.model.Direction;
 import asf.dungeon.model.Dungeon;
 import asf.dungeon.model.FloorMap;
+import asf.dungeon.model.FloorType;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
@@ -11,6 +12,7 @@ import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.WeaponItem;
+import asf.dungeon.model.token.Decor;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Stairs;
 import asf.dungeon.model.token.Token;
@@ -114,6 +116,36 @@ public class UtFloorGen {
 
         }
 
+        public static void spawnDecor(Dungeon dungeon, FloorMap floorMap) {
+                if(floorMap .floorType == FloorType.Grassy){
+                      // rocks and stuff
+                }else if(floorMap.floorType == FloorType.Church ){
+                        spawnDecorInside(dungeon, floorMap, 0.75f);
+                }else if(floorMap.floorType == FloorType.Dungeon){
+                        spawnDecorInside(dungeon, floorMap, 0.5f);
+                }
+        }
+
+        private static void spawnDecorInside(Dungeon dungeon, FloorMap floorMap, float density){
+                int x, y;
+                for (int i = 0; i < 5; i++) {
+
+                        Token token = new Token(dungeon, "Decor", ModelId.Bench);
+                        token.add(new Decor(token));
+
+                        for(int tries=0; tries < 20; tries++){
+                                x = dungeon.rand.random.nextInt(floorMap.getWidth());
+                                y = dungeon.rand.random.nextInt(floorMap.getHeight());
+                                if(floorMap.hasTokensAt(x,y)) // TODO: should this be wrapped in to canTeleport?
+                                        continue;
+                                if(token.canTeleport(floorMap, x, y, token.direction)){
+                                        dungeon.newToken(token, floorMap, x, y);
+                                        break;
+                                }
+                        }
+                }
+        }
+
         public static void spawnRandomCrates(Dungeon dungeon, FloorMap floorMap) {
                 int x, y;
                 Item item;
@@ -146,6 +178,8 @@ public class UtFloorGen {
                 }
 
         }
+
+
 
         /**
          * @param dungeon

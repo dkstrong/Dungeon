@@ -9,17 +9,13 @@ import asf.dungeon.model.item.KeyItem;
 public class Tile {
         private static transient final Tile floorTile = new Tile(false, false);
         private static transient final Tile wallTile = new Tile(true, true);
-        private static transient final Tile fauxWallTile = new Tile(true, false, true);
+        private static transient final Tile invisibleWallTile = new Tile(true, false);
 
         public int movementCost;
         /**
          * do not modify directly, modify using mutators like setDoorLocked() and setPitFilled()
          */
         public boolean blockMovement;
-        /**
-         * do not modify directly, modify using mutators like setDoorLocked() and setPitFilled()
-         */
-        public boolean forceAsFloor = false;
         /**
          * do not modify directly, modify using mutators like setDoorOpened()
          */
@@ -43,12 +39,6 @@ public class Tile {
                 this.blockVision = blockVision;
         }
 
-        private Tile(boolean blockMovement, boolean blockVision, boolean forceAsFloor) {
-                this.blockMovement = blockMovement;
-                this.blockVision = blockVision;
-                this.forceAsFloor = forceAsFloor;
-        }
-
         private Tile(boolean doorLocked, Symbol doorSymbol) {
                 this.door = true;
                 this.blockVision = true;
@@ -56,7 +46,7 @@ public class Tile {
                 this.doorSymbol = doorSymbol;
         }
 
-        public boolean isFauxWall() {return forceAsFloor;}
+        public boolean isInvisibleWall() {return !pit && !door && blockMovement && !blockVision;}
 
         public boolean isWall() { return !pit && !door && blockMovement && blockVision; }
 
@@ -104,7 +94,7 @@ public class Tile {
                 return wallTile;
         }
 
-        public static Tile makeFauxWall() {return fauxWallTile; }
+        public static Tile makeInvisibleWall() {return invisibleWallTile; }
 
         public static Tile makePit() {
                 return new Tile(true);
@@ -126,7 +116,7 @@ public class Tile {
                 if (isWall())
                         return '|';
 
-                if(isFauxWall())
+                if(isInvisibleWall())
                         return ';';
 
                 if (isPit())
