@@ -16,6 +16,7 @@ import asf.dungeon.model.token.Decor;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Stairs;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.TokenFactory;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
 import com.badlogic.gdx.utils.ObjectIntMap;
@@ -94,22 +95,8 @@ public class UtFloorGen {
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
                         } while (floorMap.getTile(x, y) == null || !floorMap.getTile(x, y).isFloor() || floorMap.hasTokensAt(x, y));
 
-                        Token characterToken = dungeon.newCharacterToken(floorMap, modelId.name(), modelId,
-                                new FsmLogic(1, null, Monster.Sleep),
-                                new Experience(
-                                        1, // level
-                                        8,  // vitality
-                                        4, //str
-                                        6, // agi
-                                        1, // int
-                                        1), // luck
-                                x, y);
-
-                        if (modelId == ModelId.Archer) {
-                                WeaponItem weapon = new WeaponItem(dungeon, 1, 2,1,true,3,1);
-                                characterToken.inventory.add(weapon);
-                                characterToken.inventory.equals(weapon);
-                        }
+                        Token t = TokenFactory.characterToken(dungeon, modelId.name(), modelId, new FsmLogic(1, null, Monster.Sleep),new Experience(1,8,4,6,1,1));
+                        dungeon.newToken(t, floorMap,x,y);
 
                 }
 
@@ -131,6 +118,7 @@ public class UtFloorGen {
                 for (int i = 0; i < 5; i++) {
 
                         Token token = new Token(dungeon, "Decor", ModelId.Bench);
+                        token.direction = Direction.SouthEast;
                         token.add(new Decor(token));
 
                         for(int tries=0; tries < 20; tries++){
@@ -169,12 +157,7 @@ public class UtFloorGen {
                                 item = new BookItem(dungeon, BookItem.Type.Experience);
                         }
 
-                        dungeon.newCrateToken(
-                                floorMap,
-                                ModelId.Crate.name(),
-                                ModelId.Crate,
-                                item,
-                                x, y);
+                        dungeon.newToken(TokenFactory.crate(dungeon, ModelId.Crate, item), floorMap, x, y);
                 }
 
         }
@@ -197,7 +180,8 @@ public class UtFloorGen {
 
                                 int numWalls = countWalls(floorMap.getTiles(), x, y);
                                 if (treasurePlacementLimt <= numWalls) {
-                                        dungeon.newCrateToken(floorMap, modelId.name(), modelId, new PotionItem(dungeon, PotionItem.Type.Health, 1), x, y);
+                                        dungeon.newToken(TokenFactory.crate(dungeon, modelId, new PotionItem(dungeon, PotionItem.Type.Health, 1)), floorMap,x,y);
+
 
                                         countSpawn++;
                                         if (countSpawn >= maxTreasures)
@@ -474,16 +458,15 @@ public class UtFloorGen {
                                 1); // luck
                         weapon = null;
                 }
-                Token token = dungeon.newCharacterToken(floorMap, "Monster",
-                        modelId,
-                        new FsmLogic(1, null, Monster.Explore),
-                        //new FullAgroLogic(1),
-                        experience, x,y);
-
+                //new FullAgroLogic(1)
+                Token t = TokenFactory.characterToken(dungeon, "Monster", modelId, new FsmLogic(1, null, Monster.Explore), experience);
                 if(weapon != null){
-                        token.inventory.add(weapon);
-                        token.inventory.equip(weapon);
+                        t.inventory.add(weapon);
+                        t.inventory.equip(weapon);
                 }
+                dungeon.newToken(t, floorMap,x,y);
+
+
         }
 
 

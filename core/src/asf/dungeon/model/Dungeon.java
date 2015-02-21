@@ -1,24 +1,8 @@
 package asf.dungeon.model;
 
 import asf.dungeon.model.floorgen.FloorMapGenerator;
-import asf.dungeon.model.item.Item;
-import asf.dungeon.model.token.Attack;
-import asf.dungeon.model.token.CharacterInventory;
-import asf.dungeon.model.token.Command;
-import asf.dungeon.model.token.CrateInventory;
-import asf.dungeon.model.token.Damage;
-import asf.dungeon.model.token.Experience;
-import asf.dungeon.model.token.FogMapping;
-import asf.dungeon.model.token.Interactor;
-import asf.dungeon.model.token.Journal;
-import asf.dungeon.model.token.Loot;
-import asf.dungeon.model.token.MonsterTrap;
-import asf.dungeon.model.token.Move;
 import asf.dungeon.model.token.Stairs;
-import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.model.token.logic.Logic;
-import asf.dungeon.model.token.quest.Quest;
 import com.badlogic.gdx.utils.IntMap;
 
 /**
@@ -123,105 +107,19 @@ public class Dungeon {
                 return floorMaps.get(floorIndex);
         }
 
-        /**
-         * unlike the other newXXX methods, fm MAY be null, this allows for creating the local player and using his stats on generating the first floor
-         *
-         * be sure to manually call moveToken() after his stats are set to properly add him to the game and put him on a floor
-         */
-        public Token newPlayerCharacterToken(FloorMap fm, String name, ModelId modelId, Logic logic, Experience experience, int x, int y){
-                Token t = new Token(this,  nextTokenId++, name, modelId);
-                t.add(logic);
-                t.add(new Command(t));
-                t.add(new Interactor(t));
-                t.add(new FogMapping(t));
-                t.add(experience);
-                t.add(new Journal(t));
-                t.add(new CharacterInventory(t));
-                t.add(new StatusEffects(t));
-                t.add(new Damage(t));
-                t.add(new Attack(t));
-                t.add(new Move(t));
-
-                t.damage.setDeathDuration(3f);
-                t.damage.setDeathRemovalDuration(Float.NaN);
-                t.experience.setToken(t);
-                t.logic.setToken(t);
-                localPlayerToken = t;
-                if(fm != null){
-                        moveToken(t, fm, x, y, t.direction);
-                }
-                return localPlayerToken;
-        }
-
-        public Token newCharacterToken(FloorMap fm, String name, ModelId modelId, Logic logic, Experience experience, int x, int y) {
+        public Token newPlayerCharacterToken(Token token, FloorMap fm){
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
-                Token t = new Token(this,  nextTokenId++, name, modelId);
-                t.add(logic);
-                t.add(new Command(t));
-                //t.add(new FogMapping(t));
-                //t.add(new Journal());
-                t.add(experience);
-                t.add(new CharacterInventory(t));
-                t.add(new StatusEffects(t));
-                t.add(new Damage(t));
-                t.add(new Attack(t));
-                t.add(new Move(t));
-
-                t.move.setPicksUpItems(false);
-                t.damage.setDeathDuration(3f);
-                t.damage.setDeathRemovalDuration(10f);
-                t.experience.setToken(t);
-                if(t.logic!=null)t.logic.setToken(t);
-
-                moveToken(t, fm, x,y,t.direction);
-                return t;
+                token.setId(nextTokenId++);
+                localPlayerToken = token;
+                moveToken(token, fm);
+                return token;
         }
-
-        public Token newTrapCharacterToken(FloorMap fm, String name, ModelId modelId, Logic logic, Experience experience, int x, int y) {
+        public Token newPlayerCharacterToken(Token token, FloorMap fm,int x,int y,Direction direction){
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
-                Token t = new Token(this,  nextTokenId++, name, modelId);
-                t.add(new MonsterTrap(t));
-                t.add(logic);
-                t.add(new Command(t));
-                //t.add(new FogMapping(t));
-                //t.add(new Journal());
-                t.add(experience);
-                t.add(new CharacterInventory(t));
-                t.add(new StatusEffects(t));
-                t.add(new Damage(t));
-                t.add(new Attack(t));
-                t.add(new Move(t));
-
-                t.move.setPicksUpItems(false);
-                t.damage.setDeathDuration(3f);
-                t.damage.setDeathRemovalDuration(10f);
-                t.experience.setToken(t);
-                if(t.logic!=null)t.logic.setToken(t);
-
-                moveToken(t, fm, x,y,t.direction);
-                return t;
-        }
-
-        public Token newQuestCharacterToken(Token t, Logic logic, Quest quest, FloorMap fm, int x, int y){
-                if(quest == null) throw new IllegalArgumentException("quest can not be null");
-                if(fm == null) throw new IllegalArgumentException("fm can not be null");
-                t.setId(nextTokenId++);
-                t.add(logic);
-                t.add(new Command(t));
-                t.add(quest);
-                t.add(new CharacterInventory(t));
-                t.add(new StatusEffects(t));
-                t.add(new Damage(t));
-                t.add(new Move(t));
-                t.move.setPicksUpItems(false);
-                t.damage.setMaxHealth(4);
-                t.damage.setHealth(2);
-                t.damage.setAttackable(false);
-                t.damage.setDeathRemovalDuration(Float.NaN);
-                if(t.logic != null) t.logic.setToken(t);
-
-                moveToken(t, fm, x,y,t.direction);
-                return t;
+                token.setId(nextTokenId++);
+                localPlayerToken = token;
+                moveToken(token, fm,x,y,direction);
+                return token;
         }
 
         public Token newToken(Token token, FloorMap fm, int x, int y){
@@ -229,28 +127,6 @@ public class Dungeon {
                 token.setId(nextTokenId++);
                 moveToken(token, fm, x,y,token.direction);
                 return token;
-        }
-
-        public Token newCrateToken(FloorMap fm, String name, ModelId modelId, Item item, int x, int y) {
-                if(fm == null) throw new IllegalArgumentException("fm can not be null");
-                Token t = new Token(this,  nextTokenId++, name, modelId);
-                t.add(new CrateInventory(t, item));
-                t.add(new Damage(t));
-                t.damage.setMaxHealth(1);
-                t.damage.setDeathDuration(1.75f);
-                t.damage.setDeathRemovalDuration(0f);
-                moveToken(t, fm, x,y,t.direction);
-                return t;
-        }
-
-
-
-        public Token newLootToken(FloorMap fm, Item item, int x, int y) {
-                if(fm == null) throw new IllegalArgumentException("fm can not be null");
-                Token t = new Token(this,  nextTokenId++, item.getAbbrName(), item.getModelId());
-                t.add(new Loot(t, item));
-                moveToken(t, fm, x,y,t.direction);
-                return t;
         }
 
         public void removeToken(Token token) {

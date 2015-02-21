@@ -5,9 +5,9 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.FloorType;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.floorgen.FloorMapGenerator;
-import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.TokenFactory;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
 
@@ -102,17 +102,8 @@ public class TutorialFloorGen implements FloorMapGenerator, FloorMap.MonsterSpaw
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
-                        Token token = dungeon.newCharacterToken(floorMap, modelId.name(),
-                                modelId,
-                                new FsmLogic(1, null, Monster.Sleep),
-                                new Experience(1, 8, 4, 6, 1,1),
-                                x,y);
-
-                        if(modelId == ModelId.Archer){
-                                WeaponItem weapon = new WeaponItem(dungeon, 2,2,1, true,3,1);
-                                token.inventory.add(weapon);
-                                token.inventory.equip(weapon);
-                        }
+                        Token t = TokenFactory.characterToken(dungeon, modelId.name(), modelId, new FsmLogic(1, null, Monster.Sleep), new Experience(1, 8, 4, 6, 1,1));
+                        dungeon.newToken(t, floorMap,x,y);
 
                 }
         }

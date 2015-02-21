@@ -15,6 +15,7 @@ import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.token.Stairs;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.TokenFactory;
 import asf.dungeon.model.token.Torch;
 import asf.dungeon.model.token.puzzle.CombinationDoorPuzzle;
 import asf.dungeon.model.token.quest.TorchQuest;
@@ -148,9 +149,11 @@ public class UtRoomSpawn {
                 if(symbol instanceof KeyItem){
                         Pair pair= UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, room, validLocations);
                         if(dungeon.rand.random.nextBoolean()){
-                                dungeon.newCrateToken(floorMap, ModelId.CeramicPitcher.name(), ModelId.CeramicPitcher, (KeyItem)symbol, pair.x, pair.y);
+                                Token t = TokenFactory.crate(dungeon, ModelId.CeramicPitcher, (KeyItem)symbol);
+                                dungeon.newToken(t, floorMap, pair.x, pair.y);
                         }else{
-                                dungeon.newLootToken(floorMap, (KeyItem)symbol, pair.x, pair.y);
+                                Token t = TokenFactory.loot(dungeon, (KeyItem)symbol);
+                                dungeon.newToken(t, floorMap, pair.x, pair.y);
                         }
                 }else if(symbol instanceof CombinationDoorPuzzle){
                         CombinationDoorPuzzle puzzle = (CombinationDoorPuzzle) symbol;
@@ -328,11 +331,14 @@ public class UtRoomSpawn {
         public static void spawnLootInRoom(Dungeon dungeon, FloorMap floorMap, Room room, ModelId spawnInCrate, Item item, Tile[][] validLocations) {
 
                 Pair pair = getRandomLocToSpawnCharacter(dungeon, floorMap, room, validLocations);
-                if(spawnInCrate != null)
-                        dungeon.newCrateToken(floorMap,spawnInCrate.name(), spawnInCrate, item, pair.x, pair.y);
-                else
-                        dungeon.newLootToken(floorMap, item, pair.x, pair.y);
 
+                if(spawnInCrate != null){
+                        Token t = TokenFactory.crate(dungeon, spawnInCrate, item);
+                        dungeon.newToken(t, floorMap, pair.x, pair.y);
+                }else{
+                        Token t = TokenFactory.loot(dungeon, item);
+                        dungeon.newToken(t, floorMap, pair.x, pair.y);
+                }
         }
 
         public static void spawnStairs(Dungeon dungeon, FloorMap floorMap, Array<Room> rooms){

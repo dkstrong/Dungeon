@@ -9,15 +9,23 @@ import asf.dungeon.utility.UtMath;
  * Created by Danny on 11/11/2014.
  */
 public class Experience implements TokenComponent{
-        private Token token;
-        private int xp;
-        private int level;
-        private int vitality,vitalityMod; // number of max hit points
-        private int strength,strengthMod; // determines damage sent/received by standard attacks
-        private int agility,agilityMod; // determins how fast token moves, chance of dodging
-        private int intelligence, intelligenceMod; // effectiveness of scrolls, how long it takes to idenfify item throug using it
-        private int luck, luckMod; // chance of doing critical hit, chance of better items spawning
+        public Token token;
+        public int xp;
+        public int level;
+        public int vitality; // number of max hit points
+        private int vitalityMod;
+        public int strength; // determines damage sent/received by standard attacks
+        private int strengthMod;
+        public int agility; // determins how fast token moves, chance of dodging
+        private int agilityMod;
+        public int intelligence; // effectiveness of scrolls, how long it takes to idenfify item throug using it
+        private int  intelligenceMod;
+        public int luck; // chance of doing critical hit, chance of better items spawning
+        private int  luckMod;
 
+        public Experience(Token token) {
+                this.token = token;
+        }
 
         public Experience(int level, int vitality, int strength, int agility, int intelligence, int luck) {
                 this.level = level;

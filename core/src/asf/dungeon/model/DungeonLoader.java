@@ -17,14 +17,12 @@ import asf.dungeon.model.floorgen.room.Room;
 import asf.dungeon.model.floorgen.room.ZeldaGen;
 import asf.dungeon.model.fogmap.FogMap;
 import asf.dungeon.model.fogmap.FogState;
-import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.EquipmentItem;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
-import asf.dungeon.model.item.WeaponItem;
 import asf.dungeon.model.token.Attack;
 import asf.dungeon.model.token.CharacterInventory;
 import asf.dungeon.model.token.Command;
@@ -40,6 +38,7 @@ import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.TokenComponent;
+import asf.dungeon.model.token.TokenFactory;
 import asf.dungeon.model.token.logic.LocalPlayerLogic;
 import asf.dungeon.model.token.logic.Logic;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
@@ -121,110 +120,8 @@ public class DungeonLoader {
                 boolean spawn = true;
 
                 if (spawn) {
-                        Token token = dungeon.newPlayerCharacterToken(null, "Player 1", settings.playerModel,
-                                playerLogic,
-                                new Experience(1, 20, 6, 3, 1, 1),
-                                0, 0);
-
-                        token.inventory.setNumQuickSlots(3);
-
-
-
-                        ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 1);
-                        //potion.identifyItem(token);
-                        token.inventory.add(potion);
-                        //token.inventory.equip(potion);
-
-                        BookItem book = new BookItem(dungeon, BookItem.Type.Identify);
-                        token.inventory.add(book);
-                        book.identifyItem(token);
-
-                        book = new BookItem(dungeon, BookItem.Type.Identify);
-                        token.inventory.add(book);
-                        book.identifyItem(token);
-
-                        book = new BookItem(dungeon, BookItem.Type.RemoveCurse);
-                        token.inventory.add(book);
-                        //book.identifyItem(token);
-
-                        book = new BookItem(dungeon, BookItem.Type.RemoveCurse);
-                        token.inventory.add(book);
-                        //book.identifyItem(token);
-
-
-                        PotionItem health = new PotionItem(dungeon, PotionItem.Type.Speed, 4);
-                        health.identifyItem(token);
-                        token.inventory.add(health);
-
-                        PotionItem paralyze = new PotionItem(dungeon, PotionItem.Type.Health, 4);
-                        paralyze.identifyItem(token);
-                        token.inventory.add(paralyze);
-
-                        ArmorItem armor = new ArmorItem(dungeon, 1);
-                        armor.identifyItem(token);
-                        token.inventory.add(armor);
-                        token.inventory.equip(armor);
-
-                        token.inventory.add(new KeyItem(dungeon, KeyItem.Type.Silver));
-                        token.inventory.add(new KeyItem(dungeon,KeyItem.Type.Gold));
-                        token.inventory.add(new KeyItem(dungeon, KeyItem.Type.Red));
-
-                        if (settings.playerModel == ModelId.Knight) {
-                                WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
-
-                                //sword.setAttackDuration(1);
-                                token.inventory.add(sword);
-                                token.inventory.equip(sword);
-                                token.get(Journal.class).learn(sword);
-
-                                WeaponItem bow = new WeaponItem(dungeon,  2,2,1, true,3,1);
-                                token.inventory.add(bow);
-                                token.get(Journal.class).learn(bow);
-                                //token.inventory.equip(bow);
-
-                                WeaponItem staff = new WeaponItem(dungeon, 3,2,1,false,3,1);
-                                staff.identifyItem(token);
-                                token.inventory.add(staff);
-                        } else if (settings.playerModel == ModelId.Archer) {
-                                WeaponItem bow = new WeaponItem(dungeon,  2,2,1, true,3,1);
-                                //bow.setCursed(true);
-                                token.inventory.add(bow);
-                                token.inventory.equip(bow);
-
-                                WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
-                                sword.cursed = true;
-                                token.inventory.add(sword);
-                                token.get(Journal.class).learn(sword);
-
-                                WeaponItem staff = new WeaponItem(dungeon, 3,2,1,false,3,1);
-                                staff.identifyItem(token);
-                                token.inventory.add(staff);
-                        } else if (settings.playerModel == ModelId.Mage) {
-                                WeaponItem staff = new WeaponItem(dungeon, 3,2,1,false,3,1);
-                                staff.identifyItem(token);
-
-                                token.inventory.add(staff);
-                                token.inventory.equip(staff);
-
-                                WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
-                                token.inventory.add(sword);
-                                sword.cursed = true;
-                                sword.identifyItem(token);
-
-                                WeaponItem bow = new WeaponItem(dungeon,  2,2,1, true,3,1);
-                                token.inventory.add(bow);
-                                //bow.identifyItem(token);
-
-                        } else if (settings.playerModel == ModelId.Priest) {
-                                WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
-                                //sword.setAttackDuration(1);
-                                token.inventory.add(sword);
-                                token.inventory.equip(sword);
-                                token.get(Journal.class).learn(sword);
-                        }
-
-
-                        dungeon.moveToken(token, dungeon.generateFloor(0));
+                        Token token = TokenFactory.playerCharacterToken(dungeon,"Player 1", settings.playerModel, playerLogic);
+                        dungeon.newPlayerCharacterToken(token, dungeon.generateFloor(0));
                 } else {
                         dungeon.setCurrentFloor(0);
                 }

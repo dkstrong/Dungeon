@@ -86,9 +86,9 @@ public class Pair {
                         y = -xTemp;
                         return this;
                 }else{
-                        // TODO: this should also handle 45 degree increments
-                        // 45 degree increments wont work the way expected rotation works
-                        // and does it in more of a manhattany way.
+                        // slower rotation for 45 degree increments
+                        // seems to work appropriatly even though its with integers
+                        // ideally itd like to have a check similiar to above
                         return rotate(degrees);
                 }
         }

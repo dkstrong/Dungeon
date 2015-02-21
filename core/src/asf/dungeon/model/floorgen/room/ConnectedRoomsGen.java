@@ -14,6 +14,7 @@ import asf.dungeon.model.token.Experience;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.SpikeTrap;
 import asf.dungeon.model.token.Token;
+import asf.dungeon.model.token.TokenFactory;
 import asf.dungeon.model.token.logic.fsm.FsmLogic;
 import asf.dungeon.model.token.logic.fsm.Monster;
 import asf.dungeon.model.token.logic.fsm.QuestNPC;
@@ -80,10 +81,10 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
 
                 if(floorIndex ==0){
                         Room roomEnd = rooms.get(rooms.size-1);
-                        Token traveler = new Token(dungeon, "Traveler", ModelId.Priest);
-                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
-                        dungeon.newQuestCharacterToken(traveler, new FsmLogic(2,roomEnd, QuestNPC.PauseThenMove), new PotionQuest(), floorMap, loc.x, loc.y);
 
+                        Token traveler = TokenFactory.questCharacterToken(dungeon,"Traveler", ModelId.Priest, new FsmLogic(2,roomEnd, QuestNPC.PauseThenMove),new PotionQuest());
+                        Pair loc = UtRoomSpawn.getRandomLocToSpawnCharacter(dungeon, floorMap, roomEnd, null);
+                        dungeon.newToken(traveler, floorMap, loc.x, loc.y);
 
                         Token spikeTrap = new Token(dungeon, "Spike Trap", ModelId.SpikeTrap);
                         spikeTrap.add(new SpikeTrap(spikeTrap));
@@ -139,17 +140,16 @@ public class ConnectedRoomsGen implements FloorMapGenerator, FloorMap.MonsterSpa
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
                         }while(floorMap.getTile(x,y) == null || !floorMap.getTile(x,y).isFloor() || floorMap.hasTokensAt(x,y));
 
-                        Token token = dungeon.newCharacterToken(floorMap, modelId.name(),
-                                modelId,
-                                new FsmLogic(1, null, Monster.Sleep),
-                                new Experience(1, 8, 4, 6, 1,1),
-                                x,y);
+                        Token token = TokenFactory.characterToken(dungeon,modelId.name(), modelId, new FsmLogic(1, null, Monster.Sleep),new Experience(1, 8, 4, 6, 1,1) );
+
 
                         if(modelId == ModelId.Archer){
                                 WeaponItem weapon = new WeaponItem(dungeon, 2,2,1, true,3,1);
                                 token.inventory.add(weapon);
                                 token.inventory.equip(weapon);
                         }
+
+                        dungeon.newToken(token, floorMap, x, y);
 
                 }
         }

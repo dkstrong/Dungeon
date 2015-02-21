@@ -124,6 +124,24 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                 return false;
         }
 
+        public boolean hasBlockingTokensAt(int x, int y){
+                for(Token token : tokens){
+                        if(token.blocksPathing && token.location.x ==x && token.location.y == y){
+                                return true;
+                        }
+                }
+                return false;
+        }
+
+        public boolean hasNonStairTokensAt(int x, int y){
+                for(Token token : tokens){
+                        if(token.location.x ==x && token.location.y == y && token.stairs != null){
+                                return true;
+                        }
+                }
+                return false;
+        }
+
         private final Array<Token> tokensAt = new Array<Token>(8);
 
         /**

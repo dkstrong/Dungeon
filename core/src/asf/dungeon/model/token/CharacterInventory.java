@@ -361,7 +361,8 @@ public class CharacterInventory implements Inventory, Teleportable {
                                 dropLoc.set(token.location);
                         }
                 }
-                token.dungeon.newLootToken(token.floorMap, item, dropLoc.x, dropLoc.y);
+                ;
+                token.dungeon.newToken(TokenFactory.loot(token.dungeon, item), token.floorMap, dropLoc.x, dropLoc.y);
                 return true;
         }
 
@@ -374,7 +375,7 @@ public class CharacterInventory implements Inventory, Teleportable {
                 if(token.floorMap.isLocationBlocked(dropLoc)){
                         dropLoc.set(token.location); // or maybe also doo addFree(token.direction.opposite()) ?
                 }
-                Token lootToken = token.dungeon.newLootToken(token.floorMap, item, token.location.x, token.location.y);
+                Token lootToken =token.dungeon.newToken(TokenFactory.loot(token.dungeon, item), token.floorMap, token.location.x, token.location.y);
                 lootToken.loot.becomeThrown(dropLoc.x, dropLoc.y);
                 return true;
         }
@@ -382,7 +383,7 @@ public class CharacterInventory implements Inventory, Teleportable {
         public boolean throwItem(Item item, int targetLocationX, int targetLocationY){
                 boolean valid = discard(item);
                 if(!valid) return false;
-                Token lootToken = token.dungeon.newLootToken(token.floorMap, item, token.location.x, token.location.y);
+                Token lootToken =token.dungeon.newToken(TokenFactory.loot(token.dungeon, item), token.floorMap, token.location.x, token.location.y);
                 lootToken.loot.becomeThrown(targetLocationX, targetLocationY);
                 return true;
         }

@@ -10,6 +10,10 @@ import asf.dungeon.model.Tile;
  */
 public class Decor implements TokenComponent, Teleportable{
         private final Token token;
+        private FloorMap lastFm;
+        private int lastX;
+        private int lastY;
+        private Direction lastDirection;
 
         public Decor(Token token) {
                 this.token = token;
@@ -24,6 +28,7 @@ public class Decor implements TokenComponent, Teleportable{
                         for (Pair maskPoint : mask.maskPoints) {
                                 final int testX = x+maskPoint.x;
                                 final int testY = y+maskPoint.y;
+                                // similiar logic from Token.canTeleport but does it for each mask point
                                 Tile tile = fm.getTile(testX,testY);
                                 if(tile == null || tile.isDoor() || tile.isPit() || tile.blockMovement) return false;
                                 if(fm.hasTokensAt(testX, testY)) return false;
@@ -34,10 +39,20 @@ public class Decor implements TokenComponent, Teleportable{
 
         @Override
         public void teleport(FloorMap fm, int x, int y, Direction direction) {
-                // TODO: this doesnt remove old invisble walls- would need to store the last teleported location
-                // and turn the invisble walls back in to floors to do this
                 final Mask mask= token.modelId.decorMask;
                 if(mask != null){
+                        // Remove old invisible walls
+                        if(lastFm != null){
+                                lastFm.tiles[lastX][lastY] = Tile.makeFloor();
+                                mask.setRotation(lastDirection);
+                                for (Pair maskPoint : mask.maskPoints) {
+                                        final int tx = x+maskPoint.x;
+                                        final int ty = y+maskPoint.y;
+                                        lastFm.tiles[tx][ty] = Tile.makeInvisibleWall();
+                                }
+                        }
+                        // place new invisible walls
+                        fm.tiles[x][y] = Tile.makeInvisibleWall();
                         mask.setRotation(direction);
                         for (Pair maskPoint : mask.maskPoints) {
                                 final int tx = x+maskPoint.x;
@@ -45,6 +60,11 @@ public class Decor implements TokenComponent, Teleportable{
                                 fm.tiles[tx][ty] = Tile.makeInvisibleWall();
                         }
                 }
+
+                lastFm = fm;
+                lastX = x;
+                lastY = y;
+                lastDirection = direction;
 
         }
 

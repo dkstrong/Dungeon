@@ -133,12 +133,17 @@ public class Token {
                 }
         }
 
+        public boolean canSpawn(FloorMap fm, int x, int y, Direction dir){
+                if (fm.hasTokensAt(x,y)) return false;
+                return canTeleport(fm, x, y, dir);
+        }
+
         public boolean canTeleport(FloorMap fm, int x, int y, Direction dir) {
-                // TODO: how does this prevent from teleporting onto a blocking token? does this prevent that/should it?
                 Tile tile = fm.getTile(x, y);
-                if (tile == null || tile.isDoor() || tile.blockMovement) {
-                        return false;
-                }
+                if (tile == null || tile.isDoor() || tile.blockMovement) return false;
+                //if(fm.hasNonStairTokensAt(x, y)) return false;
+                // this used to not do the hasNonStairTokensAt check, going to try it out. so i can use
+                // canTeleport() for finding spawn locations
 
                 for (TokenComponent c : components) {
                         if(c instanceof Teleportable && !((Teleportable) c ).canTeleport(fm,x, y, dir))
