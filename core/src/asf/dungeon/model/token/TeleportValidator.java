@@ -11,6 +11,19 @@ import asf.dungeon.model.FloorMap;
  */
 public interface TeleportValidator {
 
+
+        /**
+         * used for finding ideal locations to spawn this token, it tries
+         * to avoid spawning too close to doors, and spawning on other tokens.
+         *
+         * @param fm
+         * @param x
+         * @param y
+         * @param dir
+         * @return
+         */
+        public boolean isGoodSpawnLocation(FloorMap fm, int x, int y, Direction dir);
+
         /**
          * return true if this component allows teleporting ot this location
          * @param fm

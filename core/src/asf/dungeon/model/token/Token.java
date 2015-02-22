@@ -56,6 +56,7 @@ public class Token {
         public StatusEffects statusEffects;
         public Loot loot;
         public Stairs stairs;
+        public Boulder boulder;
         public MonsterTrap monsterTrap;
 
         public Token(Dungeon dungeon, String name, ModelId modelId) {
@@ -73,15 +74,15 @@ public class Token {
                 return null;
         }
 
-        public void remove(TokenComponent component){
-                if(component == null) return;
+        public void remove(TokenComponent component) {
+                if (component == null) return;
                 // TODO: if removing a "common" component then need to null it
                 // though common componnets typicallly wouldnt be removed
                 components.removeValue(component, true);
         }
 
         public void add(TokenComponent component) {
-                if(component == null) return;
+                if (component == null) return;
                 components.add(component);
                 if (component instanceof Logic) {
                         this.logic = (Logic) component;
@@ -103,39 +104,52 @@ public class Token {
                         this.move = (Move) component;
                 } else if (component instanceof Experience) {
                         this.experience = (Experience) component;
-                } else if(component instanceof StatusEffects){
-                        this.statusEffects = (StatusEffects)component;
-                }else if(component instanceof Loot){
+                } else if (component instanceof StatusEffects) {
+                        this.statusEffects = (StatusEffects) component;
+                } else if (component instanceof Loot) {
                         this.loot = (Loot) component;
-                }else if(component instanceof Stairs){
+                } else if (component instanceof Stairs) {
                         this.stairs = (Stairs) component;
-                }else if(component instanceof MonsterTrap){
+                } else if(component instanceof Boulder){
+                        this.boulder = (Boulder) component;
+                 }else if (component instanceof MonsterTrap) {
                         this.monsterTrap = (MonsterTrap) component;
                 }
+        }
+
+        protected static boolean wouldSpawnLocBlockSurroundingLocations(FloorMap fm, int x, int y){
+                Tile tile;
+                tile = fm.getTile(x + 1, y);
+                if (tile != null &&( tile.isDoor() || tile.isPit() || fm.hasStairTokenAt(x + 1, y))) return true;
+                tile = fm.getTile(x - 1, y);
+                if (tile != null &&( tile.isDoor() || tile.isPit() || fm.hasStairTokenAt(x - 1, y))) return true;
+                tile = fm.getTile(x, y + 1);
+                if (tile != null &&( tile.isDoor() || tile.isPit() || fm.hasStairTokenAt(x, y + 1))) return true;
+                tile = fm.getTile(x, y - 1);
+                if (tile != null &&( tile.isDoor() || tile.isPit() || fm.hasStairTokenAt(x, y - 1))) return true;
+                return false;
         }
 
         /**
          * used for finding ideal locations to spawn this token, it tries
          * to avoid spawning too close to doors, and spawning on other tokens.
+         *
          * @param fm
          * @param x
          * @param y
          * @param dir
          * @return
          */
-        public boolean isGoodSpawnLocation(FloorMap fm, int x, int y, Direction dir){
+        public boolean isGoodSpawnLocation(FloorMap fm, int x, int y, Direction dir) {
                 Tile tile = fm.getTile(x, y);
-                if(tile == null || !tile.isFloor()) return false;
-                if (fm.hasTokensAt(x,y)) return false;
+                if (tile == null || !tile.isFloor()) return false;
+                if (fm.hasTokensAt(x, y)) return false;
+                if((move!=null || boulder!=null) && wouldSpawnLocBlockSurroundingLocations(fm,x,y)) return false;
 
-                tile = fm.getTile(x+1,y);
-                if(tile == null || tile.isDoor()) return false;
-                tile = fm.getTile(x-1,y);
-                if(tile == null || tile.isDoor()) return false;
-                tile = fm.getTile(x,y+1);
-                if(tile == null || tile.isDoor()) return false;
-                tile = fm.getTile(x,y-1);
-                if(tile == null || tile.isDoor()) return false;
+                for (TokenComponent c : components) {
+                        if (c instanceof TeleportValidator && !((TeleportValidator) c).isGoodSpawnLocation(fm, x, y, dir))
+                                return false;
+                }
 
                 return canTeleport(fm, x, y, dir);
         }
@@ -144,8 +158,10 @@ public class Token {
                 Tile tile = fm.getTile(x, y);
                 if (tile == null || tile.isDoor() || tile.blockMovement) return false;
 
+                if( move == null && boulder == null && wouldSpawnLocBlockSurroundingLocations(fm,x,y)) return false;
+
                 for (TokenComponent c : components) {
-                        if(c instanceof TeleportValidator && !((TeleportValidator) c ).canTeleport(fm,x, y, dir))
+                        if (c instanceof TeleportValidator && !((TeleportValidator) c).canTeleport(fm, x, y, dir))
                                 return false;
                 }
                 return true;
@@ -163,7 +179,7 @@ public class Token {
                 direction = dir;
 
                 for (TokenComponent c : components) {
-                        if(c instanceof TeleportListener) ((TeleportListener) c ).onTeleport(fm, x, y, direction);
+                        if (c instanceof TeleportListener) ((TeleportListener) c).onTeleport(fm, x, y, direction);
                 }
 
                 return true;
@@ -185,42 +201,41 @@ public class Token {
                 return location.x == x && location.y == y;
         }
 
-        public float distance(Token other){
-                if(move == null){
-                        if(other.move == null) return distance(other.location);
+        public float distance(Token other) {
+                if (move == null) {
+                        if (other.move == null) return distance(other.location);
                         return other.move.getFloatLocation().dst(location.x, location.y);
-                }else{
-                        if(other.move == null) return move.getFloatLocation().dst(other.location.x, other.location.y);
+                } else {
+                        if (other.move == null) return move.getFloatLocation().dst(other.location.x, other.location.y);
                         return move.getFloatLocation().dst(other.move.getFloatLocation());
                 }
         }
 
-        public float distance(Pair loc){
+        public float distance(Pair loc) {
                 float x = getFloatLocationX();
                 float y = getFloatLocationY();
                 final float x_d = x - loc.x;
                 final float y_d = y - loc.y;
-                return (float)Math.sqrt(x_d * x_d + y_d * y_d);
+                return (float) Math.sqrt(x_d * x_d + y_d * y_d);
         }
 
-        public float distance(Vector2 loc){
+        public float distance(Vector2 loc) {
                 float x = getFloatLocationX();
                 float y = getFloatLocationY();
                 final float x_d = x - loc.x;
                 final float y_d = y - loc.y;
-                return (float)Math.sqrt(x_d * x_d + y_d * y_d);
+                return (float) Math.sqrt(x_d * x_d + y_d * y_d);
         }
 
-        public float getFloatLocationX(){
-                if(move == null) return location.x;
+        public float getFloatLocationX() {
+                if (move == null) return location.x;
                 return move.getFloatLocation().x;
         }
 
-        public float getFloatLocationY(){
-                if(move == null) return location.y;
+        public float getFloatLocationY() {
+                if (move == null) return location.y;
                 return move.getFloatLocation().y;
         }
-
 
 
         public static interface Listener {
@@ -253,43 +268,43 @@ public class Token {
                 return name;
         }
 
-        public char toCharacter(){
-                if(logic != null){
-                        if(logic instanceof LocalPlayerLogic) return '@';
-                        if(get(Quest.class) != null) return 'q';
+        public char toCharacter() {
+                if (logic != null) {
+                        if (logic instanceof LocalPlayerLogic) return '@';
+                        if (get(Quest.class) != null) return 'q';
                         return '#';
                 }
-                if(loot!= null){
-                        if(loot.getItem() instanceof KeyItem){
+                if (loot != null) {
+                        if (loot.getItem() instanceof KeyItem) {
                                 KeyItem.Type keyType = ((KeyItem) loot.getItem()).getType();
-                                if(keyType == KeyItem.Type.Red) return 'r';
-                                else if(keyType == KeyItem.Type.Gold) return 'g';
-                                else if(keyType == KeyItem.Type.Silver) return 's';
+                                if (keyType == KeyItem.Type.Red) return 'r';
+                                else if (keyType == KeyItem.Type.Gold) return 'g';
+                                else if (keyType == KeyItem.Type.Silver) return 's';
                                 else return '?';
                         }
                         return '$';
                 }
-                if(crateInventory != null){
-                        if(crateInventory.getItemToDrop() instanceof KeyItem){
+                if (crateInventory != null) {
+                        if (crateInventory.getItemToDrop() instanceof KeyItem) {
                                 KeyItem.Type keyType = ((KeyItem) crateInventory.getItemToDrop()).getType();
-                                if(keyType == KeyItem.Type.Red) return 'r';
-                                else if(keyType == KeyItem.Type.Gold) return 'g';
-                                else if(keyType == KeyItem.Type.Silver) return 's';
+                                if (keyType == KeyItem.Type.Red) return 'r';
+                                else if (keyType == KeyItem.Type.Gold) return 'g';
+                                else if (keyType == KeyItem.Type.Silver) return 's';
                                 else return '?';
                         }
                         return '$';
                 }
 
-                if(stairs != null){
-                        if(stairs.isStairsUp())
+                if (stairs != null) {
+                        if (stairs.isStairsUp())
                                 return '^';
                         else
                                 return '&';
                 }
 
-                if(get(Torch.class) != null) return 't';
+                if (get(Torch.class) != null) return 't';
 
-                if(get(Fountain.class) != null) return 'f';
+                if (get(Fountain.class) != null) return 'f';
 
                 return '?';
         }

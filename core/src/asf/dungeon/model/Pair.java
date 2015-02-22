@@ -76,9 +76,8 @@ public class Pair {
                         y = xTemp;
                         return this;
                 } else if(degrees == 180 || degrees == -180){
-                        int xTemp = this.x;
-                        this.x = -y;
-                        y = -xTemp;
+                        this.x = -x;
+                        this.y = -y;
                         return this;
                 } else if(degrees == -90 || degrees == 270){
                         int xTemp = this.x;

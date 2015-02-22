@@ -50,14 +50,6 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
                 tokens.end();
         }
 
-        /**
-         * DO NOT MODIFY
-         * @return
-         */
-        public Tile[][] getTiles() {
-                return tiles;
-        }
-
         public int getWidth() {
                 return tiles.length;
         }
@@ -127,6 +119,15 @@ public class FloorMap  implements UtDebugPrint.Debuggable{
         public boolean hasBlockingTokensAt(int x, int y){
                 for(Token token : tokens){
                         if(token.blocksPathing && token.location.x ==x && token.location.y == y){
+                                return true;
+                        }
+                }
+                return false;
+        }
+
+        public boolean hasStairTokenAt(int x, int y){
+                for(Token token : tokens){
+                        if(token.location.x ==x && token.location.y == y && token.stairs != null){
                                 return true;
                         }
                 }

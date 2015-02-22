@@ -21,7 +21,7 @@ import java.util.Arrays;
 /**
 * Created by Daniel Strong on 12/8/2014.
 */
-public class CharacterInventory implements Inventory, TeleportValidator, TeleportListener {
+public class CharacterInventory implements Inventory, TeleportValidator {
         private final Token token;
         private final Array<Item> items;
         private WeaponItem weaponSlot;
@@ -623,13 +623,13 @@ public class CharacterInventory implements Inventory, TeleportValidator, Telepor
         }
 
         @Override
-        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction) {
-                return keyTurnU == 1;
+        public boolean isGoodSpawnLocation(FloorMap fm, int x, int y, Direction dir) {
+                return true;
         }
 
         @Override
-        public void onTeleport(FloorMap fm, int x, int y, Direction direction) {
-
+        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction) {
+                return keyTurnU == 1;
         }
 
 

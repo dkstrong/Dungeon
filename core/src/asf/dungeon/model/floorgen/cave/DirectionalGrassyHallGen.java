@@ -53,7 +53,7 @@ public class DirectionalGrassyHallGen implements FloorMapGenerator {
                 FloorMap floorMap = new FloorMap(floorType, floorIndex, tiles, null);
                 placeUpStairs(dungeon, floorMap, spawnX, spawnY, endX);
                 //UtFloorGen.spawnCharacters(dungeon, floorMap);
-                //UtFloorGen.spawnRandomCrates(dungeon, floorMap);
+                UtFloorGen.spawnRandomCrates(dungeon, floorMap,5,4);
                 return floorMap;
         }
 

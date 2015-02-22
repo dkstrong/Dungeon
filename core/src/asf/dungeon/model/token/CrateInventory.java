@@ -14,18 +14,22 @@ public class CrateInventory implements Inventory {
                 this.item = item;
         }
 
+        @Override
         public Item getItemToDrop() {
                 return item;
         }
 
+        @Override
         public int size() {
                 return item == null ? 0 : 1;
         }
 
+        @Override
         public boolean isFull() {
                 return item != null;
         }
 
+        @Override
         public boolean add(Item item) {
                 if (isFull())
                         return false;
@@ -36,6 +40,24 @@ public class CrateInventory implements Inventory {
                 return true;
         }
 
+        /**
+         * drops the item in the crate, if no item is in the crate then a item has a chance to be generated
+         * based on the player tokens class and luck
+         */
+        public void dropItem(){
+                if(item != null){
+                        dropItem(item);
+                        return;
+                }else{
+                        Token t = TokenFactory.lootDrop(token.dungeon, token.floorMap);
+                        if(t != null)
+                                token.dungeon.addToken(t, token.floorMap, token.location.x, token.location.y);
+                }
+
+
+        }
+
+        @Override
         public boolean dropItem(Item item){
                 boolean valid = discard(item);
                 if(!valid) return false;
@@ -45,6 +67,7 @@ public class CrateInventory implements Inventory {
                 return true;
         }
 
+        @Override
         public boolean discard(Item item) {
                 if (this.item != item || item == null)
                         return false;

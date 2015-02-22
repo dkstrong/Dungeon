@@ -4,6 +4,7 @@ import asf.dungeon.model.Direction;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.floorgen.UtFloorGen;
 
 /**
  * Created by Daniel Strong on 2/20/2015.
@@ -20,6 +21,23 @@ public class Decor implements TokenComponent, TeleportValidator, TeleportListene
         }
 
         @Override
+        public boolean isGoodSpawnLocation(FloorMap fm, int x, int y, Direction dir) {
+                if(UtFloorGen.countWalls(fm.tiles,x,y) != 3) return false;
+                final Mask mask= token.modelId.decorMask;
+                if(mask!=null){
+                        mask.setRotation(dir);
+                        for (Pair maskPoint : mask.maskPoints) {
+                                final int maskX = x+maskPoint.x;
+                                final int maskY = y+maskPoint.y;
+                                if(UtFloorGen.countWalls(fm.tiles,maskX,maskY) != 3) return false;
+                        }
+                }
+
+
+                return true;
+        }
+
+        @Override
         public boolean canTeleport(FloorMap fm, int x, int y, Direction direction) {
                 //if(token.floorMap != null) return false;
                 final Mask mask= token.modelId.decorMask;
@@ -31,17 +49,9 @@ public class Decor implements TokenComponent, TeleportValidator, TeleportListene
                                 // similiar logic from Token.canTeleport but does it for each mask point
                                 Tile tile = fm.getTile(maskX,maskY);
                                 if(tile == null || tile.isDoor() || tile.isPit() || tile.blockMovement) return false;
-
-                                tile = fm.getTile(maskX+1,maskY);
-                                if(tile == null || tile.isDoor()|| tile.isPit()) return false;
-                                tile = fm.getTile(maskX-1,maskY);
-                                if(tile == null || tile.isDoor()|| tile.isPit()) return false;
-                                tile = fm.getTile(maskX,maskY+1);
-                                if(tile == null || tile.isDoor()|| tile.isPit()) return false;
-                                tile = fm.getTile(maskX,maskY-1);
-                                if(tile == null || tile.isDoor()|| tile.isPit()) return false;
-
                                 if(fm.hasTokensAt(maskX, maskY)) return false;
+                                if(Token.wouldSpawnLocBlockSurroundingLocations(fm,x,y)) return false;
+
                         }
                 }
                 return true;

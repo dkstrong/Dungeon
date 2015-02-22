@@ -128,7 +128,7 @@ public class Damage implements TokenComponent, TeleportListener {
         protected void onDied() {
 
                 if(token.crateInventory != null)
-                        token.crateInventory.dropItem(token.crateInventory.getItemToDrop());
+                        token.crateInventory.dropItem();
 
         }
 

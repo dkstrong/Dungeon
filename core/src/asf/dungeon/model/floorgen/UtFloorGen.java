@@ -7,10 +7,6 @@ import asf.dungeon.model.FloorType;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
-import asf.dungeon.model.item.BookItem;
-import asf.dungeon.model.item.Item;
-import asf.dungeon.model.item.PotionItem;
-import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.token.Decor;
 import asf.dungeon.model.token.Stairs;
 import asf.dungeon.model.token.Token;
@@ -89,13 +85,13 @@ public class UtFloorGen {
                 int x, y;
                 for (ModelId modelId : characters) {
                         Token t = TokenFactory.characterToken(dungeon, modelId, new FsmLogic(1, null, Monster.Sleep), floorMap);
-                        do {
+                        for(int tries =0; tries < 20; tries++){
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                        } while (!t.isGoodSpawnLocation(floorMap, x, y, t.direction));
-
-                        dungeon.addToken(t, floorMap, x, y);
-
+                                if (!t.isGoodSpawnLocation(floorMap, x, y, t.direction)) continue;
+                                dungeon.addToken(t, floorMap, x, y);
+                                break;
+                        }
                 }
 
 
@@ -112,23 +108,29 @@ public class UtFloorGen {
         }
 
         private static void spawnDecorInside(Dungeon dungeon, FloorMap floorMap, float amountOfStuff){
-                final int maxBenches = Math.round(5 * amountOfStuff);
-                final int maxTables = Math.round(5 * amountOfStuff);
+                final int maxBenches = Math.round(7 * amountOfStuff);
+                final int maxTables = Math.round(4 * amountOfStuff);
+
+                int x,y;
+                Direction dir;
                 for (int i = 0; i < maxBenches; i++) {
-                        Token token = new Token(dungeon, "Decor", ModelId.Bench);
+                        Token token = new Token(dungeon, "Decor",  ModelId.Bench);
                         token.add(new Decor(token));
 
                         for(int tries=0; tries < 20; tries++){
-                                token.location.x = dungeon.rand.random.nextInt(floorMap.getWidth());
-                                token.location.y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                                token.direction = dungeon.rand.direction();
-                                if(token.isGoodSpawnLocation(floorMap, token.location.x, token.location.y, token.direction)){
-                                        dungeon.addToken(token, floorMap, token.location.x, token.location.y);
+                                do{
+                                        x = dungeon.rand.random.nextInt(floorMap.getWidth());
+                                        y = dungeon.rand.random.nextInt(floorMap.getHeight());
+                                }while(!UtFloorGen.isFloor(floorMap.tiles,x, y) || countWalls(floorMap.tiles, x, y) != 3);
+
+                                dir = dungeon.rand.direction();
+                                if(token.isGoodSpawnLocation(floorMap, x, y, dir)){
+                                        dungeon.addToken(token, floorMap, x, y, dir);
                                         break;
                                 }
                         }
                 }
-                int x,y;
+
                 SpawnGroup sg = new SpawnGroup();
                 for(int i=0; i < maxTables; i++){
                         Token token = new Token(dungeon, "Decor", ModelId.Chair);
@@ -147,77 +149,42 @@ public class UtFloorGen {
                         sg.setTokens(token, token1, token2);
 
                         for(int tries=0; tries < 20; tries++){
-                                x = dungeon.rand.random.nextInt(floorMap.getWidth());
-                                y = dungeon.rand.random.nextInt(floorMap.getHeight());
+                                do{
+                                        x = dungeon.rand.random.nextInt(floorMap.getWidth());
+                                        y = dungeon.rand.random.nextInt(floorMap.getHeight());
+                                }while(!UtFloorGen.isFloor(floorMap.tiles,x, y) || countWalls(floorMap.tiles, x, y) != 3);
 
-                                if(sg.spawnIfPossible(dungeon, floorMap,x,y, Direction.North)){
+                                dir = dungeon.rand.direction();
+                                if(sg.spawnIfPossible(dungeon, floorMap,x,y, dir)){
                                         break;
                                 }
                         }
-
-
                 }
         }
-
-        public static void spawnRandomCrates(Dungeon dungeon, FloorMap floorMap) {
-                int x, y;
-                Item item;
-                for (int i = 0; i < 5; i++) {
-
-
-                        do {
-                                x = dungeon.rand.random.nextInt(floorMap.getWidth());
-                                y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                        } while (floorMap.getTile(x, y) == null || !floorMap.getTile(x, y).isFloor() || floorMap.hasTokensAt(x, y));
-
-                        int randInt = dungeon.rand.random.nextInt(3);
-                        if (randInt == 0 || true) {
-                                //dungeon.rand.potionType()
-                                item = new PotionItem(dungeon, PotionItem.Type.Health, 1);
-                        } else if (randInt == 1) {
-                                item = new ScrollItem(dungeon, ScrollItem.Type.Lightning, 1);
-                        } else if (randInt == 2) {
-                                item = new BookItem(dungeon, BookItem.Type.AggravateMonsters);
-                        } else {
-                                item = new BookItem(dungeon, BookItem.Type.Experience);
-                        }
-
-                        dungeon.addToken(TokenFactory.crate(dungeon, ModelId.Crate, item), floorMap, x, y);
-                }
-
-        }
-
-
 
         /**
-         * @param dungeon
-         * @param floorMap
-         * @param maxTreasures          maximum amount of treasures to place
-         * @param treasurePlacementLimt the quality of the location to place tresure (lower number makes more crates) [0-8]
+         *
+         * @param dungeon the dungeon reference
+         * @param floorMap the floormap to spawn the crates on
+         * @param maxCrates the maximum number of crates to try and spawn (may spawn less, but never more)
+         * @param wallLimit [0-5] the number of walls the crate prefers to be near (may sometimes spawn with less nearby walls, but never more)
          */
-        public static void spawnTreasuresNearWalls(Dungeon dungeon, FloorMap floorMap, int maxTreasures, int treasurePlacementLimt) {
-                ModelId modelId = ModelId.CeramicPitcher;
-                int countSpawn = 0;
-                for (int x = 0; x < floorMap.getWidth(); x++) {
-                        for (int y = 0; y < floorMap.getHeight(); y++) {
-                                if (floorMap.getTile(x, y)==null || !floorMap.getTile(x, y).isFloor() || floorMap.hasTokensAt(x, y))
-                                        continue;
-
-                                int numWalls = countWalls(floorMap.getTiles(), x, y);
-                                if (treasurePlacementLimt <= numWalls) {
-                                        dungeon.addToken(TokenFactory.crate(dungeon, modelId, new PotionItem(dungeon, PotionItem.Type.Health, 1)), floorMap, x, y);
-
-
-                                        countSpawn++;
-                                        if (countSpawn >= maxTreasures)
-                                                return;
-
-                                }
-
+        public static void spawnRandomCrates(Dungeon dungeon, FloorMap floorMap, int maxCrates, int wallLimit) {
+                int x, y;
+                float nearWall;
+                final float wallLimitFloat = (float)wallLimit;
+                for (int i = 0; i < maxCrates; i++) {
+                        Token token = TokenFactory.crate(dungeon, dungeon.rand.crateModel(floorMap), null);
+                        for(int tries =0; tries < 20; tries++){
+                                x = dungeon.rand.random.nextInt(floorMap.getWidth());
+                                y = dungeon.rand.random.nextInt(floorMap.getHeight());
+                                nearWall = countWalls(floorMap.tiles,x,y)/wallLimitFloat;
+                                if(nearWall > 1 || !dungeon.rand.bool(nearWall) ||  !token.isGoodSpawnLocation(floorMap,x,y,token.direction)  ) continue;
+                                dungeon.addToken(token, floorMap, x, y);
+                                break;
                         }
                 }
         }
-
 
         public static boolean isWalkable(Tile[][] tiles, int x, int y) {
                 if (x < 0 || x >= tiles.length || y < 0 || y >= tiles[0].length)

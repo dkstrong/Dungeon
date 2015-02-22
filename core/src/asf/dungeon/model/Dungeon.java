@@ -14,7 +14,7 @@ public class Dungeon {
         private final MasterJournal masterJournal;
         private final FloorMapGenerator floorMapFactory;
         private final IntMap<FloorMap> floorMaps = new IntMap<FloorMap>(2);
-        private Token localPlayerToken;
+        public Token localPlayerToken;
         private FloorMap currentFloorMap;
 
         private transient Listener listener;
@@ -29,10 +29,6 @@ public class Dungeon {
 
         public MasterJournal getMasterJournal() {
                 return masterJournal;
-        }
-
-        public Token getLocalPlayerToken() {
-                return localPlayerToken;
         }
 
         public void update(float delta) {
@@ -124,6 +120,12 @@ public class Dungeon {
         public Token addToken(Token token, FloorMap fm, int x, int y){
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 moveToken(token, fm, x,y,token.direction);
+                return token;
+        }
+
+        public Token addToken(Token token, FloorMap fm, int x, int y, Direction dir){
+                if(fm == null) throw new IllegalArgumentException("fm can not be null");
+                moveToken(token, fm, x,y,dir);
                 return token;
         }
 

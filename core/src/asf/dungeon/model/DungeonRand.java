@@ -19,6 +19,20 @@ public class DungeonRand {
                 }
         }
 
+        public ModelId crateModel(FloorMap floorMap){
+                if(floorMap.floorType == FloorType.Grassy){
+                        return choose(ModelId.Barrel);
+                }else if(floorMap.floorType == FloorType.Church){
+                        return choose(ModelId.Barrel);
+                }else if(floorMap.floorType == FloorType.Dungeon){
+                        return choose(ModelId.Barrel, ModelId.Crate, ModelId.CeramicPitcher);
+                }
+
+                return ModelId.Crate;
+
+
+        }
+
         public PotionItem.Type potionType(){
                 int i = random.nextInt(10);
                 if(i== 0){

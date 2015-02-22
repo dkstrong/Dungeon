@@ -73,7 +73,7 @@ public class RandomWalkGen implements FloorMapGenerator {
                 UtFloorGen.placeUpStairs(dungeon, floorMap);
                 UtFloorGen.placeDownStairs(dungeon, floorMap);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
-                UtFloorGen.spawnRandomCrates(dungeon, floorMap);
+                UtFloorGen.spawnRandomCrates(dungeon, floorMap,5,4);
                 return floorMap;
         }
 

@@ -6,7 +6,6 @@ import asf.dungeon.model.ModelId;
 import asf.dungeon.model.item.ArmorItem;
 import asf.dungeon.model.item.BookItem;
 import asf.dungeon.model.item.Item;
-import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.item.WeaponItem;
@@ -45,99 +44,80 @@ public class TokenFactory {
                 t.logic.setToken(t);
 
 
-                t.inventory.setNumQuickSlots(3);
+                t.inventory.setNumQuickSlots(0);
 
-                ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 1);
-                //potion.identifyItem(token);
-                t.inventory.add(potion);
-                //token.inventory.equip(potion);
+//                ScrollItem potion = new ScrollItem(dungeon, ScrollItem.Type.Teleportation, 1);
+//                //potion.identifyItem(token);
+//                t.inventory.add(potion);
+//                //token.inventory.equip(potion);
+//
+//                BookItem book = new BookItem(dungeon, BookItem.Type.Identify);
+//                t.inventory.add(book);
+//                book.identifyItem(t);
+//
+//                book = new BookItem(dungeon, BookItem.Type.Identify);
+//                t.inventory.add(book);
+//                book.identifyItem(t);
+//
+//                book = new BookItem(dungeon, BookItem.Type.RemoveCurse);
+//                t.inventory.add(book);
+//                //book.identifyItem(t);
+//
+//                book = new BookItem(dungeon, BookItem.Type.RemoveCurse);
+//                t.inventory.add(book);
+//                //book.identifyItem(t);
+//
+//
+//                PotionItem health = new PotionItem(dungeon, PotionItem.Type.Speed, 4);
+//                health.identifyItem(t);
+//                t.inventory.add(health);
+//
+//                PotionItem paralyze = new PotionItem(dungeon, PotionItem.Type.Health, 4);
+//                paralyze.identifyItem(t);
+//                t.inventory.add(paralyze);
 
-                BookItem book = new BookItem(dungeon, BookItem.Type.Identify);
-                t.inventory.add(book);
-                book.identifyItem(t);
-
-                book = new BookItem(dungeon, BookItem.Type.Identify);
-                t.inventory.add(book);
-                book.identifyItem(t);
-
-                book = new BookItem(dungeon, BookItem.Type.RemoveCurse);
-                t.inventory.add(book);
-                //book.identifyItem(t);
-
-                book = new BookItem(dungeon, BookItem.Type.RemoveCurse);
-                t.inventory.add(book);
-                //book.identifyItem(t);
+//                t.inventory.add(new KeyItem(dungeon, KeyItem.Type.Silver));
+//                t.inventory.add(new KeyItem(dungeon,KeyItem.Type.Gold));
+//                t.inventory.add(new KeyItem(dungeon, KeyItem.Type.Red));
 
 
-                PotionItem health = new PotionItem(dungeon, PotionItem.Type.Speed, 4);
-                health.identifyItem(t);
-                t.inventory.add(health);
-
-                PotionItem paralyze = new PotionItem(dungeon, PotionItem.Type.Health, 4);
-                paralyze.identifyItem(t);
-                t.inventory.add(paralyze);
-
-                ArmorItem armor = new ArmorItem(dungeon, 1);
-                armor.identifyItem(t);
-                t.inventory.add(armor);
-                t.inventory.equip(armor);
-
-                t.inventory.add(new KeyItem(dungeon, KeyItem.Type.Silver));
-                t.inventory.add(new KeyItem(dungeon,KeyItem.Type.Gold));
-                t.inventory.add(new KeyItem(dungeon, KeyItem.Type.Red));
 
                 if (modelId == ModelId.Knight) {
                         WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
-
-                        //sword.setAttackDuration(1);
+                        sword.identifyItem(t);
                         t.inventory.add(sword);
                         t.inventory.equip(sword);
-                        t.get(Journal.class).learn(sword);
 
-                        WeaponItem bow = new WeaponItem(dungeon,  2,2,1, true,3,1);
-                        t.inventory.add(bow);
-                        t.get(Journal.class).learn(bow);
-                        //t.inventory.equip(bow);
+                        ArmorItem armor = new ArmorItem(dungeon, 1);
+                        armor.identifyItem(t);
+                        t.inventory.add(armor);
+                        t.inventory.equip(armor);
 
-                        WeaponItem staff = new WeaponItem(dungeon, 3,2,1,false,3,1);
-                        staff.identifyItem(t);
-                        t.inventory.add(staff);
                 } else if (modelId == ModelId.Archer) {
                         WeaponItem bow = new WeaponItem(dungeon,  2,2,1, true,3,1);
-                        //bow.setCursed(true);
+                        bow.identifyItem(t);
                         t.inventory.add(bow);
                         t.inventory.equip(bow);
 
-                        WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
-                        sword.cursed = true;
-                        t.inventory.add(sword);
-                        t.get(Journal.class).learn(sword);
-
-                        WeaponItem staff = new WeaponItem(dungeon, 3,2,1,false,3,1);
-                        staff.identifyItem(t);
-                        t.inventory.add(staff);
+                        ArmorItem armor = new ArmorItem(dungeon, 1);
+                        armor.identifyItem(t);
+                        t.inventory.add(armor);
+                        t.inventory.equip(armor);
                 } else if (modelId== ModelId.Mage) {
                         WeaponItem staff = new WeaponItem(dungeon, 3,2,1,false,3,1);
                         staff.identifyItem(t);
-
                         t.inventory.add(staff);
                         t.inventory.equip(staff);
 
-                        WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
-                        t.inventory.add(sword);
-                        sword.cursed = true;
-                        sword.identifyItem(t);
-
-                        WeaponItem bow = new WeaponItem(dungeon,  2,2,1, true,3,1);
-                        t.inventory.add(bow);
-                        //bow.identifyItem(t);
-
+                        ArmorItem armor = new ArmorItem(dungeon, 1);
+                        armor.identifyItem(t);
+                        t.inventory.add(armor);
+                        t.inventory.equip(armor);
                 } else if (modelId == ModelId.Priest) {
-                        WeaponItem sword = new WeaponItem(dungeon, 3,2,1);
-                        //sword.setAttackDuration(1);
-                        t.inventory.add(sword);
-                        t.inventory.equip(sword);
-                        t.get(Journal.class).learn(sword);
+                        ArmorItem armor = new ArmorItem(dungeon, 1);
+                        armor.identifyItem(t);
+                        t.inventory.add(armor);
+                        t.inventory.equip(armor);
                 }
 
 
@@ -274,6 +254,36 @@ public class TokenFactory {
                 t.damage.setDeathDuration(1.75f);
                 t.damage.setDeathRemovalDuration(0f);
                 return t;
+        }
+
+        /**
+         * loot to be dropped by a crate on this floor, calculated based on the player's luck, class, and other stats
+         *
+         * may return null (drops nothing)
+         * @param dungeon
+         * @param floorMap
+         * @return
+         */
+        public static Token lootDrop(Dungeon dungeon, FloorMap floorMap){
+                if(dungeon.localPlayerToken== null ) return null;
+
+                float luck = dungeon.localPlayerToken.experience.luck / 100f;
+                if(!dungeon.rand.bool(luck)) return null;
+
+                Item item;
+                int randInt = dungeon.rand.random.nextInt(3);
+                if (randInt == 0) {
+                        item = new PotionItem(dungeon, dungeon.rand.potionType(), 1);
+                } else if (randInt == 1) {
+                        item = new ScrollItem(dungeon, ScrollItem.Type.Lightning, 1);
+                } else if (randInt == 2) {
+                        item = new BookItem(dungeon, BookItem.Type.AggravateMonsters);
+                } else {
+                        item = new BookItem(dungeon, BookItem.Type.Experience);
+                }
+
+
+                return loot(dungeon, item);
         }
 
         public static Token loot(Dungeon dungeon, Item item){

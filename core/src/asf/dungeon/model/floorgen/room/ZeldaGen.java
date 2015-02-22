@@ -79,9 +79,9 @@ public class ZeldaGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
                 FloorMap floorMap = new FloorMap(floorType, floorIndex, tiles, this);
                 UtRoomSpawn.spawnStairs(dungeon, floorMap, rooms);
                 UtRoomSpawn.carveLockedDoorsAndSpawnKeys(dungeon, floorMap, rooms);
-                //UtFloorGen.spawnCharacters(dungeon, floorMap);
+                UtFloorGen.spawnCharacters(dungeon, floorMap);
                 UtFloorGen.spawnDecor(dungeon, floorMap);
-                UtFloorGen.spawnRandomCrates(dungeon, floorMap);
+                UtFloorGen.spawnRandomCrates(dungeon, floorMap,5,3);
 
 
                 return floorMap;

@@ -547,7 +547,7 @@ public class DungeonWorld implements Dungeon.Listener, Disposable {
                 public Token getLocalPlayerToken() {
                         if (loadedDungeon == null)
                                 return null;
-                        return loadedDungeon.getLocalPlayerToken();
+                        return loadedDungeon.localPlayerToken;
                 }
         }
 }

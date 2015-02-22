@@ -31,7 +31,7 @@ public class CellularAutomataGen implements FloorMapGenerator {
         private int floorLimit = 4; // lower number means more walls [4,8].
 
         private int maxCrates = 10;
-        private int cratePlacementLimit = 5; // lower number more crates [0-8]
+        private int cratePlacementLimit = 5; // lower number more crates [0-5]
 
 
         @Override
@@ -66,7 +66,7 @@ public class CellularAutomataGen implements FloorMapGenerator {
                 UtFloorGen.placeUpStairs(dungeon, floorMap);
                 UtFloorGen.placeDownStairs(dungeon, floorMap);
                 UtFloorGen.spawnCharacters(dungeon, floorMap);
-                UtFloorGen.spawnTreasuresNearWalls(dungeon, floorMap, maxCrates, cratePlacementLimit);
+                UtFloorGen.spawnRandomCrates(dungeon, floorMap, maxCrates, cratePlacementLimit);
                 return floorMap;
         }
 

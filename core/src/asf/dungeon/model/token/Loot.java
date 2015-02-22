@@ -24,6 +24,10 @@ public class Loot implements TokenComponent, TeleportValidator {
                 token.blocksPathing = false;
         }
 
+        @Override
+        public boolean isGoodSpawnLocation(FloorMap fm, int x, int y, Direction dir) {
+                return true;
+        }
 
         @Override
         public boolean canTeleport(FloorMap fm, int x, int y, Direction direction) {

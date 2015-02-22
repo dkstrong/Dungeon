@@ -25,6 +25,11 @@ public class Boulder implements TokenComponent , TeleportValidator, TeleportList
         }
 
         @Override
+        public boolean isGoodSpawnLocation(FloorMap fm, int x, int y, Direction dir) {
+                return true;
+        }
+
+        @Override
         public boolean canTeleport(FloorMap fm, int x, int y, Direction direction){
                 if(fillsPit != null){
                         Array<Token> tokensAt = token.floorMap.getTokensAt(token.location);
