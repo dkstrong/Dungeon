@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.ObjectIntMap;
 /**
  * Created by Danny on 11/30/2014.
  */
-public class Interactor implements TokenComponent, Teleportable{
+public class Interactor implements TokenComponent, TeleportValidator {
         public final Token token;
         public transient Token chattingWith;
         private final ObjectIntMap<Token> chatProgress = new ObjectIntMap<Token>(1);
@@ -24,10 +24,6 @@ public class Interactor implements TokenComponent, Teleportable{
         @Override
         public boolean canTeleport(FloorMap fm, int x, int y, Direction direction){
                 return chattingWith == null;
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
         }
 
         protected boolean interact(Pair nextLocation) {

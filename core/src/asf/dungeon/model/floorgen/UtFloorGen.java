@@ -111,22 +111,51 @@ public class UtFloorGen {
                 }
         }
 
-        private static void spawnDecorInside(Dungeon dungeon, FloorMap floorMap, float density){
-                int x, y;
-                for (int i = 0; i < 5; i++) {
-
+        private static void spawnDecorInside(Dungeon dungeon, FloorMap floorMap, float amountOfStuff){
+                final int maxBenches = Math.round(5 * amountOfStuff);
+                final int maxTables = Math.round(5 * amountOfStuff);
+                for (int i = 0; i < maxBenches; i++) {
                         Token token = new Token(dungeon, "Decor", ModelId.Bench);
-                        token.direction = Direction.SouthEast;
                         token.add(new Decor(token));
+
+                        for(int tries=0; tries < 20; tries++){
+                                token.location.x = dungeon.rand.random.nextInt(floorMap.getWidth());
+                                token.location.y = dungeon.rand.random.nextInt(floorMap.getHeight());
+                                token.direction = dungeon.rand.direction();
+                                if(token.isGoodSpawnLocation(floorMap, token.location.x, token.location.y, token.direction)){
+                                        dungeon.addToken(token, floorMap, token.location.x, token.location.y);
+                                        break;
+                                }
+                        }
+                }
+                int x,y;
+                SpawnGroup sg = new SpawnGroup();
+                for(int i=0; i < maxTables; i++){
+                        Token token = new Token(dungeon, "Decor", ModelId.Chair);
+                        token.add(new Decor(token));
+                        token.location.set(-1,0);
+                        token.direction = Direction.East;
+
+                        Token token1 = new Token(dungeon, "Decor", ModelId.Table1);
+                        token1.add(new Decor(token));
+                        token1.location.set(0,0);
+
+                        Token token2 = new Token(dungeon, "Decor", ModelId.Chair);
+                        token2.add(new Decor(token));
+                        token2.location.set(1, 0);
+                        token2.direction = Direction.West;
+                        sg.setTokens(token, token1, token2);
 
                         for(int tries=0; tries < 20; tries++){
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                                if(token.isGoodSpawnLocation(floorMap, x, y, token.direction)){
-                                        dungeon.addToken(token, floorMap, x, y);
+
+                                if(sg.spawnIfPossible(dungeon, floorMap,x,y, Direction.North)){
                                         break;
                                 }
                         }
+
+
                 }
         }
 

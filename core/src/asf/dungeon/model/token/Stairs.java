@@ -9,7 +9,7 @@ import asf.dungeon.model.Pair;
 /**
  * Created by Daniel Strong on 12/20/2014.
  */
-public class Stairs implements TokenComponent, Teleportable{
+public class Stairs implements TokenComponent, TeleportListener {
         public final Token token;
         public final int stairsTo;
 
@@ -37,12 +37,9 @@ public class Stairs implements TokenComponent, Teleportable{
         }
 
         @Override
-        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction) {
-                return true;
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+        public void onTeleport(FloorMap fm, int x, int y, Direction direction) {
+                // TODO: this should be passed into the constructor of Token instead..
+                // i need to clean up how stairs are created to do this right..
                 if(isStairsUp()){
                         token.modelId = token.floorMap.floorType == FloorType.Grassy ? ModelId.StairsUp :
                                         token.floorMap.floorType == FloorType.Church ? ModelId.ChurchDoor :

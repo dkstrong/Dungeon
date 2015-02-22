@@ -21,7 +21,7 @@ import java.util.Arrays;
 /**
 * Created by Daniel Strong on 12/8/2014.
 */
-public class CharacterInventory implements Inventory, Teleportable {
+public class CharacterInventory implements Inventory, TeleportValidator, TeleportListener {
         private final Token token;
         private final Array<Item> items;
         private WeaponItem weaponSlot;
@@ -628,7 +628,7 @@ public class CharacterInventory implements Inventory, Teleportable {
         }
 
         @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+        public void onTeleport(FloorMap fm, int x, int y, Direction direction) {
 
         }
 

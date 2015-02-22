@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.MathUtils;
 /**
  * Created by Danny on 11/11/2014.
  */
-public class Loot implements TokenComponent, Teleportable{
+public class Loot implements TokenComponent, TeleportValidator {
         private final Token token;
         private Item item;
         private Pair throwDestination;
@@ -28,10 +28,6 @@ public class Loot implements TokenComponent, Teleportable{
         @Override
         public boolean canTeleport(FloorMap fm, int x, int y, Direction direction) {
                 return throwDestination == null;
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
         }
 
         @Override

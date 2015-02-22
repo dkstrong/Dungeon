@@ -16,7 +16,6 @@ public class Dungeon {
         private final IntMap<FloorMap> floorMaps = new IntMap<FloorMap>(2);
         private Token localPlayerToken;
         private FloorMap currentFloorMap;
-        private int nextTokenId = 0;
 
         private transient Listener listener;
 
@@ -110,7 +109,6 @@ public class Dungeon {
         public Token addPlayerToken(Token token, FloorMap fm){
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 if(localPlayerToken!= null) throw new IllegalArgumentException("already have local player token");
-                token.setId(nextTokenId++);
                 localPlayerToken = token;
                 moveToken(token, fm);
                 return token;
@@ -118,7 +116,6 @@ public class Dungeon {
         public Token addPlayerToken(Token token, FloorMap fm, int x, int y, Direction direction){
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
                 if(localPlayerToken!= null) throw new IllegalArgumentException("already have local player token");
-                token.setId(nextTokenId++);
                 localPlayerToken = token;
                 moveToken(token, fm,x,y,direction);
                 return token;
@@ -126,7 +123,6 @@ public class Dungeon {
 
         public Token addToken(Token token, FloorMap fm, int x, int y){
                 if(fm == null) throw new IllegalArgumentException("fm can not be null");
-                token.setId(nextTokenId++);
                 moveToken(token, fm, x,y,token.direction);
                 return token;
         }

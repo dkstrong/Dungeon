@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by Danny on 11/11/2014.
  */
-public class FogMapping implements TokenComponent, Teleportable {
+public class FogMapping implements TokenComponent, TeleportListener {
         private final Token token;
         private Map<FloorMap, FogMap> fogMaps;
 
@@ -19,12 +19,7 @@ public class FogMapping implements TokenComponent, Teleportable {
         }
 
         @Override
-        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction){
-                return true;
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+        public void onTeleport(FloorMap fm, int x, int y, Direction direction) {
                 FogMap fogMap = fogMaps.get(fm);
                 if (fogMap == null) {
                         fogMap = new FogMap(fm,token);

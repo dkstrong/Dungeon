@@ -23,7 +23,6 @@ import com.badlogic.gdx.utils.Array;
  */
 public class Token {
         public final Dungeon dungeon;
-        private int id;
         public ModelId modelId;
         /**
          * the name of this character or item for the interfce
@@ -38,7 +37,10 @@ public class Token {
         public final Pair location = new Pair();                     // the current tile that this token is considered to be standing on
         public FloorMap floorMap;
         public Direction direction = Direction.South;          // the direction that this token is facing, this affects certain gameplay mechanics.
-        private final Array<TokenComponent> components = new Array<TokenComponent>(true, 8, TokenComponent.class);
+        /**
+         * do not modify, use add() and remove()
+         */
+        public final Array<TokenComponent> components = new Array<TokenComponent>(true, 8, TokenComponent.class);
         public transient Listener listener;
         // Common Components
         public Logic logic;
@@ -56,31 +58,10 @@ public class Token {
         public Stairs stairs;
         public MonsterTrap monsterTrap;
 
-
-        public Token(Dungeon dungeon, int id, String name, ModelId modelId) {
-                this.dungeon = dungeon;
-                this.id = id;
-                this.name = name;
-                this.modelId = modelId;
-        }
-
         public Token(Dungeon dungeon, String name, ModelId modelId) {
                 this.dungeon = dungeon;
                 this.name = name;
                 this.modelId = modelId;
-        }
-
-
-        public void setId(int id) {
-                this.id = id;
-        }
-
-        /**
-         * DO NOT MODIFY
-         * @return
-         */
-        public Array<TokenComponent> getComponents() {
-                return components;
         }
 
         public <T extends TokenComponent> T get(Class<T> componentClass) {
@@ -164,7 +145,7 @@ public class Token {
                 if (tile == null || tile.isDoor() || tile.blockMovement) return false;
 
                 for (TokenComponent c : components) {
-                        if(c instanceof Teleportable && !((Teleportable) c ).canTeleport(fm,x, y, dir))
+                        if(c instanceof TeleportValidator && !((TeleportValidator) c ).canTeleport(fm,x, y, dir))
                                 return false;
                 }
                 return true;
@@ -182,7 +163,7 @@ public class Token {
                 direction = dir;
 
                 for (TokenComponent c : components) {
-                        if(c instanceof Teleportable) ((Teleportable) c ).teleport(fm,x, y, direction);
+                        if(c instanceof TeleportListener) ((TeleportListener) c ).onTeleport(fm, x, y, direction);
                 }
 
                 return true;
@@ -240,9 +221,7 @@ public class Token {
                 return move.getFloatLocation().y;
         }
 
-        public int getId() {
-                return id;
-        }
+
 
         public static interface Listener {
 
@@ -267,23 +246,6 @@ public class Token {
                 public void onInteract(Quest quest, Dialouge dialouge);
 
                 public void onFsmStateChange(FsmLogic fsm, State oldState, State newState);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-                if (this == o) return true;
-                if (o == null || getClass() != o.getClass()) return false;
-
-                Token token = (Token) o;
-
-                if (id != token.id) return false;
-
-                return true;
-        }
-
-        @Override
-        public int hashCode() {
-                return id;
         }
 
         @Override

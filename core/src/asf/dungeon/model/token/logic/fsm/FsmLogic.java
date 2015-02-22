@@ -5,14 +5,14 @@ import asf.dungeon.model.DungeonRand;
 import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Sector;
-import asf.dungeon.model.token.Teleportable;
+import asf.dungeon.model.token.TeleportListener;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.logic.Logic;
 
 /**
  * Created by Danny on 11/20/2014.
  */
-public class FsmLogic implements Logic, Teleportable {
+public class FsmLogic implements Logic, TeleportListener {
         private State initialState;
         protected Token token;
         protected DungeonRand rand;
@@ -47,12 +47,7 @@ public class FsmLogic implements Logic, Teleportable {
         }
 
         @Override
-        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction) {
-                return true;
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+        public void onTeleport(FloorMap fm, int x, int y, Direction direction) {
                 target = null;
 
         }

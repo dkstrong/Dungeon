@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Array;
  * A boulder that can be pushed when Move goes in to its place
  * Created by Daniel Strong on 12/17/2014.
  */
-public class Boulder implements TokenComponent , Teleportable{
+public class Boulder implements TokenComponent , TeleportValidator, TeleportListener {
         protected Token token;
         private float moveSpeed = 1.5f;
         private float moveSpeedDiagonal = 1.06066017177f;
@@ -38,7 +38,7 @@ public class Boulder implements TokenComponent , Teleportable{
         }
 
         @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+        public void onTeleport(FloorMap fm, int x, int y, Direction direction) {
                 moveU = 1;
                 floatLocation.set(x, y);
 

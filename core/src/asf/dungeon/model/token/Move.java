@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.Array;
 /**
  * Created by Danny on 11/11/2014.
  */
-public class Move implements TokenComponent , Teleportable{
+public class Move implements TokenComponent , TeleportListener {
         private final Token token;
         private float moveSpeed = 1.5f; // how fast the character moves between tiles, generally a value between 1 and 10, could be higher i suppose.
         private float moveSpeedDiagonal = 1.06066017177f;
@@ -33,12 +33,7 @@ public class Move implements TokenComponent , Teleportable{
         }
 
         @Override
-        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction) {
-                return true;
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+        public void onTeleport(FloorMap fm, int x, int y, Direction direction) {
                 moveU = 1;
                 path.clear();
                 pathedTarget.set(x, y);

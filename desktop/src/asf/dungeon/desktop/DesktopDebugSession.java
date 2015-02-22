@@ -413,7 +413,7 @@ public class DesktopDebugSession {
                         Token token = (Token) selectedTreeObject;
 
                         tabs.add(UtDebugPrint.getDebugInfo(token));
-                        Array<TokenComponent> components = token.getComponents();
+                        Array<TokenComponent> components = token.components;
                         for (int i = 0; i < components.size; i++) {
                                 TokenComponent component = components.get(i);
                                 tabs.add(UtDebugPrint.getDebugInfo(component));

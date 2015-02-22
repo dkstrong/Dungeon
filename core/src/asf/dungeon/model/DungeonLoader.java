@@ -100,6 +100,8 @@ public class DungeonLoader {
                                 new ZeldaGen(6,8,12),
                                 new DirectionalGrassyHallGen(),
                                 new ZeldaGen(6,8,12),
+
+                                new ZeldaGen(6,8,12),
                                 new BinarySpaceGen(10,25,20,35,4),
                                 new ConnectedRoomsGen(),
                                 new TutorialFloorGen(),new MazeGen(15, 19),

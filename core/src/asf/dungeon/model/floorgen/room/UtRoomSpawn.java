@@ -346,7 +346,53 @@ public class UtRoomSpawn {
         }
 
         private static Direction getRoomEdgeWithoutDoors(Dungeon dungeon, FloorMap floorMap, Room room){
-                return Direction.North;
+                int y = room.y2;
+                boolean hasGap = false;
+                for(int x = room.x1; x<=room.x2; x++){
+                        Tile tile = floorMap.getTile(x,y);
+                        if(tile != null && (tile.isFloor() || tile.isDoor() || tile.isPit())){
+                                hasGap = true;
+                                break;
+                        }
+                }
+                if(!hasGap) return Direction.North;
+
+                y = room.y1;
+                hasGap = false;
+                for(int x = room.x1; x<=room.x2; x++){
+                        Tile tile = floorMap.getTile(x,y);
+                        if(tile != null && (tile.isFloor() || tile.isDoor() || tile.isPit())){
+                                hasGap = true;
+                                break;
+                        }
+                }
+                if(!hasGap) return Direction.South;
+
+                int u = room.x2;
+                hasGap = false;
+                for(int v = room.y1; y<=room.y2; y++){
+                        Tile tile = floorMap.getTile(u,v);
+                        if(tile != null && (tile.isFloor() || tile.isDoor() || tile.isPit())){
+                                hasGap = true;
+                                break;
+                        }
+                }
+
+                if(!hasGap) return Direction.East;
+
+                u = room.x1;
+                hasGap = false;
+                for(int v = room.y1; y<=room.y2; y++){
+                        Tile tile = floorMap.getTile(u,v);
+                        if(tile != null && (tile.isFloor() || tile.isDoor() || tile.isPit())){
+                                hasGap = true;
+                                break;
+                        }
+                }
+
+                if(!hasGap) return Direction.West;
+
+                return null;
         }
 
         private static boolean spawnStairsInRoom(Dungeon dungeon, FloorMap floorMap, Room room, int floorIndexTo ){
@@ -384,9 +430,10 @@ public class UtRoomSpawn {
                         if(!foundLoc) return false;
 
                         floorMap.tiles[x][y] = Tile.makeFloor();
+
                         Token stairsToken = new Token(dungeon, "Stairs", ModelId.ChurchDoor);
                         stairsToken.add(new Stairs(stairsToken, floorIndexTo));
-                        stairsToken.direction = roomEdge;
+                        stairsToken.direction = roomEdge.opposite();
                         dungeon.addToken(stairsToken, floorMap, x, y);
 
                         room.containsStairsTo = floorIndexTo;

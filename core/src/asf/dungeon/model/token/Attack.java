@@ -11,7 +11,7 @@ import com.badlogic.gdx.utils.Array;
 /**
  * Created by Danny on 11/11/2014.
  */
-public class Attack implements TokenComponent, Teleportable{
+public class Attack implements TokenComponent, TeleportListener {
 
         private final Token token;
         private WeaponItem weapon = WeaponItem.NULL;
@@ -35,12 +35,7 @@ public class Attack implements TokenComponent, Teleportable{
         }
 
         @Override
-        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction){
-                return true;
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+        public void onTeleport(FloorMap fm, int x, int y, Direction direction) {
                 attackU = 0;
                 meleeAttackTarget = null;
                 attackCoolDown = 0;

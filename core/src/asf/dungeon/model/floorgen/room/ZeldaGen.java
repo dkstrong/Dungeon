@@ -99,7 +99,7 @@ public class ZeldaGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
         @Override
         public void spawnMonsters(Dungeon dungeon, FloorMap floorMap) {
                 int countTeam1 = floorMap.getTokensOnTeam(1).size;
-                if (countTeam1 < 2) {
+                if (countTeam1 < -2) {
                         int x, y;
                         ModelId modelId = dungeon.rand.random.nextBoolean() ? ModelId.Skeleton : ModelId.Skeleton;
                         Token token = TokenFactory.characterToken(dungeon, modelId, new FsmLogic(1, null, Monster.Sleep), floorMap);

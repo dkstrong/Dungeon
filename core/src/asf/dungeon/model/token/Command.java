@@ -15,7 +15,7 @@ import asf.dungeon.model.token.quest.Choice;
  *
  * player and ai should not initiateChat with the token directly.
  */
-public class Command implements TokenComponent, Teleportable{
+public class Command implements TokenComponent, TeleportListener {
         private final Token token;
         private final Pair location = new Pair();                      // the location that this targetToken wants to move to, targetToken will move and attack through tiles along the way to get to its destination
         private Token targetToken;                    // alternative to location and continousMoveDir, will constantly try to move to location of this targetToken
@@ -34,12 +34,7 @@ public class Command implements TokenComponent, Teleportable{
         }
 
         @Override
-        public boolean canTeleport(FloorMap fm, int x, int y, Direction direction){
-                return true;
-        }
-
-        @Override
-        public void teleport(FloorMap fm, int x, int y, Direction direction) {
+        public void onTeleport(FloorMap fm, int x, int y, Direction direction) {
                 setLocation(x,y);
         }
 
