@@ -157,7 +157,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                         if (targetTokenSpatial != null) {
                                 translation.set(targetTokenSpatial.translation);
                                 //rotation.set(targetTokenSpatial.rotation) // TODO: do i want to follow rotation too?
-                                if (targetTokenSpatial.getToken().damage != null && targetTokenSpatial.getToken().damage.isDead()) {
+                                if (targetTokenSpatial.token.damage != null && targetTokenSpatial.token.damage.isDead()) {
                                         duration = 0;
                                 }
                         }
@@ -223,7 +223,7 @@ public class Pooled3dModelSpatial implements Spatial, FxManager.PooledFx {
                 FogState fogState;
                 if (targetTokenSpatial != null) {
                         if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().fogMapping != null) {
-                                fogState = world.getLocalPlayerToken().fogMapping.getCurrentFogMap().getFogState(targetTokenSpatial.getToken().location.x, targetTokenSpatial.getToken().location.y);
+                                fogState = world.getLocalPlayerToken().fogMapping.getCurrentFogMap().getFogState(targetTokenSpatial.token.location.x, targetTokenSpatial.token.location.y);
                         } else {
                                 fogState = FogState.Visible;
                         }

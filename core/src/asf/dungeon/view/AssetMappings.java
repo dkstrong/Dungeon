@@ -12,11 +12,13 @@ import asf.dungeon.model.item.PotionItem;
 import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.StatusEffect;
+import asf.dungeon.view.token.AbstractTokenSpatial;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * Created by Danny on 11/22/2014.
@@ -41,7 +43,7 @@ public class AssetMappings {
                 rotations[Direction.SouthEast.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 0.785398163f); // 45
                 rotations[Direction.SouthWest.ordinal()] = new Quaternion().setFromAxisRad(0, 1, 0, 5.49778714f); // 315
 
-                assetLocations = new String[41];
+                assetLocations = new String[43];
                 assetLocations[ModelId.Archer.ordinal()] = "Models/Characters/archer.g3db";
                 assetLocations[ModelId.Berzerker.ordinal()] = "Models/Characters/berzerker.g3db";
                 assetLocations[ModelId.Cerberus.ordinal()] = "Models/Characters/cerberus.g3db";
@@ -59,6 +61,8 @@ public class AssetMappings {
                 assetLocations[ModelId.Crate.ordinal()] = "Models/Crates/crate_01.g3db";
                 assetLocations[ModelId.Barrel.ordinal()] = "Models/Crates/barrel_01.g3db";
                 assetLocations[ModelId.Chest.ordinal()] = "Models/Crates/chest_01.g3db";
+                assetLocations[ModelId.Foliage.ordinal()] = "Models/Foliage/Foliage.g3db";
+                assetLocations[ModelId.Tree.ordinal()] = "Models/Foliage/Tree.g3db";
                 assetLocations[ModelId.Fountain.ordinal()] = "Models/Fountain/Fountain.g3db";
                 assetLocations[ModelId.Torch.ordinal()] = "Models/Torch/Torch.g3db";
                 assetLocations[ModelId.SignPost.ordinal()] = "Models/SignPost/SignPost.g3db";
@@ -129,10 +133,29 @@ public class AssetMappings {
 
         }
 
-        public void preload3dModels(AssetManager assetManager){
+        protected void preload3dModels(AssetManager assetManager){
                 for (String assetLocation : assetLocations) {
                         if(assetLocation == null) continue;
                         assetManager.load(assetLocation, Model.class);
+                }
+        }
+
+        protected void unloadUnused3dModels(AssetManager assetManager, Array<Spatial> spatials){
+
+                outer:
+                for (String assetLocation : assetLocations) {
+                        for (int i = 0; i < spatials.size; i++) {
+                                if(spatials.items[i] instanceof AbstractTokenSpatial){
+                                        final AbstractTokenSpatial ats = (AbstractTokenSpatial) spatials.items[i];
+                                        if(ats.isUsing3dModel(assetLocation)){
+                                              continue outer;
+                                        }
+                                }
+                        }
+                        if(assetManager.isLoaded(assetLocation)){
+                                //Gdx.app.log("AssetMappings","unloding "+assetLocation+" because it is not used.");
+                                assetManager.unload(assetLocation);
+                        }
                 }
         }
 

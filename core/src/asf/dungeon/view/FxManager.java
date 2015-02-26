@@ -212,7 +212,7 @@ public class FxManager implements Disposable {
 
                 // first try to add duration to any existing effect already on this token spatial
                 for (PooledFx pooledFx : pool) {
-                        if (pooledFx.getFxId() == fxId && pooledFx.getAttackerToken() == source &&  pooledFx.getTokenSpatial() != null && pooledFx.getTokenSpatial().getToken() == target && pooledFx.getMode() == 4) {
+                        if (pooledFx.getFxId() == fxId && pooledFx.getAttackerToken() == source &&  pooledFx.getTokenSpatial() != null && pooledFx.getTokenSpatial().token == target && pooledFx.getMode() == 4) {
                                 pooledFx.set(fxId, source, target, destLoc);
                                 return;
                         }
@@ -238,7 +238,7 @@ public class FxManager implements Disposable {
 
                 // first try to add duration to any existing effect already on this token spatial
                 for (PooledFx pooledFx : pool) {
-                        if (pooledFx.getFxId() == fxId && pooledFx.getAttackerToken() == source &&  pooledFx.getTokenSpatial() != null && pooledFx.getTokenSpatial().getToken() == target && pooledFx.getMode() == 4) {
+                        if (pooledFx.getFxId() == fxId && pooledFx.getAttackerToken() == source &&  pooledFx.getTokenSpatial() != null && pooledFx.getTokenSpatial().token == target && pooledFx.getMode() == 4) {
                                 pooledFx.set(fxId, source, target);
                                 return;
                         }

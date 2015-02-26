@@ -20,6 +20,8 @@ public enum ModelId {
         Crate,
         Barrel,
         Chest,
+        Foliage,
+        Tree,
         Fountain,
         Torch,
         SignPost,

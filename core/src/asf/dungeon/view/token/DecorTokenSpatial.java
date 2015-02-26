@@ -1,5 +1,6 @@
 package asf.dungeon.view.token;
 
+import asf.dungeon.model.ModelId;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.BetterModelInstance;
@@ -8,7 +9,10 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.collision.Ray;
@@ -38,6 +42,15 @@ public class DecorTokenSpatial extends AbstractTokenSpatial {
                 modelInstance = new BetterModelInstance(model);
 
 
+                if(token.modelId == ModelId.Tree){
+                        for (Material mat : modelInstance.materials) {
+                                mat.set(new IntAttribute(IntAttribute.CullFace, 0));
+                                mat.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
+                                mat.set(new FloatAttribute(FloatAttribute.AlphaTest, 0.5f));
+                        }
+
+                }
+
                 shadowDecal = Decal.newDecal(
                         world.floorSpatial.tileDimensions.x,
                         world.floorSpatial.tileDimensions.z,
@@ -46,6 +59,7 @@ public class DecorTokenSpatial extends AbstractTokenSpatial {
 
                 shadowDecal.rotateX(-90);
                 shadowDecal.setColor(1, 1, 1, 0.5f);
+
 
         }
 
@@ -104,9 +118,12 @@ public class DecorTokenSpatial extends AbstractTokenSpatial {
 
                 world.modelBatch.render(modelInstance, world.environment);
 
-                shadowDecal.setPosition(translation);
-                shadowDecal.translateY(0.1f);
-                world.decalBatch.add(shadowDecal);
+                if(shadowDecal != null){
+                        shadowDecal.setPosition(translation);
+                        shadowDecal.translateY(0.1f);
+                        world.decalBatch.add(shadowDecal);
+                }
+
         }
 
         @Override

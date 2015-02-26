@@ -43,7 +43,7 @@ Spike Trap
 Danimal
 http://opengameart.org/content/spyke-trap-low-poly-updated
 
-Boulder
+Boulder, Bushes
 Duion
 http://opengameart.org/content/uberpack-1
 
@@ -68,6 +68,10 @@ http://opengameart.org/content/wooden-furniture
 Stacked Barrels
 yd
 http://opengameart.org/content/three-barrels
+
+Trees
+Duion
+http://opengameart.org/content/uberpack-1
 
 ### Loot
 Bow_01

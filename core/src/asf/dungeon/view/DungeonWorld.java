@@ -198,7 +198,7 @@ public class DungeonWorld implements Dungeon.Listener, Disposable {
                 for (Spatial spatial : spatials) {
                         if (spatial instanceof AbstractTokenSpatial) {
                                 AbstractTokenSpatial ts = (AbstractTokenSpatial) spatial;
-                                if (ts.getToken() == token) {
+                                if (ts.token == token) {
                                         return ts;
                                 }
                         }
@@ -216,17 +216,17 @@ public class DungeonWorld implements Dungeon.Listener, Disposable {
                         if (spatial instanceof AbstractTokenSpatial) {
                                 AbstractTokenSpatial tokenSpatial = (AbstractTokenSpatial) spatial;
 
-                                if (tokenSpatial.getToken() == ignoreToken) {
+                                if (tokenSpatial.token == ignoreToken) {
                                         continue;
                                 }
 
-                                Damage damage = tokenSpatial.getToken().damage;
+                                Damage damage = tokenSpatial.token.damage;
                                 if(damage != null && damage.isDead())
                                         continue;
 
                                 final float dist2 = tokenSpatial.intersects(ray);
                                 if (dist2 >= 0f && dist2 < closestDist2) {
-                                        result = tokenSpatial.getToken();
+                                        result = tokenSpatial.token;
                                         closestDist2 = dist2;
                                 }
 
@@ -255,17 +255,17 @@ public class DungeonWorld implements Dungeon.Listener, Disposable {
                         if (spatial instanceof AbstractTokenSpatial) {
                                 AbstractTokenSpatial tokenSpatial = (AbstractTokenSpatial) spatial;
 
-                                if (tokenSpatial.getToken() == ignoreToken) {
+                                if (tokenSpatial.token == ignoreToken) {
                                         continue;
                                 }
 
-                                Damage damage = tokenSpatial.getToken().damage;
+                                Damage damage = tokenSpatial.token.damage;
                                 if(damage != null && damage.isDead())
                                         continue;
 
                                 final float dist2 = tokenSpatial.intersects(ray);
                                 if(dist2 >= 0f){
-                                        intersectedTokens.add(new RaycastResult(tokenSpatial.getToken(), dist2));
+                                        intersectedTokens.add(new RaycastResult(tokenSpatial.token, dist2));
                                 }
                         }
                 }
@@ -279,6 +279,7 @@ public class DungeonWorld implements Dungeon.Listener, Disposable {
         }
 
         protected void returnFromLoadingScreen(){
+                assetMappings.unloadUnused3dModels(assetManager, spatials);
                 dungeonApp.setScreen(null);
                 Gdx.input.setInputProcessor(inputMultiplexer);
                 Gdx.gl.glClearColor(0.01f, 0.01f, 0.01f, 1);

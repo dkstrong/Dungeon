@@ -67,7 +67,7 @@ public class PerspectiveCamControl implements CamControl{
 
                         if(targetZoom != 1){
                                 chasingTimer+=delta;
-                                if(chasingTimer > 1f && chaseTarget.getToken().move.isMoving()){
+                                if(chasingTimer > 1f && chaseTarget.token.move.isMoving()){
                                         targetZoom =1;
                                 }
                         }

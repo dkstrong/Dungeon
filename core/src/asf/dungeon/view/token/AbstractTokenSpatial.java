@@ -25,8 +25,8 @@ import com.badlogic.gdx.math.collision.Ray;
  * Created by Daniel Strong on 12/19/2014.
  */
 public abstract class AbstractTokenSpatial implements Spatial, Token.Listener{
-        protected final DungeonWorld world;
-        protected final Token token;
+        public final DungeonWorld world;
+        public final Token token;
 
         public final Vector3 translation = new Vector3();
         public final Quaternion rotation = new Quaternion();
@@ -38,13 +38,10 @@ public abstract class AbstractTokenSpatial implements Spatial, Token.Listener{
                 this.token.listener = this;
         }
 
-        /**
-         * The token that this spatial is a view for
-         * @return
-         */
-        public Token getToken(){
-                return token;
+        public boolean isUsing3dModel(String assetLocation3dModel){
+                return world.assetMappings.getAssetLocation(token.modelId).equals(assetLocation3dModel);
         }
+
         /**
          * @return -1 on no intersection,
          * or when there is an intersection: the squared distance between the center of this

@@ -21,7 +21,7 @@ public class DungeonRand {
 
         public ModelId crateModel(FloorMap floorMap){
                 if(floorMap.floorType == FloorType.Grassy){
-                        return choose(ModelId.Barrel);
+                        return choose(ModelId.Foliage);
                 }else if(floorMap.floorType == FloorType.Church){
                         return choose(ModelId.Barrel);
                 }else if(floorMap.floorType == FloorType.Dungeon){

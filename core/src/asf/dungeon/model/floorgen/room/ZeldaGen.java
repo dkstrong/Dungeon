@@ -37,7 +37,6 @@ public class ZeldaGen implements FloorMapGenerator, FloorMap.MonsterSpawner {
 
         @Override
         public FloorMap generate(Dungeon dungeon, FloorType floorType, int floorIndex) {
-                floorType = FloorType.Church;
                 int roomSize = dungeon.rand.range(minRoomSize, maxRoomSize);
                 int numRooms = maxRooms - dungeon.rand.random.nextInt(Math.round(maxRooms * .25f));
                 int halfRooms = Math.round(numRooms / 2f);

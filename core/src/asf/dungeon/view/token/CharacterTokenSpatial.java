@@ -72,15 +72,15 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
         }
 
-
-
+        public boolean isUsing3dModel(String assetLocation3dModel){
+                return super.isUsing3dModel(assetLocation3dModel) || (loadedWeaponItem!= null && world.assetMappings.getAssetLocation(loadedWeaponItem.modelId).equals(assetLocation3dModel));
+        }
 
         public void init(AssetManager assetManager) {
                 initialized = true;
 
                 Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId));
                 modelInstance = new BetterModelInstance(model);
-
 
                 //if (shape != null)
                 //        shape.setFromModelInstance(modelInstance);
@@ -435,10 +435,11 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 }
 
 
-                shadowDecal.setPosition(translation);
-                shadowDecal.translateY(0.1f);
-                world.decalBatch.add(shadowDecal);
-
+                if(!token.damage.isDead()){
+                        shadowDecal.setPosition(translation);
+                        shadowDecal.translateY(0.1f);
+                        world.decalBatch.add(shadowDecal);
+                }
 
         }
 

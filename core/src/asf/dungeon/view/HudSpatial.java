@@ -591,6 +591,16 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
         }
 
         private Token lastTargetToken;
+        private String getRuntimeMemInfo(){
+                final Runtime rt = Runtime.getRuntime();
+                final long max = rt.maxMemory();
+                final long total = rt.totalMemory();
+                final long free = rt.freeMemory();
+                final long used = total - free;
+                final int availableProcessors = rt.availableProcessors();
+                return String.format("%s / %s / %s / %s",used/1024/1024,total/1024/1024,max/1024/1024,availableProcessors);
+        }
+
         @Override
         public void update(float delta) {
 
@@ -601,7 +611,11 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
 //                        for (DungeonWorld.RaycastResult intersectedToken : intersectedTokens) {
 //                                renderingStats.getText().append(intersectedToken.token.name+" : "+intersectedToken.dist2+"\n");
 //                        }
-                        renderingStats.getText().append("FPS : ").append(Gdx.graphics.getFramesPerSecond());
+
+                        renderingStats.getText()
+                                .append("FPS : ").append(Gdx.graphics.getFramesPerSecond())
+                                .append("\nJava Heap : ").append(getRuntimeMemInfo())
+                                .append("\nNative Heap : ").append(Gdx.app.getNativeHeap()/ 1024/1024);
                         renderingStats.invalidateHierarchy();
                 }
 
@@ -670,7 +684,7 @@ public class HudSpatial implements Spatial, EventListener, InputProcessor, Token
                                 }
 
                                 world.getScreenCoords(
-                                        label.tokenSpatial.getToken().move.getFloatLocation(),
+                                        label.tokenSpatial.token.move.getFloatLocation(),
                                         tempVec);
 
 

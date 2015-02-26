@@ -99,13 +99,38 @@ public class UtFloorGen {
 
         public static void spawnDecor(Dungeon dungeon, FloorMap floorMap) {
                 if(floorMap .floorType == FloorType.Grassy){
-                      // rocks and stuff
+                        spawnDecorGrassy(dungeon, floorMap, 0.5f);
                 }else if(floorMap.floorType == FloorType.Church ){
                         spawnDecorInside(dungeon, floorMap, 0.75f);
                 }else if(floorMap.floorType == FloorType.Dungeon){
                         spawnDecorInside(dungeon, floorMap, 0.5f);
                 }
         }
+
+        private static void spawnDecorGrassy(Dungeon dungeon, FloorMap floorMap, float amountOfStuff){
+                final int maxBenches = Math.round(7 * amountOfStuff);
+
+                int x,y;
+                Direction dir;
+                for (int i = 0; i < maxBenches; i++) {
+                        Token token = new Token(dungeon, "Decor",  ModelId.Tree);
+                        token.add(new Decor(token));
+
+                        for(int tries=0; tries < 100; tries++){
+                                do{
+                                        x = dungeon.rand.random.nextInt(floorMap.getWidth());
+                                        y = dungeon.rand.random.nextInt(floorMap.getHeight());
+                                }while(!UtFloorGen.isFloor(floorMap.tiles,x, y) || countWalls(floorMap.tiles, x, y) != 3);
+
+                                dir = dungeon.rand.direction();
+                                if(token.isGoodSpawnLocation(floorMap, x, y, dir)){
+                                        dungeon.addToken(token, floorMap, x, y, dir);
+                                        break;
+                                }
+                        }
+                }
+        }
+
 
         private static void spawnDecorInside(Dungeon dungeon, FloorMap floorMap, float amountOfStuff){
                 final int maxBenches = Math.round(7 * amountOfStuff);

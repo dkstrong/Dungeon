@@ -198,7 +198,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                         if (tokenSpatial != null) {
                                 translation.set(tokenSpatial.translation);
 
-                                if(tokenSpatial.getToken().damage != null && tokenSpatial.getToken().damage.isDead()){
+                                if(tokenSpatial.token.damage != null && tokenSpatial.token.damage.isDead()){
                                         duration = 0;
                                 }
                         }
@@ -239,7 +239,7 @@ public class PooledParticleEffectSpatial implements Spatial, FxManager.PooledFx 
                 FogState fogState;
                 if (tokenSpatial != null) {
                         if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().fogMapping != null) {
-                                fogState = world.getLocalPlayerToken().fogMapping.getCurrentFogMap().getFogState(tokenSpatial.getToken().location.x, tokenSpatial.getToken().location.y);
+                                fogState = world.getLocalPlayerToken().fogMapping.getCurrentFogMap().getFogState(tokenSpatial.token.location.x, tokenSpatial.token.location.y);
                         } else {
                                 fogState = FogState.Visible;
                         }

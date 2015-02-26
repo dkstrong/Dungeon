@@ -163,11 +163,11 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                         }
 
                 }else if(mode == 4){
-                        if(tokenSpatial.getToken().damage != null && tokenSpatial.getToken().damage.isDead()){
+                        if(tokenSpatial.token.damage != null && tokenSpatial.token.damage.isDead()){
                                 deactivate();
                                 return;
                         }
-                        if (tokenSpatial.getToken().attack == null || !tokenSpatial.getToken().attack.isAttacking()) {
+                        if (tokenSpatial.token.attack == null || !tokenSpatial.token.attack.isAttacking()) {
                                 deactivate();
                                 return;
                         }
@@ -208,7 +208,7 @@ public class PooledAnimatedDecalSpatial implements Spatial , FxManager.PooledFx 
                 FogState fogState;
                 if (tokenSpatial != null) {
                         if (world.getLocalPlayerToken() != null && world.getLocalPlayerToken().fogMapping != null) {
-                                fogState = world.getLocalPlayerToken().fogMapping.getCurrentFogMap().getFogState(tokenSpatial.getToken().location.x, tokenSpatial.getToken().location.y);
+                                fogState = world.getLocalPlayerToken().fogMapping.getCurrentFogMap().getFogState(tokenSpatial.token.location.x, tokenSpatial.token.location.y);
                         } else {
                                 fogState = FogState.Visible;
                         }
