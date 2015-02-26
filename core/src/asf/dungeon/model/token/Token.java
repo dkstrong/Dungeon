@@ -7,6 +7,7 @@ import asf.dungeon.model.FloorMap;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.Pair;
 import asf.dungeon.model.Tile;
+import asf.dungeon.model.floorgen.UtFloorGen;
 import asf.dungeon.model.item.Item;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.token.logic.LocalPlayerLogic;
@@ -127,6 +128,9 @@ public class Token {
                 if (tile != null &&( tile.isDoor() || tile.isPit() || fm.hasStairTokenAt(x, y + 1))) return true;
                 tile = fm.getTile(x, y - 1);
                 if (tile != null &&( tile.isDoor() || tile.isPit() || fm.hasStairTokenAt(x, y - 1))) return true;
+
+                if(!UtFloorGen.floodFillMapAccessTest(fm.tiles, null, x, y)) return true;
+
                 return false;
         }
 

@@ -29,9 +29,9 @@ public class UtFloorGen {
 
                 for (int y = tiles[0].length - 1; y >= 0; y--) {
                         for (int x = 0; x < tiles.length; x++) {
-                                if(x == markLoc.x && y == markLoc.y){
+                                if (x == markLoc.x && y == markLoc.y) {
                                         System.out.print("*");
-                                }else{
+                                } else {
                                         Tile tile = tiles[x][y];
                                         if (tile == null)
                                                 System.out.print(" ");
@@ -85,7 +85,7 @@ public class UtFloorGen {
                 int x, y;
                 for (ModelId modelId : characters) {
                         Token t = TokenFactory.characterToken(dungeon, modelId, new FsmLogic(1, null, Monster.Sleep), floorMap);
-                        for(int tries =0; tries < 20; tries++){
+                        for (int tries = 0; tries < 20; tries++) {
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
                                 if (!t.isGoodSpawnLocation(floorMap, x, y, t.direction)) continue;
@@ -98,32 +98,32 @@ public class UtFloorGen {
         }
 
         public static void spawnDecor(Dungeon dungeon, FloorMap floorMap) {
-                if(floorMap .floorType == FloorType.Grassy){
+                if (floorMap.floorType == FloorType.Grassy) {
                         spawnDecorGrassy(dungeon, floorMap, 0.5f);
-                }else if(floorMap.floorType == FloorType.Church ){
+                } else if (floorMap.floorType == FloorType.Church) {
                         spawnDecorInside(dungeon, floorMap, 0.75f);
-                }else if(floorMap.floorType == FloorType.Dungeon){
+                } else if (floorMap.floorType == FloorType.Dungeon) {
                         spawnDecorInside(dungeon, floorMap, 0.5f);
                 }
         }
 
-        private static void spawnDecorGrassy(Dungeon dungeon, FloorMap floorMap, float amountOfStuff){
+        private static void spawnDecorGrassy(Dungeon dungeon, FloorMap floorMap, float amountOfStuff) {
                 final int maxBenches = Math.round(7 * amountOfStuff);
 
-                int x,y;
+                int x, y;
                 Direction dir;
                 for (int i = 0; i < maxBenches; i++) {
-                        Token token = new Token(dungeon, "Decor",  ModelId.Tree);
+                        Token token = new Token(dungeon, "Decor", ModelId.Tree);
                         token.add(new Decor(token));
 
-                        for(int tries=0; tries < 100; tries++){
-                                do{
+                        for (int tries = 0; tries < 100; tries++) {
+                                do {
                                         x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                         y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                                }while(!UtFloorGen.isFloor(floorMap.tiles,x, y) || countWalls(floorMap.tiles, x, y) != 3);
+                                } while (!UtFloorGen.isFloor(floorMap.tiles, x, y) || countWalls(floorMap.tiles, x, y) != 3);
 
                                 dir = dungeon.rand.direction();
-                                if(token.isGoodSpawnLocation(floorMap, x, y, dir)){
+                                if (token.isGoodSpawnLocation(floorMap, x, y, dir)) {
                                         dungeon.addToken(token, floorMap, x, y, dir);
                                         break;
                                 }
@@ -132,24 +132,24 @@ public class UtFloorGen {
         }
 
 
-        private static void spawnDecorInside(Dungeon dungeon, FloorMap floorMap, float amountOfStuff){
+        private static void spawnDecorInside(Dungeon dungeon, FloorMap floorMap, float amountOfStuff) {
                 final int maxBenches = Math.round(7 * amountOfStuff);
                 final int maxTables = Math.round(4 * amountOfStuff);
 
-                int x,y;
+                int x, y;
                 Direction dir;
                 for (int i = 0; i < maxBenches; i++) {
-                        Token token = new Token(dungeon, "Decor",  ModelId.Bench);
+                        Token token = new Token(dungeon, "Decor", ModelId.Bench);
                         token.add(new Decor(token));
 
-                        for(int tries=0; tries < 20; tries++){
-                                do{
+                        for (int tries = 0; tries < 20; tries++) {
+                                do {
                                         x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                         y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                                }while(!UtFloorGen.isFloor(floorMap.tiles,x, y) || countWalls(floorMap.tiles, x, y) != 3);
+                                } while (!UtFloorGen.isFloor(floorMap.tiles, x, y) || countWalls(floorMap.tiles, x, y) != 3);
 
                                 dir = dungeon.rand.direction();
-                                if(token.isGoodSpawnLocation(floorMap, x, y, dir)){
+                                if (token.isGoodSpawnLocation(floorMap, x, y, dir)) {
                                         dungeon.addToken(token, floorMap, x, y, dir);
                                         break;
                                 }
@@ -157,15 +157,15 @@ public class UtFloorGen {
                 }
 
                 SpawnGroup sg = new SpawnGroup();
-                for(int i=0; i < maxTables; i++){
+                for (int i = 0; i < maxTables; i++) {
                         Token token = new Token(dungeon, "Decor", ModelId.Chair);
                         token.add(new Decor(token));
-                        token.location.set(-1,0);
+                        token.location.set(-1, 0);
                         token.direction = Direction.East;
 
                         Token token1 = new Token(dungeon, "Decor", ModelId.Table1);
                         token1.add(new Decor(token));
-                        token1.location.set(0,0);
+                        token1.location.set(0, 0);
 
                         Token token2 = new Token(dungeon, "Decor", ModelId.Chair);
                         token2.add(new Decor(token));
@@ -173,14 +173,14 @@ public class UtFloorGen {
                         token2.direction = Direction.West;
                         sg.setTokens(token, token1, token2);
 
-                        for(int tries=0; tries < 20; tries++){
-                                do{
+                        for (int tries = 0; tries < 20; tries++) {
+                                do {
                                         x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                         y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                                }while(!UtFloorGen.isFloor(floorMap.tiles,x, y) || countWalls(floorMap.tiles, x, y) != 3);
+                                } while (!UtFloorGen.isFloor(floorMap.tiles, x, y) || countWalls(floorMap.tiles, x, y) != 3);
 
                                 dir = dungeon.rand.direction();
-                                if(sg.spawnIfPossible(dungeon, floorMap,x,y, dir)){
+                                if (sg.spawnIfPossible(dungeon, floorMap, x, y, dir)) {
                                         break;
                                 }
                         }
@@ -188,23 +188,22 @@ public class UtFloorGen {
         }
 
         /**
-         *
-         * @param dungeon the dungeon reference
-         * @param floorMap the floormap to spawn the crates on
+         * @param dungeon   the dungeon reference
+         * @param floorMap  the floormap to spawn the crates on
          * @param maxCrates the maximum number of crates to try and spawn (may spawn less, but never more)
          * @param wallLimit [0-5] the number of walls the crate prefers to be near (may sometimes spawn with less nearby walls, but never more)
          */
         public static void spawnRandomCrates(Dungeon dungeon, FloorMap floorMap, int maxCrates, int wallLimit) {
                 int x, y;
                 float nearWall;
-                final float wallLimitFloat = (float)wallLimit;
+                final float wallLimitFloat = (float) wallLimit;
                 for (int i = 0; i < maxCrates; i++) {
                         Token token = TokenFactory.crate(dungeon, dungeon.rand.crateModel(floorMap), null);
-                        for(int tries =0; tries < 20; tries++){
+                        for (int tries = 0; tries < 20; tries++) {
                                 x = dungeon.rand.random.nextInt(floorMap.getWidth());
                                 y = dungeon.rand.random.nextInt(floorMap.getHeight());
-                                nearWall = countWalls(floorMap.tiles,x,y)/wallLimitFloat;
-                                if(nearWall > 1 || !dungeon.rand.bool(nearWall) ||  !token.isGoodSpawnLocation(floorMap,x,y,token.direction)  ) continue;
+                                nearWall = countWalls(floorMap.tiles, x, y) / wallLimitFloat;
+                                if (nearWall > 1 || !dungeon.rand.bool(nearWall) || !token.isGoodSpawnLocation(floorMap, x, y, token.direction)) continue;
                                 dungeon.addToken(token, floorMap, x, y);
                                 break;
                         }
@@ -237,12 +236,13 @@ public class UtFloorGen {
 
         /**
          * counts how many floor, door, or pit tiles surround this tile (not counting this tile)
+         *
          * @param tiles
          * @param x
          * @param y
          * @return
          */
-        public static int countFloors(Tile[][] tiles, int x, int y){
+        public static int countFloors(Tile[][] tiles, int x, int y) {
                 int countWalkable = 0;
                 if (isWalkable(tiles, x - 1, y)) countWalkable++;
                 if (isWalkable(tiles, x + 1, y)) countWalkable++;
@@ -302,21 +302,21 @@ public class UtFloorGen {
                 }
         }
 
-        public static void ensureFloorsAreSurroundedWithWalls(Tile[][] tiles){
+        public static void ensureFloorsAreSurroundedWithWalls(Tile[][] tiles) {
                 for (int x = 0; x < tiles.length; x++) {
                         for (int y = 0; y < tiles[0].length; y++) {
-                                if(tiles[x][y] != null && tiles[x][y].isFloor()){
+                                if (tiles[x][y] != null && tiles[x][y].isFloor()) {
                                         if (x == 0) tiles[x][y] = Tile.makeWall();
                                         if (x == tiles.length - 1) tiles[x][y] = Tile.makeWall();
                                         if (y == 0) tiles[x][y] = Tile.makeWall();
                                         if (y == tiles[0].length - 1) tiles[x][y] = Tile.makeWall();
 
-                                        if(x > 0 && tiles[x-1][y] == null) tiles[x-1][y] = Tile.makeWall();
-                                        if(x<tiles.length-2 && tiles[x+1][y] == null) tiles[x+1][y] = Tile.makeWall();
-                                        if(y > 0 && tiles[x][y-1] == null) tiles[x][y-1] = Tile.makeWall();
-                                        if(y<tiles[0].length-2 && tiles[x][y+1] == null) tiles[x][y+1] = Tile.makeWall();
+                                        if (x > 0 && tiles[x - 1][y] == null) tiles[x - 1][y] = Tile.makeWall();
+                                        if (x < tiles.length - 2 && tiles[x + 1][y] == null) tiles[x + 1][y] = Tile.makeWall();
+                                        if (y > 0 && tiles[x][y - 1] == null) tiles[x][y - 1] = Tile.makeWall();
+                                        if (y < tiles[0].length - 2 && tiles[x][y + 1] == null) tiles[x][y + 1] = Tile.makeWall();
 
-                                }else if(tiles[x][y] == null && countFloors(tiles, x, y) > 0){
+                                } else if (tiles[x][y] == null && countFloors(tiles, x, y) > 0) {
                                         if (x == 0) tiles[x][y] = Tile.makeWall();
                                         if (x == tiles.length - 1) tiles[x][y] = Tile.makeWall();
                                         if (y == 0) tiles[x][y] = Tile.makeWall();
@@ -329,17 +329,17 @@ public class UtFloorGen {
         public static void floodFillSmallerAreas(Tile[][] tiles) {
 
                 // first clone the tiles array to do the initial flood filling with and find all floodable zones
-                Tile [][] tilesClone = new Tile[tiles.length][];
-                for(int x = 0; x < tiles.length; x++) tilesClone[x] = tiles[x].clone();
+                Tile[][] tilesClone = new Tile[tiles.length][];
+                for (int x = 0; x < tiles.length; x++) tilesClone[x] = tiles[x].clone();
                 ObjectIntMap<Pair> zones = new ObjectIntMap<Pair>(4);
                 Pair largestZone = null;
-                int largestZoneCount=0;
+                int largestZoneCount = 0;
                 for (int x = 0; x < tilesClone.length; x++) {
                         for (int y = 0; y < tilesClone[0].length; y++) {
-                                int count = floodFill(tilesClone, x,y);
-                                if(count > 0){
-                                        Pair pair = new Pair(x,y);
-                                        if(count > largestZoneCount){
+                                int count = floodFill(tilesClone, x, y);
+                                if (count > 0) {
+                                        Pair pair = new Pair(x, y);
+                                        if (count > largestZoneCount) {
                                                 largestZone = pair;
                                                 largestZoneCount = count;
                                         }
@@ -350,7 +350,7 @@ public class UtFloorGen {
                 }
                 // do the actual flood fill, all zones are flood filled except for the largest zone
                 for (ObjectIntMap.Entry<Pair> zone : zones) {
-                        if(zone.key != largestZone){
+                        if (zone.key != largestZone) {
                                 floodFill(tiles, zone.key.x, zone.key.y);
                         }
                 }
@@ -359,14 +359,15 @@ public class UtFloorGen {
         /**
          * floodfills the provided tiles, turning floor, door, and stair tiles in to null.
          * null and wall tiles are used as boundaries for the flooding
+         *
          * @param tiles
          * @param x
          * @param y
          * @return number of tiles that were converted to null
          */
         public static int floodFill(Tile[][] tiles, int x, int y) {
-                if (x < 0 || x > tiles.length || y < 0 || y > tiles[0].length) return 0;
-                if (tiles[x][y] == null || tiles[x][y].isWall()) return 0;
+                if (x < 0 || x >= tiles.length || y < 0 || y >= tiles[0].length) return 0;
+                if (tiles[x][y] == null || tiles[x][y].isWall() || tiles[x][y].isInvisibleWall()) return 0;
                 tiles[x][y] = null;
                 int count = 1;
                 count += floodFill(tiles, x - 1, y);
@@ -376,13 +377,68 @@ public class UtFloorGen {
                 return count;
         }
 
+        /**
+         * tests to see if placing an immobile object here would make parts of the map
+         * innaccessable.
+         *
+         * @param tiles
+         * @param storeTiles
+         * @param testX
+         * @param testY
+         * @return true if the entire map is still accessable even if an object were to be placed here.
+         */
+        public static boolean floodFillMapAccessTest(Tile[][] tiles, Tile[][] storeTiles, int testX, int testY) {
+                int count;
+                if(storeTiles == null)
+                        storeTiles = new Tile[tiles.length][tiles[0].length];
+
+                for (int x = 0; x < tiles.length; x++)
+                        for (int y = 0; y < tiles[0].length; y++)
+                                storeTiles[x][y] = tiles[x][y];
+                storeTiles[testX][testY] = null;
+                count = floodFill(storeTiles, testX + 1, testY);
+                if(count >0 ) return areAllTilesWalls(storeTiles);
+
+                for (int x = 0; x < tiles.length; x++)
+                        for (int y = 0; y < tiles[0].length; y++)
+                                storeTiles[x][y] = tiles[x][y];
+                storeTiles[testX][testY] = null;
+                count = floodFill(storeTiles, testX - 1, testY);
+                if(count >0 ) return areAllTilesWalls(storeTiles);
+
+                for (int x = 0; x < tiles.length; x++)
+                        for (int y = 0; y < tiles[0].length; y++)
+                                storeTiles[x][y] = tiles[x][y];
+                storeTiles[testX][testY] = null;
+                count = floodFill(storeTiles, testX , testY+1);
+                if(count >0 ) return areAllTilesWalls(storeTiles);
+
+                for (int x = 0; x < tiles.length; x++)
+                        for (int y = 0; y < tiles[0].length; y++)
+                                storeTiles[x][y] = tiles[x][y];
+                storeTiles[testX][testY] = null;
+                count = floodFill(storeTiles, testX , testY-1);
+                if(count >0 ) return areAllTilesWalls(storeTiles);
+
+
+                return true;
+        }
+
+        public static boolean areAllTilesWalls(Tile[][] tiles) {
+                for (int x = 0; x < tiles.length; x++)
+                        for (int y = 0; y < tiles[0].length; y++)
+                                if (tiles[x][y] != null && !(tiles[x][y].isWall() || tiles[x][y].isInvisibleWall()))
+                                        return false;
+                return true;
+        }
+
 
         public static void placeUpStairs(Dungeon dungeon, FloorMap floorMap) {
                 do {
-                        int x = dungeon.rand.range(0, floorMap.getWidth()- 1);
+                        int x = dungeon.rand.range(0, floorMap.getWidth() - 1);
                         int y = dungeon.rand.range(0, floorMap.getHeight() - 1);
 
-                        if(floorMap.isLocationBlocked(x,y))
+                        if (floorMap.isLocationBlocked(x, y))
                                 continue;
 
                         int numWalls = countWalls(floorMap.tiles, x, y);
@@ -399,9 +455,9 @@ public class UtFloorGen {
 
         public static void placeDownStairs(Dungeon dungeon, FloorMap floorMap) {
                 do {
-                        int x = dungeon.rand.range(0, floorMap.getWidth()- 1);
+                        int x = dungeon.rand.range(0, floorMap.getWidth() - 1);
                         int y = dungeon.rand.range(0, floorMap.getHeight() - 1);
-                        if(floorMap.isLocationBlocked(x,y))
+                        if (floorMap.isLocationBlocked(x, y))
                                 continue;
 
                         int numWalls = countWalls(floorMap.tiles, x, y);
