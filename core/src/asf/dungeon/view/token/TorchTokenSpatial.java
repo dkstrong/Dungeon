@@ -4,11 +4,11 @@ import asf.dungeon.model.FxId;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.model.token.Torch;
-import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.math.MathUtils;
@@ -19,7 +19,7 @@ import com.badlogic.gdx.math.collision.Ray;
  */
 public class TorchTokenSpatial extends AbstractTokenSpatial{
         private boolean initialized = false;
-        private BetterModelInstance modelInstance;
+        private ModelInstance modelInstance;
         private Torch torch;
         private boolean texToggle;
 
@@ -38,7 +38,7 @@ public class TorchTokenSpatial extends AbstractTokenSpatial{
         public void init(AssetManager assetManager) {
                 initialized = true;
                 Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId));
-                modelInstance = new BetterModelInstance(model);
+                modelInstance = new ModelInstance(model);
 
                 for (Material mat : modelInstance.materials) {
                         mat.set(new IntAttribute(IntAttribute.CullFace, 0));

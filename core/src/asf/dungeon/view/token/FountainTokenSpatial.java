@@ -3,12 +3,12 @@ package asf.dungeon.view.token;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Fountain;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.math.MathUtils;
@@ -19,7 +19,7 @@ import com.badlogic.gdx.math.collision.Ray;
  */
 public class FountainTokenSpatial extends AbstractTokenSpatial{
         private boolean initialized = false;
-        private BetterModelInstance modelInstance;
+        private ModelInstance modelInstance;
         private Fountain fountain;
         private boolean texToggle;
 
@@ -40,7 +40,7 @@ public class FountainTokenSpatial extends AbstractTokenSpatial{
         public void init(AssetManager assetManager) {
                 initialized = true;
                 Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId));
-                modelInstance = new BetterModelInstance(model);
+                modelInstance = new ModelInstance(model);
 
                 texToggle = fountain.isConsumed();
                 if(fountain.isConsumed()){

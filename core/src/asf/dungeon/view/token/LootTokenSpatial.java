@@ -8,19 +8,19 @@ import asf.dungeon.model.item.ScrollItem;
 import asf.dungeon.model.token.Loot;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.AnimFactory;
-import asf.dungeon.utility.BetterAnimationController;
-import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.collision.Ray;
 
@@ -29,8 +29,8 @@ import com.badlogic.gdx.math.collision.Ray;
  */
 public class LootTokenSpatial extends AbstractTokenSpatial {
         private boolean initialized = false;
-        private BetterModelInstance modelInstance;
-        private BetterAnimationController animController;
+        private ModelInstance modelInstance;
+        private AnimationController animController;
         private Decal shadowDecal;
         private Loot loot;
 
@@ -59,11 +59,11 @@ public class LootTokenSpatial extends AbstractTokenSpatial {
         public void init(AssetManager assetManager) {
                 initialized = true;
                 Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId));
-                modelInstance = new BetterModelInstance(model);
+                modelInstance = new ModelInstance(model);
 
                 AnimFactory.createAnim(AnimFactory.dropped(), modelInstance);
                 AnimFactory.createIdleAnim(modelInstance);
-                animController = new BetterAnimationController(modelInstance);
+                animController = new AnimationController(modelInstance);
 
                 if (loot.getItem() instanceof PotionItem) {
                         PotionItem potion = (PotionItem) loot.getItem();
@@ -149,13 +149,13 @@ public class LootTokenSpatial extends AbstractTokenSpatial {
                 }
                 if(token.loot.isBeingThrown()){
                         if(current != dropped){
-                                animController.animate(idle, -1, 1, null, 0);
+                                animController.animate(idle.id, -1, 1, null, 0);
                                 current = dropped;
                                 visU = maxVisU;
                         }
                 }else if(current!= dropped){
-                        animController.animate(dropped, 1, 1, null, 0);
-                        animController.queue(idle,-1,1,null,.015f*dropped.duration);
+                        animController.animate(dropped.id, 1, 1, null, 0);
+                        animController.queue(idle.id,-1,1,null,.015f*dropped.duration);
                         current = dropped;
                 }
 

@@ -25,6 +25,14 @@ public final class Sphere  implements Shape{
                 set(radius, xCenter, yCenter, zCenter);
         }
 
+        public Sphere(ModelInstance modelInstance) {
+                BoundingBox bounds = new BoundingBox();
+                modelInstance.calculateBoundingBox(bounds);
+                bounds.getCenter(center);
+                bounds.getDimensions(dimensions);
+                radius = dimensions.len()/2f;
+        }
+
         public void set(float radius){
                 center.set(0,0,0);
                 dimensions.set(radius*2f,radius*2f, radius*2f);
@@ -36,14 +44,7 @@ public final class Sphere  implements Shape{
                 this.radius = radius;
         }
 
-        @Override
-        public void setFromModelInstance(ModelInstance modelInstance) {
-                BoundingBox bounds = new BoundingBox();
-                modelInstance.calculateBoundingBox(bounds);
-                bounds.getCenter(center);
-                bounds.getDimensions(dimensions);
-                radius = dimensions.len()/2f;
-        }
+
 
 
         @Override

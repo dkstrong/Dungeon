@@ -8,8 +8,6 @@ import asf.dungeon.model.token.SpikeTrap;
 import asf.dungeon.model.token.StatusEffect;
 import asf.dungeon.model.token.StatusEffects;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.utility.BetterAnimationController;
-import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.DungeonWorld;
 import asf.dungeon.view.Spatial;
@@ -19,11 +17,13 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.model.Node;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
@@ -36,19 +36,19 @@ import com.badlogic.gdx.math.collision.Ray;
 public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spatial, DungeonWorld.LoadedNotifyable {
 
         private boolean initialized = false;
-        private BetterModelInstance modelInstance;
-        private BetterAnimationController animController;
+        private ModelInstance modelInstance;
+        private AnimationController animController;
         private Decal shadowDecal;
         private final Vector3 translationBase = new Vector3();
         private final Vector3 scale = new Vector3(1, 1, 1);
 
         private WeaponItem loadedWeaponItem;
-        private BetterModelInstance weaponModelInstance;
-        private BetterAnimationController weaponAnimController;
+        private ModelInstance weaponModelInstance;
+        private AnimationController weaponAnimController;
         private Animation weaponAttackAnim;
         private Node weaponAttachmentNode;
         private Node projectileSpawnNode;
-        private BetterModelInstance offhandModelInstance;
+        private ModelInstance offhandModelInstance;
         private Node offhandAttachmentNode;
 
 
@@ -80,13 +80,13 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 initialized = true;
 
                 Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId));
-                modelInstance = new BetterModelInstance(model);
+                modelInstance = new ModelInstance(model);
 
                 //if (shape != null)
                 //        shape.setFromModelInstance(modelInstance);
 
                 if (modelInstance.animations.size > 0)
-                        animController = new BetterAnimationController(modelInstance);
+                        animController = new AnimationController(modelInstance);
 
 //                Gdx.app.log("CharacterTokenSpatial",token.name);
 //                for (Material material : modelInstance.materials) {
@@ -148,7 +148,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                 if (monsterTrap == null) monsterTrap = idle;
 
                 if(token.monsterTrap != null)
-                        animController.animate(monsterTrap, -1, 0f, null, 0.3f);
+                        animController.animate(monsterTrap.id, -1, 0f, null, 0.3f);
 
                 // check to see if token spawned with status effects already on, if so then shot their Fx and hud information
                 if (token.statusEffects != null) {
@@ -226,9 +226,9 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                         return false;
 
                 Model weaponModel = world.assetManager.get(weaponAssetLocation, Model.class);
-                weaponModelInstance = new BetterModelInstance(weaponModel);
+                weaponModelInstance = new ModelInstance(weaponModel);
                 if (weaponModelInstance.animations.size > 0) {
-                        weaponAnimController = new BetterAnimationController(weaponModelInstance);
+                        weaponAnimController = new AnimationController(weaponModelInstance);
                         weaponAnimController.allowSameAnimation = true;
                         weaponAttackAnim = weaponModelInstance.animations.get(0);
                 }
@@ -245,7 +245,7 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
                 if (token.modelId == ModelId.Knight && !weaponSlot.isRanged()) {
                         Model weaponOffhandModel = world.assetManager.get("Models/Loot/Sword/Shield.g3db", Model.class);
-                        offhandModelInstance = new BetterModelInstance(weaponOffhandModel);
+                        offhandModelInstance = new ModelInstance(weaponOffhandModel);
                         offhandAttachmentNode = modelInstance.getNode("shield", true, true);
                 } else {
                         offhandModelInstance = null;
@@ -309,16 +309,16 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
 
                 if (token.damage.isDead()) {
                         if (current != die) {
-                                animController.animate(die, 1, 1, null, .2f); // die.duration / token.damage.getDeathDuration()
+                                animController.animate(die.id, 1, 1, null, .2f); // die.duration / token.damage.getDeathDuration()
                                 current = die;
                                 world.sounds.play(token.damage.getDeathSfx());
                         }
 
                 } else if (token.attack != null && token.attack.isAttacking()) {
                         if (current != attack) {
-                                animController.animate(attack, 1, attack.duration / token.attack.getWeapon().attackDuration, null, .2f);
+                                animController.animate(attack.id, 1, attack.duration / token.attack.getWeapon().attackDuration, null, .2f);
                                 if (weaponAnimController != null)
-                                        weaponAnimController.animate(weaponAttackAnim, 1, weaponAttackAnim.duration / token.attack.getWeapon().attackDuration, null, .2f);
+                                        weaponAnimController.animate(weaponAttackAnim.id, 1, weaponAttackAnim.duration / token.attack.getWeapon().attackDuration, null, .2f);
                                 if(token.attack.getWeapon().projectileFx != null){
                                         world.fxManager.spawnProjectile(token.attack.getWeapon().projectileFx, token, token.attack.getAttackTarget());
                                 }
@@ -332,57 +332,57 @@ public class CharacterTokenSpatial extends AbstractTokenSpatial implements Spati
                                 }
 
                                 if(token.damage.getHitSource().get(SpikeTrap.class) != null ){
-                                        animController.animate(hit, .75f, -1,1, hit.duration/ (token.damage.getHitDuration()+0.75f),null,0.2f);
+                                        animController.animate(hit.id, .75f, -1,1, hit.duration/ (token.damage.getHitDuration()+0.75f),null,0.2f);
                                 }else{
-                                        animController.animate(hit, 1, hit.duration / token.damage.getHitDuration(), null, .2f);
+                                        animController.animate(hit.id, 1, hit.duration / token.damage.getHitDuration(), null, .2f);
                                 }
                                 current = hit;
                                 world.sounds.play(token.damage.getHitSfx());
                         }
                 } else if (token.inventory.isKeyTurn()) {
                         if (current != keyTurn) {
-                                animController.animate(keyTurn, 1, 1f, null, 0.3f);
+                                animController.animate(keyTurn.id, 1, 1f, null, 0.3f);
                                 current = keyTurn;
                         }
                 } else if (token.move.isPushingBoulder()) {
                         if (current != rockPush) {
-                                animController.animate(rockPush, 1, null, 0.3f);
+                                animController.animate(rockPush.id, 1, null, 0.3f);
                                 current = rockPush;
                         }
                 }else if (token.statusEffects.has(StatusEffect.Paralyze)) {
                         if (current != dazed) {
-                                animController.animate(dazed, -1, 1f, null, 0.3f);
+                                animController.animate(dazed.id, -1, 1f, null, 0.3f);
                                 current = dazed;
                         }
                 }else  if (token.statusEffects.has(StatusEffect.Frozen)) {
                         if (current != dazed) {
-                                animController.animate(dazed, -1, 0, null, 0.3f);
+                                animController.animate(dazed.id, -1, 0, null, 0.3f);
                                 current = dazed;
                         }
                 } else if(token.move.isMoving() && (token.attack == null || !token.attack.isInRangeOfAttackTarget())){
                         if (token.statusEffects.has(StatusEffect.Speed)) {
                                 if (current != sprint) {
                                         float v = UtMath.scalarLimitsInterpolation(token.move.getMoveSpeed(), 1, 10, .91f, 1.25f);
-                                        animController.animate(sprint, -1, v, null, 0.3f);
+                                        animController.animate(sprint.id, -1, v, null, 0.3f);
                                         current = sprint;
                                 }
                         } else {
                                 if (current != walk) {
                                         float v = UtMath.scalarLimitsInterpolation(token.move.getMoveSpeed(), 1, 10, 1f, 1.5f);
-                                        animController.animate(walk, -1, v, null, 0.3f);
+                                        animController.animate(walk.id, -1, v, null, 0.3f);
                                         current = walk;
                                 }
                         }
                 }else{
                         if(token.monsterTrap == null || token.monsterTrap.isAwake()){
                                 if (current != idle) {
-                                        animController.animate(idle, -1, 1f, null, 0.3f);
+                                        animController.animate(idle.id, -1, 1f, null, 0.3f);
                                         current = idle;
                                 }
                         }else{
                                 if(token.monsterTrap.isTriggered() && current != monsterTrap){
-                                        animController.animate(monsterTrap, 1, 1f, null, 0.3f);
-                                        animController.queue(idle, -1, 1f, null, 03f);
+                                        animController.animate(monsterTrap.id, 1, 1f, null, 0.3f);
+                                        animController.queue(idle.id, -1, 1f, null, 03f);
                                         current = monsterTrap;
                                 }
                         }

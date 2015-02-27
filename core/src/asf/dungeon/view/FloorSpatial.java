@@ -9,8 +9,6 @@ import asf.dungeon.model.fogmap.FogMapNull;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.item.KeyItem;
 import asf.dungeon.model.token.Stairs;
-import asf.dungeon.utility.BetterAnimationController;
-import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.shape.Box;
 import asf.dungeon.view.shape.Shape;
@@ -22,10 +20,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalMaterial;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -230,8 +230,8 @@ public class FloorSpatial implements Spatial {
                 if(tile.isDoor()){
                         DecalNodeDoor door = new DecalNodeDoor();
                         decalNode=  door;
-                        door.modelInstance = new BetterModelInstance(world.assetManager.get("Models/Door/Door.g3db", Model.class));
-                        door.animController = new BetterAnimationController(door.modelInstance);
+                        door.modelInstance = new ModelInstance(world.assetManager.get("Models/Door/Door.g3db", Model.class));
+                        door.animController = new AnimationController(door.modelInstance);
                         door.animController.paused = true;
                         Material material = door.modelInstance.materials.get(0);
                         //material.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
@@ -558,20 +558,20 @@ public class FloorSpatial implements Spatial {
 
 
 
-        private static class DecalNodeDoor extends DecalNodeFloor implements BetterAnimationController.AnimationListener{
-                public BetterModelInstance modelInstance;
+        private static class DecalNodeDoor extends DecalNodeFloor implements AnimationController.AnimationListener{
+                public ModelInstance modelInstance;
                 public ColorAttribute colorAttribute;
-                public BetterAnimationController animController;
+                public AnimationController animController;
                 public boolean animToggle;
 
                 @Override
                 protected void render(FloorSpatial floor, float delta) {
                         if(tile.isDoorOpened() && !animToggle){
-                                animController.setAnimation(modelInstance.getAnimation("Open"),1,1,this);
+                                animController.setAnimation(modelInstance.getAnimation("Open").id,1,1,this);
                                 animController.paused = false;
                                 animToggle = true;
                         }else if(!tile.isDoorOpened() && animToggle){
-                                animController.setAnimation(modelInstance.getAnimation("Open"),1,-1,this);
+                                animController.setAnimation(modelInstance.getAnimation("Open").id,1,-1,this);
                                 animController.paused = false;
                                 animToggle = false;
                         }
@@ -621,12 +621,12 @@ public class FloorSpatial implements Spatial {
                 }
 
                 @Override
-                public void onEnd(BetterAnimationController.AnimationDesc animation) {
+                public void onEnd(AnimationController.AnimationDesc animation) {
                         animController.paused = true;
                 }
 
                 @Override
-                public void onLoop(BetterAnimationController.AnimationDesc animation) {
+                public void onLoop(AnimationController.AnimationDesc animation) {
 
                 }
         }

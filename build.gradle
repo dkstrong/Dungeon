@@ -5,7 +5,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.0.0'
-        classpath 'org.robovm:robovm-gradle-plugin:1.0.0-beta-03'
+        classpath 'org.robovm:robovm-gradle-plugin:1.0.0-beta-04'
     }
 }
 
@@ -16,8 +16,8 @@ allprojects {
     version = '1.0'
     ext {
         appName = 'dungeon'
-        gdxVersion = '1.5.0'
-        roboVMVersion = '1.0.0-beta-03'
+        gdxVersion = '1.5.5-SNAPSHOT'
+        roboVMVersion = '1.0.0-beta-04'
     }
 
     repositories {

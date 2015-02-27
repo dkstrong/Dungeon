@@ -49,7 +49,7 @@ public class DungeonApp implements ApplicationListener {
                 settings.playerModel = ModelId.Knight;
                 //settings.balanceTest = true;
 
-                settings.startDebugSession = true;
+                //settings.startDebugSession = true;
                 settings.random = new Random(5);
                 loadWorld(settings);
 

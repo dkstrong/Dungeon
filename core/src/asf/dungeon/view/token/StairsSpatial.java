@@ -1,25 +1,25 @@
 package asf.dungeon.view.token;
 
 import asf.dungeon.model.token.Token;
-import asf.dungeon.utility.BetterAnimationController;
-import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.utility.UtMath;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.collision.Ray;
 
 /**
  * Created by Daniel Strong on 12/20/2014.
  */
-public class StairsSpatial extends AbstractTokenSpatial implements BetterAnimationController.AnimationListener{
+public class StairsSpatial extends AbstractTokenSpatial implements AnimationController.AnimationListener{
         private boolean initialized = false;
-        private BetterModelInstance modelInstance;
-        private BetterAnimationController animController;
+        private ModelInstance modelInstance;
+        private AnimationController animController;
         private Animation openAnim;
         private boolean animToggle;
         private ColorAttribute colorAttribute;
@@ -40,10 +40,10 @@ public class StairsSpatial extends AbstractTokenSpatial implements BetterAnimati
                 initialized = true;
 
                 Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId), Model.class);
-                modelInstance = new BetterModelInstance(model);
+                modelInstance = new ModelInstance(model);
 
                 if(modelInstance.animations.size >0){
-                        animController = new BetterAnimationController(modelInstance);
+                        animController = new AnimationController(modelInstance);
                         openAnim = modelInstance.animations.get(0);
                 }
 
@@ -81,11 +81,11 @@ public class StairsSpatial extends AbstractTokenSpatial implements BetterAnimati
                         final boolean hasCharacters = token.floorMap.hasCharacterTokensAt(token.location.x, token.location.y);
 
                         if(hasCharacters && !animToggle){
-                                animController.setAnimation(openAnim,1,1,this);
+                                animController.setAnimation(openAnim.id,1,1,this);
                                 animController.paused = false;
                                 animToggle = true;
                         }else if(!hasCharacters && animToggle){
-                                animController.setAnimation(openAnim,1,-1,this);
+                                animController.setAnimation(openAnim.id,1,-1,this);
                                 animController.paused = false;
                                 animToggle = false;
                         }
@@ -116,12 +116,12 @@ public class StairsSpatial extends AbstractTokenSpatial implements BetterAnimati
         }
 
         @Override
-        public void onEnd(BetterAnimationController.AnimationDesc animation) {
+        public void onEnd(AnimationController.AnimationDesc animation) {
                 animController.paused = true;
         }
 
         @Override
-        public void onLoop(BetterAnimationController.AnimationDesc animation) {
+        public void onLoop(AnimationController.AnimationDesc animation) {
 
         }
 }

@@ -27,13 +27,16 @@ public class Box implements Shape{
                 center.z = (max.z + min.z) / 2f;
         }
 
-        @Override
-        public void setFromModelInstance(ModelInstance modelInstance) {
-
+        public Box(ModelInstance modelInstance){
                 BoundingBox bb = new BoundingBox();
                 modelInstance.calculateBoundingBox(bb);
                 bb.getCenter(center);
                 bb.getDimensions(dimensions);
+        }
+
+        public Box(Box box){
+                dimensions.set(box.dimensions);
+                center.set(box.center);
         }
 
         @Override
@@ -63,5 +66,9 @@ public class Box implements Shape{
         @Override
         public Vector3 getDimensions() {
                 return dimensions;
+        }
+
+        public Box cpy(){
+                return new Box(this);
         }
 }

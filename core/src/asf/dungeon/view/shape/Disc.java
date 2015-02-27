@@ -20,8 +20,7 @@ public class Disc implements Shape{
                 this.radius = radius;
         }
 
-        @Override
-        public void setFromModelInstance(ModelInstance modelInstance) {
+        public Disc(ModelInstance modelInstance) {
                 BoundingBox bb = new BoundingBox();
                 modelInstance.calculateBoundingBox(bb);
                 bb.getCenter(center);

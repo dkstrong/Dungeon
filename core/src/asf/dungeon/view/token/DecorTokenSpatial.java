@@ -3,12 +3,12 @@ package asf.dungeon.view.token;
 import asf.dungeon.model.ModelId;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
@@ -22,7 +22,7 @@ import com.badlogic.gdx.math.collision.Ray;
  */
 public class DecorTokenSpatial extends AbstractTokenSpatial {
         private boolean initialized = false;
-        private BetterModelInstance modelInstance;
+        private ModelInstance modelInstance;
         private Decal shadowDecal;
 
         public DecorTokenSpatial(DungeonWorld world, Token token) {
@@ -39,7 +39,7 @@ public class DecorTokenSpatial extends AbstractTokenSpatial {
         public void init(AssetManager assetManager) {
                 initialized = true;
                 Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId));
-                modelInstance = new BetterModelInstance(model);
+                modelInstance = new ModelInstance(model);
 
 
                 if(token.modelId == ModelId.Tree){

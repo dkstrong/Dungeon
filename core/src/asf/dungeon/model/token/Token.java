@@ -148,7 +148,7 @@ public class Token {
                 Tile tile = fm.getTile(x, y);
                 if (tile == null || !tile.isFloor()) return false;
                 if (fm.hasTokensAt(x, y)) return false;
-                if((move!=null || boulder!=null) && wouldSpawnLocBlockSurroundingLocations(fm,x,y)) return false;
+                if((move!=null || boulder!=null || loot!=null) && wouldSpawnLocBlockSurroundingLocations(fm,x,y)) return false;
 
                 for (TokenComponent c : components) {
                         if (c instanceof TeleportValidator && !((TeleportValidator) c).isGoodSpawnLocation(fm, x, y, dir))
@@ -162,7 +162,7 @@ public class Token {
                 Tile tile = fm.getTile(x, y);
                 if (tile == null || tile.isDoor() || tile.blockMovement) return false;
 
-                if( move == null && boulder == null && wouldSpawnLocBlockSurroundingLocations(fm,x,y)) return false;
+                if( move == null && boulder == null && loot ==null && wouldSpawnLocBlockSurroundingLocations(fm,x,y)) return false;
 
                 for (TokenComponent c : components) {
                         if (c instanceof TeleportValidator && !((TeleportValidator) c).canTeleport(fm, x, y, dir))

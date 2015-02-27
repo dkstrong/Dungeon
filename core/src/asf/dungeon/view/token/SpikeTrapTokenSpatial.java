@@ -4,14 +4,14 @@ import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.SpikeTrap;
 import asf.dungeon.model.token.Token;
 import asf.dungeon.utility.AnimFactory;
-import asf.dungeon.utility.BetterAnimationController;
-import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.view.DungeonWorld;
 import asf.dungeon.view.Spatial;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.collision.Ray;
 
@@ -21,8 +21,8 @@ import com.badlogic.gdx.math.collision.Ray;
 public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spatial, SpikeTrap.Listener{
 
         private boolean initialized = false;
-        private BetterModelInstance modelInstance;
-        private BetterAnimationController animController;
+        private ModelInstance modelInstance;
+        private AnimationController animController;
         private boolean revealed = false;
 
         public SpikeTrapTokenSpatial(DungeonWorld world, Token token) {
@@ -44,10 +44,10 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
                 initialized = true;
 
                 Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId));
-                modelInstance = new BetterModelInstance(model);
+                modelInstance = new ModelInstance(model);
 
                 AnimFactory.createIdleAnim(modelInstance);
-                animController = new BetterAnimationController(modelInstance);
+                animController = new AnimationController(modelInstance);
         }
 
 
@@ -107,7 +107,7 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
 
         @Override
         public void onSpikeTrapHidden() {
-                animController.animate(modelInstance.getAnimation("Idle"), 1, 1, null, 0);
+                animController.animate(modelInstance.getAnimation("Idle").id, 1, 1, null, 0);
                 revealed =false;
         }
 
@@ -115,14 +115,14 @@ public class SpikeTrapTokenSpatial extends AbstractTokenSpatial implements Spati
         public void onSpikeTrapTriggered() {
                 // TODO: need to slow down the nimation some in the model, for now i wil ljust run it at a lower speed
                 // TODO: Spike Trap model also needs to be changed to have 9 larger spikes instead of 16 smaller ones, as it is now its hard to see on android
-                animController.animate(modelInstance.getAnimation("Activate"), 1, .85f, null, 0);
+                animController.animate(modelInstance.getAnimation("Activate").id, 1, .85f, null, 0);
                 revealed =true;
                 visU = .85f;
         }
 
         @Override
         public void onSpikeTrapDefused() {
-                animController.animate(modelInstance.getAnimation("Idle"), 1, 1, null, 0);
+                animController.animate(modelInstance.getAnimation("Idle").id, 1, 1, null, 0);
                 revealed =true;
                 visU = .85f;
         }

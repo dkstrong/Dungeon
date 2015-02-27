@@ -1,5 +1,6 @@
 package asf.dungeon.utility;
 
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.model.NodeAnimation;
 import com.badlogic.gdx.graphics.g3d.model.NodeKeyframe;
@@ -7,6 +8,7 @@ import com.badlogic.gdx.math.Bezier;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * Coded animations that can be added to model instances.
@@ -16,7 +18,7 @@ import com.badlogic.gdx.math.Vector3;
  */
 public class AnimFactory {
 
-        public static void createIdleAnim(BetterModelInstance target) {
+        public static void createIdleAnim(ModelInstance target) {
                 Animation anim = new Animation();
                 anim.id = "Idle";
                 anim.duration = 1f;
@@ -36,6 +38,7 @@ public class AnimFactory {
                 NodeAnimation na = new NodeAnimation();
                 //na.node = target.nodes.get(0);
 
+
                 Bezier<Vector3> curve = new Bezier<Vector3>(
                         new Vector3(-.3f, 5, 0),
                         new Vector3(-.25f, 15, 0),
@@ -48,18 +51,27 @@ public class AnimFactory {
                 Quaternion start = new Quaternion().setFromAxis(new Vector3(-1, -4, 25).nor(), 300);
                 Quaternion end = new Quaternion().setFromAxis(1, 0, 0, -90);
 
-                float numFrames = 60;
+                final int iNumFrames = 60;
+                final float numFrames = iNumFrames;
+                na.scaling = new Array<NodeKeyframe<Vector3>>(iNumFrames);
+                na.rotation = new Array<NodeKeyframe<Quaternion>>(iNumFrames);
+                na.translation = new Array<NodeKeyframe<Vector3>>(iNumFrames);
                 for (int i = 0; i < numFrames; i++) {
-                        NodeKeyframe keyframe = new NodeKeyframe();
-                        keyframe.keytime = i / numFrames * anim.duration;
-                        keyframe.scale.x = Interpolation.linear.apply(0.25f, 1, i / numFrames);
-                        keyframe.scale.y = keyframe.scale.x;
-                        keyframe.scale.z = keyframe.scale.x;
-                        UtMath.interpolateLinear(i / numFrames * 8f, start, end, keyframe.rotation);
-                        //keyframe.rotation.setFromAxis(1,0,0, Interpolation.linear.apply(680, -90, i/numFrames));
-                        curve.valueAt(keyframe.translation, i / numFrames);
+                        float keytime = i / numFrames * anim.duration;
+                        float scale = Interpolation.linear.apply(0.25f, 1, i / numFrames);
+                        NodeKeyframe<Vector3> scalekf = new NodeKeyframe<Vector3>(keytime, new Vector3(scale,scale,scale));
 
-                        na.keyframes.add(keyframe);
+                        Quaternion rot =new Quaternion();
+                        UtMath.interpolateLinear(i / numFrames * 8f, start, end, rot);
+                        NodeKeyframe<Quaternion> rotkf = new NodeKeyframe<Quaternion>(keytime, rot);
+
+                        Vector3 trans = curve.valueAt(new Vector3(), i / numFrames);
+                        NodeKeyframe<Vector3> transkf = new NodeKeyframe<Vector3>(keytime, trans);
+
+
+                        na.scaling.add(scalekf);
+                        na.rotation.add(rotkf);
+                        na.translation.add(transkf);
                 }
 
                 //NodeKeyframe lastFrame = new NodeKeyframe();
@@ -76,29 +88,24 @@ public class AnimFactory {
                 return dropped;
         }
 
-        public static void createAnim(Animation anim, BetterModelInstance target) {
-                Animation cloneAnim = new Animation();
-                cloneAnim.id = anim.id;
-                cloneAnim.duration = anim.duration;
-                for (final NodeAnimation na : anim.nodeAnimations) {
-                        if (na.keyframes.size <= 0)
-                                continue;
-                        NodeAnimation cloneNa = new NodeAnimation();
-                        cloneNa.node = target.nodes.get(0);
-                        if (cloneNa.node == null) {
+        public static void createAnim(Animation anim, ModelInstance target) {
+                Animation animation = new Animation();
+                animation.id = anim.id;
+                animation.duration = anim.duration;
+                for (final NodeAnimation nanim : anim.nodeAnimations) {
+                        NodeAnimation nodeAnim = new NodeAnimation();
+                        nodeAnim.node = target.nodes.get(0);
+                        nodeAnim.scaling = nanim.scaling;
+                        nodeAnim.rotation = nanim.rotation;
+                        nodeAnim.translation = nanim.translation;
+
+                        if (nodeAnim.node == null) {
                                 throw new IllegalArgumentException("target does not have any nodes");
                         }
-                        for (final NodeKeyframe kf : na.keyframes) {
-//                                NodeKeyframe cloneKeyframe = new NodeKeyframe();
-//                                cloneKeyframe.keytime = kf.keytime;
-//                                cloneKeyframe.rotation.set(kf.rotation);
-//                                cloneKeyframe.scale.set(kf.scale);
-//                                cloneKeyframe.translation.set(kf.translation);
-                                cloneNa.keyframes.add(kf);
-                        }
-                        cloneAnim.nodeAnimations.add(cloneNa);
+                        if (nodeAnim.translation != null || nodeAnim.rotation != null || nodeAnim.scaling != null)
+                                animation.nodeAnimations.add(nodeAnim);
                 }
-                target.animations.add(cloneAnim);
+                target.animations.add(animation);
         }
 
 }

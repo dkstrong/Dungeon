@@ -3,11 +3,11 @@ package asf.dungeon.view.token;
 import asf.dungeon.model.fogmap.FogState;
 import asf.dungeon.model.token.Boulder;
 import asf.dungeon.model.token.Token;
-import asf.dungeon.utility.BetterModelInstance;
 import asf.dungeon.view.DungeonWorld;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Quaternion;
@@ -18,7 +18,7 @@ import com.badlogic.gdx.math.collision.Ray;
  */
 public class BoulderSpatial extends AbstractTokenSpatial{
         private boolean initialized = false;
-        private BetterModelInstance modelInstance;
+        private ModelInstance modelInstance;
         private Boulder boulder;
 
         public BoulderSpatial(DungeonWorld world, Token token) {
@@ -36,7 +36,7 @@ public class BoulderSpatial extends AbstractTokenSpatial{
         public void init(AssetManager assetManager) {
                 initialized = true;
                 Model model = assetManager.get(world.assetMappings.getAssetLocation(token.modelId), Model.class);
-                modelInstance = new BetterModelInstance(model);
+                modelInstance = new ModelInstance(model);
 
                 boulder = token.get(Boulder.class);
                 rotation.set(world.assetMappings.getRotation(token.direction));

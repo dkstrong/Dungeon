@@ -97,6 +97,7 @@ public class DungeonLoader {
                 } else {
 
                         floorMapGenerator = new FloorMapGenMultiplexer(new FloorMapGenerator[]{
+                                //new TestAssetsFloorGen(),
                                 new DirectionalGrassyHallGen(),
                                 new ZeldaGen(6,8,12),
                                 new BinarySpaceGen(10,25,20,35,4),
